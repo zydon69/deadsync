@@ -14,13 +14,20 @@ pub(super) struct Settings {
 #[cfg(test)]
 mod selection_history_tests {
     use super::*;
-    use deadsync_editor::{event_clipboard::{Event, TimingKind}, notes::Position, workspace::Command};
+    use deadsync_editor::{
+        event_clipboard::{Event, TimingKind},
+        notes::Position,
+        workspace::Command,
+    };
 
     #[test]
     fn checked_and_global_shift_select_survivors_and_undo_restores_deleted_originals_en_fr() {
         for fr in [false, true] {
-            if fr { crate::i18n::init(deadsync_assets::language::load_for_tests("fr")); }
-            else { crate::i18n::init_for_tests(); }
+            if fr {
+                crate::i18n::init(deadsync_assets::language::load_for_tests("fr"));
+            } else {
+                crate::i18n::init_for_tests();
+            }
             for checked in [false, true] {
                 let root = tempfile::tempdir().unwrap();
                 let path = root.path().join("shift.ssc");
@@ -34,24 +41,52 @@ mod selection_history_tests {
                     selection.select_all(true);
                     state.replace_region_event_selection(selection);
                     state.command_checked_shift_review(false);
-                } else { state.command_shift_all_review(false); }
+                } else {
+                    state.command_shift_all_review(false);
+                }
                 assert!(matches!(state.panel, Some(Panel::ShiftAll(1))));
                 state.shift_all_key(2, KeyCode::Enter);
                 assert!(state.panel.is_none(), "{}", state.status);
-                let events = |state: &State| state.event_selection.as_ref().map(|settings| settings.selection.selected_events().collect::<Vec<_>>());
+                let events = |state: &State| {
+                    state
+                        .event_selection
+                        .as_ref()
+                        .map(|settings| settings.selection.selected_events().collect::<Vec<_>>())
+                };
                 let moved = vec![
-                    Event::Note(Position { row: 48-rows, lane: 1, player: 0 }),
-                    Event::Timing { row: 96-rows, kind: TimingKind::Tempo },
+                    Event::Note(Position {
+                        row: 48 - rows,
+                        lane: 1,
+                        player: 0,
+                    }),
+                    Event::Timing {
+                        row: 96 - rows,
+                        kind: TimingKind::Tempo,
+                    },
                 ];
                 assert_eq!(events(&state), Some(moved.clone()));
                 let after = state.workspace.file().session.serialize().unwrap();
                 state.command(Command::Undo);
                 assert_eq!(state.workspace.file().session.serialize().unwrap(), before);
-                assert_eq!(events(&state), Some(vec![
-                    Event::Note(Position { row: 0, lane: 0, player: 0 }),
-                    Event::Note(Position { row: 48, lane: 1, player: 0 }),
-                    Event::Timing { row: 96, kind: TimingKind::Tempo },
-                ]));
+                assert_eq!(
+                    events(&state),
+                    Some(vec![
+                        Event::Note(Position {
+                            row: 0,
+                            lane: 0,
+                            player: 0
+                        }),
+                        Event::Note(Position {
+                            row: 48,
+                            lane: 1,
+                            player: 0
+                        }),
+                        Event::Timing {
+                            row: 96,
+                            kind: TimingKind::Tempo
+                        },
+                    ])
+                );
                 state.command(Command::Redo);
                 assert_eq!(state.workspace.file().session.serialize().unwrap(), after);
                 assert_eq!(events(&state), Some(moved));

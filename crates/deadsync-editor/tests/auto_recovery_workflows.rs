@@ -38,7 +38,10 @@ fn interval_snapshot_survives_close_without_saving_or_clearing_history() {
     auto.update(&file, now).unwrap();
     assert!(auto.is_pending());
     finish(&mut auto, &file, now).unwrap();
-    assert_eq!(fs::read(file.require_existing_path().unwrap()).unwrap(), SONG);
+    assert_eq!(
+        fs::read(file.require_existing_path().unwrap()).unwrap(),
+        SONG
+    );
     assert!(file.session.is_dirty());
     file.session.undo().unwrap();
     assert!(!file.session.is_dirty());

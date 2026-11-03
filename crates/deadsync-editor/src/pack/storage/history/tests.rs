@@ -296,11 +296,17 @@ fn external_change_allows_local_review_but_refuses_commit_and_save_without_histo
     let before = owner.data().unwrap();
     let external = b"[Group]\nDisplayTitle=External\n";
     fs::write(root.path().join("Pack.ini"), external).unwrap();
-    let review = owner.review().expect("local cached field may start after Ignore");
+    let review = owner
+        .review()
+        .expect("local cached field may start after Ignore");
     assert_eq!(review.data(), &before);
-    let mut after = before.clone(); after.title = Some("Local draft".into());
+    let mut after = before.clone();
+    after.title = Some("Local draft".into());
     let label = session.undo_label().map(str::to_owned);
-    assert!(matches!(session.edit_pack_properties_reviewed(&review, after), Err(crate::Error::ExternalChange)));
+    assert!(matches!(
+        session.edit_pack_properties_reviewed(&review, after),
+        Err(crate::Error::ExternalChange)
+    ));
     assert!(matches!(owner.save(), Err(Error::ExternalChange)));
     assert_eq!(owner.data().unwrap(), before);
     assert_eq!(session.undo_label(), label.as_deref());

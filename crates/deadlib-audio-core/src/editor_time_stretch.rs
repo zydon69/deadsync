@@ -5,7 +5,9 @@
 //! truncating callback_frames * rate, as the original MusicManager does.
 use crate::hermite::interpolate;
 #[doc(hidden)]
-pub fn hermite_interpolate(x0:f32,x1:f32,x2:f32,x3:f32,t:f32)->f32{interpolate(x0,x1,x2,x3,t)}
+pub fn hermite_interpolate(x0: f32, x1: f32, x2: f32, x3: f32, t: f32) -> f32 {
+    interpolate(x0, x1, x2, x3, t)
+}
 
 /// Fill interleaved output with the original four-point Hermite time grid.
 ///
@@ -20,11 +22,19 @@ pub fn process(
     output: &mut [f32],
     rate: f64,
 ) -> Result<(), &'static str> {
-    process_range(start_frame,input,sample_rate,channels,output,rate,0)
+    process_range(start_frame, input, sample_rate, channels, output, rate, 0)
 }
 
 /// Offset is relative to the entire physical callback, never a scratch chunk.
-pub fn process_range(start_frame:i64,input:&[f32],sample_rate:u32,channels:usize,output:&mut[f32],rate:f64,output_offset:usize)->Result<(), &'static str>{
+pub fn process_range(
+    start_frame: i64,
+    input: &[f32],
+    sample_rate: u32,
+    channels: usize,
+    output: &mut [f32],
+    rate: f64,
+    output_offset: usize,
+) -> Result<(), &'static str> {
     if sample_rate == 0
         || channels == 0
         || channels > i32::MAX as usize
@@ -41,7 +51,7 @@ pub fn process_range(start_frame:i64,input:&[f32],sample_rate:u32,channels:usize
     let start_time = start_frame as f64 / f64::from(sample_rate);
     let last = input.len() as i32 - 1;
     for (frame, destination) in output.chunks_exact_mut(channels).enumerate() {
-        let time = start_time + (frame+output_offset) as f64 * rate / f64::from(sample_rate);
+        let time = start_time + (frame + output_offset) as f64 * rate / f64::from(sample_rate);
         // .NET 10 saturates the float-to-int cast; subsequent integer operations
         // use unchecked Int32 arithmetic in the original source assembly.
         let first = ((time * f64::from(sample_rate)) as i32).wrapping_sub(1);

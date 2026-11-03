@@ -25,16 +25,23 @@ fn global_shift_is_detached_reviews_counts_and_restores_in_one_undo() {
         .iter()
         .map(|(position, note)| (position.row, position.lane, position.player, note.kind))
         .collect();
-    assert_eq!(heads, vec![
-        (48, 0, 0, deadsync_editor::notes::Kind::Tap),
-        (96, 1, 0, deadsync_editor::notes::Kind::Tap),
-    ]);
+    assert_eq!(
+        heads,
+        vec![
+            (48, 0, 0, deadsync_editor::notes::Kind::Tap),
+            (96, 1, 0, deadsync_editor::notes::Kind::Tap),
+        ]
+    );
     for (tag, value) in [
         ("BPMS", "0=120,2=180"),
         ("TIMESIGNATURES", "0=4=4"),
         ("LABELS", "3=target"),
     ] {
-        assert_eq!(s.document().text(Some(0), tag).as_deref(), Some(value), "{tag}");
+        assert_eq!(
+            s.document().text(Some(0), tag).as_deref(),
+            Some(value),
+            "{tag}"
+        );
     }
     let mut reopened = Session::new(Document::parse(after.clone(), Format::Ssc).unwrap());
     assert_eq!(reopened.grid(0).unwrap(), s.grid(0).unwrap());

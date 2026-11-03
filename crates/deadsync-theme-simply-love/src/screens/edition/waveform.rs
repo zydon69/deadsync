@@ -4,7 +4,7 @@ use deadsync_editor::{playback::Clock, waveform::Waveform};
 use std::path::PathBuf;
 
 pub(super) struct View {
-    render_targets:std::cell::RefCell<Vec<deadlib_present::actors::RenderTarget>>,
+    render_targets: std::cell::RefCell<Vec<deadlib_present::actors::RenderTarget>>,
     draw_charts: std::collections::BTreeSet<usize>,
     enabled: bool,
     generation_enabled: Option<bool>,
@@ -31,7 +31,7 @@ struct Key {
 impl Default for View {
     fn default() -> Self {
         Self {
-            render_targets:Default::default(),
+            render_targets: Default::default(),
             draw_charts: Default::default(),
             enabled: false,
             generation_enabled: None,
@@ -124,7 +124,9 @@ impl State {
         self.waveform_preferences
     }
     pub(super) fn apply_waveform_preferences(&mut self) {
-        self.waveform.loader.set_load_parallelism(self.waveform_preferences.loading_parallelism());
+        self.waveform
+            .loader
+            .set_load_parallelism(self.waveform_preferences.loading_parallelism());
         self.waveform.enabled =
             self.waveform_preferences.enabled() && self.waveform_preferences.show();
         self.refresh_waveform();
@@ -132,26 +134,40 @@ impl State {
     pub(super) fn toggle_waveform(&mut self) {
         // Source OnToggleWaveform changes ShowWaveForm directly, including when
         // EnableWaveForm is false. Publish that same leaf without adding Undo.
-        let before=self.waveform_preferences;
-        let result=(|| ->Result<(),deadsync_editor::Error>{
-            let current=self.capture_application_preferences_file()?;
-            let mut owner=Some(current.clone());
-            let mut requested=before;requested.set_show(!before.show());
-            let preferences=deadsync_editor::audio_preferences::publication::publish(
-                &mut owner,Some(&current),requested,|current|{
-                    let mut file=current.clone();let mut preferences=file.waveform();
-                    if preferences.show()!=before.show(){return Err(deadsync_editor::Error::ExternalChange);}
-                    preferences.set_show(!before.show());file.set_waveform(preferences);
-                    Ok((preferences,file))
+        let before = self.waveform_preferences;
+        let result = (|| -> Result<(), deadsync_editor::Error> {
+            let current = self.capture_application_preferences_file()?;
+            let mut owner = Some(current.clone());
+            let mut requested = before;
+            requested.set_show(!before.show());
+            let preferences = deadsync_editor::audio_preferences::publication::publish(
+                &mut owner,
+                Some(&current),
+                requested,
+                |current| {
+                    let mut file = current.clone();
+                    let mut preferences = file.waveform();
+                    if preferences.show() != before.show() {
+                        return Err(deadsync_editor::Error::ExternalChange);
+                    }
+                    preferences.set_show(!before.show());
+                    file.set_waveform(preferences);
+                    Ok((preferences, file))
                 },
             )?;
-            self.waveform_preferences=preferences;
-            if let Some(file)=owner{self.publish_application_preferences_owner(file);}
+            self.waveform_preferences = preferences;
+            if let Some(file) = owner {
+                self.publish_application_preferences_owner(file);
+            }
             self.apply_waveform_preferences();
-            if !preferences.show(){self.status=i18n::tr("Edition","WaveformHidden");}
+            if !preferences.show() {
+                self.status = i18n::tr("Edition", "WaveformHidden");
+            }
             Ok(())
         })();
-        if let Err(error)=result{self.status=i18n::editor_error(&error).into();}
+        if let Err(error) = result {
+            self.status = i18n::editor_error(&error).into();
+        }
     }
     pub(super) fn refresh_waveform(&mut self) {
         self.prepare_waveform_draw_policy();
@@ -177,7 +193,9 @@ impl State {
         }
         let session = &self.workspace.file().session;
         let document = session.document();
-        let chart = self.preview_source_chart().unwrap_or_else(||self.workspace.chart());
+        let chart = self
+            .preview_source_chart()
+            .unwrap_or_else(|| self.workspace.chart());
         let offsets = self
             .song_properties
             .as_ref()
@@ -336,66 +354,136 @@ impl State {
         bottom: f32,
         projection: &spacing_view::Projection<'_>,
     ) {
-        use deadlib_present::actors::{RenderTarget,SpriteSource};
-        use deadlib_render_core::{FxaaPass,FxaaQuality,render_target_texture_handle};
-        let geometries=self.visible_view_geometry();
-        let mut targets=self.waveform.render_targets.borrow_mut();targets.clear();
-        let drawable=self.waveform.enabled&&self.waveform.data.is_some()&&self.waveform.clock.is_some();
-        if !drawable || !geometries.iter().any(|geometry|self.waveform_draws_chart(geometry.source,geometry.focused)){return;}
-        let aa=self.waveform_preferences.antialias();
-        let height=screen_height().ceil().max(1.0)as u32;
-        let source=render_target_texture_handle(0x45445700);
+        use deadlib_present::actors::{RenderTarget, SpriteSource};
+        use deadlib_render_core::{FxaaPass, FxaaQuality, render_target_texture_handle};
+        let geometries = self.visible_view_geometry();
+        let mut targets = self.waveform.render_targets.borrow_mut();
+        targets.clear();
+        let drawable =
+            self.waveform.enabled && self.waveform.data.is_some() && self.waveform.clock.is_some();
+        if !drawable
+            || !geometries
+                .iter()
+                .any(|geometry| self.waveform_draws_chart(geometry.source, geometry.focused))
         {
-            let mut children=Vec::new();self.waveform_actors(&mut children,512.0,1024.0,top,bottom,projection);
-            for child in &mut children{if let Actor::Sprite{blend,..}=child{*blend=deadlib_render_core::BlendMode::Replace;}}
-            targets.push(RenderTarget{texture_handle:source,size:[1024,height],viewport:[1024,height],logical_size:[1024.0,height as f32],float_color:false,alpha:true,depth:false,preserve:false,postprocess:None,children:children.into(),
+            return;
+        }
+        let aa = self.waveform_preferences.antialias();
+        let height = screen_height().ceil().max(1.0) as u32;
+        let source = render_target_texture_handle(0x45445700);
+        {
+            let mut children = Vec::new();
+            self.waveform_actors(&mut children, 512.0, 1024.0, top, bottom, projection);
+            for child in &mut children {
+                if let Actor::Sprite { blend, .. } = child {
+                    *blend = deadlib_render_core::BlendMode::Replace;
+                }
+            }
+            targets.push(RenderTarget {
+                texture_handle: source,
+                size: [1024, height],
+                viewport: [1024, height],
+                logical_size: [1024.0, height as f32],
+                float_color: false,
+                alpha: true,
+                depth: false,
+                preserve: false,
+                postprocess: None,
+                children: children.into(),
             });
         }
-        for (index,geometry)in geometries.into_iter().enumerate(){
-            if !self.waveform_draws_chart(geometry.source,geometry.focused){continue;}
-            let width=self.waveform_preferences.render_width(f64::from(geometry.field_width),self.zoom.size_zoom())as u32;
-            if width==0{continue;}
-            let x=geometry.left+geometry.field_width*0.5;
-            let handle=if aa {
-                let handle=render_target_texture_handle(0x45445800+index as u64);
-                targets.push(RenderTarget{texture_handle:handle,size:[width,height],viewport:[width,height],logical_size:[width as f32,height as f32],float_color:false,alpha:true,depth:false,preserve:false,postprocess:Some(FxaaPass{source:Some(source),quality:FxaaQuality{subpix:self.waveform_preferences.subpix()as f32,edge_threshold:self.waveform_preferences.edge_threshold()as f32,edge_threshold_min:self.waveform_preferences.edge_threshold_min()as f32,
+        for (index, geometry) in geometries.into_iter().enumerate() {
+            if !self.waveform_draws_chart(geometry.source, geometry.focused) {
+                continue;
+            }
+            let width = self
+                .waveform_preferences
+                .render_width(f64::from(geometry.field_width), self.zoom.size_zoom())
+                as u32;
+            if width == 0 {
+                continue;
+            }
+            let x = geometry.left + geometry.field_width * 0.5;
+            let handle = if aa {
+                let handle = render_target_texture_handle(0x45445800 + index as u64);
+                targets.push(RenderTarget {
+                    texture_handle: handle,
+                    size: [width, height],
+                    viewport: [width, height],
+                    logical_size: [width as f32, height as f32],
+                    float_color: false,
+                    alpha: true,
+                    depth: false,
+                    preserve: false,
+                    postprocess: Some(FxaaPass {
+                        source: Some(source),
+                        quality: FxaaQuality {
+                            subpix: self.waveform_preferences.subpix() as f32,
+                            edge_threshold: self.waveform_preferences.edge_threshold() as f32,
+                            edge_threshold_min: self.waveform_preferences.edge_threshold_min()
+                                as f32,
                         },
-                    }),children:Arc::from([]),
+                    }),
+                    children: Arc::from([]),
                 });
                 handle
-            }else{source};
-                // Use explicit bounds: zoomto on a solid stores a scale relative
-                // to 1x1. Changing its source to a render target would multiply
-                // those dimensions by the target's native size a second time.
-                let mut sprite=act!(quad:xy(x,height as f32*0.5):setsize(width as f32,height as f32):z(8001));
-                if let Actor::Sprite{source,blend,..}= &mut sprite{*source=SpriteSource::RenderTarget{handle,size:[if aa{width as f32}else{1024.0},height as f32],
+            } else {
+                source
+            };
+            // Use explicit bounds: zoomto on a solid stores a scale relative
+            // to 1x1. Changing its source to a render target would multiply
+            // those dimensions by the target's native size a second time.
+            let mut sprite =
+                act!(quad:xy(x,height as f32*0.5):setsize(width as f32,height as f32):z(8001));
+            if let Actor::Sprite { source, blend, .. } = &mut sprite {
+                *source = SpriteSource::RenderTarget {
+                    handle,
+                    size: [if aa { width as f32 } else { 1024.0 }, height as f32],
                 };
-                *blend=deadlib_render_core::BlendMode::PremultipliedAlpha;}actors.push(sprite);
+                *blend = deadlib_render_core::BlendMode::PremultipliedAlpha;
+            }
+            actors.push(sprite);
         }
     }
-    pub(super) fn begin_waveform_frame(&self){self.waveform.render_targets.borrow_mut().clear();}
+    pub(super) fn begin_waveform_frame(&self) {
+        self.waveform.render_targets.borrow_mut().clear();
+    }
     /// Offscreen passes built with the same display projection as this frame's actors.
     /// Draining once prevents stale targets on help/chartless frames and retains no document parser in rendering.
-    pub fn take_waveform_render_targets(&self)->Vec<deadlib_present::actors::RenderTarget>{std::mem::take(&mut*self.waveform.render_targets.borrow_mut())}
+    pub fn take_waveform_render_targets(&self) -> Vec<deadlib_present::actors::RenderTarget> {
+        std::mem::take(&mut *self.waveform.render_targets.borrow_mut())
+    }
     pub(super) fn prepare_waveform_draw_policy(&mut self) {
         let session = &self.workspace.file().session;
-        let focused = self.preview_source_chart().or_else(||self.workspace.active_chart());
+        let focused = self
+            .preview_source_chart()
+            .or_else(|| self.workspace.active_chart());
         let reference = focused.and_then(|chart| self.view_inputs.get(session, chart).ok());
         let location = self.waveform_preferences.location();
-        self.waveform.draw_charts = self.visible_view_geometry().into_iter().filter_map(|geometry| {
-            let draw = if geometry.focused {
-                location.draws_chart(true, false, 0., 0.)
-            } else {
-                match (reference, self.view_inputs.get(session, geometry.source).ok(),
+        self.waveform.draw_charts =
+            self.visible_view_geometry()
+                .into_iter()
+                .filter_map(|geometry| {
+                    let draw = if geometry.focused {
+                        location.draws_chart(true, false, 0., 0.)
+                    } else {
+                        match (
+                            reference,
+                            self.view_inputs.get(session, geometry.source).ok(),
                         ) {
-                    (Some(focused), Some(view)) => location.draws_chart(false,
-                        view.waveform_music == focused.waveform_music, view.waveform_offset, focused.waveform_offset,
+                            (Some(focused), Some(view)) => location.draws_chart(
+                                false,
+                                view.waveform_music == focused.waveform_music,
+                                view.waveform_offset,
+                                focused.waveform_offset,
                             ),
-                    _ => location == deadsync_editor::waveform_preferences::DrawLocation::AllCharts,
-                }
-            };
-            draw.then_some(geometry.source)
-        }).collect();
+                            _ => location
+                                == deadsync_editor::waveform_preferences::DrawLocation::AllCharts,
+                        }
+                    };
+                    draw.then_some(geometry.source)
+                })
+                .collect();
     }
     fn waveform_draws_chart(&self, chart: usize, _focused: bool) -> bool {
         self.waveform.draw_charts.contains(&chart)
@@ -444,14 +532,26 @@ impl State {
                     stripe(actors, left, right, y, step, palette.background().rgba());
                     continue;
                 };
-                if scale==0.0{
+                if scale == 0.0 {
                     // Source multiplies ushort min/max by zero, then BlockCopy
                     // includes the endpoint: sparseEnd + 1 - sparseStart == 1.
-                    let column=(left+channel_width*0.5).floor();
-                    stripe(actors,left,column,y,step,palette.background().rgba());
-                    stripe(actors,column,column+1.0,y,step,palette.resolved_sparse().rgba(),
+                    let column = (left + channel_width * 0.5).floor();
+                    stripe(actors, left, column, y, step, palette.background().rgba());
+                    stripe(
+                        actors,
+                        column,
+                        column + 1.0,
+                        y,
+                        step,
+                        palette.resolved_sparse().rgba(),
                     );
-                    stripe(actors,column+1.0,right,y,step,palette.background().rgba(),
+                    stripe(
+                        actors,
+                        column + 1.0,
+                        right,
+                        y,
+                        step,
+                        palette.background().rgba(),
                     );
                     continue;
                 }
@@ -463,8 +563,9 @@ impl State {
                 let a = mid - sparse_width * 0.5;
                 let b = mid + sparse_width * 0.5;
                 let dense = if interval.is_some_and(|(start, end)| end - start > 1) {
-                    (envelope.mean_distance / 511.0 * f64::from(self.waveform_preferences.dense_scale() as f32))
-                        .min(1.0) as f32
+                    (envelope.mean_distance / 511.0
+                        * f64::from(self.waveform_preferences.dense_scale() as f32))
+                    .min(1.0) as f32
                         * ((f32::from(envelope.max) - f32::from(envelope.min)) / 511.0
                             * channel_width
                             * scale)
@@ -491,8 +592,8 @@ impl State {
     }
 }
 fn stripe(actors: &mut Vec<Actor>, left: f32, right: f32, top: f32, height: f32, color: [f32; 4]) {
-    let color=color.map(|v|v.clamp(0.0,1.0));
-    if right <= left || color == [0.0;4] {
+    let color = color.map(|v| v.clamp(0.0, 1.0));
+    if right <= left || color == [0.0; 4] {
         return;
     }
     actors.push(act!(quad: xy((left+right)*0.5,top+height*0.5): zoomto(right-left,height): diffuse(color[0],color[1],color[2],color[3]): z(8001)));
@@ -541,12 +642,26 @@ mod dark_order_tests {
             .position(|a| matches!(a,Actor::Sprite{z:8001,tint,..} if *tint==rendered_dark))
             .unwrap();
         let targets = state.take_waveform_render_targets();
-        let source = targets.iter().find(|target| target.postprocess.is_none())
+        let source = targets
+            .iter()
+            .find(|target| target.postprocess.is_none())
             .expect("real waveform source pass must be rendered");
-        assert!(source.children.iter().any(|actor|
-            matches!(actor, Actor::Sprite { tint, .. } if colors.contains(tint))));
-        let waveform = actors.iter().position(|actor| {
-                matches!(actor, Actor::Sprite { source: deadlib_present::actors::SpriteSource::RenderTarget { .. }, .. })
+        assert!(
+            source
+                .children
+                .iter()
+                .any(|actor| matches!(actor, Actor::Sprite { tint, .. } if colors.contains(tint)))
+        );
+        let waveform = actors
+            .iter()
+            .position(|actor| {
+                matches!(
+                    actor,
+                    Actor::Sprite {
+                        source: deadlib_present::actors::SpriteSource::RenderTarget { .. },
+                        ..
+                    }
+                )
             })
             .expect("waveform pass must be composited into the chart");
         assert!(waveform < overlay);
@@ -782,15 +897,21 @@ mod source_waveform_layout_tests {
     #[test]
     fn source_location_uses_exact_music_name_and_one_ulp_offset_and_native_controls_persist() {
         i18n::init_for_tests();
-        deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(2000.,480.,
+        deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+            2000., 480.,
         ));
         let root = tempfile::tempdir().unwrap();
         let path = root.path().join("song.ssc");
         std::fs::write(&path,"#VERSION:0.83;#MUSIC:a.wav;#OFFSET:0;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#MUSIC:a.wav;#OFFSET:0;#NOTES:1000;#NOTEDATA:;#STEPSTYPE:dance-single;#MUSIC:a.wav;#OFFSET:0;#NOTES:1000;#NOTEDATA:;#STEPSTYPE:dance-single;#MUSIC:./a.wav;#OFFSET:0;#NOTES:1000;").unwrap();
         let mut state = State::open(&path, 0).unwrap();
-        let session= &state.workspace.file().session;
+        let session = &state.workspace.file().session;
         for chart in 0..3 {
-            state.active_views.as_mut().unwrap().set_dedicated(session,chart,true).unwrap();
+            state
+                .active_views
+                .as_mut()
+                .unwrap()
+                .set_dedicated(session, chart, true)
+                .unwrap();
         }
         state.refresh();
         assert!(state.waveform_draws_chart(0, true));
@@ -863,113 +984,375 @@ fn waveform_pcm_fixture_asset(directory: &std::path::Path) {
 }
 
 #[cfg(test)]
-mod fxaa_producer_tests{
- use super::*;
- fn assert_destination_bounds(actors: &[Actor]) {
-  for actor in actors {
-   let Actor::Sprite { size, scale, .. } = actor else { panic!("waveform destination must be a sprite"); };
-   let [deadlib_present::actors::SizeSpec::Px(width), deadlib_present::actors::SizeSpec::Px(height),
-            ] = *size else { panic!("explicit waveform destination bounds required"); };
-   assert!(width > 0.0 && width <= 854.0);
-   assert_eq!(height, 480.0);
-   assert_eq!(*scale, [1.0, 1.0], "render target intrinsic size must not be applied twice");
-  }
- }
- #[test]fn real_waveform_produces_source_resolution_then_destination_fxaa_and_toggle_restores_direct_stripes(){
-  i18n::init_for_tests();deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(854.0,480.0,
+mod fxaa_producer_tests {
+    use super::*;
+    fn assert_destination_bounds(actors: &[Actor]) {
+        for actor in actors {
+            let Actor::Sprite { size, scale, .. } = actor else {
+                panic!("waveform destination must be a sprite");
+            };
+            let [
+                deadlib_present::actors::SizeSpec::Px(width),
+                deadlib_present::actors::SizeSpec::Px(height),
+            ] = *size
+            else {
+                panic!("explicit waveform destination bounds required");
+            };
+            assert!(width > 0.0 && width <= 854.0);
+            assert_eq!(height, 480.0);
+            assert_eq!(
+                *scale,
+                [1.0, 1.0],
+                "render target intrinsic size must not be applied twice"
+            );
+        }
+    }
+    #[test]
+    fn real_waveform_produces_source_resolution_then_destination_fxaa_and_toggle_restores_direct_stripes()
+     {
+        i18n::init_for_tests();
+        deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+            854.0, 480.0,
         ));
-  let root=tempfile::tempdir().unwrap();let path=root.path().join("fxaa.ssc");
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("fxaa.ssc");
         waveform_pcm_fixture_asset(root.path());
         std::fs::write(&path,
             "#VERSION:0.83;#MUSIC:projection.wav;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;",
-        ).unwrap();let mut state=State::open(&path,0).unwrap();
+        ).unwrap();
+        let mut state = State::open(&path, 0).unwrap();
         // The following Builder owns the deterministic PCM for this test.
         state.waveform.job = None;
         state.waveform.pending = false;
-  let mut builder=deadsync_editor::waveform::Builder::new(1,48000).unwrap();builder.push_i16(&vec![16384;48000]).unwrap();state.waveform.data=Some(builder.finish().unwrap());state.waveform.clock=Some(Clock::capture(&state.workspace.file().session,0).unwrap());state.waveform_preferences.set_subpix(0.75).unwrap();state.apply_waveform_preferences();state.prepare_waveform_draw_policy();
-  let projection=state.display_projection(105.0,395.0,state.chart_viewport().cursor).unwrap();let mut actors=Vec::new();state.waveform_all_view_actors(&mut actors,105.0,395.0,&projection);let passes=state.take_waveform_render_targets();assert_eq!(passes.len(),2);assert_eq!(passes[0].size,[1024,480]);assert!(passes[0].postprocess.is_none());assert!(!passes[0].children.is_empty());let post=passes[1].postprocess.unwrap();assert_eq!(post.source,Some(passes[0].texture_handle));assert_eq!(post.quality.subpix,0.75);assert_ne!(passes[1].size[0],1024);assert!(matches!(actors.as_slice(),[Actor::Sprite{source:deadlib_present::actors::SpriteSource::RenderTarget{..},..}]));assert!(state.take_waveform_render_targets().is_empty());
-  state.waveform_preferences.set_antialias(false);let projection=state.display_projection(105.0,395.0,state.chart_viewport().cursor).unwrap();let mut direct=Vec::new();state.waveform_all_view_actors(&mut direct,105.0,395.0,&projection);let off=state.take_waveform_render_targets();assert_eq!(off.len(),1);assert!(off[0].postprocess.is_none());assert_eq!(off[0].size,[1024,480]);assert_eq!(direct.len(),actors.len());assert!(direct.iter().all(|actor|matches!(actor,Actor::Sprite{source:deadlib_present::actors::SpriteSource::RenderTarget{..},blend:deadlib_render_core::BlendMode::PremultipliedAlpha,..})));
-  assert_destination_bounds(&actors);
-  assert_destination_bounds(&direct);
-  state.waveform_all_view_actors(&mut Vec::new(),105.0,395.0,&projection);assert!(!state.waveform.render_targets.borrow().is_empty());state.help=true;state.actors(&mut Vec::new());assert!(state.take_waveform_render_targets().is_empty());
- }
+        let mut builder = deadsync_editor::waveform::Builder::new(1, 48000).unwrap();
+        builder.push_i16(&vec![16384; 48000]).unwrap();
+        state.waveform.data = Some(builder.finish().unwrap());
+        state.waveform.clock = Some(Clock::capture(&state.workspace.file().session, 0).unwrap());
+        state.waveform_preferences.set_subpix(0.75).unwrap();
+        state.apply_waveform_preferences();
+        state.prepare_waveform_draw_policy();
+        let projection = state
+            .display_projection(105.0, 395.0, state.chart_viewport().cursor)
+            .unwrap();
+        let mut actors = Vec::new();
+        state.waveform_all_view_actors(&mut actors, 105.0, 395.0, &projection);
+        let passes = state.take_waveform_render_targets();
+        assert_eq!(passes.len(), 2);
+        assert_eq!(passes[0].size, [1024, 480]);
+        assert!(passes[0].postprocess.is_none());
+        assert!(!passes[0].children.is_empty());
+        let post = passes[1].postprocess.unwrap();
+        assert_eq!(post.source, Some(passes[0].texture_handle));
+        assert_eq!(post.quality.subpix, 0.75);
+        assert_ne!(passes[1].size[0], 1024);
+        assert!(matches!(
+            actors.as_slice(),
+            [Actor::Sprite {
+                source: deadlib_present::actors::SpriteSource::RenderTarget { .. },
+                ..
+            }]
+        ));
+        assert!(state.take_waveform_render_targets().is_empty());
+        state.waveform_preferences.set_antialias(false);
+        let projection = state
+            .display_projection(105.0, 395.0, state.chart_viewport().cursor)
+            .unwrap();
+        let mut direct = Vec::new();
+        state.waveform_all_view_actors(&mut direct, 105.0, 395.0, &projection);
+        let off = state.take_waveform_render_targets();
+        assert_eq!(off.len(), 1);
+        assert!(off[0].postprocess.is_none());
+        assert_eq!(off[0].size, [1024, 480]);
+        assert_eq!(direct.len(), actors.len());
+        assert!(direct.iter().all(|actor| matches!(
+            actor,
+            Actor::Sprite {
+                source: deadlib_present::actors::SpriteSource::RenderTarget { .. },
+                blend: deadlib_render_core::BlendMode::PremultipliedAlpha,
+                ..
+            }
+        )));
+        assert_destination_bounds(&actors);
+        assert_destination_bounds(&direct);
+        state.waveform_all_view_actors(&mut Vec::new(), 105.0, 395.0, &projection);
+        assert!(!state.waveform.render_targets.borrow().is_empty());
+        state.help = true;
+        state.actors(&mut Vec::new());
+        assert!(state.take_waveform_render_targets().is_empty());
+    }
 }
 
-#[cfg(test)]mod source_zero_alpha_waveform_tests{use super::*;#[test]fn source_recolour_keeps_nonzero_rgb_even_at_zero_alpha(){let mut actors=Vec::new();stripe(&mut actors,0.0,1.0,0.0,1.0,[0.5,0.25,0.125,0.0]);assert!(matches!(actors.as_slice(),[Actor::Sprite{tint:[0.5,0.25,0.125,0.0],..}]));stripe(&mut actors,0.0,1.0,0.0,1.0,[0.0;4]);assert_eq!(actors.len(),1);}}
+#[cfg(test)]
+mod source_zero_alpha_waveform_tests {
+    use super::*;
+    #[test]
+    fn source_recolour_keeps_nonzero_rgb_even_at_zero_alpha() {
+        let mut actors = Vec::new();
+        stripe(&mut actors, 0.0, 1.0, 0.0, 1.0, [0.5, 0.25, 0.125, 0.0]);
+        assert!(matches!(
+            actors.as_slice(),
+            [Actor::Sprite {
+                tint: [0.5, 0.25, 0.125, 0.0],
+                ..
+            }]
+        ));
+        stripe(&mut actors, 0.0, 1.0, 0.0, 1.0, [0.0; 4]);
+        assert_eq!(actors.len(), 1);
+    }
+}
 
-#[cfg(test)]mod raw_source_waveform_projection_tests{
- use super::*;
- fn projected(state: &State)->Vec<([f32;2],[f32;2],[f32;4])>{
-  let projection=state.display_projection(105.0,395.0,state.chart_viewport().cursor).unwrap();let mut actors=Vec::new();state.waveform_actors(&mut actors,512.0,1024.0,105.0,395.0,&projection);actors.into_iter().map(|actor|match actor{Actor::Sprite{offset,size,scale,tint,..}=>{let sizes=std::array::from_fn(|i|match size[i]{deadlib_present::actors::SizeSpec::Px(v)=> {
-                            if v==0.0{scale[i]}else{v*scale[i]}
+#[cfg(test)]
+mod raw_source_waveform_projection_tests {
+    use super::*;
+    fn projected(state: &State) -> Vec<([f32; 2], [f32; 2], [f32; 4])> {
+        let projection = state
+            .display_projection(105.0, 395.0, state.chart_viewport().cursor)
+            .unwrap();
+        let mut actors = Vec::new();
+        state.waveform_actors(&mut actors, 512.0, 1024.0, 105.0, 395.0, &projection);
+        actors
+            .into_iter()
+            .map(|actor| match actor {
+                Actor::Sprite {
+                    offset,
+                    size,
+                    scale,
+                    tint,
+                    ..
+                } => {
+                    let sizes = std::array::from_fn(|i| match size[i] {
+                        deadlib_present::actors::SizeSpec::Px(v) => {
+                            if v == 0.0 {
+                                scale[i]
+                            } else {
+                                v * scale[i]
+                            }
                         }
-                        _=>panic!("waveform span must be pixel sized"),
-                    });(offset,sizes,tint)}
-                _=>panic!("unexpected waveform actor"),
-            }).collect()
- }
- #[test]fn raw_width_is_preserved_but_real_projection_clamps_and_zero_keeps_one_sparse_pixel(){
-  i18n::init_for_tests();deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(854.0,480.0,
-        ));let root=tempfile::tempdir().unwrap();let path=root.path().join("raw.ssc");
+                        _ => panic!("waveform span must be pixel sized"),
+                    });
+                    (offset, sizes, tint)
+                }
+                _ => panic!("unexpected waveform actor"),
+            })
+            .collect()
+    }
+    #[test]
+    fn raw_width_is_preserved_but_real_projection_clamps_and_zero_keeps_one_sparse_pixel() {
+        i18n::init_for_tests();
+        deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+            854.0, 480.0,
+        ));
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("raw.ssc");
         waveform_pcm_fixture_asset(root.path());
         std::fs::write(&path,
             "#VERSION:0.83;#MUSIC:projection.wav;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;",
-        ).unwrap();let mut state=State::open(&path,0).unwrap();
+        ).unwrap();
+        let mut state = State::open(&path, 0).unwrap();
         // The following Builder owns the deterministic PCM for this test.
         state.waveform.job = None;
         state.waveform.pending = false;
-  let mut builder=deadsync_editor::waveform::Builder::new(2,48000).unwrap();let pcm=(0..96000).map(|i|if(i/2)%2==0{30000}else{-30000}).collect::<Vec<i16>>();builder.push_i16(&pcm).unwrap();state.waveform.data=Some(builder.finish().unwrap());state.waveform.clock=Some(Clock::capture(&state.workspace.file().session,0).unwrap());state.apply_waveform_preferences();
-  state.waveform_preferences.set_channel_width(0.0).unwrap();let zero=projected(&state);assert!(!zero.is_empty());assert!(zero.iter().all(|(_,size,tint)|size[0]==1.0&& *tint==state.waveform_preferences.palette().resolved_sparse().unorm_rgba()), "zero-width waveform must retain exactly one sparse pixel per channel");assert!(zero.iter().all(|(offset,_,_)|offset[0]==256.5||offset[0]==768.5));
-  state.waveform_preferences.set_channel_width(-2.0).unwrap();assert_eq!(state.waveform_preferences.channel_width(),-2.0);assert_eq!(projected(&state),zero);
-  state.waveform_preferences.set_channel_width(1.0).unwrap();let full=projected(&state);state.waveform_preferences.set_channel_width(3.0).unwrap();assert_eq!(state.waveform_preferences.channel_width(),3.0);assert_eq!(projected(&state),full);
-  state.waveform_preferences.set_dense_scale(0.0).unwrap();let no_dense=projected(&state);state.waveform_preferences.set_dense_scale(-40.0).unwrap();assert_eq!(projected(&state),no_dense);state.waveform_preferences.set_dense_scale(12.0).unwrap();let dense=projected(&state);assert!(dense.iter().any(|(_,_,tint)| *tint==state.waveform_preferences.palette().dense().rgba()));assert_ne!(dense,no_dense);state.waveform_preferences.set_dense_scale(1e20).unwrap();assert_eq!(projected(&state),dense);
- }
+        let mut builder = deadsync_editor::waveform::Builder::new(2, 48000).unwrap();
+        let pcm = (0..96000)
+            .map(|i| if (i / 2) % 2 == 0 { 30000 } else { -30000 })
+            .collect::<Vec<i16>>();
+        builder.push_i16(&pcm).unwrap();
+        state.waveform.data = Some(builder.finish().unwrap());
+        state.waveform.clock = Some(Clock::capture(&state.workspace.file().session, 0).unwrap());
+        state.apply_waveform_preferences();
+        state.waveform_preferences.set_channel_width(0.0).unwrap();
+        let zero = projected(&state);
+        assert!(!zero.is_empty());
+        assert!(
+            zero.iter().all(|(_, size, tint)| size[0] == 1.0
+                && *tint
+                    == state
+                        .waveform_preferences
+                        .palette()
+                        .resolved_sparse()
+                        .unorm_rgba()),
+            "zero-width waveform must retain exactly one sparse pixel per channel"
+        );
+        assert!(
+            zero.iter()
+                .all(|(offset, _, _)| offset[0] == 256.5 || offset[0] == 768.5)
+        );
+        state.waveform_preferences.set_channel_width(-2.0).unwrap();
+        assert_eq!(state.waveform_preferences.channel_width(), -2.0);
+        assert_eq!(projected(&state), zero);
+        state.waveform_preferences.set_channel_width(1.0).unwrap();
+        let full = projected(&state);
+        state.waveform_preferences.set_channel_width(3.0).unwrap();
+        assert_eq!(state.waveform_preferences.channel_width(), 3.0);
+        assert_eq!(projected(&state), full);
+        state.waveform_preferences.set_dense_scale(0.0).unwrap();
+        let no_dense = projected(&state);
+        state.waveform_preferences.set_dense_scale(-40.0).unwrap();
+        assert_eq!(projected(&state), no_dense);
+        state.waveform_preferences.set_dense_scale(12.0).unwrap();
+        let dense = projected(&state);
+        assert!(
+            dense
+                .iter()
+                .any(|(_, _, tint)| *tint == state.waveform_preferences.palette().dense().rgba())
+        );
+        assert_ne!(dense, no_dense);
+        state.waveform_preferences.set_dense_scale(1e20).unwrap();
+        assert_eq!(projected(&state), dense);
+    }
 }
 
-#[cfg(test)]mod source_palette_projection_tests{
- use super::*;
- #[test]fn unknown_sparse_uses_custom_unorm_in_real_projection_and_unknown_location_draws_nothing(){
-  use deadsync_editor::{waveform_palette::{Color,SparseMode},waveform_preferences::DrawLocation,
+#[cfg(test)]
+mod source_palette_projection_tests {
+    use super::*;
+    #[test]
+    fn unknown_sparse_uses_custom_unorm_in_real_projection_and_unknown_location_draws_nothing() {
+        use deadsync_editor::{
+            waveform_palette::{Color, SparseMode},
+            waveform_preferences::DrawLocation,
         };
-  i18n::init_for_tests();deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(854.0,480.0,
-        ));let root=tempfile::tempdir().unwrap();let path=root.path().join("palette.ssc");
+        i18n::init_for_tests();
+        deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+            854.0, 480.0,
+        ));
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("palette.ssc");
         waveform_pcm_fixture_asset(root.path());
         std::fs::write(&path,
             "#VERSION:0.83;#MUSIC:projection.wav;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;",
-        ).unwrap();let mut state=State::open(&path,0).unwrap();
-        // The following Builder owns the deterministic PCM for this test.
-        state.waveform.job = None;
-        state.waveform.pending = false;let mut builder=deadsync_editor::waveform::Builder::new(2,48000).unwrap();builder.push_i16(&vec![16384;96000]).unwrap();state.waveform.data=Some(builder.finish().unwrap());state.waveform.clock=Some(Clock::capture(&state.workspace.file().session,0).unwrap());state.waveform_preferences.set_channel_width(0.0).unwrap();let mut p=state.waveform_preferences.palette();p.set_mode(SparseMode::Unknown(99));p.set_sparse(Color::new([0.25,2.0,-1.0,0.5]).unwrap());p.set_darken(-4.0).unwrap();state.waveform_preferences.set_palette(p);state.apply_waveform_preferences();state.prepare_waveform_draw_policy();
-  let projection=state.display_projection(105.0,395.0,state.chart_viewport().cursor).unwrap();let mut actors=Vec::new();state.waveform_actors(&mut actors,512.0,1024.0,105.0,395.0,&projection);assert!(!actors.is_empty());assert!(actors.iter().all(|actor|matches!(actor,Actor::Sprite{tint:[0.25,1.0,0.0,0.5],..})));
-  state.open_waveform_settings();state.waveform_colors_key(0,KeyCode::ArrowRight);assert_eq!(state.waveform_preferences_draft.unwrap().palette().mode(),SparseMode::SameAsDenseColor);assert_eq!(state.waveform_preferences.palette().mode(),SparseMode::Unknown(99));state.waveform_settings_key(15,KeyCode::Enter);
-  state.waveform_preferences.set_location(DrawLocation::Unknown(99));state.prepare_waveform_draw_policy();let projection=state.display_projection(105.0,395.0,state.chart_viewport().cursor).unwrap();let mut actors=Vec::new();state.waveform_all_view_actors(&mut actors,105.0,395.0,&projection);assert!(actors.is_empty());assert!(state.take_waveform_render_targets().is_empty());
- }
-}
-
-#[cfg(test)]mod preference_numeric_waveform_consumer_tests{
- use super::*;
- fn projected(state: &State)->Vec<([f32;2],[f32;2])>{let projection=state.display_projection(105.0,395.0,state.chart_viewport().cursor).unwrap();let mut actors=Vec::new();state.waveform_actors(&mut actors,512.0,1024.0,105.0,395.0,&projection);actors.into_iter().map(|actor|match actor{Actor::Sprite{offset,size,scale,..}=>(offset,std::array::from_fn(|i|match size[i]{deadlib_present::actors::SizeSpec::Px(v)=> {
-                            if v==0.0{scale[i]}else{v*scale[i]}
-                        }
-                        _=>panic!("pixel span"),
-                    }),
-                ),_=>panic!("waveform sprite"),
-            }).collect()}
- #[test]fn precise_channel_width_entry_changes_real_pcm_stripes_and_global_undo_restores_them(){
-  i18n::init_for_tests();deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(854.0,480.0,
-        ));let root=tempfile::tempdir().unwrap();let path=root.path().join("numeric.ssc");
-        waveform_pcm_fixture_asset(root.path());
-        std::fs::write(&path,
-            "#VERSION:0.83;#MUSIC:projection.wav;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;",
-        ).unwrap();let mut state=State::open(&path,0).unwrap();
+        ).unwrap();
+        let mut state = State::open(&path, 0).unwrap();
         // The following Builder owns the deterministic PCM for this test.
         state.waveform.job = None;
         state.waveform.pending = false;
-  let mut builder=deadsync_editor::waveform::Builder::new(2,48000).unwrap();builder.push_i16(&(0..96000).map(|i|if (i/2)%2==0{30000}else{-30000}).collect::<Vec<_>>(),
-            ).unwrap();state.waveform.data=Some(builder.finish().unwrap());state.waveform.clock=Some(Clock::capture(&state.workspace.file().session,0).unwrap());state.apply_waveform_preferences();let before=projected(&state);assert!(!before.is_empty());
-  state.open_waveform_settings();state.panel=Some(Panel::WaveformSettings(2));state.panel_key(KeyCode::Enter);assert!(state.text_input("0.123456"));state.panel_key(KeyCode::Enter);state.panel=Some(Panel::WaveformSettings(14));state.panel_key(KeyCode::Enter);let after=projected(&state);assert!(!after.is_empty());assert_ne!(before,after);
-  state.command(Command::Undo);assert_eq!(projected(&state),before);state.command(Command::Redo);assert_eq!(projected(&state),after);
- }
+        let mut builder = deadsync_editor::waveform::Builder::new(2, 48000).unwrap();
+        builder.push_i16(&vec![16384; 96000]).unwrap();
+        state.waveform.data = Some(builder.finish().unwrap());
+        state.waveform.clock = Some(Clock::capture(&state.workspace.file().session, 0).unwrap());
+        state.waveform_preferences.set_channel_width(0.0).unwrap();
+        let mut p = state.waveform_preferences.palette();
+        p.set_mode(SparseMode::Unknown(99));
+        p.set_sparse(Color::new([0.25, 2.0, -1.0, 0.5]).unwrap());
+        p.set_darken(-4.0).unwrap();
+        state.waveform_preferences.set_palette(p);
+        state.apply_waveform_preferences();
+        state.prepare_waveform_draw_policy();
+        let projection = state
+            .display_projection(105.0, 395.0, state.chart_viewport().cursor)
+            .unwrap();
+        let mut actors = Vec::new();
+        state.waveform_actors(&mut actors, 512.0, 1024.0, 105.0, 395.0, &projection);
+        assert!(!actors.is_empty());
+        assert!(actors.iter().all(|actor| matches!(
+            actor,
+            Actor::Sprite {
+                tint: [0.25, 1.0, 0.0, 0.5],
+                ..
+            }
+        )));
+        state.open_waveform_settings();
+        state.waveform_colors_key(0, KeyCode::ArrowRight);
+        assert_eq!(
+            state.waveform_preferences_draft.unwrap().palette().mode(),
+            SparseMode::SameAsDenseColor
+        );
+        assert_eq!(
+            state.waveform_preferences.palette().mode(),
+            SparseMode::Unknown(99)
+        );
+        state.waveform_settings_key(15, KeyCode::Enter);
+        state
+            .waveform_preferences
+            .set_location(DrawLocation::Unknown(99));
+        state.prepare_waveform_draw_policy();
+        let projection = state
+            .display_projection(105.0, 395.0, state.chart_viewport().cursor)
+            .unwrap();
+        let mut actors = Vec::new();
+        state.waveform_all_view_actors(&mut actors, 105.0, 395.0, &projection);
+        assert!(actors.is_empty());
+        assert!(state.take_waveform_render_targets().is_empty());
+    }
+}
+
+#[cfg(test)]
+mod preference_numeric_waveform_consumer_tests {
+    use super::*;
+    fn projected(state: &State) -> Vec<([f32; 2], [f32; 2])> {
+        let projection = state
+            .display_projection(105.0, 395.0, state.chart_viewport().cursor)
+            .unwrap();
+        let mut actors = Vec::new();
+        state.waveform_actors(&mut actors, 512.0, 1024.0, 105.0, 395.0, &projection);
+        actors
+            .into_iter()
+            .map(|actor| match actor {
+                Actor::Sprite {
+                    offset,
+                    size,
+                    scale,
+                    ..
+                } => (
+                    offset,
+                    std::array::from_fn(|i| match size[i] {
+                        deadlib_present::actors::SizeSpec::Px(v) => {
+                            if v == 0.0 {
+                                scale[i]
+                            } else {
+                                v * scale[i]
+                            }
+                        }
+                        _ => panic!("pixel span"),
+                    }),
+                ),
+                _ => panic!("waveform sprite"),
+            })
+            .collect()
+    }
+    #[test]
+    fn precise_channel_width_entry_changes_real_pcm_stripes_and_global_undo_restores_them() {
+        i18n::init_for_tests();
+        deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+            854.0, 480.0,
+        ));
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("numeric.ssc");
+        waveform_pcm_fixture_asset(root.path());
+        std::fs::write(&path,
+            "#VERSION:0.83;#MUSIC:projection.wav;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;",
+        ).unwrap();
+        let mut state = State::open(&path, 0).unwrap();
+        // The following Builder owns the deterministic PCM for this test.
+        state.waveform.job = None;
+        state.waveform.pending = false;
+        let mut builder = deadsync_editor::waveform::Builder::new(2, 48000).unwrap();
+        builder
+            .push_i16(
+                &(0..96000)
+                    .map(|i| if (i / 2) % 2 == 0 { 30000 } else { -30000 })
+                    .collect::<Vec<_>>(),
+            )
+            .unwrap();
+        state.waveform.data = Some(builder.finish().unwrap());
+        state.waveform.clock = Some(Clock::capture(&state.workspace.file().session, 0).unwrap());
+        state.apply_waveform_preferences();
+        let before = projected(&state);
+        assert!(!before.is_empty());
+        state.open_waveform_settings();
+        state.panel = Some(Panel::WaveformSettings(2));
+        state.panel_key(KeyCode::Enter);
+        assert!(state.text_input("0.123456"));
+        state.panel_key(KeyCode::Enter);
+        state.panel = Some(Panel::WaveformSettings(14));
+        state.panel_key(KeyCode::Enter);
+        let after = projected(&state);
+        assert!(!after.is_empty());
+        assert_ne!(before, after);
+        state.command(Command::Undo);
+        assert_eq!(projected(&state), before);
+        state.command(Command::Redo);
+        assert_eq!(projected(&state), after);
+    }
 }
 
 #[cfg(test)]
@@ -977,57 +1360,246 @@ mod canonical_toggle_tests {
     use super::*;
     // Source ToggleWaveForm is unbound by default. These imported-profile tests
     // deliberately bind F23; native W is tested separately without a source import.
-    fn press(state: &mut State){for pressed in [true,false]{state.raw_key(&RawKeyboardEvent{code:KeyCode::F23,pressed,repeat:false,timestamp:std::time::Instant::now(),host_nanos:0,
-            });}}
-    #[test]
-    fn source_waveform_shortcut_updates_canonical_show_with_or_without_generation_and_no_undo(){
-        for language in ["en","fr"] {for disk in [false,true] {for enabled in [false,true] {
-            i18n::init(deadsync_assets::language::load_for_tests(language));let root=tempfile::tempdir().unwrap();let mut state=State::without_song(root.path()).unwrap();
-            if disk {let path=root.path().join("prefs.json");std::fs::write(&path,br#"{"Version":1,"Waveform":{"Future":7},"Vendor":{"keep":true}}"#,
-                        ).unwrap();state.configure_audio_preferences(&path).unwrap();}
-            let file=state.capture_application_preferences_file().unwrap();let raw=serde_json::json!({"PreferencesWaveForm":{"EnableWaveForm":enabled,"ShowWaveForm":true},"PreferencesKeyBinds":{"ToggleWaveForm":[["F23"]]},"VendorSource":{"keep":[1,9]}}).to_string();let draft=state.workspace.prepare_source_preferences(&file,raw.as_bytes(),deadsync_editor::key_binding_preferences::source_profile::Platform::Mac,
-                        ).unwrap();state.workspace.import_source_preferences(draft,&file,true).unwrap();state.sync_source_preferences_history().unwrap();
-            let revision=state.workspace.file().session.revision();let song=state.workspace.file().session.serialize().unwrap();assert!(state.waveform_preferences.show());
-            press(&mut state);assert!(!state.waveform_preferences.show(),"{}",state.status);assert!(!state.waveform.enabled);assert_eq!(state.workspace.file().session.revision(),revision);
-            state.apply_waveform_preferences();assert!(!state.waveform.enabled);state.open_waveform_settings();assert!(!state.waveform_preferences_draft.unwrap().show());state.waveform_settings_key(15,KeyCode::Enter);
-            let file=state.capture_application_preferences_file().unwrap();assert!(!file.waveform().show());assert!(file.source_archive().is_some());assert!(!file.has_changes());
-            if disk {let mut reopened=State::without_song(root.path()).unwrap();reopened.configure_audio_preferences(file.path()).unwrap();assert!(!reopened.waveform_preferences.show());let data:serde_json::Value=serde_json::from_slice(&std::fs::read(file.path()).unwrap()).unwrap();assert_eq!(data["Waveform"]["Future"],7);assert_eq!(data["Vendor"]["keep"],true);}
-            press(&mut state);assert!(state.waveform_preferences.show());assert_eq!(state.waveform.enabled,enabled);assert_eq!(state.workspace.file().session.revision(),revision);assert_eq!(state.workspace.file().session.serialize().unwrap(),song);
-        }}}
+    fn press(state: &mut State) {
+        for pressed in [true, false] {
+            state.raw_key(&RawKeyboardEvent {
+                code: KeyCode::F23,
+                pressed,
+                repeat: false,
+                timestamp: std::time::Instant::now(),
+                host_nanos: 0,
+            });
+        }
     }
     #[test]
-    fn original_toggle_transcripts_match_shortcut_and_actual_disk_reopen(){
-        let fixture:serde_json::Value=serde_json::from_str(include_str!(concat!(env!("CARGO_MANIFEST_DIR"),"/tests/fixtures/waveform-toggle-source.json"))).unwrap();let cases=fixture["cases"].as_array().unwrap();assert_eq!(cases.len(),16);
-        for disk in [false,true] {for stages in cases.chunks_exact(4) {
-            i18n::init_for_tests();let root=tempfile::tempdir().unwrap();let mut state=State::without_song(root.path()).unwrap();if disk {let path=root.path().join("prefs.json");std::fs::write(&path,br#"{"Version":1}"#).unwrap();state.configure_audio_preferences(&path).unwrap();}
-            let file=state.capture_application_preferences_file().unwrap();let mut input:serde_json::Value=serde_json::from_str(stages[0]["raw"].as_str().unwrap()).unwrap();input["PreferencesKeyBinds"]=serde_json::json!({"ToggleWaveForm":[["F23"]]});let input=input.to_string();let draft=state.workspace.prepare_source_preferences(&file,input.as_bytes(),deadsync_editor::key_binding_preferences::source_profile::Platform::Mac,
-                    ).unwrap();state.workspace.import_source_preferences(draft,&file,true).unwrap();state.sync_source_preferences_history().unwrap();
-            let revision=state.workspace.file().session.revision();
-            for (stage,case) in stages.iter().enumerate().take(3) {if stage>0 {press(&mut state);}assert_eq!(state.waveform_preferences.show(),case["show"].as_bool().unwrap());assert_eq!(state.waveform_preferences.enabled(),case["enabled"].as_bool().unwrap());assert_eq!(state.workspace.file().session.revision(),revision);}
-            let file=state.capture_application_preferences_file().unwrap();assert!(!file.has_changes());assert_eq!(file.waveform().show(),stages[3]["show"].as_bool().unwrap());
-            if disk {let reopened=deadsync_editor::audio_preferences::File::open(file.path()).unwrap();assert_eq!(reopened.waveform().show(),stages[3]["show"].as_bool().unwrap());assert_eq!(reopened.waveform().enabled(),stages[3]["enabled"].as_bool().unwrap());}
-        }}
+    fn source_waveform_shortcut_updates_canonical_show_with_or_without_generation_and_no_undo() {
+        for language in ["en", "fr"] {
+            for disk in [false, true] {
+                for enabled in [false, true] {
+                    i18n::init(deadsync_assets::language::load_for_tests(language));
+                    let root = tempfile::tempdir().unwrap();
+                    let mut state = State::without_song(root.path()).unwrap();
+                    if disk {
+                        let path = root.path().join("prefs.json");
+                        std::fs::write(
+                            &path,
+                            br#"{"Version":1,"Waveform":{"Future":7},"Vendor":{"keep":true}}"#,
+                        )
+                        .unwrap();
+                        state.configure_audio_preferences(&path).unwrap();
+                    }
+                    let file = state.capture_application_preferences_file().unwrap();
+                    let raw=serde_json::json!({"PreferencesWaveForm":{"EnableWaveForm":enabled,"ShowWaveForm":true},"PreferencesKeyBinds":{"ToggleWaveForm":[["F23"]]},"VendorSource":{"keep":[1,9]}}).to_string();
+                    let draft = state
+                        .workspace
+                        .prepare_source_preferences(
+                            &file,
+                            raw.as_bytes(),
+                            deadsync_editor::key_binding_preferences::source_profile::Platform::Mac,
+                        )
+                        .unwrap();
+                    state
+                        .workspace
+                        .import_source_preferences(draft, &file, true)
+                        .unwrap();
+                    state.sync_source_preferences_history().unwrap();
+                    let revision = state.workspace.file().session.revision();
+                    let song = state.workspace.file().session.serialize().unwrap();
+                    assert!(state.waveform_preferences.show());
+                    press(&mut state);
+                    assert!(!state.waveform_preferences.show(), "{}", state.status);
+                    assert!(!state.waveform.enabled);
+                    assert_eq!(state.workspace.file().session.revision(), revision);
+                    state.apply_waveform_preferences();
+                    assert!(!state.waveform.enabled);
+                    state.open_waveform_settings();
+                    assert!(!state.waveform_preferences_draft.unwrap().show());
+                    state.waveform_settings_key(15, KeyCode::Enter);
+                    let file = state.capture_application_preferences_file().unwrap();
+                    assert!(!file.waveform().show());
+                    assert!(file.source_archive().is_some());
+                    assert!(!file.has_changes());
+                    if disk {
+                        let mut reopened = State::without_song(root.path()).unwrap();
+                        reopened.configure_audio_preferences(file.path()).unwrap();
+                        assert!(!reopened.waveform_preferences.show());
+                        let data: serde_json::Value =
+                            serde_json::from_slice(&std::fs::read(file.path()).unwrap()).unwrap();
+                        assert_eq!(data["Waveform"]["Future"], 7);
+                        assert_eq!(data["Vendor"]["keep"], true);
+                    }
+                    press(&mut state);
+                    assert!(state.waveform_preferences.show());
+                    assert_eq!(state.waveform.enabled, enabled);
+                    assert_eq!(state.workspace.file().session.revision(), revision);
+                    assert_eq!(state.workspace.file().session.serialize().unwrap(), song);
+                }
+            }
+        }
     }
     #[test]
-    fn competing_show_leaf_refuses_shortcut_before_runtime_or_history_publication(){
-        i18n::init_for_tests();let root=tempfile::tempdir().unwrap();let path=root.path().join("prefs.json");std::fs::write(&path,br#"{"Version":1}"#).unwrap();let mut state=State::without_song(root.path()).unwrap();state.configure_audio_preferences(&path).unwrap();let before=state.waveform_preferences;let revision=state.workspace.file().session.revision();let mut external=deadsync_editor::audio_preferences::File::open(&path).unwrap();let mut p=external.waveform();p.set_show(!before.show());external.set_waveform(p);external.save().unwrap();let bytes=std::fs::read(&path).unwrap();
-        state.toggle_waveform();assert_eq!(state.waveform_preferences,before);assert_eq!(state.workspace.file().session.revision(),revision);assert_eq!(std::fs::read(&path).unwrap(),bytes);
+    fn original_toggle_transcripts_match_shortcut_and_actual_disk_reopen() {
+        let fixture: serde_json::Value = serde_json::from_str(include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/tests/fixtures/waveform-toggle-source.json"
+        )))
+        .unwrap();
+        let cases = fixture["cases"].as_array().unwrap();
+        assert_eq!(cases.len(), 16);
+        for disk in [false, true] {
+            for stages in cases.chunks_exact(4) {
+                i18n::init_for_tests();
+                let root = tempfile::tempdir().unwrap();
+                let mut state = State::without_song(root.path()).unwrap();
+                if disk {
+                    let path = root.path().join("prefs.json");
+                    std::fs::write(&path, br#"{"Version":1}"#).unwrap();
+                    state.configure_audio_preferences(&path).unwrap();
+                }
+                let file = state.capture_application_preferences_file().unwrap();
+                let mut input: serde_json::Value =
+                    serde_json::from_str(stages[0]["raw"].as_str().unwrap()).unwrap();
+                input["PreferencesKeyBinds"] = serde_json::json!({"ToggleWaveForm":[["F23"]]});
+                let input = input.to_string();
+                let draft = state
+                    .workspace
+                    .prepare_source_preferences(
+                        &file,
+                        input.as_bytes(),
+                        deadsync_editor::key_binding_preferences::source_profile::Platform::Mac,
+                    )
+                    .unwrap();
+                state
+                    .workspace
+                    .import_source_preferences(draft, &file, true)
+                    .unwrap();
+                state.sync_source_preferences_history().unwrap();
+                let revision = state.workspace.file().session.revision();
+                for (stage, case) in stages.iter().enumerate().take(3) {
+                    if stage > 0 {
+                        press(&mut state);
+                    }
+                    assert_eq!(
+                        state.waveform_preferences.show(),
+                        case["show"].as_bool().unwrap()
+                    );
+                    assert_eq!(
+                        state.waveform_preferences.enabled(),
+                        case["enabled"].as_bool().unwrap()
+                    );
+                    assert_eq!(state.workspace.file().session.revision(), revision);
+                }
+                let file = state.capture_application_preferences_file().unwrap();
+                assert!(!file.has_changes());
+                assert_eq!(file.waveform().show(), stages[3]["show"].as_bool().unwrap());
+                if disk {
+                    let reopened =
+                        deadsync_editor::audio_preferences::File::open(file.path()).unwrap();
+                    assert_eq!(
+                        reopened.waveform().show(),
+                        stages[3]["show"].as_bool().unwrap()
+                    );
+                    assert_eq!(
+                        reopened.waveform().enabled(),
+                        stages[3]["enabled"].as_bool().unwrap()
+                    );
+                }
+            }
+        }
+    }
+    #[test]
+    fn competing_show_leaf_refuses_shortcut_before_runtime_or_history_publication() {
+        i18n::init_for_tests();
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("prefs.json");
+        std::fs::write(&path, br#"{"Version":1}"#).unwrap();
+        let mut state = State::without_song(root.path()).unwrap();
+        state.configure_audio_preferences(&path).unwrap();
+        let before = state.waveform_preferences;
+        let revision = state.workspace.file().session.revision();
+        let mut external = deadsync_editor::audio_preferences::File::open(&path).unwrap();
+        let mut p = external.waveform();
+        p.set_show(!before.show());
+        external.set_waveform(p);
+        external.save().unwrap();
+        let bytes = std::fs::read(&path).unwrap();
+        state.toggle_waveform();
+        assert_eq!(state.waveform_preferences, before);
+        assert_eq!(state.workspace.file().session.revision(), revision);
+        assert_eq!(std::fs::read(&path).unwrap(), bytes);
     }
 
     #[test]
-    fn native_waveform_and_zoom_shortcuts_are_global_without_a_song_or_chart(){
-        fn raw(state: &mut State,code:KeyCode,pressed:bool){state.raw_key(&RawKeyboardEvent{code,pressed,repeat:false,timestamp:std::time::Instant::now(),host_nanos:0,
-            });}
-        fn key(state: &mut State,code:KeyCode){raw(state,code,true);raw(state,code,false);}
-        for language in ["en","fr"] {for chartless_song in [false,true] {
-            i18n::init(deadsync_assets::language::load_for_tests(language));let root=tempfile::tempdir().unwrap();let mut state=if chartless_song{State::from_workspace(deadsync_editor::workspace::Workspace::new_song(root.path(),0.009).unwrap(),
-                    ).unwrap()}else{State::without_song(root.path()).unwrap()};assert!(!state.workspace.has_chart());
-            let before=state.waveform_preferences.show();let revision=state.workspace.file().session.revision();let song=state.workspace.file().session.serialize().unwrap();key(&mut state,KeyCode::KeyW);assert_eq!(state.waveform_preferences.show(),!before,"{}",state.status);assert_eq!(state.workspace.file().session.revision(),revision);assert_eq!(state.capture_application_preferences_file().unwrap().waveform().show(),!before);
-            raw(&mut state,KeyCode::ShiftLeft,true);key(&mut state,KeyCode::KeyW);raw(&mut state,KeyCode::ShiftLeft,false);assert!(matches!(state.panel,Some(Panel::WaveformSettings(0))),"{}",state.status);key(&mut state,KeyCode::Escape);
-            raw(&mut state,KeyCode::ShiftLeft,true);key(&mut state,KeyCode::KeyZ);raw(&mut state,KeyCode::ShiftLeft,false);assert!(matches!(state.panel,Some(Panel::ZoomSettings(0))),"{}",state.status);key(&mut state,KeyCode::Escape);assert_eq!(state.workspace.file().session.serialize().unwrap(),song);assert_eq!(state.workspace.file().session.revision(),revision);
-        }}
+    fn native_waveform_and_zoom_shortcuts_are_global_without_a_song_or_chart() {
+        fn raw(state: &mut State, code: KeyCode, pressed: bool) {
+            state.raw_key(&RawKeyboardEvent {
+                code,
+                pressed,
+                repeat: false,
+                timestamp: std::time::Instant::now(),
+                host_nanos: 0,
+            });
+        }
+        fn key(state: &mut State, code: KeyCode) {
+            raw(state, code, true);
+            raw(state, code, false);
+        }
+        for language in ["en", "fr"] {
+            for chartless_song in [false, true] {
+                i18n::init(deadsync_assets::language::load_for_tests(language));
+                let root = tempfile::tempdir().unwrap();
+                let mut state = if chartless_song {
+                    State::from_workspace(
+                        deadsync_editor::workspace::Workspace::new_song(root.path(), 0.009)
+                            .unwrap(),
+                    )
+                    .unwrap()
+                } else {
+                    State::without_song(root.path()).unwrap()
+                };
+                assert!(!state.workspace.has_chart());
+                let before = state.waveform_preferences.show();
+                let revision = state.workspace.file().session.revision();
+                let song = state.workspace.file().session.serialize().unwrap();
+                key(&mut state, KeyCode::KeyW);
+                assert_eq!(
+                    state.waveform_preferences.show(),
+                    !before,
+                    "{}",
+                    state.status
+                );
+                assert_eq!(state.workspace.file().session.revision(), revision);
+                assert_eq!(
+                    state
+                        .capture_application_preferences_file()
+                        .unwrap()
+                        .waveform()
+                        .show(),
+                    !before
+                );
+                raw(&mut state, KeyCode::ShiftLeft, true);
+                key(&mut state, KeyCode::KeyW);
+                raw(&mut state, KeyCode::ShiftLeft, false);
+                assert!(
+                    matches!(state.panel, Some(Panel::WaveformSettings(0))),
+                    "{}",
+                    state.status
+                );
+                key(&mut state, KeyCode::Escape);
+                raw(&mut state, KeyCode::ShiftLeft, true);
+                key(&mut state, KeyCode::KeyZ);
+                raw(&mut state, KeyCode::ShiftLeft, false);
+                assert!(
+                    matches!(state.panel, Some(Panel::ZoomSettings(0))),
+                    "{}",
+                    state.status
+                );
+                key(&mut state, KeyCode::Escape);
+                assert_eq!(state.workspace.file().session.serialize().unwrap(), song);
+                assert_eq!(state.workspace.file().session.revision(), revision);
+            }
+        }
     }
-
 }
 #[cfg(test)]
 mod shared_float_main_source_tests {
@@ -1089,15 +1661,26 @@ mod shared_float_main_source_tests {
         // Verify the real hook accepted owner/registration/token before waiting
         // for its Loader permit. A rejected hook must not look like Busy.
         assert_eq!(
-            state.waveform.prepared_token, Some(token),
+            state.waveform.prepared_token,
+            Some(token),
             "MAIN hook refused owner/registration/token: owner={}, registration={}",
-            state.editor_asset_owner(), state.editor_asset_registration(),
+            state.editor_asset_owner(),
+            state.editor_asset_registration(),
         );
-        assert!(state.waveform.prepared_managed && state.waveform.prepared.is_some(),
-            "accepted MAIN token has no managed prepared source");
-        assert!(state.editor_asset_paths()[0].is_some(), "MAIN registration has no configured path");
-        assert_eq!(state.waveform.path, state.editor_asset_paths()[0],
-            "accepted MAIN token did not produce a coherent waveform path: {}",state.status);
+        assert!(
+            state.waveform.prepared_managed && state.waveform.prepared.is_some(),
+            "accepted MAIN token has no managed prepared source"
+        );
+        assert!(
+            state.editor_asset_paths()[0].is_some(),
+            "MAIN registration has no configured path"
+        );
+        assert_eq!(
+            state.waveform.path,
+            state.editor_asset_paths()[0],
+            "accepted MAIN token did not produce a coherent waveform path: {}",
+            state.status
+        );
         let deadline = Instant::now() + Duration::from_secs(10);
         while state.waveform.job.is_none() {
             assert!(state.waveform.data.is_none());
@@ -1105,12 +1688,18 @@ mod shared_float_main_source_tests {
             // Same retry branch as poll_waveform. A cache hit in refresh alone
             // deliberately does not retry a previous Busy permit. Do not poll a
             // completion here: the test first authenticates the actual job.
-            assert!(state.waveform.pending || state.waveform.job.is_some(),
-                "MAIN hook accepted token {token:?}, but Loader admission is not pending: {}",state.status);
-            if state.waveform.pending { state.start_waveform(); }
+            assert!(
+                state.waveform.pending || state.waveform.job.is_some(),
+                "MAIN hook accepted token {token:?}, but Loader admission is not pending: {}",
+                state.status
+            );
+            if state.waveform.pending {
+                state.start_waveform();
+            }
             assert!(
                 Instant::now() < deadline,
-                "MAIN token {token:?} accepted; real Loader admission remained Busy: {}",state.status
+                "MAIN token {token:?} accepted; real Loader admission remained Busy: {}",
+                state.status
             );
             std::thread::yield_now();
         }

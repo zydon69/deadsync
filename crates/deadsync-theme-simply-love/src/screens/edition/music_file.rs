@@ -14,13 +14,24 @@ pub(super) struct Pending {
 impl State {
     pub(super) fn queue_music_picker(&mut self) {
         if let Some(target) = self.text_target().filter(|t| t.is_file()) {
-            let is_pack=matches!(target,super::text_fields::Target::Pack(_));
-            let directory=if is_pack{let Some(directory)=self.pack_media_directory()else{return;};directory}else{self.workspace.file().resource_base().to_path_buf()};
+            let is_pack = matches!(target, super::text_fields::Target::Pack(_));
+            let directory = if is_pack {
+                let Some(directory) = self.pack_media_directory() else {
+                    return;
+                };
+                directory
+            } else {
+                self.workspace.file().resource_base().to_path_buf()
+            };
             self.music_picker_request = Some(Request {
                 serial: self.text_edit_serial,
                 target,
                 directory,
-                pack:if is_pack{self.capture_pack_coupling()}else{None},
+                pack: if is_pack {
+                    self.capture_pack_coupling()
+                } else {
+                    None
+                },
             });
         }
     }
@@ -49,28 +60,44 @@ impl State {
         let directory = self.workspace.file().resource_base();
         let files = song_assets::files(directory)?;
         Ok(song_assets::Assets::discover(directory, &files, |path| {
-            let (width,height)=image::image_dimensions(path).ok()?;
-            Some((i32::try_from(width).ok()?,i32::try_from(height).ok()?))
+            let (width, height) = image::image_dimensions(path).ok()?;
+            Some((i32::try_from(width).ok()?, i32::try_from(height).ok()?))
         }))
     }
     pub(super) fn command_auto_song_assets(&mut self, only_unset: bool) {
         if !self.has_song() {
-            self.status=i18n::tr("Edition","FileNoSongHelp");return;
+            self.status = i18n::tr("Edition", "FileNoSongHelp");
+            return;
         }
         // The original action treats directory errors as an empty discovery.
-        let assets=self.discover_song_assets().unwrap_or_default();
-        let result=(|| -> Result<usize,deadsync_editor::Error> {
-            let mut draft=self.workspace.song_properties()?;
-            let count=draft.stage_assets(&assets,only_unset)?;
-            if count==0 {return Ok(0);}
+        let assets = self.discover_song_assets().unwrap_or_default();
+        let result = (|| -> Result<usize, deadsync_editor::Error> {
+            let mut draft = self.workspace.song_properties()?;
+            let count = draft.stage_assets(&assets, only_unset)?;
+            if count == 0 {
+                return Ok(0);
+            }
             self.commit_song_properties_presented(&draft)?;
             Ok(count)
         })();
         match result {
-            Ok(count)=>{self.refresh();self.status=if count==0 {i18n::tr("Edition","SongAssetsUnchanged")}else{i18n::tr_fmt("Edition","SongAssetsApplied",&[("count",&count.to_string())],
-                    )};}
-            Err(error)=> {
-                self.status=i18n::tr_fmt("Edition","Error",&[("message",&crate::i18n::editor_error(&error))],
+            Ok(count) => {
+                self.refresh();
+                self.status = if count == 0 {
+                    i18n::tr("Edition", "SongAssetsUnchanged")
+                } else {
+                    i18n::tr_fmt(
+                        "Edition",
+                        "SongAssetsApplied",
+                        &[("count", &count.to_string())],
+                    )
+                };
+            }
+            Err(error) => {
+                self.status = i18n::tr_fmt(
+                    "Edition",
+                    "Error",
+                    &[("message", &crate::i18n::editor_error(&error))],
                 )
             }
         }
@@ -78,8 +105,11 @@ impl State {
 
     pub(super) fn find_all_song_media(&mut self, only_unset: bool) {
         let assets = match self.discover_song_assets() {
-            Ok(assets)=>assets,
-            Err(_)=>{self.status=i18n::tr("Edition","SongAssetNotFound");return;}
+            Ok(assets) => assets,
+            Err(_) => {
+                self.status = i18n::tr("Edition", "SongAssetNotFound");
+                return;
+            }
         };
         if let Some(draft) = self.song_properties.as_mut() {
             self.status = match draft.stage_assets(&assets, only_unset) {
@@ -89,7 +119,10 @@ impl State {
                     "SongAssetsStaged",
                     &[("count", &count.to_string())],
                 ),
-                Err(error) => i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))],
+                Err(error) => i18n::tr_fmt(
+                    "Edition",
+                    "Error",
+                    &[("message", &crate::i18n::editor_error(&error))],
                 ),
             };
         }
@@ -108,10 +141,7 @@ impl State {
         if !self.sync_text() {
             return true;
         }
-        let directory = self
-            .workspace
-            .file()
-            .resource_base();
+        let directory = self.workspace.file().resource_base();
         let found = song_assets::files(directory).ok().and_then(|files| {
             if let Some(kind) = kind {
                 song_assets::find_image(kind, directory, &files, |path| {
@@ -157,7 +187,9 @@ impl State {
         if request.serial != self.text_edit_serial
             || self.text_target() != Some(request.target)
             || !self.label_preedit.is_empty()
-            || (matches!(request.target,super::text_fields::Target::Pack(_)) && (!self.pack_coupling_current(&request.pack)||self.pack_media_directory().as_ref()!=Some(&request.directory)))
+            || (matches!(request.target, super::text_fields::Target::Pack(_))
+                && (!self.pack_coupling_current(&request.pack)
+                    || self.pack_media_directory().as_ref() != Some(&request.directory)))
         {
             return false;
         }
@@ -225,7 +257,9 @@ impl State {
                 )
             }
         }
-        if matches!(request.target,super::text_fields::Target::Pack(_)){self.commit_pack_field();}
+        if matches!(request.target, super::text_fields::Target::Pack(_)) {
+            self.commit_pack_field();
+        }
         true
     }
 }
@@ -234,7 +268,8 @@ impl State {
 mod untitled_resources_tests {
     use super::*;
     fn state(base: &std::path::Path) -> State {
-        State::from_workspace(deadsync_editor::workspace::Workspace::new_song(base, 0.009).unwrap()).unwrap()
+        State::from_workspace(deadsync_editor::workspace::Workspace::new_song(base, 0.009).unwrap())
+            .unwrap()
     }
     struct AsyncPicker(
         Option<
@@ -318,9 +353,20 @@ mod untitled_resources_tests {
         let root = tempfile::tempdir().unwrap();
         let mut state = state(root.path());
         state.open_save_as();
-        assert!(matches!(state.panel, Some(super::super::Panel::SaveAsDestination(_))));
-        assert_eq!(std::path::Path::new(&state.save_as.destination), state.workspace.file().resource_base());
-        assert!(state.save_as.destination.ends_with(std::path::MAIN_SEPARATOR));
+        assert!(matches!(
+            state.panel,
+            Some(super::super::Panel::SaveAsDestination(_))
+        ));
+        assert_eq!(
+            std::path::Path::new(&state.save_as.destination),
+            state.workspace.file().resource_base()
+        );
+        assert!(
+            state
+                .save_as
+                .destination
+                .ends_with(std::path::MAIN_SEPARATOR)
+        );
         assert_eq!(std::fs::read_dir(root.path()).unwrap().count(), 0);
     }
     #[test]
@@ -329,11 +375,16 @@ mod untitled_resources_tests {
         let root = tempfile::tempdir().unwrap();
         let mut state = state(root.path());
         let mut draft = state.workspace.song_properties().unwrap();
-        draft.set_text(deadsync_editor::song_text::Field::Banner, "art/banner.png").unwrap();
+        draft
+            .set_text(deadsync_editor::song_text::Field::Banner, "art/banner.png")
+            .unwrap();
         state.song_properties = Some(draft);
         state.panel = Some(super::super::Panel::SongText(0));
         let preview = state.image_preview_request().unwrap();
-        assert_eq!(preview.paths[0], Some(root.path().canonicalize().unwrap().join("art/banner.png")));
+        assert_eq!(
+            preview.paths[0],
+            Some(root.path().canonicalize().unwrap().join("art/banner.png"))
+        );
         assert!(preview.paths[1].is_none());
         assert!(state.workspace.file().existing_path().is_none());
         assert_eq!(std::fs::read_dir(root.path()).unwrap().count(), 0);

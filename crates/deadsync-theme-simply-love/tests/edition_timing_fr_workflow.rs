@@ -370,7 +370,8 @@ fn french_audio_preview_controls_and_status_are_visible() {
     assert!(
         texts(&missing)
             .iter()
-            .any(|s| s == i18n::tr("Edition", "PlaybackPlaying").as_ref()));
+            .any(|s| s == i18n::tr("Edition", "PlaybackPlaying").as_ref())
+    );
 }
 
 #[test]
@@ -390,8 +391,16 @@ fn french_song_sync_panel_explains_scope_and_applies_with_translated_labels() {
             .iter()
             .any(|s| s.contains("Synchro audio de l’éditeur : 0.009000 s"))
     );
-    assert!(labels.iter().any(|s| s.contains("Appliquer les propriétés du morceau")));
-    assert!(labels.iter().any(|s| s == i18n::tr("Edition", "SongPropertiesHelp").as_ref()));
+    assert!(
+        labels
+            .iter()
+            .any(|s| s.contains("Appliquer les propriétés du morceau"))
+    );
+    assert!(
+        labels
+            .iter()
+            .any(|s| s == i18n::tr("Edition", "SongPropertiesHelp").as_ref())
+    );
     press(&mut screen, KeyCode::Digit0);
     press(&mut screen, KeyCode::ArrowDown);
     press(&mut screen, KeyCode::Enter);
@@ -822,7 +831,8 @@ fn french_section_labels_use_committed_unicode_text_and_translated_controls() {
             .unwrap(),
         "0=Étiquette 日本語_fin"
     );
-    assert!(texts(&screen).iter().any(|s| s == &format!(
+    assert!(texts(&screen).iter().any(|s| s
+        == &format!(
             "{} Étiquette 日本語_fin",
             i18n::tr("Edition", "EventSelectionLabel")
         )));

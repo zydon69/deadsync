@@ -96,9 +96,7 @@ fn main() {
     lang_files.sort();
 
     // Collect stats for each language
-    let en_name = en
-        .get("Meta", "NativeName")
-        .unwrap_or("English");
+    let en_name = en.get("Meta", "NativeName").unwrap_or("English");
 
     let mut stats: Vec<LangStats> = Vec::new();
     for path in &lang_files {
@@ -113,9 +111,7 @@ fn main() {
             .and_then(|s| s.to_str())
             .unwrap_or("?")
             .to_string();
-        let native_name = lang
-            .get("Meta", "NativeName")
-            .unwrap_or(&code).to_owned();
+        let native_name = lang.get("Meta", "NativeName").unwrap_or(&code).to_owned();
 
         stats.push(LangStats {
             code,

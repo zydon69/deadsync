@@ -1,9 +1,9 @@
 //! Application-owned editor image service. Keep one instance across editor visits.
 use deadlib_assets::AssetManager;
 use deadlib_render::Backend;
-use deadsync_theme_simply_love::screens::edition::image_previews::{Cache, Role};
 #[cfg(test)]
 use deadsync_theme_simply_love::screens::edition::image_previews::Status;
+use deadsync_theme_simply_love::screens::edition::image_previews::{Cache, Role};
 use std::{sync::Arc, time::Duration};
 
 pub(crate) use deadsync_theme_simply_love::screens::edition::image_previews::{
@@ -32,11 +32,11 @@ impl Service {
     pub(crate) fn set_request(&mut self, request: Option<Request>) {
         let identity = request.as_ref().map(|request| request.document_identity);
         if self.document_identity != identity {
-            self.cache.set_role_paths([None, None,None]);
+            self.cache.set_role_paths([None, None, None]);
             self.document_identity = identity;
         }
         self.cache
-            .set_role_paths(request.map_or([None, None,None], |request| request.paths));
+            .set_role_paths(request.map_or([None, None, None], |request| request.paths));
     }
 
     /// Run on the renderer owner thread before collecting the screen's actors.
@@ -84,9 +84,9 @@ impl Service {
         Role::ALL.map(|role| {
             let view = self.cache.view(role);
             View {
-                document_identity:self.document_identity,
-                path:view.path.map(ToOwned::to_owned),
-                average_color:view.average_color,
+                document_identity: self.document_identity,
+                path: view.path.map(ToOwned::to_owned),
+                average_color: view.average_color,
                 status: view.status.clone(),
                 key: Arc::from(view.key),
                 source_size: view.source_size,
@@ -107,7 +107,7 @@ mod tests {
         let keys = service.cache.texture_keys();
         let request = Request {
             document_identity: 1,
-            paths: [Some(PathBuf::from("missing.png")), None,None],
+            paths: [Some(PathBuf::from("missing.png")), None, None],
         };
         service.set_request(Some(request.clone()));
         assert_eq!(service.views()[0].status, Status::Loading);
@@ -127,18 +127,25 @@ mod tests {
 
 #[cfg(test)]
 mod background_document_tests {
- use super::*;
- #[test]
- fn background_reply_tracks_exact_document_and_path_across_reload_and_close(){
-  let mut service=Service::new().unwrap();
-  let path=std::path::PathBuf::from("background.png");
-  for identity in [1,2] {
-   service.set_request(Some(Request{document_identity:identity,paths:[None,None,Some(path.clone())]}));
-   let view=&service.views()[2];
-   assert_eq!(view.document_identity,Some(identity));assert_eq!(view.path,Some(path.clone()));
-   assert!(!view.has_resident_image);
-  }
-  service.set_request(None);
-  let view=&service.views()[2];assert!(view.document_identity.is_none());assert!(view.path.is_none());assert!(!view.has_resident_image);
- }
+    use super::*;
+    #[test]
+    fn background_reply_tracks_exact_document_and_path_across_reload_and_close() {
+        let mut service = Service::new().unwrap();
+        let path = std::path::PathBuf::from("background.png");
+        for identity in [1, 2] {
+            service.set_request(Some(Request {
+                document_identity: identity,
+                paths: [None, None, Some(path.clone())],
+            }));
+            let view = &service.views()[2];
+            assert_eq!(view.document_identity, Some(identity));
+            assert_eq!(view.path, Some(path.clone()));
+            assert!(!view.has_resident_image);
+        }
+        service.set_request(None);
+        let view = &service.views()[2];
+        assert!(view.document_identity.is_none());
+        assert!(view.path.is_none());
+        assert!(!view.has_resident_image);
+    }
 }

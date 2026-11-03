@@ -30,7 +30,9 @@ fn ctrl(s: &mut State, code: KeyCode) {
         timestamp: Instant::now(),
         host_nanos: 0,
     });
-    if code == KeyCode::Tab { complete_chart_navigation(s); }
+    if code == KeyCode::Tab {
+        complete_chart_navigation(s);
+    }
 }
 use deadlib_present::actors::{Actor, SizeSpec};
 fn key(s: &mut State, code: KeyCode, pressed: bool) {

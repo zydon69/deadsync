@@ -167,8 +167,7 @@ fn keyboard_waveform_settings_save_reload_render_scales_and_preserve_audio_and_s
     press(&mut state, KeyCode::Enter);
     assert_eq!(state.waveform_frames(), frames);
     assert!(state.waveform_ready());
-    assert_endpoint_columns(
-        &state);
+    assert_endpoint_columns(&state);
     let mut reopened = State::open(&dir.path().join("song.ssc"), 0).unwrap();
     reopened.configure_audio_preferences(&path).unwrap();
     ready(&mut reopened);
@@ -176,8 +175,7 @@ fn keyboard_waveform_settings_save_reload_render_scales_and_preserve_audio_and_s
         reopened.waveform_preferences(),
         state.waveform_preferences()
     );
-    assert_endpoint_columns(
-        &reopened);
+    assert_endpoint_columns(&reopened);
     assert_eq!(
         state.workspace().file().session.serialize().unwrap(),
         source.as_bytes()

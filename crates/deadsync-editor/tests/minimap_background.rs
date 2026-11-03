@@ -1,5 +1,5 @@
-use deadsync_editor::minimap_projection;
 use deadsync_editor::minimap_background;
+use deadsync_editor::minimap_projection;
 use minimap_background::{build, fade};
 #[test]
 fn original_updatebegin_background_and_updateend_fade_match_96_cases() {

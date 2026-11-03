@@ -1,5 +1,5 @@
-pub use deadsync_editor::{Error, chart_order, history, notes};
 use deadsync_editor::lane_entry;
+pub use deadsync_editor::{Error, chart_order, history, notes};
 use deadsync_editor::{
     document::{Document, Format},
     history::Session,

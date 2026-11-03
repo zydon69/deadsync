@@ -287,10 +287,11 @@ fn native_viewport_uses_render_bounds_focal_reverse_and_time_row_axes() {
             // directions the earlier distance is55, not one quarter screen.
             assert!((p.grabbed_percentage - 55.0 / 290.0).abs() < 1e-12);
             assert!((geometry.focused_coordinate()).abs() < 1e-12);
-            assert_eq!(
-                p.mini_range,
-                if axis == Axis::Time { 240.0 } else { 24576.0 }
-            );
+            // The configured range is preserved; a short chart is fitted
+            // into the overview with a narrower effective range.
+            let configured = if axis == Axis::Time { 240.0 } else { 24576.0 };
+            assert_eq!(state.minimap_preferences().visible_range(axis), configured);
+            assert!(p.mini_range > 0.0 && p.mini_range < configured);
         }
     }
     assert!(!state.workspace().file().session.is_dirty());
@@ -338,7 +339,7 @@ fn row_drag_preserves_fractional_warp_destination_and_offsets_in_both_directions
     for reverse in [false, true] {
         let (dir, _, _owner)=setup(false);
         let song = dir.path().join("song.ssc");
-        fs::write(&song,b"#VERSION:0.83;#MUSIC:music.wav;#OFFSET:0.25;#GASongDataVersion:1;#GASongData:{\"SyncOffset\":0.1};#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#STOPS:1=1;#DELAYS:2=0.25;#WARPS:3=1;#NOTES:1000\n0100\n0010\n0001;").unwrap();
+        fs::write(&song,b"#VERSION:0.83;#MUSIC:music.wav;#OFFSET:0.25;#GASongDataVersion:1;#GASongData:{\"SyncOffset\":0.1};#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#STOPS:1=1;#DELAYS:2=0.25;#WARPS:3=1;#NOTES:1000\n0100\n0010\n0001\n,\n0000\n0000\n0000\n1000;").unwrap();
         let mut state = State::open(&song, 0).unwrap();
         let path = dir.path().join("preferences.json");
         let mut file = deadsync_editor::audio_preferences::File::open(&path).unwrap();

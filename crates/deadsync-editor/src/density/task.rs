@@ -22,7 +22,7 @@ pub struct Task {
     preview_grid: Option<crate::notes::Grid>,
     bytes: Arc<[u8]>,
     format: Format,
-    load_context:crate::document::LoadContext,
+    load_context: crate::document::LoadContext,
     chart: usize,
     identity: Guid,
     token: RevisionToken,
@@ -60,7 +60,7 @@ impl Totals {
                     rows.insert(head.position.row);
                     if let Some(lane) = result.lanes.get_mut(usize::from(head.position.lane)) {
                         *lane += 1;
-                        result.max_lane=result.max_lane.max(*lane);
+                        result.max_lane = result.max_lane.max(*lane);
                     }
                     match head.kind {
                         Kind::Hold => result.holds += 1,
@@ -102,12 +102,21 @@ pub struct Report {
 impl Report {
     /// The original Use Stream action writes the source stream notation, including
     /// the empty string when there is no stream. Never substitute RSSP analysis.
-    pub fn description_draft(&self, session: &Session, chart: usize) -> Result<crate::chart_properties::Draft, Error> {
+    pub fn description_draft(
+        &self,
+        session: &Session,
+        chart: usize,
+    ) -> Result<crate::chart_properties::Draft, Error> {
         if !self.is_current(session, chart) {
-            return Err(invalid("Stream description report is stale or belongs to another chart"));
+            return Err(invalid(
+                "Stream description report is stale or belongs to another chart",
+            ));
         }
-        let mut draft=crate::chart_properties::Draft::capture(session,chart)?;
-        draft.set_text(crate::chart_text::Field::Description,self.series.breakdown.as_deref().unwrap_or(""))?;
+        let mut draft = crate::chart_properties::Draft::capture(session, chart)?;
+        draft.set_text(
+            crate::chart_text::Field::Description,
+            self.series.breakdown.as_deref().unwrap_or(""),
+        )?;
         Ok(draft)
     }
     pub fn chart_time(&self, row: u64) -> Result<f64, Error> {
@@ -125,7 +134,7 @@ impl Task {
             preview_grid: None,
             bytes: session.serialize()?.into(),
             format: session.document().format,
-            load_context:session.document().load_context(),
+            load_context: session.document().load_context(),
             chart,
             identity: session
                 .chart_ids()
@@ -137,9 +146,14 @@ impl Task {
         })
     }
     /// Immutable generated notes with timing/metadata bound to their source chart.
-    pub fn capture_preview_grid(session:&Session,chart:usize,stream:StreamSettings,grid:&crate::notes::Grid)->Result<Self,Error>{
-        let mut task=Self::capture(session,chart,stream)?;
-        task.preview_grid=Some(grid.clone());
+    pub fn capture_preview_grid(
+        session: &Session,
+        chart: usize,
+        stream: StreamSettings,
+        grid: &crate::notes::Grid,
+    ) -> Result<Self, Error> {
+        let mut task = Self::capture(session, chart, stream)?;
+        task.preview_grid = Some(grid.clone());
         Ok(task)
     }
     pub fn spawn(self) -> Result<Job<Report>, Error> {
@@ -160,7 +174,11 @@ impl Task {
     }
     pub fn run(self, cancelled: &AtomicBool) -> Result<Report, Error> {
         check(cancelled)?;
-        let mut session = Session::new(Document::parse_with_context(self.bytes, self.format,self.load_context)?);
+        let mut session = Session::new(Document::parse_with_context(
+            self.bytes,
+            self.format,
+            self.load_context,
+        )?);
         let timing = GenerationTiming::from_document(session.document(), self.chart)?;
         let attacks = crate::attacks::placement::Timeline::capture(&session, self.chart)?;
         let attack_rows: Vec<_> = attacks.markers().iter().map(|m| m.row).collect();
@@ -171,13 +189,16 @@ impl Task {
             .iter()
             .map(|(row, p)| (*row, *row + p.length))
             .collect();
-        let grid = match self.preview_grid.as_ref(){Some(grid)=>grid,None=>session.grid(self.chart)?};
+        let grid = match self.preview_grid.as_ref() {
+            Some(grid) => grid,
+            None => session.grid(self.chart)?,
+        };
         if grid.iter().take(2_000_001).count() > 2_000_000 {
             return Err(invalid("Density note budget exceeded"));
         }
         let editor = EditorTimeline::density_clock(&timing, grid, &attack_rows, cancelled)?
             .with_markers(&regions, cancelled)?;
-        let totals=Totals::collect(editor.heads(),usize::from(grid.columns()));
+        let totals = Totals::collect(editor.heads(), usize::from(grid.columns()));
         let heads: BTreeMap<_, _> = editor
             .heads()
             .iter()
@@ -213,8 +234,7 @@ impl Task {
             }
             Ok(row.max(0.0) as u64)
         };
-        if song.text(crate::song_text::Field::PreviewMusic).is_empty()
-        {
+        if song.text(crate::song_text::Field::PreviewMusic).is_empty() {
             events.push(Event {
                 row: row_at(song.sample_start())?,
                 step: false,
@@ -327,7 +347,7 @@ mod totals_tests {
         let ties = Totals {
             notes: 8,
             lanes: vec![1, 7],
-            max_lane:7,
+            max_lane: 7,
             ..Totals::default()
         };
         assert_eq!(ties.distribution(0), Some((14, 12)));

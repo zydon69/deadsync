@@ -348,21 +348,23 @@ fn lua_cmd_operand(source: &str, mut index: usize) -> Result<usize, String> {
     }
     if suffixes {
         loop {
-        let next = lua_cmd_space(source, index);
-        match bytes.get(next) {
-            Some(b'.' | b':') if !source[next..].starts_with("..") => {
-                let name = lua_cmd_space(source, next + 1);
-                let (word, _) = lua_cmd_name(&source[name..])?;
-                index = name + word.len();
-            }
-            Some(b'[') if lua_long_bracket_end(source, next).is_some() => {
-                index =
-                    lua_long_string_end(source, next, lua_long_bracket_end(source, next).unwrap(),
+            let next = lua_cmd_space(source, index);
+            match bytes.get(next) {
+                Some(b'.' | b':') if !source[next..].starts_with("..") => {
+                    let name = lua_cmd_space(source, next + 1);
+                    let (word, _) = lua_cmd_name(&source[name..])?;
+                    index = name + word.len();
+                }
+                Some(b'[') if lua_long_bracket_end(source, next).is_some() => {
+                    index = lua_long_string_end(
+                        source,
+                        next,
+                        lua_long_bracket_end(source, next).unwrap(),
                     )?;
-            }
-            Some(b'(' | b'{' | b'[') => index = lua_cmd_group_end(source, next)?,
-            Some(b'\'' | b'"') => index = lua_quoted_end(source, next)?,
-            _ => break,
+                }
+                Some(b'(' | b'{' | b'[') => index = lua_cmd_group_end(source, next)?,
+                Some(b'\'' | b'"') => index = lua_quoted_end(source, next)?,
+                _ => break,
             }
         }
     }

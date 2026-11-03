@@ -133,7 +133,8 @@ fn dark_overlay_order_size_and_clamping_preserve_note_layers() {
     // Solid sprites use a native1x1 base when SizeSpec::Px is0; zoomto
     // carries the requested rendered dimensions in Actor.scale.
     // GrooveAuthor stores raw floats but renders through MonoGame Color bytes.
-    let color = deadsync_editor::source_color::rgba(deadsync_editor::source_color::quantize([1.0, 0.0, 0.25, 0.5,
+    let color = deadsync_editor::source_color::rgba(deadsync_editor::source_color::quantize([
+        1.0, 0.0, 0.25, 0.5,
     ]));
     let mut p = Preferences::default();
     p.set_show(true);
@@ -150,11 +151,16 @@ fn dark_overlay_order_size_and_clamping_preserve_note_layers() {
         if order == Order::AfterWaveForm {
             // Grid lines share waveform z but are deliberately appended after
             // the overlay, keeping chart guides visible above the dark layer.
-            let grid:Vec<_>=actors.iter().enumerate().filter_map(|(i,a)| {
-                    matches!(a,Actor::Sprite{z:8001,tint,..} if *tint==[0.12,0.16,0.22,1.0]).then_some(i)
-                }).collect();
+            let grid: Vec<_> = actors
+                .iter()
+                .enumerate()
+                .filter_map(|(i, a)| {
+                    matches!(a,Actor::Sprite{z:8001,tint,..} if *tint==[0.12,0.16,0.22,1.0])
+                        .then_some(i)
+                })
+                .collect();
             assert!(!grid.is_empty());
-            assert!(grid.iter().all(|i|*i>overlay));
+            assert!(grid.iter().all(|i| *i > overlay));
         }
     }
     p.set_size(Size::Charts);

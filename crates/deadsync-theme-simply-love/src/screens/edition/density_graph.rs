@@ -12,9 +12,15 @@ use deadsync_editor::{
     history::file_intent::IntentGuard,
 };
 use std::{cell::RefCell, sync::Arc};
-fn same_preview(a:&Option<Arc<()>>,b:&Option<Arc<()>>)->bool{match(a,b){(None,None)=>true,(Some(a),Some(b))=>Arc::ptr_eq(a,b),_=>false}}
+fn same_preview(a: &Option<Arc<()>>, b: &Option<Arc<()>>) -> bool {
+    match (a, b) {
+        (None, None) => true,
+        (Some(a), Some(b)) => Arc::ptr_eq(a, b),
+        _ => false,
+    }
+}
 struct Pending {
-    preview:Option<Arc<()>>,
+    preview: Option<Arc<()>>,
     chart: usize,
     identity: Guid,
     token: IntentGuard,
@@ -23,7 +29,10 @@ struct Pending {
 impl Pending {
     fn current(&self, s: &State) -> bool {
         self.chart == s.preview_source_chart().unwrap_or(s.workspace.chart())
-            && same_preview(&self.preview,&s.preview.as_ref().map(|_|s.receptor_views.preview_owner()))
+            && same_preview(
+                &self.preview,
+                &s.preview.as_ref().map(|_| s.receptor_views.preview_owner()),
+            )
             && s.workspace.file().session.chart_ids().get(self.chart) == Some(&self.identity)
             && self.token.is_current(&s.workspace.file().session)
             && self.stream == s.source_density.stream
@@ -57,7 +66,7 @@ impl Default for Runtime {
             job: None,
             pending: None,
             report: None,
-            report_preview:None,
+            report_preview: None,
             report_stream: Default::default(),
             mesh: RefCell::new(None),
             summary: Arc::from(""),
@@ -83,8 +92,18 @@ impl State {
         self.source_density.report.as_ref().filter(|r| {
             self.source_density.report_stream == self.source_density.stream
                 && self.workspace.has_chart()
-                && same_preview(&self.source_density.report_preview,&self.preview.as_ref().map(|_|self.receptor_views.preview_owner()))
-                && r.is_current(&self.workspace.file().session, self.preview_source_chart().unwrap_or(self.workspace.chart()))
+                && same_preview(
+                    &self.source_density.report_preview,
+                    &self
+                        .preview
+                        .as_ref()
+                        .map(|_| self.receptor_views.preview_owner()),
+                )
+                && r.is_current(
+                    &self.workspace.file().session,
+                    self.preview_source_chart()
+                        .unwrap_or(self.workspace.chart()),
+                )
         })
     }
     pub fn is_density_loading(&self) -> bool {
@@ -129,19 +148,27 @@ impl State {
         self.source_density.pending = None;
         self.source_density.mesh.get_mut().take();
         let session = &self.workspace.file().session;
-        let chart = self.preview_source_chart().unwrap_or(self.workspace.chart());
+        let chart = self
+            .preview_source_chart()
+            .unwrap_or(self.workspace.chart());
         // An error belongs to this exact snapshot too. Retain its binding so cursor
         // refreshes do not serialize the same unsupported snapshot repeatedly.
         self.source_density.pending = Some(Pending {
-            preview:self.preview.as_ref().map(|_|self.receptor_views.preview_owner()),
+            preview: self
+                .preview
+                .as_ref()
+                .map(|_| self.receptor_views.preview_owner()),
             chart,
             identity: session.chart_ids()[chart].clone(),
             token: IntentGuard::capture(session),
             stream: self.source_density.stream,
         });
-        let prepared = if let Some(preview)=self.preview.as_ref(){
-            Task::capture_preview_grid(session,chart,self.source_density.stream,preview.grid()).and_then(|task|task.spawn())
-        }else{start(session, chart, self.source_density.stream)};
+        let prepared = if let Some(preview) = self.preview.as_ref() {
+            Task::capture_preview_grid(session, chart, self.source_density.stream, preview.grid())
+                .and_then(|task| task.spawn())
+        } else {
+            start(session, chart, self.source_density.stream)
+        };
         match prepared {
             Ok(job) => {
                 self.source_density.job = Some(job);
@@ -170,9 +197,14 @@ impl State {
         }
         match result {
             Ok(report)
-                if report.is_current(&self.workspace.file().session, self.preview_source_chart().unwrap_or(self.workspace.chart())) =>
+                if report.is_current(
+                    &self.workspace.file().session,
+                    self.preview_source_chart()
+                        .unwrap_or(self.workspace.chart()),
+                ) =>
             {
-                self.source_density.report_preview=pending.as_ref().and_then(|p|p.preview.clone());
+                self.source_density.report_preview =
+                    pending.as_ref().and_then(|p| p.preview.clone());
                 self.source_density.report_stream = self.source_density.stream;
                 let summary = report
                     .series
@@ -387,9 +419,12 @@ impl State {
         }
         // Pointer interaction is intentionally represented by existing keyboard navigation.
         // A one-pixel current-time marker uses the source final chart time mapping.
-        let time = self.preview_position().ok().flatten().map(|p|p.chart_time()).or_else(||self
-            .playback_position()
-            .map(|p| p.0))
+        let time = self
+            .preview_position()
+            .ok()
+            .flatten()
+            .map(|p| p.chart_time())
+            .or_else(|| self.playback_position().map(|p| p.0))
             .or_else(|| report.chart_time(self.workspace.row()).ok())
             .unwrap_or(0.0);
         let percentage = if report.series.final_time > 0.0 {

@@ -68,20 +68,27 @@ impl Patterns {
         let mut data = ChartData::existing_or_initial(session.document(), chart)?;
         let before = data.patterns.clone();
         let patterns = data.patterns.get_or_insert_with(BTreeMap::new);
-        let mut added=Vec::new();let mut restored=Vec::new();
+        let mut added = Vec::new();
+        let mut restored = Vec::new();
         for (&head, definition) in &self.0 {
             let head = head
                 .checked_sub(origin)
                 .and_then(|offset| row.checked_add(offset))
                 .ok_or_else(|| Error::InvalidEdit("Pattern paste exceeds editor rows".into()))?;
-            if patterns.contains_key(&head){restored.push(head);}
+            if patterns.contains_key(&head) {
+                restored.push(head);
+            }
             added.push(head);
             patterns.insert(head, definition.clone());
         }
         data.validate()?;
-        let changed=if data.patterns != before {data.save(session, chart)?}else{session.commit_pattern_readd(chart)?};
+        let changed = if data.patterns != before {
+            data.save(session, chart)?
+        } else {
+            session.commit_pattern_readd(chart)?
+        };
         // ForceAdd readds overwritten objects even when definitions are equal.
-        session.record_pattern_replacements(chart,restored,added,changed);
+        session.record_pattern_replacements(chart, restored, added, changed);
         Ok((self.0.len(), 0))
     }
 

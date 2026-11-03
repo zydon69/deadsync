@@ -8,10 +8,10 @@ pub mod inspector;
 pub mod physical;
 #[path = "key_binding_preferences/reservations.rs"]
 pub mod reservations;
+pub mod scroll_modifiers;
+pub mod source_post_load;
 #[path = "key_binding_preferences/source_profile.rs"]
 pub mod source_profile;
-pub mod source_post_load;
-pub mod scroll_modifiers;
 use crate::key_commands::{Binding, Key};
 use std::collections::BTreeMap;
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -816,8 +816,12 @@ impl Action {
             _ => None,
         }
     }
-    pub fn is_lane_entry(self) -> bool { self.lane().is_some() || self == Self::ArrowModification }
-    pub fn accepts_chord(self, keys: &[String]) -> bool { reservations::supported_chord(keys) }
+    pub fn is_lane_entry(self) -> bool {
+        self.lane().is_some() || self == Self::ArrowModification
+    }
+    pub fn accepts_chord(self, keys: &[String]) -> bool {
+        reservations::supported_chord(keys)
+    }
     pub fn repeats(self) -> bool {
         matches!(
             self,
@@ -964,8 +968,8 @@ impl Action {
             | Self::ConvertSelectedRollsToHolds
             | Self::ConvertSelectedRollsToTaps
             | Self::ConvertSelectedWarpsToNegativeStops
-                | Self::ConvertSelectedNegativeStopsToWarps
-                | Self::ConvertSelectedRollsToMines
+            | Self::ConvertSelectedNegativeStopsToWarps
+            | Self::ConvertSelectedRollsToMines
             | Self::SwapSelectedTapsAndMines
             | Self::SwapSelectedTapsAndFakes
             | Self::SwapSelectedTapsAndLifts
@@ -1053,7 +1057,10 @@ impl Action {
             Self::ZoomOut => vec![vec!["Ctrl", "Down"]],
             Self::ResetZoom => vec![vec!["Ctrl", "D0"], vec!["Ctrl", "NumPad0"]],
             Self::ToggleAutoAdvance => vec![vec!["A"]],
-            Self::MoveEventPreview | Self::MoveEventEndHint | Self::ToggleNoteEntryMode | Self::ToggleSpacingMode => vec![vec![]],
+            Self::MoveEventPreview
+            | Self::MoveEventEndHint
+            | Self::ToggleNoteEntryMode
+            | Self::ToggleSpacingMode => vec![vec![]],
             Self::NextTool => vec![vec!["Tab"]],
             Self::PreviousTool => vec![vec!["LeftShift", "Tab"]],
             Self::MoveUp => vec![vec!["Up"]],
@@ -1071,13 +1078,17 @@ impl Action {
             Self::FileReload => vec![vec![]],
             Self::FileRecent => vec![vec![]],
             Self::OpenContainingFolder => vec![vec!["Ctrl", "LeftShift", "O"]],
-            Self::ToggleAssistTick | Self::ToggleBeatTick | Self::TogglePreview | Self::ToggleDark | Self::OpenDarkSettings => vec![vec![]],
+            Self::ToggleAssistTick
+            | Self::ToggleBeatTick
+            | Self::TogglePreview
+            | Self::ToggleDark
+            | Self::OpenDarkSettings => vec![vec![]],
         }
     }
 }
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Preferences {
-    pub scroll_modifiers:scroll_modifiers::Preferences,
+    pub scroll_modifiers: scroll_modifiers::Preferences,
     pub commands: BTreeMap<String, Vec<Vec<String>>>,
     /// Exact imported source text, including unknown fields/comments.
     pub source_import_raw: Option<std::sync::Arc<str>>,
@@ -1089,7 +1100,7 @@ pub struct Preferences {
 impl Default for Preferences {
     fn default() -> Self {
         Self {
-            scroll_modifiers:Default::default(),
+            scroll_modifiers: Default::default(),
             source_import_raw: None,
             source_order: false,
             source_blockers: BTreeMap::new(),
@@ -1146,7 +1157,7 @@ impl Preferences {
 impl Preferences {
     pub fn read(fields: &serde_json::Map<String, serde_json::Value>) -> Result<Self, crate::Error> {
         let mut prefs = Self::default();
-        prefs.scroll_modifiers=scroll_modifiers::Preferences::read_native(fields)?;
+        prefs.scroll_modifiers = scroll_modifiers::Preferences::read_native(fields)?;
         if let Some(value) = fields.get(source_profile::BLOCKERS_KEY) {
             prefs.source_blockers = serde_json::from_value(value.clone()).map_err(|_| {
                 crate::Error::InvalidFormat("Invalid unavailable source chords".into())
@@ -1309,7 +1320,8 @@ pub fn supported_key(key: &str) -> bool {
             .strip_prefix('D')
             .is_some_and(|n| n.len() == 1 && n.as_bytes()[0].is_ascii_digit())
         || key.strip_prefix('F').is_some_and(|n| {
-            !n.starts_with('0') && n.len() <= 2
+            !n.starts_with('0')
+                && n.len() <= 2
                 && n.parse::<u8>().is_ok_and(|value| (1..=24).contains(&value))
         })
 }

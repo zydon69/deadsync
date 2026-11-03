@@ -1,10 +1,23 @@
 use super::*;
 impl State {
-    pub(super) fn song_selectable_label(&self,key:&str)->Arc<str>{
-        let code=self.song_properties.as_ref().map(|draft|draft.selectable().source_name()).unwrap_or_else(||"YES".into());
-        let key_value=match code.as_str(){"YES"=>Some("SongSelectableYes"),"NO"=>Some("SongSelectableNo"),"ROULETTE"=>Some("SongSelectableRoulette"),"ES"=>Some("SongSelectableEs"),"OMES"=>Some("SongSelectableOmes"),_=>None};
-        let value=key_value.map(|name|i18n::tr("Edition",name)).unwrap_or_else(||code.into());
-        i18n::tr_fmt("Edition",key,&[("value",&value)])
+    pub(super) fn song_selectable_label(&self, key: &str) -> Arc<str> {
+        let code = self
+            .song_properties
+            .as_ref()
+            .map(|draft| draft.selectable().source_name())
+            .unwrap_or_else(|| "YES".into());
+        let key_value = match code.as_str() {
+            "YES" => Some("SongSelectableYes"),
+            "NO" => Some("SongSelectableNo"),
+            "ROULETTE" => Some("SongSelectableRoulette"),
+            "ES" => Some("SongSelectableEs"),
+            "OMES" => Some("SongSelectableOmes"),
+            _ => None,
+        };
+        let value = key_value
+            .map(|name| i18n::tr("Edition", name))
+            .unwrap_or_else(|| code.into());
+        i18n::tr_fmt("Edition", key, &[("value", &value)])
     }
 
     /// Capture actual fractional transport/focus time before mutating metadata;
@@ -39,12 +52,18 @@ impl State {
             if !draft.has_changes() {
                 return Ok(false);
             }
-            let application=self.workspace.apply_song_properties_with_presentation_receipt(&draft)?;
-            let changed=application.changed();
+            let application = self
+                .workspace
+                .apply_song_properties_with_presentation_receipt(&draft)?;
+            let changed = application.changed();
             if changed {
-                self.song_properties=None;
-                let receipt=application.presentation_receipt().ok_or_else(||deadsync_editor::Error::InvalidEdit("Marker edit unexpectedly changed the presentation clock".into()))?;
-                self.rebind_song_property_presentation(presentation,receipt)?;
+                self.song_properties = None;
+                let receipt = application.presentation_receipt().ok_or_else(|| {
+                    deadsync_editor::Error::InvalidEdit(
+                        "Marker edit unexpectedly changed the presentation clock".into(),
+                    )
+                })?;
+                self.rebind_song_property_presentation(presentation, receipt)?;
             }
             Ok(changed)
         })();
@@ -58,13 +77,20 @@ impl State {
                 },
             ),
             Ok(false) => i18n::tr("Edition", "SongMarkerUnchanged"),
-            Err(error) => i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))]),
+            Err(error) => i18n::tr_fmt(
+                "Edition",
+                "Error",
+                &[("message", &crate::i18n::editor_error(&error))],
+            ),
         };
         self.refresh();
     }
     pub(super) fn open_song_properties(&mut self) {
         self.finish_preference_numeric();
-        if !self.has_song(){self.status=i18n::tr("Edition","FileNoSongHelp");return;}
+        if !self.has_song() {
+            self.status = i18n::tr("Edition", "FileNoSongHelp");
+            return;
+        }
         match self.workspace.song_properties() {
             Ok(draft) => {
                 self.song_properties = Some(draft);
@@ -75,17 +101,45 @@ impl State {
                 self.status = i18n::tr("Edition", "SongPropertiesHelp");
             }
             Err(error) => {
-                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))])
+                self.status = i18n::tr_fmt(
+                    "Edition",
+                    "Error",
+                    &[("message", &crate::i18n::editor_error(&error))],
+                )
             }
         }
     }
     pub(super) fn song_properties_key(&mut self, index: usize, code: KeyCode) {
-        if index==7&&matches!(code,KeyCode::ArrowLeft|KeyCode::ArrowRight|KeyCode::Enter|KeyCode::NumpadEnter|KeyCode::Home){
-            if let Some(draft)=self.song_properties.as_mut(){let value=if code==KeyCode::Home{Default::default()}else{draft.selectable().step(code!=KeyCode::ArrowLeft)};draft.set_selectable(value);}
+        if index == 7
+            && matches!(
+                code,
+                KeyCode::ArrowLeft
+                    | KeyCode::ArrowRight
+                    | KeyCode::Enter
+                    | KeyCode::NumpadEnter
+                    | KeyCode::Home
+            )
+        {
+            if let Some(draft) = self.song_properties.as_mut() {
+                let value = if code == KeyCode::Home {
+                    Default::default()
+                } else {
+                    draft.selectable().step(code != KeyCode::ArrowLeft)
+                };
+                draft.set_selectable(value);
+            }
             return;
         }
-        if index==6&&matches!(code,KeyCode::ArrowLeft|KeyCode::ArrowRight){self.queue_song_timing_order(super::song_timing_chart::Purpose::Cycle(code!=KeyCode::ArrowLeft));return;}
-        if index==6&&matches!(code,KeyCode::Enter|KeyCode::NumpadEnter){self.open_song_timing_event_apply();return;}
+        if index == 6 && matches!(code, KeyCode::ArrowLeft | KeyCode::ArrowRight) {
+            self.queue_song_timing_order(super::song_timing_chart::Purpose::Cycle(
+                code != KeyCode::ArrowLeft,
+            ));
+            return;
+        }
+        if index == 6 && matches!(code, KeyCode::Enter | KeyCode::NumpadEnter) {
+            self.open_song_timing_event_apply();
+            return;
+        }
         if code == KeyCode::F4 {
             self.find_all_song_media(!self.shift);
             return;
@@ -131,19 +185,26 @@ impl State {
                     draft.set_sync_offset(value.max(0.0))
                 };
                 if let Err(error) = result {
-                    self.status =
-                        i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))]);
+                    self.status = i18n::tr_fmt(
+                        "Edition",
+                        "Error",
+                        &[("message", &crate::i18n::editor_error(&error))],
+                    );
                 }
             }
         } else if matches!(code, KeyCode::Enter | KeyCode::NumpadEnter) {
             if index == 5 {
                 if let Some(draft) = self.song_properties.as_mut() {
-                    if !draft.can_apply_itg_offset() { return; }
+                    if !draft.can_apply_itg_offset() {
+                        return;
+                    }
                     self.status = match draft.apply_itg_offset() {
                         Ok(()) => i18n::tr("Edition", "SongItgStaged"),
-                        Err(error) => {
-                            i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))])
-                        }
+                        Err(error) => i18n::tr_fmt(
+                            "Edition",
+                            "Error",
+                            &[("message", &crate::i18n::editor_error(&error))],
+                        ),
                     };
                 }
                 self.refresh_sample_region();
@@ -162,7 +223,10 @@ impl State {
             if index != 1 {
                 return;
             }
-            if self.song_timing_request.is_some(){self.status=i18n::tr("Edition","SongTimingLoading");return;}
+            if self.song_timing_request.is_some() {
+                self.status = i18n::tr("Edition", "SongTimingLoading");
+                return;
+            }
             self.apply_presented_song_properties();
             return;
         }
@@ -190,7 +254,9 @@ impl State {
         }
 
         if index < 3 && matches!(code, KeyCode::F2 | KeyCode::F3) {
-            let exact_row=self.playback_position().map_or(self.workspace.row() as f64,|(_,row)|row);
+            let exact_row = self
+                .playback_position()
+                .map_or(self.workspace.row() as f64, |(_, row)| row);
             let result = (|| -> Result<(), deadsync_editor::Error> {
                 let Some(draft) = self.song_properties.as_mut() else {
                     return Ok(());
@@ -215,7 +281,7 @@ impl State {
                     };
                     let row = clock.position(seconds)?;
                     self.wheel.cancel();
-                    self.navigate_wheel_position(false,row,true)?;
+                    self.navigate_wheel_position(false, row, true)?;
                 }
                 Ok(())
             })();
@@ -228,7 +294,11 @@ impl State {
                         "SongSampleJumped"
                     },
                 ),
-                Err(error) => i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))]),
+                Err(error) => i18n::tr_fmt(
+                    "Edition",
+                    "Error",
+                    &[("message", &crate::i18n::editor_error(&error))],
+                ),
             };
             self.refresh_sample_region();
             return;
@@ -282,8 +352,11 @@ impl State {
                     draft.set_last_second_hint(value.max(0.0))
                 };
                 if let Err(error) = result {
-                    self.status =
-                        i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))]);
+                    self.status = i18n::tr_fmt(
+                        "Edition",
+                        "Error",
+                        &[("message", &crate::i18n::editor_error(&error))],
+                    );
                 }
             }
         }
@@ -363,25 +436,67 @@ mod source_selectable_tests {
 
 #[cfg(test)]
 mod source_song_sync_ui_bounds_tests {
- use super::*;
- #[test]
- fn song_sync_widget_clamps_zero_but_typed_owner_keeps_source_setter_values(){
-  crate::i18n::init_for_tests();let root=tempfile::tempdir().unwrap();let path=root.path().join("song.ssc");
-  std::fs::write(&path,"#VERSION:0.83;#BPMS:0=120;#GASongDataVersion:1;#GASongData:{\"SyncOffset\":-0.25};#NOTEDATA:;#STEPSTYPE:dance-single;#DIFFICULTY:Easy;#METER:1;#NOTES:1000;").unwrap();
-  let mut state=State::open(&path,0).unwrap();state.open_song_properties();assert_eq!(state.song_properties.as_ref().unwrap().sync_offset(),-0.25);
-  state.song_properties_key(0,KeyCode::ArrowLeft);assert_eq!(state.song_properties.as_ref().unwrap().sync_offset(),0.0);
-  state.song_properties_key(2,KeyCode::Enter);assert_eq!(state.workspace.song_properties().unwrap().sync_offset(),-0.25);
- }
- #[test]
- fn selectable_values_are_localized_but_saved_tokens_stay_source_codes(){
-  for language in ["en","fr"]{crate::i18n::init_for_tests();crate::i18n::set_locale(deadsync_assets::language::load_for_tests(language));
-   let root=tempfile::tempdir().unwrap();let path=root.path().join("song.ssc");std::fs::write(&path,"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;").unwrap();
-   let mut state=State::open(&path,0).unwrap();state.open_song_properties();
-   for(code,key)in [("YES","SongSelectableYes"),("NO","SongSelectableNo"),("ROULETTE","SongSelectableRoulette"),("ES","SongSelectableEs"),("OMES","SongSelectableOmes")]{
-    let value=deadsync_editor::song_properties::Selectable::read(Some(code));state.song_properties.as_mut().unwrap().set_selectable(value);
-    let display=state.song_selectable_label("SongSelectable");assert!(display.contains(i18n::tr("Edition",key).as_ref()));assert!(!display.contains("SongSelectable"));assert_eq!(state.song_properties.as_ref().unwrap().selectable().source_name(),code);
-    if language=="fr"&&matches!(code,"YES"|"NO"){assert!(!display.contains(code));}
-   }
-  }
- }
+    use super::*;
+    #[test]
+    fn song_sync_widget_clamps_zero_but_typed_owner_keeps_source_setter_values() {
+        crate::i18n::init_for_tests();
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("song.ssc");
+        std::fs::write(&path,"#VERSION:0.83;#BPMS:0=120;#GASongDataVersion:1;#GASongData:{\"SyncOffset\":-0.25};#NOTEDATA:;#STEPSTYPE:dance-single;#DIFFICULTY:Easy;#METER:1;#NOTES:1000;").unwrap();
+        let mut state = State::open(&path, 0).unwrap();
+        state.open_song_properties();
+        assert_eq!(state.song_properties.as_ref().unwrap().sync_offset(), -0.25);
+        state.song_properties_key(0, KeyCode::ArrowLeft);
+        assert_eq!(state.song_properties.as_ref().unwrap().sync_offset(), 0.0);
+        state.song_properties_key(2, KeyCode::Enter);
+        assert_eq!(
+            state.workspace.song_properties().unwrap().sync_offset(),
+            -0.25
+        );
+    }
+    #[test]
+    fn selectable_values_are_localized_but_saved_tokens_stay_source_codes() {
+        for language in ["en", "fr"] {
+            crate::i18n::init_for_tests();
+            crate::i18n::set_locale(deadsync_assets::language::load_for_tests(language));
+            let root = tempfile::tempdir().unwrap();
+            let path = root.path().join("song.ssc");
+            std::fs::write(
+                &path,
+                "#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;",
+            )
+            .unwrap();
+            let mut state = State::open(&path, 0).unwrap();
+            state.open_song_properties();
+            for (code, key) in [
+                ("YES", "SongSelectableYes"),
+                ("NO", "SongSelectableNo"),
+                ("ROULETTE", "SongSelectableRoulette"),
+                ("ES", "SongSelectableEs"),
+                ("OMES", "SongSelectableOmes"),
+            ] {
+                let value = deadsync_editor::song_properties::Selectable::read(Some(code));
+                state
+                    .song_properties
+                    .as_mut()
+                    .unwrap()
+                    .set_selectable(value);
+                let display = state.song_selectable_label("SongSelectable");
+                assert!(display.contains(i18n::tr("Edition", key).as_ref()));
+                assert!(!display.contains("SongSelectable"));
+                assert_eq!(
+                    state
+                        .song_properties
+                        .as_ref()
+                        .unwrap()
+                        .selectable()
+                        .source_name(),
+                    code
+                );
+                if language == "fr" && matches!(code, "YES" | "NO") {
+                    assert!(!display.contains(code));
+                }
+            }
+        }
+    }
 }

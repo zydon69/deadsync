@@ -20,13 +20,26 @@ impl State {
     /// Confirmed File/Open changes the next dialog directory even if loading
     /// subsequently fails. A pathless owner stays memory-only and participates
     /// in source-preference history authentication, never acquiring a disk path.
-    pub(super) fn remember_open_dialog_directory(&mut self,path:&Path,
-    )->Result<(),deadsync_editor::Error>{
-        let directory=path.parent().ok_or_else(|| {
+    pub(super) fn remember_open_dialog_directory(
+        &mut self,
+        path: &Path,
+    ) -> Result<(), deadsync_editor::Error> {
+        let directory = path.parent().ok_or_else(|| {
             deadsync_editor::Error::InvalidEdit("Selected file has no parent directory".into())
         })?;
-        if let Some(file)=self.audio_preferences_file.as_mut(){file.set_initial_file_directory(directory)?;}
-        else{if self.source_preferences_import.memory.is_none(){self.source_preferences_import.memory=Some(deadsync_editor::audio_preferences::File::memory()?);}self.source_preferences_import.memory.as_mut().unwrap().set_initial_file_directory(directory)?;}
+        if let Some(file) = self.audio_preferences_file.as_mut() {
+            file.set_initial_file_directory(directory)?;
+        } else {
+            if self.source_preferences_import.memory.is_none() {
+                self.source_preferences_import.memory =
+                    Some(deadsync_editor::audio_preferences::File::memory()?);
+            }
+            self.source_preferences_import
+                .memory
+                .as_mut()
+                .unwrap()
+                .set_initial_file_directory(directory)?;
+        }
         Ok(())
     }
     pub(super) fn command_open_containing_folder(&mut self) {

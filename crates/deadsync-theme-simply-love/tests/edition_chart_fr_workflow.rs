@@ -411,7 +411,8 @@ fn french_song_properties_pages_text_music_and_cancel_use_shared_translated_cont
     assert!(texts(&s).iter().any(|v| v == "Titre : Été 日本語|"));
     press(&mut s, KeyCode::PageDown);
     let second = texts(&s);
-    assert!(second.iter().any(|v| v.contains("Champs 2/3")),
+    assert!(
+        second.iter().any(|v| v.contains("Champs 2/3")),
         "{second:?}"
     );
     assert!(
@@ -507,8 +508,15 @@ fn french_end_hint_explains_song_end_in_both_formats() {
                 .iter()
                 .any(|s| s.contains("continuer après la dernière note"))
         );
-        assert!(labels.iter().any(|s|s.contains(if sm {"Indication de fin : 0.000000 s"}else{"Indication de fin : 12.500000 s"})),"{labels:?}");
-        assert!(!labels.iter().any(|s|s.contains("indisponible en SM")));
+        assert!(
+            labels.iter().any(|s| s.contains(if sm {
+                "Indication de fin : 0.000000 s"
+            } else {
+                "Indication de fin : 12.500000 s"
+            })),
+            "{labels:?}"
+        );
+        assert!(!labels.iter().any(|s| s.contains("indisponible en SM")));
     }
 }
 
@@ -550,13 +558,25 @@ fn french_waveform_preferences_show_translated_controls_and_apply_without_song_e
     ] {
         assert!(labels.contains(expected), "{expected}: {labels}");
     }
-    for _ in 0..4 { press(&mut state, KeyCode::ArrowDown); }
+    for _ in 0..4 {
+        press(&mut state, KeyCode::ArrowDown);
+    }
     press(&mut state, KeyCode::ArrowRight);
-    assert!(texts(&state).iter().any(|line| line.contains("Défilement de la forme d’onde : Tempo courant")));
+    assert!(
+        texts(&state)
+            .iter()
+            .any(|line| line.contains("Défilement de la forme d’onde : Tempo courant"))
+    );
     press(&mut state, KeyCode::ArrowRight);
-    assert!(texts(&state).iter().any(|line| line.contains("Tempo courant et multiplicateurs")));
+    assert!(
+        texts(&state)
+            .iter()
+            .any(|line| line.contains("Tempo courant et multiplicateurs"))
+    );
     press(&mut state, KeyCode::Home);
-    for _ in 0..10 { press(&mut state, KeyCode::ArrowDown); }
+    for _ in 0..10 {
+        press(&mut state, KeyCode::ArrowDown);
+    }
     press(&mut state, KeyCode::Enter);
     assert!(
         texts(&state)
@@ -578,27 +598,67 @@ fn french_waveform_preferences_show_translated_controls_and_apply_without_song_e
 #[test]
 fn french_waveform_colours_are_paginated_and_keep_edits_staged_until_parent_save() {
     i18n::init(deadsync_assets::language::load_for_tests("fr"));
-    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(854.0,480.0,
+    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+        854.0, 480.0,
     ));
-    let dir=tempfile::tempdir().unwrap();let path=dir.path().join("song.ssc");
-    let source="#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;";
-    fs::write(&path,source).unwrap();let mut state=State::open(&path,0).unwrap();
-    state.raw_key(&RawKeyboardEvent {code:KeyCode::ShiftLeft,pressed:true,repeat:false,timestamp:Instant::now(),host_nanos:0,
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("song.ssc");
+    let source = "#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;";
+    fs::write(&path, source).unwrap();
+    let mut state = State::open(&path, 0).unwrap();
+    state.raw_key(&RawKeyboardEvent {
+        code: KeyCode::ShiftLeft,
+        pressed: true,
+        repeat: false,
+        timestamp: Instant::now(),
+        host_nanos: 0,
     });
-    press(&mut state,KeyCode::KeyW);
-    state.raw_key(&RawKeyboardEvent {code:KeyCode::ShiftLeft,pressed:false,repeat:false,timestamp:Instant::now(),host_nanos:0,
+    press(&mut state, KeyCode::KeyW);
+    state.raw_key(&RawKeyboardEvent {
+        code: KeyCode::ShiftLeft,
+        pressed: false,
+        repeat: false,
+        timestamp: Instant::now(),
+        host_nanos: 0,
     });
-    press(&mut state,KeyCode::F2);
-    assert!(texts(&state).iter().any(|v|v.contains("Plus sombre que la zone dense")));
-    assert!(texts(&state).iter().any(|v|v.contains("Couleurs de forme d’onde 1/2")));
-    press(&mut state,KeyCode::ArrowRight);
-    assert!(texts(&state).iter().any(|v|v.contains("Identique à la zone dense")));
-    for _ in 0..13 {press(&mut state,KeyCode::ArrowDown);}
-    assert!(texts(&state).iter().any(|v|v.contains("Couleurs de forme d’onde 2/2")));
-    assert!(texts(&state).iter().any(|v|v.contains("Fond, opacité : 0.000")));
-    press(&mut state,KeyCode::ArrowRight);press(&mut state,KeyCode::Escape);press(&mut state,KeyCode::Escape);
-    assert_eq!(state.waveform_preferences().palette(),Default::default());
-    assert_eq!(state.workspace().file().session.serialize().unwrap(),source.as_bytes());
+    press(&mut state, KeyCode::F2);
+    assert!(
+        texts(&state)
+            .iter()
+            .any(|v| v.contains("Plus sombre que la zone dense"))
+    );
+    assert!(
+        texts(&state)
+            .iter()
+            .any(|v| v.contains("Couleurs de forme d’onde 1/2"))
+    );
+    press(&mut state, KeyCode::ArrowRight);
+    assert!(
+        texts(&state)
+            .iter()
+            .any(|v| v.contains("Identique à la zone dense"))
+    );
+    for _ in 0..13 {
+        press(&mut state, KeyCode::ArrowDown);
+    }
+    assert!(
+        texts(&state)
+            .iter()
+            .any(|v| v.contains("Couleurs de forme d’onde 2/2"))
+    );
+    assert!(
+        texts(&state)
+            .iter()
+            .any(|v| v.contains("Fond, opacité : 0.000"))
+    );
+    press(&mut state, KeyCode::ArrowRight);
+    press(&mut state, KeyCode::Escape);
+    press(&mut state, KeyCode::Escape);
+    assert_eq!(state.waveform_preferences().palette(), Default::default());
+    assert_eq!(
+        state.workspace().file().session.serialize().unwrap(),
+        source.as_bytes()
+    );
 }
 
 #[test]

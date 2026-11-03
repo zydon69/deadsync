@@ -110,7 +110,11 @@ impl Inventory {
             i32::MAX as u64,
         )?;
         let mut values: std::collections::BTreeMap<_, _> = timing.display_values().collect();
-        let attack_scope=if crate::attacks::supports_resident_chart_attacks(session.document()){crate::timing_edit::Scope::Chart}else{crate::timing_edit::Scope::Song};
+        let attack_scope = if crate::attacks::supports_resident_chart_attacks(session.document()) {
+            crate::timing_edit::Scope::Chart
+        } else {
+            crate::timing_edit::Scope::Song
+        };
         let attacks = crate::attacks::inspector::Draft::capture(session, chart, attack_scope)?;
         for event in attacks.attacks().events() {
             values.insert(

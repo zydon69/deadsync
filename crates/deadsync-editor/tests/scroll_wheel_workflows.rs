@@ -214,26 +214,61 @@ fn interpolation_keeps_source_setter_tolerance_and_accumulated_target() {
     assert_eq!(interpolation.desired(), target);
     interpolation.begin(0.5, initial, target - initial);
     assert_eq!(interpolation.desired().to_bits(), initial.to_bits() + 4);
-    assert_eq!(interpolation.value(1.5, 1.).to_bits(), initial.to_bits() + 4);
+    assert_eq!(
+        interpolation.value(1.5, 1.).to_bits(),
+        initial.to_bits() + 4
+    );
 }
 
 #[test]
 fn full_original_editor_position_interpolation_oracle() {
-    let oracle:serde_json::Value=serde_json::from_str(include_str!("fixtures/editor-position-interpolation.expected.json")).unwrap();
+    let oracle: serde_json::Value = serde_json::from_str(include_str!(
+        "fixtures/editor-position-interpolation.expected.json"
+    ))
+    .unwrap();
     for case in oracle["cases"].as_array().unwrap() {
         // Axis switching uses the cross-axis chart setter. Its source fixture is
         // retained for host integration, outside this single-axis controller.
-        let kind=case["kind"].as_str().unwrap();if kind=="axis_switch" {continue;}
-        let mut axis=Interpolation::new(1.0);
-        let duration=if kind=="zero_duration"{0.0}else{0.1};
-        axis.begin(0.0,1.0,if kind=="desired_ulp"{f64::from_bits(1.0f64.to_bits()+1)-1.0}else if kind=="negative"{-2.0}else{1.0});
-        for (index,entry) in case["trace"].as_array().unwrap().iter().enumerate() {
-            if index==2&&kind=="cancel" {axis.reset(axis.current());}
-            if index==3 {axis.begin(0.1,axis.current(),1.0);}
-            let got=axis.value(entry["now"].as_f64().unwrap(),duration);
-            assert_eq!(got.to_bits(),entry["current"].as_i64().unwrap() as u64,"{kind} {index}");
-            assert_eq!(axis.desired().to_bits(),entry["desired"].as_i64().unwrap() as u64,"{kind} desired {index}");
-            assert_eq!(!axis.is_complete(got),entry["active"].as_bool().unwrap(),"{kind} active {index}");
+        let kind = case["kind"].as_str().unwrap();
+        if kind == "axis_switch" {
+            continue;
+        }
+        let mut axis = Interpolation::new(1.0);
+        let duration = if kind == "zero_duration" { 0.0 } else { 0.1 };
+        axis.begin(
+            0.0,
+            1.0,
+            if kind == "desired_ulp" {
+                f64::from_bits(1.0f64.to_bits() + 1) - 1.0
+            } else if kind == "negative" {
+                -2.0
+            } else {
+                1.0
+            },
+        );
+        for (index, entry) in case["trace"].as_array().unwrap().iter().enumerate() {
+            if index == 2 && kind == "cancel" {
+                axis.reset(axis.current());
+            }
+            if index == 3 {
+                axis.begin(0.1, axis.current(), 1.0);
+            }
+            let got = axis.value(entry["now"].as_f64().unwrap(), duration);
+            assert_eq!(
+                got.to_bits(),
+                entry["current"].as_i64().unwrap() as u64,
+                "{kind} {index}"
+            );
+            assert_eq!(
+                axis.desired().to_bits(),
+                entry["desired"].as_i64().unwrap() as u64,
+                "{kind} desired {index}"
+            );
+            assert_eq!(
+                !axis.is_complete(got),
+                entry["active"].as_bool().unwrap(),
+                "{kind} active {index}"
+            );
         }
     }
 }

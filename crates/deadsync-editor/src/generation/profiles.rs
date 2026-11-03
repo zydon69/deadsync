@@ -193,9 +193,13 @@ impl Profile {
     /// Create from editor defaults before validation. Library deserialization
     /// defaults contain inheritance sentinels and are not standalone presets.
     pub fn new_editor_default(kind: Kind) -> Result<Self, Error> {
-        let mut profile = Self::from_members(kind, Members(vec![
-            ("Config".into(), raw(&Config::editor_defaults(kind).json()?)?),
-        ]))?;
+        let mut profile = Self::from_members(
+            kind,
+            Members(vec![(
+                "Config".into(),
+                raw(&Config::editor_defaults(kind).json()?)?,
+            )]),
+        )?;
         profile.restore_defaults()?;
         Ok(profile)
     }
@@ -534,14 +538,20 @@ impl Profile {
         }
         Ok(())
     }
-    pub fn export_new(&self,directory:&Path)->Result<ProfileFile,Error>{Ok(self.export_new_committed(directory)?.into_file())}
-    pub fn export_new_committed(&self,directory:&Path)->Result<ExportOutcome,Error>{
-        if builtin(self.config.kind(),&self.guid){return invalid("Built-in editor profiles cannot be overwritten");}
+    pub fn export_new(&self, directory: &Path) -> Result<ProfileFile, Error> {
+        Ok(self.export_new_committed(directory)?.into_file())
+    }
+    pub fn export_new_committed(&self, directory: &Path) -> Result<ExportOutcome, Error> {
+        if builtin(self.config.kind(), &self.guid) {
+            return invalid("Built-in editor profiles cannot be overwritten");
+        }
         fs::create_dir_all(directory)?;
         self.export_to_committed(&directory.join(self.filename()))
     }
     /// Publish a shared profile to an explicit filename without replacing it.
-    pub fn export_to(&self,path:&Path)->Result<ProfileFile,Error>{Ok(self.export_to_committed(path)?.into_file())}
+    pub fn export_to(&self, path: &Path) -> Result<ProfileFile, Error> {
+        Ok(self.export_to_committed(path)?.into_file())
+    }
     /// Err is a refusal before namespace publication; Committed always owns the
     /// file and any warning/retry receipt, including after directory-sync failure.
     pub fn export_to_committed(&self, path: &Path) -> Result<ExportOutcome, Error> {
@@ -568,13 +578,13 @@ impl Profile {
         pending
             .persist_noclobber(&path)
             .map_err(|error| Error::Io(error.error))?;
-        let mut file=ProfileFile {
+        let mut file = ProfileFile {
             path,
             expected: bytes.into(),
             profile: self.clone(),
             undo: Vec::new(),
             redo: Vec::new(),
-            pending_durability:None,
+            pending_durability: None,
         };
         file.finish_publication_sync(&directory);
         Ok(ExportOutcome::Committed(file))
@@ -583,8 +593,15 @@ impl Profile {
 /// A successfully created external profile, including its mutable CAS receipt.
 #[must_use = "Retain the committed profile and inspect its durability warning"]
 #[derive(Debug)]
-pub enum ExportOutcome {Committed(ProfileFile)}
-impl ExportOutcome {pub fn into_file(self)->ProfileFile{let Self::Committed(file)=self;file}}
+pub enum ExportOutcome {
+    Committed(ProfileFile),
+}
+impl ExportOutcome {
+    pub fn into_file(self) -> ProfileFile {
+        let Self::Committed(file) = self;
+        file
+    }
+}
 fn install_config(members: &mut Members, config: &Config) -> Result<(), Error> {
     let schema = match config.kind() {
         Kind::Pattern => Config::Pattern(PatternConfig::default()),
@@ -698,11 +715,13 @@ pub struct ProfileFile {
     profile: Profile,
     undo: Vec<(Arc<[u8]>, Profile)>,
     redo: Vec<(Arc<[u8]>, Profile)>,
-    pending_durability:Option<edit::DurabilityReceipt>,
+    pending_durability: Option<edit::DurabilityReceipt>,
 }
 impl ProfileFile {
-    pub fn open(path: &Path) -> Result<Self, Error> {Self::open_captured(path,|_|{})}
-    fn open_captured(path:&Path,capture:impl FnOnce(&Arc<[u8]>))->Result<Self,Error>{
+    pub fn open(path: &Path) -> Result<Self, Error> {
+        Self::open_captured(path, |_| {})
+    }
+    fn open_captured(path: &Path, capture: impl FnOnce(&Arc<[u8]>)) -> Result<Self, Error> {
         let kind = Kind::from_path(path)
             .ok_or_else(|| invalid_error("Unknown editor profile filename"))?;
         let path = path.canonicalize()?;
@@ -715,7 +734,7 @@ impl ProfileFile {
             profile,
             undo: Vec::new(),
             redo: Vec::new(),
-            pending_durability:None,
+            pending_durability: None,
         })
     }
     /// Retain the catalog's parsed identity (including a generated GUID for an
@@ -738,7 +757,7 @@ impl ProfileFile {
             profile,
             undo: Vec::new(),
             redo: Vec::new(),
-            pending_durability:None,
+            pending_durability: None,
         })
     }
     pub(crate) fn snapshot(&self) -> (PathBuf, Arc<[u8]>) {
@@ -778,7 +797,9 @@ impl ProfileFile {
     /// Remove a custom profile while retaining an exact, private recovery file.
     /// The returned deletion owns that backup until its history is discarded.
     pub fn delete(&self) -> Result<DeletedProfile, Error> {
-        if self.has_pending_durability(){return invalid("Retry profile durability before deleting the profile");}
+        if self.has_pending_durability() {
+            return invalid("Retry profile durability before deleting the profile");
+        }
         if builtin(self.profile.config.kind(), &self.profile.guid) {
             return invalid("Built-in editor profiles cannot be deleted");
         }
@@ -833,26 +854,47 @@ impl ProfileFile {
         self.undo.push(current);
         Ok(true)
     }
-    pub(crate) fn take_durability_receipt(&mut self)->Option<edit::DurabilityReceipt>{self.pending_durability.take()}
-    fn finish_publication_sync(&mut self,directory:&Path){
-        self.pending_durability=edit::sync_after_publish(directory).err().as_ref().map(|error|edit::DurabilityReceipt::capture(self,error));
+    pub(crate) fn take_durability_receipt(&mut self) -> Option<edit::DurabilityReceipt> {
+        self.pending_durability.take()
     }
-    pub fn has_pending_durability(&self)->bool{self.pending_durability.is_some()}
-    pub fn durability_warning(&self)->Option<&str>{self.pending_durability.as_ref().map(|receipt|receipt.warning())}
+    fn finish_publication_sync(&mut self, directory: &Path) {
+        self.pending_durability = edit::sync_after_publish(directory)
+            .err()
+            .as_ref()
+            .map(|error| edit::DurabilityReceipt::capture(self, error));
+    }
+    pub fn has_pending_durability(&self) -> bool {
+        self.pending_durability.is_some()
+    }
+    pub fn durability_warning(&self) -> Option<&str> {
+        self.pending_durability
+            .as_ref()
+            .map(|receipt| receipt.warning())
+    }
     /// Retry only the directory barrier, with the committed-byte CAS witness.
     /// A failure leaves the receipt and both history stacks untouched.
-    pub fn retry_durability(&mut self)->Result<(),Error>{
-        if let Some(receipt)=&self.pending_durability{receipt.retry()?;}
-        self.pending_durability=None;Ok(())
+    pub fn retry_durability(&mut self) -> Result<(), Error> {
+        if let Some(receipt) = &self.pending_durability {
+            receipt.retry()?;
+        }
+        self.pending_durability = None;
+        Ok(())
     }
     fn replace_bytes(&mut self, bytes: Arc<[u8]>, profile: Profile) -> Result<(), Error> {
-        let edit::WriteOutcome::Committed{durability_warning}=self.replace_bytes_committed(bytes,profile)?;
-        self.pending_durability=durability_warning.as_ref().map(|error|edit::DurabilityReceipt::capture(self,error));
+        let edit::WriteOutcome::Committed { durability_warning } =
+            self.replace_bytes_committed(bytes, profile)?;
+        self.pending_durability = durability_warning
+            .as_ref()
+            .map(|error| edit::DurabilityReceipt::capture(self, error));
         Ok(())
     }
     /// Err means no publication. A successful rename always returns Committed,
     /// retaining the new expected bytes even when directory sync needs retry.
-    fn replace_bytes_committed(&mut self, bytes:Arc<[u8]>,profile:Profile)->Result<edit::WriteOutcome,Error>{
+    fn replace_bytes_committed(
+        &mut self,
+        bytes: Arc<[u8]>,
+        profile: Profile,
+    ) -> Result<edit::WriteOutcome, Error> {
         let parent = self
             .path
             .parent()
@@ -875,7 +917,9 @@ impl ProfileFile {
             .map_err(|e| Error::Io(e.error))?;
         self.expected = bytes;
         self.profile = profile;
-        Ok(edit::WriteOutcome::Committed{durability_warning:edit::sync_after_publish(parent).err()})
+        Ok(edit::WriteOutcome::Committed {
+            durability_warning: edit::sync_after_publish(parent).err(),
+        })
     }
 }
 /// An undoable disk deletion. Backups are excluded from the profile catalog.
@@ -963,9 +1007,14 @@ impl Loaded {
     pub fn directory(path: &Path) -> Result<Self, Error> {
         Self::directory_checked(path, &AtomicBool::new(false))
     }
-    pub fn directory_checked(path: &Path, cancelled: &AtomicBool) -> Result<Self, Error> {Self::directory_snapshot_checked(path,cancelled).map(|(loaded,_)|loaded)}
-    pub(crate) fn directory_snapshot_checked(path:&Path,cancelled:&AtomicBool)->Result<(Self,BTreeMap<PathBuf,Arc<[u8]>>),Error>{
-        let mut sources=BTreeMap::new();
+    pub fn directory_checked(path: &Path, cancelled: &AtomicBool) -> Result<Self, Error> {
+        Self::directory_snapshot_checked(path, cancelled).map(|(loaded, _)| loaded)
+    }
+    pub(crate) fn directory_snapshot_checked(
+        path: &Path,
+        cancelled: &AtomicBool,
+    ) -> Result<(Self, BTreeMap<PathBuf, Arc<[u8]>>), Error> {
+        let mut sources = BTreeMap::new();
         let check = || {
             if cancelled.load(Ordering::Relaxed) {
                 Err(Error::InvalidEdit("Profile loading cancelled".into()))
@@ -981,7 +1030,9 @@ impl Loaded {
         };
         let entries = match fs::read_dir(path) {
             Ok(entries) => entries,
-            Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok((loaded,sources)),
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
+                return Ok((loaded, sources));
+            }
             Err(error) => return Err(error.into()),
         };
         let mut paths = entries
@@ -993,7 +1044,9 @@ impl Loaded {
             if Kind::from_path(&path).is_none() || !path.is_file() {
                 continue;
             }
-            let file = match ProfileFile::open_captured(&path,|bytes|{sources.insert(path.clone(),bytes.clone());}) {
+            let file = match ProfileFile::open_captured(&path, |bytes| {
+                sources.insert(path.clone(), bytes.clone());
+            }) {
                 Ok(file) => file,
                 Err(error) => {
                     loaded.issues.push(Issue {
@@ -1019,7 +1072,7 @@ impl Loaded {
             }
         }
         check()?;
-        Ok((loaded,sources))
+        Ok((loaded, sources))
     }
 }
 fn json_error(error: serde_json::Error) -> Error {

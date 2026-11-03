@@ -32,7 +32,8 @@ impl Change {
             Arc::clone(target),
             |current| {
                 let mut file = current.clone();
-                let preferences = Arc::new(inspector::merge(&file.key_bindings(), expected, target)?);
+                let preferences =
+                    Arc::new(inspector::merge(&file.key_bindings(), expected, target)?);
                 file.set_key_bindings(Arc::clone(&preferences))?;
 
                 Ok((preferences, file))

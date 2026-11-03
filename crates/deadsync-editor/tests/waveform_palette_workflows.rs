@@ -71,9 +71,61 @@ fn invalid_palette_documents_remain_read_only_including_float32_overflow() {
     }
 }
 
-#[test]fn raw_palette_unknown_mode_global_save_undo_redo_reopens_and_preserves_vendor(){
- use deadsync_editor::{document::{Document,Format},history::Session,visual_preferences::Snapshot};
- let root=tempfile::tempdir().unwrap();let path=root.path().join("palette.json");fs::write(&path,r#"{"Version":1,"Vendor":{"keep":7},"Waveform":{"WaveFormDenseColor":{"X":2,"Y":-4,"Z":0.5,"W":2,"Future":8},"WaveFormSparseColorOption":"99","WaveFormSparseColorScale":-4}}"#).unwrap();let mut file=File::open(&path).unwrap();let before=file.waveform();assert_eq!(before.palette().mode(),SparseMode::Unknown(99));assert_eq!(before.palette().dense().rgba(),[2.0,-4.0,0.5,2.0]);assert!(!file.save().unwrap());let mut after=before;let mut palette=after.palette();palette.set_mode(SparseMode::Unknown(-3));palette.set_dense(Color::new([-2.0,4.0,0.25,0.5]).unwrap());palette.set_darken(512.0).unwrap();after.set_palette(palette);let mut session=Session::new(Document::parse(b"#TITLE:palette;".as_slice(),Format::Sm).unwrap());let bytes=session.serialize().unwrap();session.set_visual_preferences(Snapshot::Waveform(before),Snapshot::Waveform(after),Some(&file)).unwrap();file=session.take_visual_preferences_update().unwrap().file.unwrap();assert_eq!(File::open(&path).unwrap().waveform(),after);session.capture_source_preferences_context(&file);assert!(session.undo().unwrap());file=session.take_visual_preferences_update().unwrap().file.unwrap();assert_eq!(File::open(&path).unwrap().waveform(),before);session.capture_source_preferences_context(&file);assert!(session.redo().unwrap());let update=session.take_visual_preferences_update().unwrap();assert_eq!(update.file.unwrap().waveform(),after);assert_eq!(File::open(&path).unwrap().waveform(),after);assert!(!session.is_dirty());assert_eq!(session.serialize().unwrap(),bytes);let raw:serde_json::Value=serde_json::from_slice(&fs::read(path).unwrap()).unwrap();assert_eq!(raw["Vendor"]["keep"],7);assert_eq!(raw["Waveform"]["WaveFormDenseColor"]["Future"],8);
+#[test]
+fn raw_palette_unknown_mode_global_save_undo_redo_reopens_and_preserves_vendor() {
+    use deadsync_editor::{
+        document::{Document, Format},
+        history::Session,
+        visual_preferences::Snapshot,
+    };
+    let root = tempfile::tempdir().unwrap();
+    let path = root.path().join("palette.json");
+    fs::write(&path,r#"{"Version":1,"Vendor":{"keep":7},"Waveform":{"WaveFormDenseColor":{"X":2,"Y":-4,"Z":0.5,"W":2,"Future":8},"WaveFormSparseColorOption":"99","WaveFormSparseColorScale":-4}}"#).unwrap();
+    let mut file = File::open(&path).unwrap();
+    let before = file.waveform();
+    assert_eq!(before.palette().mode(), SparseMode::Unknown(99));
+    assert_eq!(before.palette().dense().rgba(), [2.0, -4.0, 0.5, 2.0]);
+    assert!(!file.save().unwrap());
+    let mut after = before;
+    let mut palette = after.palette();
+    palette.set_mode(SparseMode::Unknown(-3));
+    palette.set_dense(Color::new([-2.0, 4.0, 0.25, 0.5]).unwrap());
+    palette.set_darken(512.0).unwrap();
+    after.set_palette(palette);
+    let mut session =
+        Session::new(Document::parse(b"#TITLE:palette;".as_slice(), Format::Sm).unwrap());
+    let bytes = session.serialize().unwrap();
+    session
+        .set_visual_preferences(
+            Snapshot::Waveform(before),
+            Snapshot::Waveform(after),
+            Some(&file),
+        )
+        .unwrap();
+    file = session
+        .take_visual_preferences_update()
+        .unwrap()
+        .file
+        .unwrap();
+    assert_eq!(File::open(&path).unwrap().waveform(), after);
+    session.capture_source_preferences_context(&file);
+    assert!(session.undo().unwrap());
+    file = session
+        .take_visual_preferences_update()
+        .unwrap()
+        .file
+        .unwrap();
+    assert_eq!(File::open(&path).unwrap().waveform(), before);
+    session.capture_source_preferences_context(&file);
+    assert!(session.redo().unwrap());
+    let update = session.take_visual_preferences_update().unwrap();
+    assert_eq!(update.file.unwrap().waveform(), after);
+    assert_eq!(File::open(&path).unwrap().waveform(), after);
+    assert!(!session.is_dirty());
+    assert_eq!(session.serialize().unwrap(), bytes);
+    let raw: serde_json::Value = serde_json::from_slice(&fs::read(path).unwrap()).unwrap();
+    assert_eq!(raw["Vendor"]["keep"], 7);
+    assert_eq!(raw["Waveform"]["WaveFormDenseColor"]["Future"], 8);
 }
 
 #[test]

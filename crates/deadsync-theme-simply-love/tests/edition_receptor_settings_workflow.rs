@@ -92,8 +92,7 @@ fn save_all_flags_is_one_global_undo_and_redo_without_song_dirtying() {
             "TapShrinkEffect",
             "PulseReceptorsWithTempo",
         ] {
-            assert_eq!(
-            fields[name], serde_json::Value::Bool(false), "{name}");
+            assert_eq!(fields[name], serde_json::Value::Bool(false), "{name}");
         }
         assert_eq!(
             after.placement,

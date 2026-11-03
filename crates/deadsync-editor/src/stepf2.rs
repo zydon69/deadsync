@@ -116,7 +116,10 @@ pub(crate) fn require_standard(note: &Note) -> Result<(), Error> {
 /// Detection follows Fumen: X/x/Y/y/Z/z distinguish co-op from normal Pump.
 /// A plain 1 or 2 alone is ambiguous and must keep its standard P1 meaning.
 pub fn is_coop(bytes: &[u8], layout: &str) -> bool {
-    if !matches!(crate::notes::canonical_layout(layout), Some("pump-double" | "pump-routine")) {
+    if !matches!(
+        crate::notes::canonical_layout(layout),
+        Some("pump-double" | "pump-routine")
+    ) {
         return false;
     }
     let Ok(text) = std::str::from_utf8(bytes) else {
@@ -462,7 +465,13 @@ pub(crate) fn change_kind(note: &mut Note, kind: Kind) -> Result<(), Error> {
         attributes.fake = fake;
         Some(attributes.suffix('N', trailing)?)
     } else if fake {
-        Some(Attributes { fake, ..Default::default() }.suffix('N', &note.attributes)?)
+        Some(
+            Attributes {
+                fake,
+                ..Default::default()
+            }
+            .suffix('N', &note.attributes)?,
+        )
     } else {
         None
     };

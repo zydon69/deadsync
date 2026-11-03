@@ -95,7 +95,10 @@ fn escaped_relative_music_reaches_managed_waveform_with_multiple_charts() {
             .configure_audio_preferences(&root.path().join("preferences.json"))
             .unwrap();
         let [main, _] = editor.editor_asset_paths();
-        assert_eq!(main.unwrap().canonicalize().unwrap(), music.canonicalize().unwrap());
+        assert_eq!(
+            main.unwrap().canonicalize().unwrap(),
+            music.canonicalize().unwrap()
+        );
         let mut audio = AudioControl::without_audio();
         let mut clock = MusicClock::without_audio();
         execute_audio_commands(

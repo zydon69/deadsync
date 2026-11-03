@@ -66,20 +66,32 @@ impl Transport {
         self.anchor = None;
         true
     }
-    pub fn issue_asset_generation(&mut self,generation:u64,start:f64,rate:f64)->bool{
-        if !start.is_finite()||!rate.is_finite()||rate<=0.0{return false;}
-        let latest=self.latest;
-        if !self.issue(generation,start){return false;}
-        self.latest=latest;
-        self.anchor=latest.map(|(_,stream)|Anchor{stream,music:start,rate});
+    pub fn issue_asset_generation(&mut self, generation: u64, start: f64, rate: f64) -> bool {
+        if !start.is_finite() || !rate.is_finite() || rate <= 0.0 {
+            return false;
+        }
+        let latest = self.latest;
+        if !self.issue(generation, start) {
+            return false;
+        }
+        self.latest = latest;
+        self.anchor = latest.map(|(_, stream)| Anchor {
+            stream,
+            music: start,
+            rate,
+        });
         true
     }
     /// A source asset replacement keeps the already established logical DSP
     /// clock even while the new file is Pending or Failed. This does not
     /// fabricate an opened decoder acknowledgement.
-    pub fn observe_asset_phase(&mut self,clock:Clock)->Step{self.observe_inner(None,clock,true)}
-    pub fn observe(&mut self, ack: Option<Ack>, clock: Clock) -> Step {self.observe_inner(ack,clock,false)}
-    fn observe_inner(&mut self,ack:Option<Ack>,clock:Clock,asset_phase:bool)->Step {
+    pub fn observe_asset_phase(&mut self, clock: Clock) -> Step {
+        self.observe_inner(None, clock, true)
+    }
+    pub fn observe(&mut self, ack: Option<Ack>, clock: Clock) -> Step {
+        self.observe_inner(ack, clock, false)
+    }
+    fn observe_inner(&mut self, ack: Option<Ack>, clock: Clock, asset_phase: bool) -> Step {
         if self.generation != Some(clock.generation)
             || !clock.stream_seconds.is_finite()
             || !clock.rate.is_finite()
@@ -109,9 +121,20 @@ impl Transport {
             };
         }
         if asset_phase {
-            let anchor=self.anchor.get_or_insert(Anchor{stream:clock.stream_seconds,music:self.requested_start,rate:clock.rate});
-            let music=(clock.stream_seconds-anchor.stream).mul_add(anchor.rate,anchor.music);
-            return if music.is_finite(){Step::Position{music_seconds:music,source:Source::Silent}}else{Step::Wait};
+            let anchor = self.anchor.get_or_insert(Anchor {
+                stream: clock.stream_seconds,
+                music: self.requested_start,
+                rate: clock.rate,
+            });
+            let music = (clock.stream_seconds - anchor.stream).mul_add(anchor.rate, anchor.music);
+            return if music.is_finite() {
+                Step::Position {
+                    music_seconds: music,
+                    source: Source::Silent,
+                }
+            } else {
+                Step::Wait
+            };
         }
         let Some(ack) = ack.filter(|ack| self.generation == Some(ack.generation)) else {
             return Step::Wait;
@@ -348,10 +371,75 @@ mod tests {
 
 #[cfg(test)]
 mod asset_phase_tests {
- use super::*;
- #[test]fn replacement_continues_only_matching_finite_dsp_clock_without_inventing_open_ack(){
-  let mut transport=Transport::default();assert!(transport.issue(11,1.25));let at=Instant::now();let clock=Clock{generation:11,valid_at:at,stream_seconds:10.,music_seconds:Some(1.25),rate:1.};assert!(matches!(transport.observe(None,clock),Step::Position{music_seconds:1.25,source:Source::Mapped}));
-  let next=Clock{valid_at:at+std::time::Duration::from_millis(500),stream_seconds:10.5,music_seconds:None,..clock};assert_eq!(transport.observe_asset_phase(next),Step::Position{music_seconds:1.75,source:Source::Silent});assert_eq!(transport.observe_asset_phase(Clock{generation:12,stream_seconds:11.,..next}),Step::Wait);assert_eq!(transport.observe_asset_phase(Clock{stream_seconds:f64::NAN,..next}),Step::Wait);assert_eq!(transport.observe_asset_phase(Clock{valid_at:at,..next}),Step::Wait);
-  assert!(transport.issue_asset_generation(12,4.0,1.5));let later=Clock{generation:12,valid_at:at+std::time::Duration::from_secs(1),stream_seconds:11.,music_seconds:None,rate:1.5};assert_eq!(transport.observe_asset_phase(later),Step::Position{music_seconds:4.75,source:Source::Silent});
- }
+    use super::*;
+    #[test]
+    fn replacement_continues_only_matching_finite_dsp_clock_without_inventing_open_ack() {
+        let mut transport = Transport::default();
+        assert!(transport.issue(11, 1.25));
+        let at = Instant::now();
+        let clock = Clock {
+            generation: 11,
+            valid_at: at,
+            stream_seconds: 10.,
+            music_seconds: Some(1.25),
+            rate: 1.,
+        };
+        assert!(matches!(
+            transport.observe(None, clock),
+            Step::Position {
+                music_seconds: 1.25,
+                source: Source::Mapped
+            }
+        ));
+        let next = Clock {
+            valid_at: at + std::time::Duration::from_millis(500),
+            stream_seconds: 10.5,
+            music_seconds: None,
+            ..clock
+        };
+        assert_eq!(
+            transport.observe_asset_phase(next),
+            Step::Position {
+                music_seconds: 1.75,
+                source: Source::Silent
+            }
+        );
+        assert_eq!(
+            transport.observe_asset_phase(Clock {
+                generation: 12,
+                stream_seconds: 11.,
+                ..next
+            }),
+            Step::Wait
+        );
+        assert_eq!(
+            transport.observe_asset_phase(Clock {
+                stream_seconds: f64::NAN,
+                ..next
+            }),
+            Step::Wait
+        );
+        assert_eq!(
+            transport.observe_asset_phase(Clock {
+                valid_at: at,
+                ..next
+            }),
+            Step::Wait
+        );
+        assert!(transport.issue_asset_generation(12, 4.0, 1.5));
+        let later = Clock {
+            generation: 12,
+            valid_at: at + std::time::Duration::from_secs(1),
+            stream_seconds: 11.,
+            music_seconds: None,
+            rate: 1.5,
+        };
+        assert_eq!(
+            transport.observe_asset_phase(later),
+            Step::Position {
+                music_seconds: 4.75,
+                source: Source::Silent
+            }
+        );
+    }
 }

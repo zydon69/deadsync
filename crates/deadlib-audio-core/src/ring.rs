@@ -24,7 +24,7 @@ pub fn played_map_drops() -> u64 {
 pub struct MusicBlockTiming {
     pub generation: u64,
     /// Captured by the accepted asset request, never read while stamping PCM.
-    pub asset_epoch:u64,
+    pub asset_epoch: u64,
     pub music_start_sec: f64,
     pub music_sec_per_frame: f64,
 }
@@ -33,7 +33,7 @@ pub(crate) struct MusicBlock {
     samples: Box<[i16]>,
     sample_len: usize,
     timing: MusicBlockTiming,
-    preview_frame:Option<u64>,
+    preview_frame: Option<u64>,
 }
 
 impl MusicBlock {
@@ -43,7 +43,9 @@ impl MusicBlock {
     }
 
     #[inline(always)]
-    pub(crate) fn preview_frame(&self)->Option<u64>{self.preview_frame}
+    pub(crate) fn preview_frame(&self) -> Option<u64> {
+        self.preview_frame
+    }
     pub(crate) const fn timing(&self) -> MusicBlockTiming {
         self.timing
     }
@@ -59,8 +61,8 @@ impl MusicBlock {
 /// transfer; a miss costs one bounded pop and no allocation, lock, I/O, pruning,
 /// or destruction.
 pub struct MusicBlockWriter {
-    preview:crate::preview_source::PreviewPublisher,
-    last_pushed_asset_epoch:u64,
+    preview: crate::preview_source::PreviewPublisher,
+    last_pushed_asset_epoch: u64,
     ready: Producer<MusicBlock>,
     recycled: Consumer<MusicBlock>,
     spare: Option<MusicBlock>,
@@ -72,9 +74,20 @@ pub struct MusicBlockWriter {
 }
 
 impl MusicBlockWriter {
-    pub fn reclaim_preview_sources(&mut self){self.preview.reclaim();}
-    pub fn publish_preview_generation_ready(&self,generation:u64,epoch:u64){self.published_asset_epoch.store(epoch,Ordering::Release);self.published_generation.store(generation,Ordering::Release);}
-    pub fn try_publish_preview_source(&mut self,source:crate::PreviewSource)->Result<(),crate::PreviewSource>{self.preview.publish(source)}
+    pub fn reclaim_preview_sources(&mut self) {
+        self.preview.reclaim();
+    }
+    pub fn publish_preview_generation_ready(&self, generation: u64, epoch: u64) {
+        self.published_asset_epoch.store(epoch, Ordering::Release);
+        self.published_generation
+            .store(generation, Ordering::Release);
+    }
+    pub fn try_publish_preview_source(
+        &mut self,
+        source: crate::PreviewSource,
+    ) -> Result<(), crate::PreviewSource> {
+        self.preview.publish(source)
+    }
 
     #[inline(always)]
     pub const fn channels(&self) -> usize {
@@ -108,7 +121,9 @@ impl MusicBlockWriter {
     }
 
     /// Publish only the captured epoch whose transition batch has been primed.
-    pub fn publish_asset_epoch_ready(&self,epoch:u64){self.published_asset_epoch.store(epoch,Ordering::Release);}
+    pub fn publish_asset_epoch_ready(&self, epoch: u64) {
+        self.published_asset_epoch.store(epoch, Ordering::Release);
+    }
 
     /// Returns the last generation for which the render side recycled every
     /// preceding stale block and reached current audio.
@@ -120,10 +135,15 @@ impl MusicBlockWriter {
     /// Copy and publish at most one fixed-size block, returning samples accepted.
     /// A return value of zero is backpressure; the caller may sleep and retry.
     pub fn try_push(&mut self, samples: &[i16], timing: MusicBlockTiming) -> usize {
-        self.try_push_preview(samples,timing,None)
+        self.try_push_preview(samples, timing, None)
     }
     /// Preview phase is an integer offset in the original output-rate cut.
-    pub fn try_push_preview(&mut self,samples:&[i16],timing:MusicBlockTiming,preview_frame:Option<u64>)->usize{
+    pub fn try_push_preview(
+        &mut self,
+        samples: &[i16],
+        timing: MusicBlockTiming,
+        preview_frame: Option<u64>,
+    ) -> usize {
         let channels = self.channels;
         let block_samples = MUSIC_BLOCK_FRAMES * channels;
         // A full block already contains a whole number of device frames.
@@ -141,9 +161,12 @@ impl MusicBlockWriter {
         block.samples[..sample_len].copy_from_slice(&samples[..sample_len]);
         block.sample_len = sample_len;
         block.timing = timing;
-        block.preview_frame=preview_frame;
+        block.preview_frame = preview_frame;
         match self.ready.push(block) {
-            Ok(()) => {self.last_pushed_asset_epoch=timing.asset_epoch;sample_len},
+            Ok(()) => {
+                self.last_pushed_asset_epoch = timing.asset_epoch;
+                sample_len
+            }
             Err(PushError::Full(mut block)) => {
                 // Conservation makes this unreachable after taking a recycled
                 // block, but retain the allocation and let the worker retry.
@@ -175,8 +198,8 @@ pub struct AudioStreamHandle {
 }
 
 pub struct AudioRenderHandle {
-    pub(crate) preview:crate::preview_source::PreviewConsumer,
-    sample_rate_hz:u32,
+    pub(crate) preview: crate::preview_source::PreviewConsumer,
+    sample_rate_hz: u32,
     ready: Consumer<MusicBlock>,
     recycled: Producer<MusicBlock>,
     played: Producer<TaggedMusicMapSeg>,
@@ -188,8 +211,12 @@ pub struct AudioRenderHandle {
 
 impl AudioRenderHandle {
     #[inline(always)]
-    pub(crate) fn published_asset_epoch(&self)->u64{self.published_asset_epoch.load(Ordering::Acquire)}
-    pub(crate) const fn sample_rate_hz(&self)->u32{self.sample_rate_hz}
+    pub(crate) fn published_asset_epoch(&self) -> u64 {
+        self.published_asset_epoch.load(Ordering::Acquire)
+    }
+    pub(crate) const fn sample_rate_hz(&self) -> u32 {
+        self.sample_rate_hz
+    }
     pub(crate) const fn capacity_blocks(&self) -> usize {
         self.capacity_blocks
     }
@@ -220,10 +247,14 @@ impl AudioRenderHandle {
     }
 
     #[inline(always)]
-    pub(crate) fn push_played(&mut self, generation: u64, asset_epoch:u64, seg: MusicMapSeg) {
+    pub(crate) fn push_played(&mut self, generation: u64, asset_epoch: u64, seg: MusicMapSeg) {
         if self
             .played
-            .push(TaggedMusicMapSeg { generation, asset_epoch, seg })
+            .push(TaggedMusicMapSeg {
+                generation,
+                asset_epoch,
+                seg,
+            })
             .is_err()
         {
             PLAYED_MAP_DROPS.fetch_add(1, Ordering::Relaxed);
@@ -234,7 +265,7 @@ impl AudioRenderHandle {
 #[derive(Clone, Copy)]
 struct TaggedMusicMapSeg {
     generation: u64,
-    asset_epoch:u64,
+    asset_epoch: u64,
     seg: MusicMapSeg,
 }
 
@@ -255,7 +286,7 @@ pub fn music_transport(
     sample_rate_hz: u32,
     channels: usize,
 ) -> (AudioStreamHandle, AudioRenderHandle) {
-    let (preview_publisher,preview_consumer)=crate::preview_source::channel();
+    let (preview_publisher, preview_consumer) = crate::preview_source::channel();
     let channels = channels.max(1);
     let samples_per_block = MUSIC_BLOCK_FRAMES * channels;
     let pool_frames = (sample_rate_hz.max(1) as usize)
@@ -267,11 +298,11 @@ pub fn music_transport(
     let (ready, ready_consumer) = RingBuffer::new(block_count);
     let (mut recycle_producer, recycled) = RingBuffer::new(block_count);
     let published_generation = Arc::new(AtomicU64::new(0));
-    let published_asset_epoch=Arc::new(AtomicU64::new(0));
+    let published_asset_epoch = Arc::new(AtomicU64::new(0));
     let render_drained_generation = Arc::new(AtomicU64::new(u64::MAX));
     for _ in 0..block_count {
         let block = MusicBlock {
-            preview_frame:None,
+            preview_frame: None,
             samples: vec![0; samples_per_block].into_boxed_slice(),
             sample_len: 0,
             timing: MusicBlockTiming::default(),
@@ -284,13 +315,13 @@ pub fn music_transport(
     (
         AudioStreamHandle {
             writer: MusicBlockWriter {
-                preview:preview_publisher,
-                last_pushed_asset_epoch:0,
+                preview: preview_publisher,
+                last_pushed_asset_epoch: 0,
                 ready,
                 recycled,
                 spare: None,
                 published_generation: Arc::clone(&published_generation),
-                published_asset_epoch:Arc::clone(&published_asset_epoch),
+                published_asset_epoch: Arc::clone(&published_asset_epoch),
                 render_drained_generation: Arc::clone(&render_drained_generation),
                 capacity_blocks: block_count,
                 channels,
@@ -300,8 +331,8 @@ pub fn music_transport(
             },
         },
         AudioRenderHandle {
-            preview:preview_consumer,
-            sample_rate_hz:sample_rate_hz.max(1),
+            preview: preview_consumer,
+            sample_rate_hz: sample_rate_hz.max(1),
             ready: ready_consumer,
             recycled: recycle_producer,
             played,
@@ -341,7 +372,7 @@ mod tests {
         let (mut stream, mut render) = music_transport(SAMPLE_RATE, channels);
         let samples = vec![17; block_samples];
         let timing = MusicBlockTiming {
-                    asset_epoch:1,
+            asset_epoch: 1,
             generation: 7,
             music_start_sec: 1.25,
             music_sec_per_frame: 1.0 / 48_000.0,
@@ -407,7 +438,7 @@ mod tests {
             let sample_end = frame_end * channels;
             while sample_start < sample_end {
                 let timing = MusicBlockTiming {
-                    asset_epoch:1,
+                    asset_epoch: 1,
                     generation,
                     music_start_sec: ((sample_start / channels) as f64)
                         .mul_add(sec_per_frame, start_sec),
@@ -471,7 +502,7 @@ mod tests {
                     checksum = hash_sample(checksum, *sample);
                 }
                 let timing = MusicBlockTiming {
-                    asset_epoch:1,
+                    asset_epoch: 1,
                     generation: sequence + 1,
                     music_start_sec: sequence as f64 * 0.25,
                     music_sec_per_frame: 1.0 / 48_000.0,

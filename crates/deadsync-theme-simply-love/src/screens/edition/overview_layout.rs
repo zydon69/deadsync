@@ -44,7 +44,13 @@ mod tests {
                     .unwrap();
                 let mut density = Vec::new();
                 state.source_density_actors(&mut density, geometry, state.chart_viewport());
-                let Actor::Sprite { offset, size, scale, .. } = &density[0] else {
+                let Actor::Sprite {
+                    offset,
+                    size,
+                    scale,
+                    ..
+                } = &density[0]
+                else {
                     panic!("density background");
                 };
                 let SizeSpec::Px(body_height) = size[1] else {
@@ -113,7 +119,13 @@ impl State {
         let text_x = x + inset;
         let mut actor = act!(text:font("miso"):settext(text):align(0.0,0.0):xy(text_x,y):
             zoom((13.0/24.0)*layout.font_scale):diffuse(1.0,1.0,1.0,1.0):z(8006));
-        if let Actor::Text { clip, fit_width, fit_height, .. } = &mut actor {
+        if let Actor::Text {
+            clip,
+            fit_width,
+            fit_height,
+            ..
+        } = &mut actor
+        {
             // Fit both axes uniformly before zoom. A width-only clip silently
             // cuts localized captions at narrow overview widths; max_width
             // would compress glyphs horizontally in the text compositor.

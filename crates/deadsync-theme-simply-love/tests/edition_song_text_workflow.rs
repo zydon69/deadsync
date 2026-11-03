@@ -210,7 +210,12 @@ fn shared_song_editor_stages_unicode_clipboard_and_sync_in_one_saveable_undo_ges
  {
     for sm in [false, true] {
         let (_dir, mut s, source) = setup(sm, false);
-        let path = s.workspace().file().require_existing_path().unwrap().to_path_buf();
+        let path = s
+            .workspace()
+            .file()
+            .require_existing_path()
+            .unwrap()
+            .to_path_buf();
         open(&mut s);
         assert!(has(&s, "Title: [Old]|"));
         let mut board = Board::default();
@@ -286,7 +291,14 @@ fn global_music_picker_clear_and_undo_drive_inherited_audio_in_sm_ssc_and_preser
 {
     for (sm, override_audio) in [(true, false), (false, false), (false, true)] {
         let (_dir, mut s, _) = setup(sm, override_audio);
-        let base = s.workspace().file().require_existing_path().unwrap().parent().unwrap().to_path_buf();
+        let base = s
+            .workspace()
+            .file()
+            .require_existing_path()
+            .unwrap()
+            .parent()
+            .unwrap()
+            .to_path_buf();
         let original = base.join(if override_audio {
             "chart.ogg"
         } else {
@@ -352,7 +364,8 @@ fn song_chart_scope_switches_drop_pending_clipboard_and_picker_requests_without_
         path: s
             .workspace()
             .file()
-            .require_existing_path().unwrap()
+            .require_existing_path()
+            .unwrap()
             .parent()
             .unwrap()
             .join("new.wav"),
@@ -649,7 +662,8 @@ fn sample_audition_sends_looped_cut_updates_region_live_and_stops_on_toggle() {
     );
     press(&mut state, KeyCode::F4); // Explicit toggle ends the retained silent loop.
     assert!(!state.is_playing());
-    assert_eq!(state.take_audio_commands(),
+    assert_eq!(
+        state.take_audio_commands(),
         [GameplayAudioCommand::EditorStopMusic {
             owner: state.editor_asset_owner()
         }]
@@ -806,14 +820,9 @@ fn last_second_hint_keyboard_field_is_staged_saved_and_undoable_in_both_formats(
         );
         ctrl(&mut state, KeyCode::KeyZ);
         assert_eq!(
-                state
-                    .workspace()
-                    .file()
-                    .session
-                    .serialize()
-                    .unwrap(),
-                original.as_bytes()
-            );
+            state.workspace().file().session.serialize().unwrap(),
+            original.as_bytes()
+        );
     }
 }
 
@@ -934,7 +943,7 @@ fn keyboard_preference_save_refuses_external_or_future_files_and_keeps_active_se
             assert!(has(&state, "Audio preferences saved"));
         } else {
             assert_eq!(state.audio_preferences().fade_in(), 0.0);
-        assert!(has(&state, "Preview fade in (seconds)"));
+            assert!(has(&state, "Preview fade in (seconds)"));
         }
         press(&mut state, KeyCode::Escape);
         assert_eq!(

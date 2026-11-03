@@ -108,8 +108,11 @@ impl Draft {
     /// Origin identity of an existing event; pasted/replaced/new events have none.
     pub fn original_row(&self, event: usize) -> Option<u64> {
         let row = self.current.events.get(event)?.row;
-        self.sources.iter().find_map(|(source, current)|
-            (*current == row).then(|| self.original_sources.get(source).copied()).flatten())
+        self.sources.iter().find_map(|(source, current)| {
+            (*current == row)
+                .then(|| self.original_sources.get(source).copied())
+                .flatten()
+        })
     }
     pub fn scope(&self) -> Scope {
         self.file.scope()
@@ -395,13 +398,21 @@ impl Draft {
             return Err(invalid("Attack inspector draft is stale"));
         }
         let lifecycle = super::selection::Lifecycle::from_sources(
-            chart, session.chart_ids()[chart].clone(), self.scope(),
-            &self.original_sources, &self.sources,
-            self.current.events.iter().map(|event| event.row));
+            chart,
+            session.chart_ids()[chart].clone(),
+            self.scope(),
+            &self.original_sources,
+            &self.sources,
+            self.current.events.iter().map(|event| event.row),
+        );
         if !self.has_changes() && !lifecycle.has_changes() {
             return Ok(false);
         }
-        if self.scope() == Scope::Chart && self.current.events.is_empty() && self.file.song_has_attacks && session.document().format!=crate::document::Format::Sm {
+        if self.scope() == Scope::Chart
+            && self.current.events.is_empty()
+            && self.file.song_has_attacks
+            && session.document().format != crate::document::Format::Sm
+        {
             return session.edit_chart_atomic(chart, "Edit attacks", |staged| {
                 super::inheritance::clear_chart(staged, chart)?;
                 staged.commit_attack_lifecycle(lifecycle.clone())?;
@@ -419,7 +430,11 @@ impl Draft {
             .collect();
         let bytes = resident::encode(&self.snapshot, chart, &events, &self.hints)?;
         let mut preview = Session::new(self.snapshot.snapshot_document()?);
-        super::property::write(&mut preview,(self.scope()==Scope::Chart).then_some(chart),bytes.clone().into())?;
+        super::property::write(
+            &mut preview,
+            (self.scope() == Scope::Chart).then_some(chart),
+            bytes.clone().into(),
+        )?;
         resident::reconcile(&mut preview, chart, self.scope(), &events)?;
         let placed = Timeline::capture_scope(&preview, chart, self.scope())?;
         if placed.markers().len() != self.current.events.len()
@@ -435,7 +450,11 @@ impl Draft {
                 "Attack rows cannot round-trip through this file timing",
             ));
         }
-        let mut properties=vec![super::property::change(session.document(),(self.scope()==Scope::Chart).then_some(chart),std::sync::Arc::from(bytes))?];
+        let mut properties = vec![super::property::change(
+            session.document(),
+            (self.scope() == Scope::Chart).then_some(chart),
+            std::sync::Arc::from(bytes),
+        )?];
         let (scope, name) = resident::tag(session.document(), chart, self.scope() == Scope::Chart)?;
         if let Some(raw) = preview.document().raw_property(scope, &name) {
             properties.push((scope, name, std::sync::Arc::from(raw)));

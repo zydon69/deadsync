@@ -36,10 +36,17 @@ fn all_twenty_two_source_defaults_restore_as_one_atomic_history_action() {
         let file = update.file.unwrap();
         let restored = options(&file);
         for (key, value) in restored.as_object().unwrap() {
-            if matches!(key.as_str(), "NewSongSyncOffset" | "OpenSongSyncOffset" | "DpiScale") {
+            if matches!(
+                key.as_str(),
+                "NewSongSyncOffset" | "OpenSongSyncOffset" | "DpiScale"
+            ) {
                 // These are source double fields; .NET writes whole doubles
                 // without a decimal point while serde retains `1.0`.
-                assert_eq!(value.as_f64().unwrap(), case["Restored"][key].as_f64().unwrap(), "{key}");
+                assert_eq!(
+                    value.as_f64().unwrap(),
+                    case["Restored"][key].as_f64().unwrap(),
+                    "{key}"
+                );
             } else {
                 assert_eq!(value, &case["Restored"][key], "{key}");
             }

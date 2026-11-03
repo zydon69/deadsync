@@ -995,7 +995,10 @@ mod tests {
 
     #[test]
     fn raw_key_text_routes_only_text_entry_screens() {
-        assert_eq!(raw_key_text_route(Screen::Practice), RawKeyTextRoute::Practice);
+        assert_eq!(
+            raw_key_text_route(Screen::Practice),
+            RawKeyTextRoute::Practice
+        );
         assert_eq!(
             raw_key_text_route(Screen::ManageLocalProfiles),
             RawKeyTextRoute::ManageLocalProfiles
@@ -1560,11 +1563,20 @@ mod tests {
 
 #[cfg(test)]
 mod standalone_editor_routes {
- use super::*;
- #[test]
- fn editor_owns_keyboard_and_text_without_gameplay_input_routes() {
-  assert_eq!(raw_key_screen_route(Screen::Edition),RawKeyScreenRoute::Edition);
-  assert_eq!(raw_key_text_route(Screen::Edition),RawKeyTextRoute::Practice);
-  assert_eq!(raw_pad_screen_route(Screen::Edition),RawPadScreenRoute::None);
- }
+    use super::*;
+    #[test]
+    fn editor_owns_keyboard_and_text_without_gameplay_input_routes() {
+        assert_eq!(
+            raw_key_screen_route(Screen::Edition),
+            RawKeyScreenRoute::Edition
+        );
+        assert_eq!(
+            raw_key_text_route(Screen::Edition),
+            RawKeyTextRoute::Practice
+        );
+        assert_eq!(
+            raw_pad_screen_route(Screen::Edition),
+            RawPadScreenRoute::None
+        );
+    }
 }

@@ -53,12 +53,15 @@ impl PreviewFade {
 mod tests {
     use super::*;
     #[test]
-    fn source_partial_preview_quantizes_absolute_positions_before_subtraction(){
+    fn source_partial_preview_quantizes_absolute_positions_before_subtraction() {
         let _audio_guard = crate::test_audio_guard();
-        let start=frames(1.9/48000.,48000);let current=frames(3.01/48000.,48000);let full=frames(5.9/48000.,48000);
-        assert_eq!((start,current,full),(1,3,5));
-        let offset=current.saturating_sub(start);let remaining=full.saturating_sub(offset);
-        assert_eq!((offset,remaining,offset+remaining),(2,3,5));
+        let start = frames(1.9 / 48000., 48000);
+        let current = frames(3.01 / 48000., 48000);
+        let full = frames(5.9 / 48000., 48000);
+        assert_eq!((start, current, full), (1, 3, 5));
+        let offset = current.saturating_sub(start);
+        let remaining = full.saturating_sub(offset);
+        assert_eq!((offset, remaining, offset + remaining), (2, 3, 5));
     }
     #[test]
     fn both_ramps_and_strict_overlap_boundary() {

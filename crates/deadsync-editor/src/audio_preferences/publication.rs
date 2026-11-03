@@ -62,6 +62,10 @@ pub(crate) fn merge_fields(
 /// Undo and Redo renews this identity; restoring a numeric revision cannot revive it.
 pub struct EditBinding(crate::history::ApplicationReviewToken);
 impl EditBinding {
-    pub fn capture(session:&crate::history::Session)->Self{Self(session.application_review_token())}
-    pub fn is_current(&self,session:&crate::history::Session)->bool{session.accepts_application_review(&self.0)}
+    pub fn capture(session: &crate::history::Session) -> Self {
+        Self(session.application_review_token())
+    }
+    pub fn is_current(&self, session: &crate::history::Session) -> bool {
+        session.accepts_application_review(&self.0)
+    }
 }

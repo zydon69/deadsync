@@ -53,7 +53,8 @@ fn whole_source_defaults_import_and_restore_undo_redo_match_ten_cases() {
     for c in cases.as_array().unwrap() {
         let dir = tempfile::tempdir().unwrap();
         let path = dir.path().join("prefs.json");
-        let bytes = serde_json::to_vec(&serde_json::json!({"Version":1,"Stream":c["Input"]})).unwrap();
+        let bytes =
+            serde_json::to_vec(&serde_json::json!({"Version":1,"Stream":c["Input"]})).unwrap();
         std::fs::write(&path, &bytes).unwrap();
         let f = File::open(&path).unwrap();
         project(f.streams(), &c["Normalized"]);

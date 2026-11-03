@@ -98,7 +98,8 @@ fn source_speed_default_add_is_reviewed_saved_and_undoable() {
     assert_eq!(
         deadsync_editor::song_properties::sync_offset(
             reopened.workspace().file().session.document()
-        ).unwrap(),
+        )
+        .unwrap(),
         deadsync_editor::song_properties::DEFAULT_SYNC_OFFSET
     );
     ctrl(&mut s, KeyCode::KeyZ);

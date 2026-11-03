@@ -153,9 +153,16 @@ impl PublishedOpenWitness {
         maximum: usize,
         cancelled: &AtomicBool,
     ) -> Result<FileSession, Error> {
-        self.open_bounded_with_context(maximum,cancelled,Default::default())
+        self.open_bounded_with_context(maximum, cancelled, Default::default())
     }
-    pub fn open_bounded_with_context(&self,maximum:usize,cancelled:&AtomicBool,context:crate::document::LoadContext)->Result<FileSession,Error>{self.open_with_context_hook(maximum,cancelled,context,||{})}
+    pub fn open_bounded_with_context(
+        &self,
+        maximum: usize,
+        cancelled: &AtomicBool,
+        context: crate::document::LoadContext,
+    ) -> Result<FileSession, Error> {
+        self.open_with_context_hook(maximum, cancelled, context, || {})
+    }
     #[cfg(test)]
     fn open_with_hook(
         &self,
@@ -163,27 +170,38 @@ impl PublishedOpenWitness {
         cancelled: &AtomicBool,
         after_read: impl FnOnce(),
     ) -> Result<FileSession, Error> {
-        self.open_with_context_hook(maximum,cancelled,Default::default(),after_read)
+        self.open_with_context_hook(maximum, cancelled, Default::default(), after_read)
     }
-    fn open_with_context_hook(&self,maximum:usize,cancelled:&AtomicBool,context:crate::document::LoadContext,after_read:impl FnOnce())->Result<FileSession,Error>{
+    fn open_with_context_hook(
+        &self,
+        maximum: usize,
+        cancelled: &AtomicBool,
+        context: crate::document::LoadContext,
+        after_read: impl FnOnce(),
+    ) -> Result<FileSession, Error> {
         if self.inner.publication.expected.len() > maximum {
             return Err(Error::Unsupported(
                 "Published song exceeds opening byte limit".into(),
             ));
         }
-        let opened = FileSession::open_read_with_context(self.path(),context, Some(cancelled), |canonical| {
-            if canonical != self.path() {
-                return Err(Error::ExternalChange);
-            }
-            let file = self.checked_file(cancelled)?;
-            let bytes = read_bounded(file, maximum, cancelled)?;
-            if bytes.as_slice() != self.inner.publication.expected.as_ref() {
-                return Err(Error::ExternalChange);
-            }
-            after_read();
-            self.validate_disk(cancelled)?;
-            Ok(bytes)
-        })?;
+        let opened = FileSession::open_read_with_context(
+            self.path(),
+            context,
+            Some(cancelled),
+            |canonical| {
+                if canonical != self.path() {
+                    return Err(Error::ExternalChange);
+                }
+                let file = self.checked_file(cancelled)?;
+                let bytes = read_bounded(file, maximum, cancelled)?;
+                if bytes.as_slice() != self.inner.publication.expected.as_ref() {
+                    return Err(Error::ExternalChange);
+                }
+                after_read();
+                self.validate_disk(cancelled)?;
+                Ok(bytes)
+            },
+        )?;
         self.validate_opened(&opened, cancelled)?;
         Ok(opened)
     }

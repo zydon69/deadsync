@@ -163,8 +163,8 @@ pub fn extract_tar_gz(zip_bytes: &[u8], dest: &Path) -> Result<usize, UpdaterErr
             return Err(UpdaterError::Io(format!(
                 "case-insensitive payload collision in release archive: '{previous}' and '{name}'"
             )));
-            }
         }
+    }
     let dec = GzDecoder::new(zip_bytes);
     let mut archive = Archive::new(dec);
     archive.set_preserve_permissions(true);
@@ -217,7 +217,8 @@ pub fn extract_tar_gz(zip_bytes: &[u8], dest: &Path) -> Result<usize, UpdaterErr
         let mut out = fs::OpenOptions::new()
             .write(true)
             .create_new(true)
-            .open(&out_path).map_err(|e| super::io_err_at("create_new", &out_path, e))?;
+            .open(&out_path)
+            .map_err(|e| super::io_err_at("create_new", &out_path, e))?;
         io::copy(&mut entry, &mut out).map_err(|e| super::io_err_at("write", &out_path, e))?;
         // Avoid a per-file fsync storm here. The archive is verified
         // before extraction, and the journal can roll back an interrupted

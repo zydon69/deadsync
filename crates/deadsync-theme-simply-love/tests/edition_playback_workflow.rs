@@ -140,11 +140,18 @@ fn editing_stops_transport_before_mutating_and_close_stops_without_dirtying_file
     let (_dir, mut state) = setup();
     // Explicit Mine tool retains the legacy immediate edit/transport policy.
     // Default Tap playing input is covered separately by lane-entry workflows.
-    for _ in 0..3 {key(&mut state, KeyCode::Tab);}
-    assert_eq!(state.workspace().tool(),deadsync_editor::notes::Kind::Mine);
+    for _ in 0..3 {
+        key(&mut state, KeyCode::Tab);
+    }
+    assert_eq!(state.workspace().tool(), deadsync_editor::notes::Kind::Mine);
     key(&mut state, KeyCode::Enter);
     key(&mut state, KeyCode::Digit2);
-    state.raw_key(&RawKeyboardEvent {code:KeyCode::Digit2,pressed:false,repeat:false,timestamp:Instant::now(),host_nanos:0,
+    state.raw_key(&RawKeyboardEvent {
+        code: KeyCode::Digit2,
+        pressed: false,
+        repeat: false,
+        timestamp: Instant::now(),
+        host_nanos: 0,
     });
     let commands = state.take_audio_commands();
     assert!(matches!(
@@ -177,7 +184,12 @@ fn removed_audio_path_keeps_logical_transport_until_explicit_stop() {
         state.is_playing(),
         "source transport retains its logical clock without a pathname"
     );
-    assert!(state.take_audio_commands().iter().any(|command| matches!(command, GameplayAudioCommand::EditorStartMusic { .. })));
+    assert!(
+        state
+            .take_audio_commands()
+            .iter()
+            .any(|command| matches!(command, GameplayAudioCommand::EditorStartMusic { .. }))
+    );
     key(&mut state, KeyCode::Escape);
     assert!(!state.is_playing());
     assert!(!state.workspace().file().session.is_dirty());
@@ -213,7 +225,8 @@ fn f11_sync_apply_changes_audio_cut_and_supports_undo_save_reopen() {
     assert!(
         apply_commands
             .iter()
-            .all(|command| matches!(command, GameplayAudioCommand::EditorRetargetTicks { .. })));
+            .all(|command| matches!(command, GameplayAudioCommand::EditorRetargetTicks { .. }))
+    );
     key(&mut state, KeyCode::NumpadEnter);
     match &state.take_audio_commands()[0] {
         GameplayAudioCommand::EditorResumeMusic { seconds, .. } => {

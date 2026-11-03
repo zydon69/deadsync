@@ -80,9 +80,13 @@ fn load_set_delete_and_output_index_match_original_scenarios_in_two_cultures() {
                 let mut draft =
                     deadsync_editor::chart_deletion::Draft::capture(&session, deleted as usize)
                         .unwrap();
-                let mut before_order=current_order(&session,&ids,&result["Order"]);
-                if !before_order.contains(&(deleted as usize)){before_order.push(deleted as usize);}
-                draft.prepare_song_timing(&session,&preferences,&before_order).unwrap();
+                let mut before_order = current_order(&session, &ids, &result["Order"]);
+                if !before_order.contains(&(deleted as usize)) {
+                    before_order.push(deleted as usize);
+                }
+                draft
+                    .prepare_song_timing(&session, &preferences, &before_order)
+                    .unwrap();
                 draft.apply(&mut session).unwrap();
                 let remaining = Snapshot::resident(&mut session).unwrap();
                 let order = current_order(&session, &ids, &result["Order"]);

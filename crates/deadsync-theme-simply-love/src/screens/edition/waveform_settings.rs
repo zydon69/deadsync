@@ -52,10 +52,21 @@ impl State {
             7 => i18n::tr(
                 "Edition",
                 &format!("WaveformLocation{}", settings.location().name()),
-            ).to_string(),
+            )
+            .to_string(),
             8 => settings.loading_parallelism().to_string(),
-            9 => i18n::tr("Edition",if settings.antialias(){"WaveformYes"}else{"WaveformNo"}).to_string(),
-            10=>format!("{:.4}",settings.subpix()),11=>format!("{:.4}",settings.edge_threshold()),_=>format!("{:.4}",settings.edge_threshold_min()),
+            9 => i18n::tr(
+                "Edition",
+                if settings.antialias() {
+                    "WaveformYes"
+                } else {
+                    "WaveformNo"
+                },
+            )
+            .to_string(),
+            10 => format!("{:.4}", settings.subpix()),
+            11 => format!("{:.4}", settings.edge_threshold()),
+            _ => format!("{:.4}", settings.edge_threshold_min()),
         };
         i18n::tr_fmt("Edition", key, &[("value", &value)])
     }
@@ -87,7 +98,7 @@ impl State {
                     | KeyCode::Home
                     | KeyCode::Digit0
                     | KeyCode::Numpad0
-            ) || ((index < 2 || (4..=7).contains(&index) || index==9) && enter))
+            ) || ((index < 2 || (4..=7).contains(&index) || index == 9) && enter))
         {
             let Some(settings) = self.waveform_preferences_draft.as_mut() else {
                 return;
@@ -193,11 +204,60 @@ impl State {
                     Ok(())
                 }
                 8 => {
-                    settings.set_loading_parallelism(if home {defaults.loading_parallelism()} else if zero {1} else {settings.loading_parallelism().saturating_add(if code==KeyCode::ArrowLeft{-1}else{1}).clamp(1,128)});
+                    settings.set_loading_parallelism(if home {
+                        defaults.loading_parallelism()
+                    } else if zero {
+                        1
+                    } else {
+                        settings
+                            .loading_parallelism()
+                            .saturating_add(if code == KeyCode::ArrowLeft { -1 } else { 1 })
+                            .clamp(1, 128)
+                    });
                     Ok(())
                 }
-                9=>{settings.set_antialias(if home{defaults.antialias()}else if zero{false}else{!settings.antialias()});Ok(())}
-                _=>{let current=match index{10=>settings.subpix(),11=>settings.edge_threshold(),_=>settings.edge_threshold_min()};let default=match index{10=>defaults.subpix(),11=>defaults.edge_threshold(),_=>defaults.edge_threshold_min()};let value=if home{default}else if zero{0.0}else{(current+if code==KeyCode::ArrowLeft{if self.shift{-0.001}else{-0.01}}else if self.shift{0.001}else{0.01}).clamp(0.0,1.0)};match index{10=>settings.set_subpix(value),11=>settings.set_edge_threshold(value),_=>settings.set_edge_threshold_min(value)}}
+                9 => {
+                    settings.set_antialias(if home {
+                        defaults.antialias()
+                    } else if zero {
+                        false
+                    } else {
+                        !settings.antialias()
+                    });
+                    Ok(())
+                }
+                _ => {
+                    let current = match index {
+                        10 => settings.subpix(),
+                        11 => settings.edge_threshold(),
+                        _ => settings.edge_threshold_min(),
+                    };
+                    let default = match index {
+                        10 => defaults.subpix(),
+                        11 => defaults.edge_threshold(),
+                        _ => defaults.edge_threshold_min(),
+                    };
+                    let value = if home {
+                        default
+                    } else if zero {
+                        0.0
+                    } else {
+                        (current
+                            + if code == KeyCode::ArrowLeft {
+                                if self.shift { -0.001 } else { -0.01 }
+                            } else if self.shift {
+                                0.001
+                            } else {
+                                0.01
+                            })
+                        .clamp(0.0, 1.0)
+                    };
+                    match index {
+                        10 => settings.set_subpix(value),
+                        11 => settings.set_edge_threshold(value),
+                        _ => settings.set_edge_threshold_min(value),
+                    }
+                }
             };
             if let Err(error) = result {
                 self.status = i18n::tr_fmt(
@@ -214,10 +274,13 @@ impl State {
         if index != 14 || !enter {
             return;
         }
-        let Some(settings) = self.waveform_preferences_draft else { return; };
-        let result=self.apply_visual_preferences(
+        let Some(settings) = self.waveform_preferences_draft else {
+            return;
+        };
+        let result = self.apply_visual_preferences(
             deadsync_editor::visual_preferences::Snapshot::Waveform(self.waveform_preferences),
-            deadsync_editor::visual_preferences::Snapshot::Waveform(settings));
+            deadsync_editor::visual_preferences::Snapshot::Waveform(settings),
+        );
         match result {
             Ok(()) => {
                 self.waveform_preferences_draft = None;
@@ -287,10 +350,102 @@ mod source_preference_transport_tests {
 mod loading_parallelism_ui_tests {
     use super::*;
     #[test]
-    fn loading_parallelism_keyboard_bounds_save_undo_redo_and_restore_use_real_owner(){
-        i18n::init_for_tests();let root=tempfile::tempdir().unwrap();let path=root.path().join("song.ssc");std::fs::write(&path,"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;").unwrap();let mut state=State::open(&path,0).unwrap();let original=state.waveform_preferences;
-        state.open_waveform_settings();for _ in 0..200{state.waveform_settings_key(8,KeyCode::ArrowLeft);}assert_eq!(state.waveform_preferences_draft.unwrap().loading_parallelism(),1);for _ in 0..200{state.waveform_settings_key(8,KeyCode::ArrowRight);}assert_eq!(state.waveform_preferences_draft.unwrap().loading_parallelism(),128);state.waveform_settings_key(14,KeyCode::Enter);assert_eq!(state.waveform_preferences.loading_parallelism(),128);state.command(Command::Undo);assert_eq!(state.waveform_preferences,original);state.command(Command::Redo);assert_eq!(state.waveform_preferences.loading_parallelism(),128);state.open_waveform_settings();state.waveform_settings_key(13,KeyCode::Enter);state.waveform_settings_key(14,KeyCode::Enter);assert_eq!(state.waveform_preferences,Preferences::default());
+    fn loading_parallelism_keyboard_bounds_save_undo_redo_and_restore_use_real_owner() {
+        i18n::init_for_tests();
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("song.ssc");
+        std::fs::write(
+            &path,
+            "#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;",
+        )
+        .unwrap();
+        let mut state = State::open(&path, 0).unwrap();
+        let original = state.waveform_preferences;
+        state.open_waveform_settings();
+        for _ in 0..200 {
+            state.waveform_settings_key(8, KeyCode::ArrowLeft);
+        }
+        assert_eq!(
+            state
+                .waveform_preferences_draft
+                .unwrap()
+                .loading_parallelism(),
+            1
+        );
+        for _ in 0..200 {
+            state.waveform_settings_key(8, KeyCode::ArrowRight);
+        }
+        assert_eq!(
+            state
+                .waveform_preferences_draft
+                .unwrap()
+                .loading_parallelism(),
+            128
+        );
+        state.waveform_settings_key(14, KeyCode::Enter);
+        assert_eq!(state.waveform_preferences.loading_parallelism(), 128);
+        state.command(Command::Undo);
+        assert_eq!(state.waveform_preferences, original);
+        state.command(Command::Redo);
+        assert_eq!(state.waveform_preferences.loading_parallelism(), 128);
+        state.open_waveform_settings();
+        state.waveform_settings_key(13, KeyCode::Enter);
+        state.waveform_settings_key(14, KeyCode::Enter);
+        assert_eq!(state.waveform_preferences, Preferences::default());
     }
 }
 
-#[cfg(test)]mod fxaa_controls_tests{use super::*;#[test]fn keyboard_fxaa_controls_persist_restore_cancel_and_global_undo_in_both_languages(){for language in["en","fr"]{i18n::set_locale(deadsync_assets::language::load_for_tests(language));let root=tempfile::tempdir().unwrap();let path=root.path().join("song.ssc");std::fs::write(&path,"#VERSION:0.83;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;").unwrap();let preferences=root.path().join("preferences.json");std::fs::write(&preferences,"{\"Version\":1,\"Vendor\":{\"keep\":true}}").unwrap();let mut state=State::open(&path,0).unwrap();state.configure_audio_preferences(&preferences).unwrap();let before=state.waveform_preferences;state.open_waveform_settings();state.waveform_settings_key(9,KeyCode::Enter);for index in 10..=12{state.waveform_settings_key(index,KeyCode::ArrowRight);}let after=state.waveform_preferences_draft.unwrap();assert!(!after.antialias());assert_ne!(after,before);state.waveform_settings_key(14,KeyCode::Enter);assert_eq!(state.waveform_preferences,after);assert_eq!(deadsync_editor::audio_preferences::File::open(&preferences).unwrap().waveform(),after);state.command(Command::Undo);assert_eq!(state.waveform_preferences,before);state.command(Command::Redo);assert_eq!(state.waveform_preferences,after);state.open_waveform_settings();state.waveform_settings_key(13,KeyCode::Enter);assert_eq!(state.waveform_preferences_draft,Some(before));state.waveform_settings_key(15,KeyCode::Enter);assert_eq!(state.waveform_preferences,after);state.open_waveform_settings();state.waveform_settings_key(13,KeyCode::Enter);state.waveform_settings_key(14,KeyCode::Enter);assert_eq!(state.waveform_preferences,before);let value:serde_json::Value=serde_json::from_slice(&std::fs::read(preferences).unwrap()).unwrap();assert_eq!(value["Vendor"]["keep"],true);}}}
+#[cfg(test)]
+mod fxaa_controls_tests {
+    use super::*;
+    #[test]
+    fn keyboard_fxaa_controls_persist_restore_cancel_and_global_undo_in_both_languages() {
+        for language in ["en", "fr"] {
+            i18n::set_locale(deadsync_assets::language::load_for_tests(language));
+            let root = tempfile::tempdir().unwrap();
+            let path = root.path().join("song.ssc");
+            std::fs::write(
+                &path,
+                "#VERSION:0.83;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;",
+            )
+            .unwrap();
+            let preferences = root.path().join("preferences.json");
+            std::fs::write(&preferences, "{\"Version\":1,\"Vendor\":{\"keep\":true}}").unwrap();
+            let mut state = State::open(&path, 0).unwrap();
+            state.configure_audio_preferences(&preferences).unwrap();
+            let before = state.waveform_preferences;
+            state.open_waveform_settings();
+            state.waveform_settings_key(9, KeyCode::Enter);
+            for index in 10..=12 {
+                state.waveform_settings_key(index, KeyCode::ArrowRight);
+            }
+            let after = state.waveform_preferences_draft.unwrap();
+            assert!(!after.antialias());
+            assert_ne!(after, before);
+            state.waveform_settings_key(14, KeyCode::Enter);
+            assert_eq!(state.waveform_preferences, after);
+            assert_eq!(
+                deadsync_editor::audio_preferences::File::open(&preferences)
+                    .unwrap()
+                    .waveform(),
+                after
+            );
+            state.command(Command::Undo);
+            assert_eq!(state.waveform_preferences, before);
+            state.command(Command::Redo);
+            assert_eq!(state.waveform_preferences, after);
+            state.open_waveform_settings();
+            state.waveform_settings_key(13, KeyCode::Enter);
+            assert_eq!(state.waveform_preferences_draft, Some(before));
+            state.waveform_settings_key(15, KeyCode::Enter);
+            assert_eq!(state.waveform_preferences, after);
+            state.open_waveform_settings();
+            state.waveform_settings_key(13, KeyCode::Enter);
+            state.waveform_settings_key(14, KeyCode::Enter);
+            assert_eq!(state.waveform_preferences, before);
+            let value: serde_json::Value =
+                serde_json::from_slice(&std::fs::read(preferences).unwrap()).unwrap();
+            assert_eq!(value["Vendor"]["keep"], true);
+        }
+    }
+}

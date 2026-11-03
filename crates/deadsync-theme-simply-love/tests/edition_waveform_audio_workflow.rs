@@ -207,14 +207,17 @@ fn quads(state: &State) -> Vec<([f32; 2], f32, f32)> {
                 tint,
                 ..
             } if *tint == palette.resolved_sparse().rgba().map(|v| v.clamp(0.0, 1.0))
-                || *tint == palette.dense().rgba().map(|v| v.clamp(0.0, 1.0)) => {
+                || *tint == palette.dense().rgba().map(|v| v.clamp(0.0, 1.0)) =>
+            {
                 Some((
                     [
                         center + (offset[0] - source.logical_size[0] * 0.5) * ratio,
                         offset[1],
                     ],
-                    if *w == 0.0 { scale[0] * ratio
-                    } else { w * scale[0] * ratio
+                    if *w == 0.0 {
+                        scale[0] * ratio
+                    } else {
+                        w * scale[0] * ratio
                     },
                     if *h == 0.0 { scale[1] } else { h * scale[1] },
                 ))

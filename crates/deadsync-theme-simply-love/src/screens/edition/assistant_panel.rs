@@ -302,7 +302,9 @@ impl State {
         }
     }
     pub(super) fn poll_assistant(&mut self) {
-        if self.assistant.draft
+        if self
+            .assistant
+            .draft
             .as_ref()
             .is_some_and(|draft| !draft.draft.is_current(&self.workspace))
         {

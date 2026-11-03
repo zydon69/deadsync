@@ -120,7 +120,11 @@ fn conversion_overrides_match_explicit_configs_and_save_new_charts_without_chang
         preview.apply(&mut file.session).unwrap();
         assert_eq!(file.session.serialize().unwrap(), after);
         file.save().unwrap();
-        assert_eq!(file.session.serialize().unwrap(), after, "Save must not rewrite resident Undo bytes");
+        assert_eq!(
+            file.session.serialize().unwrap(),
+            after,
+            "Save must not rewrite resident Undo bytes"
+        );
         let published = fs::read(&path).unwrap();
         source_output_context::assert_context_only(&after, &published, format);
         file.session.undo().unwrap();
@@ -129,11 +133,18 @@ fn conversion_overrides_match_explicit_configs_and_save_new_charts_without_chang
         assert_eq!(file.session.serialize().unwrap(), after);
         let mut reopened = FileSession::open(&path).unwrap();
         assert_eq!(reopened.session.serialize().unwrap(), published);
-        assert_eq!(reopened.session.document().charts().len(), source.document().charts().len());
+        assert_eq!(
+            reopened.session.document().charts().len(),
+            source.document().charts().len()
+        );
         for index in 0..source.document().charts().len() {
-            assert_eq!(reopened.session.grid(index).unwrap(), source.grid(index).unwrap());
             assert_eq!(
-                serde_json::to_value(ChartData::read(reopened.session.document(), index).unwrap()).unwrap(),
+                reopened.session.grid(index).unwrap(),
+                source.grid(index).unwrap()
+            );
+            assert_eq!(
+                serde_json::to_value(ChartData::read(reopened.session.document(), index).unwrap())
+                    .unwrap(),
                 serde_json::to_value(ChartData::read(source.document(), index).unwrap()).unwrap(),
             );
         }

@@ -20,24 +20,40 @@ pub(super) struct ImportUi {
 impl State {
     /// Runtime readers may consume an explicit memory import without opting
     /// file writers into a fabricated persistence path.
-    pub(super) fn application_preferences_owner(&self)->Option<&File>{
-        self.audio_preferences_file.as_ref().or(self.source_preferences_import.memory.as_ref())
+    pub(super) fn application_preferences_owner(&self) -> Option<&File> {
+        self.audio_preferences_file
+            .as_ref()
+            .or(self.source_preferences_import.memory.as_ref())
     }
-    pub(super) fn application_opening_preferences(&self,
-    )->Result<deadsync_editor::open_preferences::Preferences,Error>{
-        let mut file=self.application_preferences_owner().cloned().map(Ok).unwrap_or_else(File::memory)?;
-        file.set_general_options(self.general_options.clone())?;file.opening()
+    pub(super) fn application_opening_preferences(
+        &self,
+    ) -> Result<deadsync_editor::open_preferences::Preferences, Error> {
+        let mut file = self
+            .application_preferences_owner()
+            .cloned()
+            .map(Ok)
+            .unwrap_or_else(File::memory)?;
+        file.set_general_options(self.general_options.clone())?;
+        file.opening()
     }
-    pub(super) fn application_preferences_owner_mut(&mut self)->Option<&mut File>{
-        self.audio_preferences_file.as_mut().or(self.source_preferences_import.memory.as_mut())
+    pub(super) fn application_preferences_owner_mut(&mut self) -> Option<&mut File> {
+        self.audio_preferences_file
+            .as_mut()
+            .or(self.source_preferences_import.memory.as_mut())
     }
     /// Same explicit departure barrier as disk settings, without a disk path.
-    pub(super) fn flush_application_memory_preferences(&mut self)->Result<(),Error>{
-        let Some(memory)=self.source_preferences_import.memory.as_ref() else{return Ok(());};
-        let mut owner=Some(memory.clone());
-        deadsync_editor::audio_preferences::publication::publish(&mut owner,None,(),|current|Ok(((),current.clone())),
+    pub(super) fn flush_application_memory_preferences(&mut self) -> Result<(), Error> {
+        let Some(memory) = self.source_preferences_import.memory.as_ref() else {
+            return Ok(());
+        };
+        let mut owner = Some(memory.clone());
+        deadsync_editor::audio_preferences::publication::publish(
+            &mut owner,
+            None,
+            (),
+            |current| Ok(((), current.clone())),
         )?;
-        self.source_preferences_import.memory=owner;
+        self.source_preferences_import.memory = owner;
         Ok(())
     }
     pub(super) fn publish_application_preferences_owner(&mut self, file: File) {
@@ -122,9 +138,11 @@ impl State {
         // The palette cache includes the live inspector preview. A canonical
         // publication baseline must contain only committed colors: Save merges
         // the staged colors once, and Cancel must never leak them to another owner.
-        file.set_note_colors(self.note_color_draft.as_ref()
-            .map(|draft| draft.baseline())
-            .unwrap_or_else(|| Arc::clone(&self.note_colors)),
+        file.set_note_colors(
+            self.note_color_draft
+                .as_ref()
+                .map(|draft| draft.baseline())
+                .unwrap_or_else(|| Arc::clone(&self.note_colors)),
         )?;
         file.set_key_bindings(Arc::clone(&self.command_bindings.preferences))?;
         file.set_minimap(self.minimap.preferences);
@@ -183,7 +201,8 @@ impl State {
         // All fallible input validation ran before the core transaction. These are
         // the same canonical installers used by the existing inspectors/history.
         let previous_audio = self.audio_preferences;
-        if self.application_preferences_owner()
+        if self
+            .application_preferences_owner()
             .is_some_and(|old| old.advanced_save() != file.advanced_save())
         {
             self.invalidate_source_output_request();
@@ -975,40 +994,122 @@ mod source_recent_memory_tests {
 }
 
 #[cfg(test)]
-mod source_memory_consumer_tests{
- use super::*;
- fn import(state:&mut State,raw:&[u8]){let file=state.capture_application_preferences_file().unwrap();let draft=state.workspace.prepare_source_preferences(&file,raw,deadsync_editor::key_binding_preferences::source_profile::Platform::Mac,
-            ).unwrap();state.workspace.import_source_preferences(draft,&file,true).unwrap();state.sync_source_preferences_history().unwrap();}
- #[test]fn pathless_snap_lock_opening_and_suppression_have_live_consumers_and_restore_history(){
-  crate::i18n::init_for_tests();let root=tempfile::tempdir().unwrap();let path=root.path().join("song.ssc");std::fs::write(&path,b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;",
-        ).unwrap();let mut state=State::open(&path,0).unwrap();state.audio_preferences_file=None;state.audio_preferences_path=None;
-  import(&mut state,br#"{"SnapIndex":1,"SnapLockIndex":1,"PreferencesOptions":{"DefaultStepsType":"dance_double","SuppressExternalSongModificationNotification":true}}"#);
-  assert!(state.audio_preferences_file.is_none());assert!(state.options_snapshot().suppress_external_song);assert_eq!(state.application_opening_preferences().unwrap().steps_type(),Some("dance-double"));
-  state.cycle_snap(true);assert_eq!(state.workspace.snap(),deadsync_editor::snap::LEGACY_OFF_INDEX);
-  let mut general=state.general_options.clone();general.default_steps_type=0;state.configure_general_options(general).unwrap();assert_eq!(state.application_opening_preferences().unwrap().steps_type(),Some("dance-single"));
-  state.restore_all_options();assert!(!state.options_snapshot().suppress_external_song);state.command(Command::Undo);assert!(state.options_snapshot().suppress_external_song);state.command(Command::Redo);assert!(!state.options_snapshot().suppress_external_song);assert!(state.audio_preferences_file.is_none());
- }
- #[test]fn pathless_source_new_song_offset_is_used_by_real_new_song_action(){
-  crate::i18n::init_for_tests();let root=tempfile::tempdir().unwrap();let mut state=State::without_song(root.path()).unwrap();state.audio_preferences_file=None;state.audio_preferences_path=None;
-  import(&mut state,br#"{"PreferencesOptions":{"NewSongSyncOffset":0.015}}"#,
-        );state.command_file_new();assert!(state.has_song());assert!((state.workspace.song_properties().unwrap().sync_offset()-0.015).abs()<1e-12);assert!(state.audio_preferences_file.is_none());
- }
+mod source_memory_consumer_tests {
+    use super::*;
+    fn import(state: &mut State, raw: &[u8]) {
+        let file = state.capture_application_preferences_file().unwrap();
+        let draft = state
+            .workspace
+            .prepare_source_preferences(
+                &file,
+                raw,
+                deadsync_editor::key_binding_preferences::source_profile::Platform::Mac,
+            )
+            .unwrap();
+        state
+            .workspace
+            .import_source_preferences(draft, &file, true)
+            .unwrap();
+        state.sync_source_preferences_history().unwrap();
+    }
+    #[test]
+    fn pathless_snap_lock_opening_and_suppression_have_live_consumers_and_restore_history() {
+        crate::i18n::init_for_tests();
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("song.ssc");
+        std::fs::write(
+            &path,
+            b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;",
+        )
+        .unwrap();
+        let mut state = State::open(&path, 0).unwrap();
+        state.audio_preferences_file = None;
+        state.audio_preferences_path = None;
+        import(&mut state,br#"{"SnapIndex":1,"SnapLockIndex":1,"PreferencesOptions":{"DefaultStepsType":"dance_double","SuppressExternalSongModificationNotification":true}}"#);
+        assert!(state.audio_preferences_file.is_none());
+        assert!(state.options_snapshot().suppress_external_song);
+        assert_eq!(
+            state
+                .application_opening_preferences()
+                .unwrap()
+                .steps_type(),
+            Some("dance-double")
+        );
+        state.cycle_snap(true);
+        assert_eq!(
+            state.workspace.snap(),
+            deadsync_editor::snap::LEGACY_OFF_INDEX
+        );
+        let mut general = state.general_options.clone();
+        general.default_steps_type = 0;
+        state.configure_general_options(general).unwrap();
+        assert_eq!(
+            state
+                .application_opening_preferences()
+                .unwrap()
+                .steps_type(),
+            Some("dance-single")
+        );
+        state.restore_all_options();
+        assert!(!state.options_snapshot().suppress_external_song);
+        state.command(Command::Undo);
+        assert!(state.options_snapshot().suppress_external_song);
+        state.command(Command::Redo);
+        assert!(!state.options_snapshot().suppress_external_song);
+        assert!(state.audio_preferences_file.is_none());
+    }
+    #[test]
+    fn pathless_source_new_song_offset_is_used_by_real_new_song_action() {
+        crate::i18n::init_for_tests();
+        let root = tempfile::tempdir().unwrap();
+        let mut state = State::without_song(root.path()).unwrap();
+        state.audio_preferences_file = None;
+        state.audio_preferences_path = None;
+        import(
+            &mut state,
+            br#"{"PreferencesOptions":{"NewSongSyncOffset":0.015}}"#,
+        );
+        state.command_file_new();
+        assert!(state.has_song());
+        assert!((state.workspace.song_properties().unwrap().sync_offset() - 0.015).abs() < 1e-12);
+        assert!(state.audio_preferences_file.is_none());
+    }
 }
 
 #[cfg(test)]
 mod chart_player_focus_memory_tests {
- use super::*;
- #[test]
- fn native_focus_round_trip_restores_owner_and_explicit_choice_invalidates_peer_cache(){
-  crate::i18n::init_for_tests();let root=tempfile::tempdir().unwrap();let path=root.path().join("players.ssc");
-  std::fs::write(&path,b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-routine;#NOTES:00000000\n&\n00000000;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:0000;").unwrap();
-  let mut state=State::open(&path,0).unwrap();state.command(Command::SelectPlayer(1));
-  let instant=state.chart_focus_time().unwrap();assert!(state.focus_chart_at_time(1,instant));assert_eq!(state.workspace.player(),0);
-  assert!(state.focus_chart_at_time(0,instant));assert_eq!(state.workspace.player(),1);
-  state.command(Command::Place(0));assert!(state.workspace.grid().get(deadsync_editor::notes::Position{player:1,lane:0,row:0}).is_some());
-  state.command(Command::Undo);assert!(state.focus_chart_at_time(1,instant));state.command(Command::SelectPlayer(0));
-  assert!(state.focus_chart_at_time(0,instant));assert_eq!(state.workspace.player(),0);
- }
+    use super::*;
+    #[test]
+    fn native_focus_round_trip_restores_owner_and_explicit_choice_invalidates_peer_cache() {
+        crate::i18n::init_for_tests();
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("players.ssc");
+        std::fs::write(&path,b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-routine;#NOTES:00000000\n&\n00000000;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:0000;").unwrap();
+        let mut state = State::open(&path, 0).unwrap();
+        state.command(Command::SelectPlayer(1));
+        let instant = state.chart_focus_time().unwrap();
+        assert!(state.focus_chart_at_time(1, instant));
+        assert_eq!(state.workspace.player(), 0);
+        assert!(state.focus_chart_at_time(0, instant));
+        assert_eq!(state.workspace.player(), 1);
+        state.command(Command::Place(0));
+        assert!(
+            state
+                .workspace
+                .grid()
+                .get(deadsync_editor::notes::Position {
+                    player: 1,
+                    lane: 0,
+                    row: 0
+                })
+                .is_some()
+        );
+        state.command(Command::Undo);
+        assert!(state.focus_chart_at_time(1, instant));
+        state.command(Command::SelectPlayer(0));
+        assert!(state.focus_chart_at_time(0, instant));
+        assert_eq!(state.workspace.player(), 0);
+    }
 }
 
 #[cfg(test)]
@@ -1022,73 +1123,198 @@ mod canonical_preference_owner_workflows {
         let draft = state.workspace.prepare_source_preferences(&file,
             br#"{"VendorPreserved":{"opaque":true},"PreferencesScroll":{"Reverse":true},"PreferencesOptions":{"OpenLastOpenedFileOnLaunch":false}}"#,
             deadsync_editor::key_binding_preferences::source_profile::Platform::Mac).unwrap();
-        state.workspace.import_source_preferences(draft,&file,true).unwrap();
+        state
+            .workspace
+            .import_source_preferences(draft, &file, true)
+            .unwrap();
         state.sync_source_preferences_history().unwrap();
-        (dir,state)
+        (dir, state)
     }
-    fn memory(state:&State) {
+    fn memory(state: &State) {
         assert!(state.audio_preferences_file.is_none());
         assert!(state.audio_preferences_path.is_none());
-        let owner=state.application_preferences_owner().unwrap();
+        let owner = state.application_preferences_owner().unwrap();
         assert!(owner.path().as_os_str().is_empty());
         assert!(!owner.has_changes());
         assert!(owner.source_archive().is_some());
     }
     #[test]
     fn receptor_and_stream_panels_publish_memory_and_undo_redo_real_consumers() {
-        let (_dir,mut state)=imported();
-        let before=state.receptor_preferences();
+        let (_dir, mut state) = imported();
+        let before = state.receptor_preferences();
         state.open_receptor_settings();
-        state.receptor_settings_key(0,KeyCode::Enter);
-        state.receptor_settings_key(9,KeyCode::Enter);
-        assert_eq!(state.receptor_preferences().hide_arrows,!before.hide_arrows);memory(&state);
-        state.command(Command::Undo);assert_eq!(state.receptor_preferences(),before);memory(&state);
-        state.command(Command::Redo);assert_eq!(state.receptor_preferences().hide_arrows,!before.hide_arrows);memory(&state);
-        let before=state.stream_preferences();
+        state.receptor_settings_key(0, KeyCode::Enter);
+        state.receptor_settings_key(9, KeyCode::Enter);
+        assert_eq!(
+            state.receptor_preferences().hide_arrows,
+            !before.hide_arrows
+        );
+        memory(&state);
+        state.command(Command::Undo);
+        assert_eq!(state.receptor_preferences(), before);
+        memory(&state);
+        state.command(Command::Redo);
+        assert_eq!(
+            state.receptor_preferences().hide_arrows,
+            !before.hide_arrows
+        );
+        memory(&state);
+        let before = state.stream_preferences();
         state.open_stream_settings();
-        let mut after=before;after.show_break_lengths=!before.show_break_lengths;
-        state.stream_draft=Some(after);state.stream_settings_key(8,KeyCode::Enter);
-        assert_eq!(state.stream_preferences(),after);memory(&state);
-        state.command(Command::Undo);assert_eq!(state.stream_preferences(),before);memory(&state);
-        state.command(Command::Redo);assert_eq!(state.stream_preferences(),after);memory(&state);
+        let mut after = before;
+        after.show_break_lengths = !before.show_break_lengths;
+        state.stream_draft = Some(after);
+        state.stream_settings_key(8, KeyCode::Enter);
+        assert_eq!(state.stream_preferences(), after);
+        memory(&state);
+        state.command(Command::Undo);
+        assert_eq!(state.stream_preferences(), before);
+        memory(&state);
+        state.command(Command::Redo);
+        assert_eq!(state.stream_preferences(), after);
+        memory(&state);
     }
     #[test]
     fn scroll_restore_general_display_and_direct_zoom_keep_canonical_memory() {
-        let (_dir,mut state)=imported();
+        let (_dir, mut state) = imported();
         assert!(state.scroll_preferences.reverse());
-        state.restore_source_scroll();assert!(!state.scroll_preferences.reverse());memory(&state);
-        state.command(Command::Undo);assert!(state.scroll_preferences.reverse());memory(&state);
-        state.command(Command::Redo);assert!(!state.scroll_preferences.reverse());memory(&state);
-        let mut general=state.general_options.clone();general.open_last=!general.open_last;
-        state.commit_general_options(general.clone()).unwrap();assert_eq!(state.general_options,general);memory(&state);
-        let mut display=state.display_options;display.render.notes=!display.render.notes;
-        state.commit_display_options(display).unwrap();assert_eq!(state.render_policy().notes,display.render.notes);memory(&state);
-        state.panel=None;state.open_zoom_settings();
-        state.zoom_settings_key(0,KeyCode::ArrowRight);state.zoom_settings_key(5,KeyCode::Enter);memory(&state);
-        assert_eq!(state.application_preferences_owner().unwrap().zoom(),state.zoom_preferences);
-        let undo=state.workspace.file().session.undo_label().map(str::to_owned);
-        state.set_source_scroll_speed(0,450.).unwrap();memory(&state);
-        assert_eq!(state.application_preferences_owner().unwrap().scroll().speed(0),Some(450.));
-        assert_eq!(state.zoom.spacing(deadsync_editor::zoom::SpacingMode::ConstantTime),450.);
-        assert_eq!(state.workspace.file().session.undo_label(),undo.as_deref());
+        state.restore_source_scroll();
+        assert!(!state.scroll_preferences.reverse());
+        memory(&state);
+        state.command(Command::Undo);
+        assert!(state.scroll_preferences.reverse());
+        memory(&state);
+        state.command(Command::Redo);
+        assert!(!state.scroll_preferences.reverse());
+        memory(&state);
+        let mut general = state.general_options.clone();
+        general.open_last = !general.open_last;
+        state.commit_general_options(general.clone()).unwrap();
+        assert_eq!(state.general_options, general);
+        memory(&state);
+        let mut display = state.display_options;
+        display.render.notes = !display.render.notes;
+        state.commit_display_options(display).unwrap();
+        assert_eq!(state.render_policy().notes, display.render.notes);
+        memory(&state);
+        state.panel = None;
+        state.open_zoom_settings();
+        state.zoom_settings_key(0, KeyCode::ArrowRight);
+        state.zoom_settings_key(5, KeyCode::Enter);
+        memory(&state);
+        assert_eq!(
+            state.application_preferences_owner().unwrap().zoom(),
+            state.zoom_preferences
+        );
+        let undo = state
+            .workspace
+            .file()
+            .session
+            .undo_label()
+            .map(str::to_owned);
+        state.set_source_scroll_speed(0, 450.).unwrap();
+        memory(&state);
+        assert_eq!(
+            state
+                .application_preferences_owner()
+                .unwrap()
+                .scroll()
+                .speed(0),
+            Some(450.)
+        );
+        assert_eq!(
+            state
+                .zoom
+                .spacing(deadsync_editor::zoom::SpacingMode::ConstantTime),
+            450.
+        );
+        assert_eq!(state.workspace.file().session.undo_label(), undo.as_deref());
     }
 }
 #[cfg(test)]
 mod direct_memory_owner_workflows {
- use super::*;
- fn imported()->(tempfile::TempDir,State){
-  i18n::init_for_tests();let dir=tempfile::tempdir().unwrap();let mut state=State::without_song(dir.path()).unwrap();let file=state.capture_application_preferences_file().unwrap();
-  let draft=state.workspace.prepare_source_preferences(&file,br#"{"VendorPreserved":{"opaque":[3,7]},"PreferencesOptions":{"OpenLastOpenedFileOnLaunch":false}}"#,deadsync_editor::key_binding_preferences::source_profile::Platform::Mac).unwrap();state.workspace.import_source_preferences(draft,&file,true).unwrap();state.sync_source_preferences_history().unwrap();(dir,state)
- }
- #[test]
- fn snap_note_entry_spacing_autogen_and_log_keep_pathless_owner_and_no_undo(){
-  let (_dir,mut state)=imported();let undo=state.workspace.file().session.undo_label().map(str::to_owned);
-  state.cycle_snap(true);assert_eq!(state.application_preferences_owner().unwrap().snap().level.native_index(),state.workspace.snap());assert!(!state.application_preferences_owner().unwrap().has_changes());
-  state.workspace.set_auto_advance(true);state.publish_note_entry_mode();assert_eq!(state.application_preferences_owner().unwrap().note_entry_mode(),deadsync_editor::lane_entry::Mode::AdvanceBySnap);
-  state.cycle_source_spacing_mode();assert_eq!(state.application_preferences_owner().unwrap().spacing_preference(),state.spacing_preference());
-  state.generation.profiles.performed=None;state.generation.preset=1;state.publish_autogen_profile_preferences();assert_eq!(state.application_preferences_owner().unwrap().autogen(),state.autogen_preferences());
-  state.flush_wheel_settings().unwrap();assert!(!state.application_preferences_owner().unwrap().has_changes());assert!(state.application_preferences_owner().unwrap().source_archive().is_some());
-  state.panel=None;state.open_log();assert!(state.log_preferences().show);assert_eq!(state.application_preferences_owner().unwrap().log_preferences(),state.log_preferences());state.log_key(KeyCode::Escape);assert!(!state.log_preferences().show);assert!(!state.application_preferences_owner().unwrap().has_changes());
-  assert!(state.audio_preferences_file.is_none());assert!(state.audio_preferences_path.is_none());assert_eq!(state.workspace.file().session.undo_label(),undo.as_deref());
- }
+    use super::*;
+    fn imported() -> (tempfile::TempDir, State) {
+        i18n::init_for_tests();
+        let dir = tempfile::tempdir().unwrap();
+        let mut state = State::without_song(dir.path()).unwrap();
+        let file = state.capture_application_preferences_file().unwrap();
+        let draft=state.workspace.prepare_source_preferences(&file,br#"{"VendorPreserved":{"opaque":[3,7]},"PreferencesOptions":{"OpenLastOpenedFileOnLaunch":false}}"#,deadsync_editor::key_binding_preferences::source_profile::Platform::Mac).unwrap();
+        state
+            .workspace
+            .import_source_preferences(draft, &file, true)
+            .unwrap();
+        state.sync_source_preferences_history().unwrap();
+        (dir, state)
+    }
+    #[test]
+    fn snap_note_entry_spacing_autogen_and_log_keep_pathless_owner_and_no_undo() {
+        let (_dir, mut state) = imported();
+        let undo = state
+            .workspace
+            .file()
+            .session
+            .undo_label()
+            .map(str::to_owned);
+        state.cycle_snap(true);
+        assert_eq!(
+            state
+                .application_preferences_owner()
+                .unwrap()
+                .snap()
+                .level
+                .native_index(),
+            state.workspace.snap()
+        );
+        assert!(!state.application_preferences_owner().unwrap().has_changes());
+        state.workspace.set_auto_advance(true);
+        state.publish_note_entry_mode();
+        assert_eq!(
+            state
+                .application_preferences_owner()
+                .unwrap()
+                .note_entry_mode(),
+            deadsync_editor::lane_entry::Mode::AdvanceBySnap
+        );
+        state.cycle_source_spacing_mode();
+        assert_eq!(
+            state
+                .application_preferences_owner()
+                .unwrap()
+                .spacing_preference(),
+            state.spacing_preference()
+        );
+        state.generation.profiles.performed = None;
+        state.generation.preset = 1;
+        state.publish_autogen_profile_preferences();
+        assert_eq!(
+            state.application_preferences_owner().unwrap().autogen(),
+            state.autogen_preferences()
+        );
+        state.flush_wheel_settings().unwrap();
+        assert!(!state.application_preferences_owner().unwrap().has_changes());
+        assert!(
+            state
+                .application_preferences_owner()
+                .unwrap()
+                .source_archive()
+                .is_some()
+        );
+        state.panel = None;
+        state.open_log();
+        assert!(state.log_preferences().show);
+        assert_eq!(
+            state
+                .application_preferences_owner()
+                .unwrap()
+                .log_preferences(),
+            state.log_preferences()
+        );
+        state.log_key(KeyCode::Escape);
+        assert!(!state.log_preferences().show);
+        assert!(!state.application_preferences_owner().unwrap().has_changes());
+        assert!(state.audio_preferences_file.is_none());
+        assert!(state.audio_preferences_path.is_none());
+        assert_eq!(state.workspace.file().session.undo_label(), undo.as_deref());
+    }
 }

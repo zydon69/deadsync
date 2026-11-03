@@ -731,7 +731,8 @@ mod tests {
             let fixture = TempMp3::new(bytes);
             let mut original =
                 super::original_reference::open_file(fixture.path()).expect("original decoder");
-            let mut opened = crate::open_file(fixture.path(), UNTRIMMED_INFO).expect("current decoder");
+            let mut opened =
+                crate::open_file(fixture.path(), UNTRIMMED_INFO).expect("current decoder");
             assert_eq!((opened.channels, opened.sample_rate_hz), (2, 44_100));
             assert_eq!((original.channels, original.sample_rate_hz), (2, 44_100));
             assert_eq!(opened.frames_total_hint, Some(frames));
@@ -910,7 +911,4 @@ mod tests {
             }
         }
     }
-
-
-
 }

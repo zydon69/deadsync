@@ -321,7 +321,9 @@ impl ChartData {
         {
             return invalid("Convert legacy SSC timing in F10 before exporting a chart offset");
         }
-        let previous=Self::read(session.document(), chart)?.and_then(|data|data.patterns).unwrap_or_default();
+        let previous = Self::read(session.document(), chart)?
+            .and_then(|data| data.patterns)
+            .unwrap_or_default();
         let (scope, version, data) = tags(session.document(), chart)?;
         let json = serde_json::to_string(self).map_err(|e| Error::InvalidFormat(e.to_string()))?;
         let offset = chart_offset.map(|value| value.to_string());
@@ -349,11 +351,19 @@ impl ChartData {
                 crate::document::escape_text(offset).into(),
             ));
         }
-        let changed=session.set_property_bytes_atomic(&properties, label)?;
-        let next=self.patterns.as_ref();
-        let removed=previous.keys().copied().filter(|row|next.is_none_or(|patterns|!patterns.contains_key(row))).collect();
-        let added=next.into_iter().flat_map(|patterns|patterns.keys().copied()).filter(|row|!previous.contains_key(row)).collect();
-        session.record_pattern_additions(chart,removed,added,changed);
+        let changed = session.set_property_bytes_atomic(&properties, label)?;
+        let next = self.patterns.as_ref();
+        let removed = previous
+            .keys()
+            .copied()
+            .filter(|row| next.is_none_or(|patterns| !patterns.contains_key(row)))
+            .collect();
+        let added = next
+            .into_iter()
+            .flat_map(|patterns| patterns.keys().copied())
+            .filter(|row| !previous.contains_key(row))
+            .collect();
+        session.record_pattern_additions(chart, removed, added, changed);
         Ok(changed)
     }
     pub fn options(&self, row: u64, registry: &Registry) -> Result<Options, Error> {
@@ -410,7 +420,10 @@ impl ChartData {
 /// This also preserves opaque metadata when duplicating a chart; generation
 /// validates its typed input before producing an append preview.
 pub(crate) fn clone_chart_owner(
-    source: &Document, from: usize, target: &mut Document, to: usize,
+    source: &Document,
+    from: usize,
+    target: &mut Document,
+    to: usize,
 ) -> Result<(), Error> {
     let (source_scope, source_version, source_data) = tags(source, from)?;
     let (target_scope, target_version, target_data) = tags(target, to)?;
@@ -419,7 +432,11 @@ pub(crate) fn clone_chart_owner(
             return invalid("Chart metadata occupies the new chart index");
         }
         if let Some(raw) = source.raw_property(source_scope, &origin) {
-            target.set_added_property(target_scope, &destination, Some(std::sync::Arc::from(raw)))?;
+            target.set_added_property(
+                target_scope,
+                &destination,
+                Some(std::sync::Arc::from(raw)),
+            )?;
         }
     }
     Ok(())

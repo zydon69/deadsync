@@ -95,21 +95,6 @@ impl Draft {
         };
         crate::notes::Grid::parse_layout(document.value(chart.notes.clone()), &chart.steps_type)
     }
-    /// Compatibility accessor for callers that only need one changed grid.
-    pub fn preview_grid(
-        &self,
-        workspace: &Workspace,
-    ) -> Result<Option<(String, crate::notes::Grid)>, Error> {
-        self.preview_charts(workspace)?
-            .last()
-            .map(|preview| {
-                Ok((
-                    format!("{}: {}", preview.index + 1, preview.layout),
-                    self.preview_chart(workspace, preview)?,
-                ))
-            })
-            .transpose()
-    }
     pub fn is_current(&self, workspace: &Workspace) -> bool {
         workspace.file().session.accepts_token(&self.token)
     }
@@ -544,7 +529,7 @@ fn run_process(
             send(
                 &mut input,
                 json!({"id":2,"method":"thread/start","params":{"cwd":cwd,"sandbox":"read-only","approvalPolicy":"never","ephemeral":true,"dynamicTools":tools,"baseInstructions":ASSISTANT_INSTRUCTIONS,
-                    }}),
+                }}),
             )?;
         } else if response_id(&frame, 2) {
             let id = frame["result"]["thread"]["id"]

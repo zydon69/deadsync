@@ -17,45 +17,62 @@ mod tests {
     #[test]
     fn real_short_and_long_chart_overviews_share_bounds_at_all_native_sizes_and_dpi() {
         i18n::init_for_tests();
-        let directory=tempfile::tempdir().unwrap();
-        for (measures,short) in [(32,true),(256,false)] {
-            let path=directory.path().join(format!("{measures}.ssc"));
-            let notes=std::iter::repeat_n("1000\n0100\n0010\n0001",measures).collect::<Vec<_>>().join(",\n");
-            std::fs::write(&path,format!("#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:{notes};"),
-            ).unwrap();
-            for (width,height) in [(854,480),(1100,760),(3440,1440)] {
-                for dpi in [1.0,2.0] {
-                    deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(width as f32,height as f32),
+        let directory = tempfile::tempdir().unwrap();
+        for (measures, short) in [(32, true), (256, false)] {
+            let path = directory.path().join(format!("{measures}.ssc"));
+            let notes = std::iter::repeat_n("1000\n0100\n0010\n0001", measures)
+                .collect::<Vec<_>>()
+                .join(",\n");
+            std::fs::write(
+                &path,
+                format!(
+                    "#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:{notes};"
+                ),
+            )
+            .unwrap();
+            for (width, height) in [(854, 480), (1100, 760), (3440, 1440)] {
+                for dpi in [1.0, 2.0] {
+                    deadlib_present::space::set_current_metrics(
+                        deadlib_present::space::Metrics::centered(width as f32, height as f32),
                     );
-                    let mut state=State::open(&path,0).unwrap();
-                    state.ui_dpi=Some(deadsync_editor::options_preferences::dpi::Capture::new(&state.general_options,dpi,
+                    let mut state = State::open(&path, 0).unwrap();
+                    state.ui_dpi = Some(deadsync_editor::options_preferences::dpi::Capture::new(
+                        &state.general_options,
+                        dpi,
                     ));
-                    state.ui_dpi_render_scale=dpi as f32;
-                    state.set_ui_dpi_viewport((width as f64*dpi) as u32,(height as f64*dpi) as u32,
+                    state.ui_dpi_render_scale = dpi as f32;
+                    state.set_ui_dpi_viewport(
+                        (width as f64 * dpi) as u32,
+                        (height as f64 * dpi) as u32,
                     );
-                    let preferences=state.minimap_preferences();
-                    let before=state.workspace.file().session.serialize().unwrap();
-                    for mode in [deadsync_editor::zoom::SpacingMode::ConstantTime,deadsync_editor::zoom::SpacingMode::ConstantRow,
+                    let preferences = state.minimap_preferences();
+                    let before = state.workspace.file().session.serialize().unwrap();
+                    for mode in [
+                        deadsync_editor::zoom::SpacingMode::ConstantTime,
+                        deadsync_editor::zoom::SpacingMode::ConstantRow,
                     ] {
-                        state.spacing_mode=mode;
-                        for reverse in [false,true] {
-                            state.reverse_display=reverse;
-                            let (geometry,clock)=state.minimap_projection().unwrap();
-                            let p=geometry.projection;
-                            let viewport=state.chart_viewport();
-                            let mount=state.minimap_mount_bounds().unwrap();
-                            assert_eq!(mount.y,p.bounds_y);
-                            assert_eq!(mount.visible_height,p.visible_height as u32);
-                            assert_eq!(p.bounds_y,state.overview_vertical_layout().top);
-                            assert_eq!(p.bounds_y+p.visible_height,viewport.bottom.floor() as i32);
-                            assert_eq!(p.reverse,reverse);
-                            let configured=preferences.visible_range(geometry.axis);
-                            let last=state.workspace.grid().last_row();
-                            let content=match geometry.axis {
-                                Axis::Time=> {
-                                    (clock.chart_time(0).unwrap(),clock.note_time(last).unwrap())
+                        state.spacing_mode = mode;
+                        for reverse in [false, true] {
+                            state.reverse_display = reverse;
+                            let (geometry, clock) = state.minimap_projection().unwrap();
+                            let p = geometry.projection;
+                            let viewport = state.chart_viewport();
+                            let mount = state.minimap_mount_bounds().unwrap();
+                            assert_eq!(mount.y, p.bounds_y);
+                            assert_eq!(mount.visible_height, p.visible_height as u32);
+                            assert_eq!(p.bounds_y, state.overview_vertical_layout().top);
+                            assert_eq!(
+                                p.bounds_y + p.visible_height,
+                                viewport.bottom.floor() as i32
+                            );
+                            assert_eq!(p.reverse, reverse);
+                            let configured = preferences.visible_range(geometry.axis);
+                            let last = state.workspace.grid().last_row();
+                            let content = match geometry.axis {
+                                Axis::Time => {
+                                    (clock.chart_time(0).unwrap(), clock.note_time(last).unwrap())
                                 }
-                                Axis::Row=>(0.,last as f64),
+                                Axis::Row => (0., last as f64),
                             };
                             if short {
                                 let start = p.project_editor(content.0);
@@ -65,8 +82,8 @@ mod tests {
                             } else {
                                 assert_eq!(p.mini_range, configured);
                             }
-                            assert_eq!(state.minimap_preferences(),preferences);
-                            assert_eq!(state.workspace.file().session.serialize().unwrap(),before);
+                            assert_eq!(state.minimap_preferences(), preferences);
+                            assert_eq!(state.workspace.file().session.serialize().unwrap(), before);
                         }
                     }
                 }
@@ -74,33 +91,105 @@ mod tests {
         }
     }
     #[test]
-    fn short_chart_fills_overview_without_rewriting_configured_ranges(){
+    fn short_chart_fills_overview_without_rewriting_configured_ranges() {
         i18n::init_for_tests();
-        for (size,dpi)in[([854.0,480.0],1.0),([1100.0,760.0],2.0),([3440.0,1440.0],2.0),
-        ]{
-            deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(size[0],size[1],
+        for (size, dpi) in [
+            ([854.0, 480.0], 1.0),
+            ([1100.0, 760.0], 2.0),
+            ([3440.0, 1440.0], 2.0),
+        ] {
+            deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+                size[0], size[1],
             ));
-            for (mode,index,low,high,coordinate)in[(deadsync_editor::zoom::SpacingMode::ConstantTime,1,30.0,300.0,2.0,
-                ),(deadsync_editor::zoom::SpacingMode::ConstantRow,2,3072.0,28800.0,192.0,
+            for (mode, index, low, high, coordinate) in [
+                (
+                    deadsync_editor::zoom::SpacingMode::ConstantTime,
+                    1,
+                    30.0,
+                    300.0,
+                    2.0,
                 ),
-            ]{
-                let root=tempfile::tempdir().unwrap();let path=root.path().join("short.ssc");std::fs::write(&path,"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000\n0100\n0010\n0001,1000\n0100\n0010\n0001;").unwrap();
-                let mut state=State::open(&path,0).unwrap();state.configure_spacing_preference(deadsync_editor::scroll_preferences::spacing::Preference::from_effective(mode),
-                );state.ui_dpi=Some(deadsync_editor::options_preferences::dpi::Capture::new(&state.general_options,dpi,
-                ));state.ui_dpi_render_scale=dpi as f32;state.set_ui_dpi_viewport((size[0]as f64*dpi)as u32,(size[1]as f64*dpi)as u32,
+                (
+                    deadsync_editor::zoom::SpacingMode::ConstantRow,
+                    2,
+                    3072.0,
+                    28800.0,
+                    192.0,
+                ),
+            ] {
+                let root = tempfile::tempdir().unwrap();
+                let path = root.path().join("short.ssc");
+                std::fs::write(&path,"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000\n0100\n0010\n0001,1000\n0100\n0010\n0001;").unwrap();
+                let mut state = State::open(&path, 0).unwrap();
+                state.configure_spacing_preference(
+                    deadsync_editor::scroll_preferences::spacing::Preference::from_effective(mode),
                 );
-                let mut projected=Vec::new();
-                for(right,expected)in[(false,low),(true,high)]{
-                    state.open_minimap_settings();for _ in 0..200{state.minimap_settings_key(index,if right{KeyCode::ArrowRight}else{KeyCode::ArrowLeft},
-                        );}state.minimap_settings_key(5,KeyCode::Enter);
-                    let(geometry,clock)=state.minimap_projection().unwrap();let p=geometry.projection;assert_eq!(
-                        state.minimap_preferences().visible_range(geometry.axis),expected);projected.push((p.project_editor(coordinate),p.project_editor(coordinate+1.0)-p.project_editor(coordinate),
-                    ));let mount=state.minimap_mount_bounds().unwrap();assert_eq!(mount.y,p.bounds_y);assert_eq!(mount.visible_height,p.visible_height as u32);
-                    let mut actors=Vec::new();state.minimap_content_actors(&mut actors,&geometry,&clock);let mut meshes=0;
-                    for actor in &actors{if let Actor::Mesh{vertices,offset,..}=actor{meshes+=1;assert_eq!(*offset,[mount.x as f32,p.bounds_y as f32]);for vertex in vertices.iter(){assert!(vertex.pos[0]>=0.0&&vertex.pos[0]<=state.minimap.content.options.width as f32);assert!(vertex.pos[1]>=0.0&&vertex.pos[1]<=p.visible_height as f32);}}}
-                    assert!(meshes>0,"actual content raster must produce a bounded mesh");
+                state.ui_dpi = Some(deadsync_editor::options_preferences::dpi::Capture::new(
+                    &state.general_options,
+                    dpi,
+                ));
+                state.ui_dpi_render_scale = dpi as f32;
+                state.set_ui_dpi_viewport(
+                    (size[0] as f64 * dpi) as u32,
+                    (size[1] as f64 * dpi) as u32,
+                );
+                let mut projected = Vec::new();
+                for (right, expected) in [(false, low), (true, high)] {
+                    state.open_minimap_settings();
+                    for _ in 0..200 {
+                        state.minimap_settings_key(
+                            index,
+                            if right {
+                                KeyCode::ArrowRight
+                            } else {
+                                KeyCode::ArrowLeft
+                            },
+                        );
+                    }
+                    state.minimap_settings_key(5, KeyCode::Enter);
+                    let (geometry, clock) = state.minimap_projection().unwrap();
+                    let p = geometry.projection;
+                    assert_eq!(
+                        state.minimap_preferences().visible_range(geometry.axis),
+                        expected
+                    );
+                    projected.push((
+                        p.project_editor(coordinate),
+                        p.project_editor(coordinate + 1.0) - p.project_editor(coordinate),
+                    ));
+                    let mount = state.minimap_mount_bounds().unwrap();
+                    assert_eq!(mount.y, p.bounds_y);
+                    assert_eq!(mount.visible_height, p.visible_height as u32);
+                    let mut actors = Vec::new();
+                    state.minimap_content_actors(&mut actors, &geometry, &clock);
+                    let mut meshes = 0;
+                    for actor in &actors {
+                        if let Actor::Mesh {
+                            vertices, offset, ..
+                        } = actor
+                        {
+                            meshes += 1;
+                            assert_eq!(*offset, [mount.x as f32, p.bounds_y as f32]);
+                            for vertex in vertices.iter() {
+                                assert!(
+                                    vertex.pos[0] >= 0.0
+                                        && vertex.pos[0]
+                                            <= state.minimap.content.options.width as f32
+                                );
+                                assert!(
+                                    vertex.pos[1] >= 0.0
+                                        && vertex.pos[1] <= p.visible_height as f32
+                                );
+                            }
+                        }
+                    }
+                    assert!(
+                        meshes > 0,
+                        "actual content raster must produce a bounded mesh"
+                    );
                 }
-                assert_eq!(projected[0],projected[1],
+                assert_eq!(
+                    projected[0], projected[1],
                     "short chart fits both oversized ranges"
                 );
             }
@@ -121,24 +210,52 @@ mod tests {
             let path = directory.path().join("song.ssc");
             std::fs::write(&path,b"#VERSION:0.83;#MUSIC:music.wav;#SAMPLESTART:0;#SAMPLELENGTH:1;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;").unwrap();
             let mut state = State::open(&path, 0).unwrap();
-            let viewport=state.chart_viewport();
-            let geometry=state.minimap_viewport_geometry().unwrap();
-            let bounds=state.minimap_mount_bounds().unwrap();
+            let viewport = state.chart_viewport();
+            let geometry = state.minimap_viewport_geometry().unwrap();
+            let bounds = state.minimap_mount_bounds().unwrap();
             assert!(geometry.projection.bounds_y as f32 >= viewport.top);
-            assert!((geometry.projection.bounds_y+geometry.projection.visible_height) as f32 <= viewport.bottom);
-            assert_eq!(bounds.y,geometry.projection.bounds_y);
-            assert_eq!(bounds.visible_height,geometry.projection.visible_height as u32);
-            assert_eq!(state.minimap_preferences().visible_range(geometry.axis), Preferences::default().visible_range(geometry.axis));
+            assert!(
+                (geometry.projection.bounds_y + geometry.projection.visible_height) as f32
+                    <= viewport.bottom
+            );
+            assert_eq!(bounds.y, geometry.projection.bounds_y);
+            assert_eq!(
+                bounds.visible_height,
+                geometry.projection.visible_height as u32
+            );
+            assert_eq!(
+                state.minimap_preferences().visible_range(geometry.axis),
+                Preferences::default().visible_range(geometry.axis)
+            );
 
-            let commands=state.take_audio_commands();
-            let owners:Vec<_>=commands.iter().filter_map(|c|match c{deadsync_gameplay::GameplayAudioCommand::EditorBeginAudio{owner,..}=> {
+            let commands = state.take_audio_commands();
+            let owners: Vec<_> = commands
+                .iter()
+                .filter_map(|c| match c {
+                    deadsync_gameplay::GameplayAudioCommand::EditorBeginAudio { owner, .. } => {
                         Some(*owner)
                     }
-                    _=>None,
-                }).collect();
-            assert_eq!(owners.len(),1);let owner=owners[0];assert_ne!(owner,0);
-            let mut snapshot=deadsync_gameplay::GameplayAudioSnapshot::default();snapshot.editor.owner=owner;snapshot.editor.output.available=true;snapshot.editor.output.leased=true;snapshot.editor.output.period_control=deadsync_gameplay::EditorBufferControl::Adjustable;snapshot.editor.output.requested_period=Some(512);snapshot.editor.output.negotiated_period=Some(512);snapshot.editor.assets=deadsync_gameplay::EditorAssetReadiness{owner,registration:state.editor_asset_registration(),main:true,dedicated_preview:true,
-            };state.update_audio(snapshot);
+                    _ => None,
+                })
+                .collect();
+            assert_eq!(owners.len(), 1);
+            let owner = owners[0];
+            assert_ne!(owner, 0);
+            let mut snapshot = deadsync_gameplay::GameplayAudioSnapshot::default();
+            snapshot.editor.owner = owner;
+            snapshot.editor.output.available = true;
+            snapshot.editor.output.leased = true;
+            snapshot.editor.output.period_control =
+                deadsync_gameplay::EditorBufferControl::Adjustable;
+            snapshot.editor.output.requested_period = Some(512);
+            snapshot.editor.output.negotiated_period = Some(512);
+            snapshot.editor.assets = deadsync_gameplay::EditorAssetReadiness {
+                owner,
+                registration: state.editor_asset_registration(),
+                main: true,
+                dedicated_preview: true,
+            };
+            state.update_audio(snapshot);
             assert!(state.take_audio_commands().is_empty());
             state.open_song_properties();
             state.toggle_sample_audio();
@@ -203,7 +320,9 @@ impl State {
     }
     fn minimap_clock(&self) -> Result<Arc<Clock>, deadsync_editor::Error> {
         let session = &self.workspace.file().session;
-        let chart=self.preview_source_chart().unwrap_or(self.workspace.chart());
+        let chart = self
+            .preview_source_chart()
+            .unwrap_or(self.workspace.chart());
         if let Some(view) = self.active_views.as_ref().and_then(|views| {
             views
                 .entries()
@@ -228,8 +347,13 @@ impl State {
         &self,
         clock: &Clock,
     ) -> Result<Position, deadsync_editor::Error> {
-        if let Some(position)=self.preview_position()?{return Ok(Position{chart_time:position.chart_time(),music_time:position.music_time(),row:position.row(),
-            });}
+        if let Some(position) = self.preview_position()? {
+            return Ok(Position {
+                chart_time: position.chart_time(),
+                music_time: position.music_time(),
+                row: position.row(),
+            });
+        }
         let (chart_time, row) = match self.playback_position() {
             Some(position) => position,
             None => (
@@ -281,7 +405,9 @@ impl State {
             bottom: native.bottom.into(),
             focal: native.cursor.into(),
         };
-        let last_row = self.preview.as_ref().map_or_else(||self.workspace.grid().last_row(),|preview|preview.grid().last_row(),
+        let last_row = self.preview.as_ref().map_or_else(
+            || self.workspace.grid().last_row(),
+            |preview| preview.grid().last_row(),
         );
         let (focus, content) = match axis {
             Axis::Time => (
@@ -324,7 +450,15 @@ impl State {
             Some(Effect::Focus(position)) => {
                 // Source navigation switch has no Variable/unknown case, even
                 // though UpdateMiniMap renders these raw modes using time.
-                if self.spacing_mode()==deadsync_editor::zoom::SpacingMode::Variable && !self.minimap.preferences.variable_spacing().supports_navigation(){return Ok(());}
+                if self.spacing_mode() == deadsync_editor::zoom::SpacingMode::Variable
+                    && !self
+                        .minimap
+                        .preferences
+                        .variable_spacing()
+                        .supports_navigation()
+                {
+                    return Ok(());
+                }
                 self.receptor_views.reset();
                 let session = &self.workspace.file().session;
                 let focus = match self.active_views.as_ref().and_then(|views| {
@@ -462,7 +596,9 @@ impl State {
             }
             return true;
         }
-        if self.minimap.preferences.visible_range(self.minimap_axis())==0.0{return true;}
+        if self.minimap.preferences.visible_range(self.minimap_axis()) == 0.0 {
+            return true;
+        }
         let result = (|| -> Result<(), deadsync_editor::Error> {
             let beginning = !self.minimap.gesture.active();
             if beginning {
@@ -579,24 +715,162 @@ impl State {
             return;
         };
         if let Ok(bounds) = self.minimap_mount_bounds() {
-            self.overview_label(actors,bounds.x as f32,bounds.width as f32,0,i18n::tr("Edition","MinimapOverview"),
+            self.overview_label(
+                actors,
+                bounds.x as f32,
+                bounds.width as f32,
+                0,
+                i18n::tr("Edition", "MinimapOverview"),
             );
         }
         self.minimap_content_actors(actors, &geometry, &clock);
     }
 }
 
-#[cfg(test)]mod source_raw_minimap_consumers{
- use super::*;use deadsync_editor::minimap_preferences::VariableSpacing;
- fn state(root:&std::path::Path)->State{let path=root.join("source.ssc");std::fs::write(&path,"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000,0100,0010,0001;").unwrap();State::open(&path,0).unwrap()}
- #[test]fn zero_range_is_owned_but_renders_nothing_and_cannot_arm_capture(){i18n::init_for_tests();deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(854.0,480.0,
-        ));let root=tempfile::tempdir().unwrap();let mut state=state(root.path());let mut preferences=state.minimap_preferences();for axis in[Axis::Time,Axis::Row]{preferences.set_visible_range(axis,0.0).unwrap();}state.configure_minimap_preferences(preferences);state.take_audio_commands();state.minimap.focused=true;assert!(state.minimap_viewport_geometry().is_err());let mut actors=Vec::new();state.minimap_actors(&mut actors);assert!(actors.is_empty());let row=state.workspace.row();assert!(state.minimap_key(&RawKeyboardEvent{code:KeyCode::ArrowDown,pressed:true,repeat:false,timestamp:std::time::Instant::now(),host_nanos:0}));assert!(!state.minimap_capture_active());assert_eq!(state.workspace.row(),row);assert!(state.take_audio_commands().is_empty());}
- #[test]fn source_variable_and_unknown_render_time_but_do_not_set_position_while_known_modes_do(){i18n::init_for_tests();deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(854.0,480.0,
-        ));for raw in[VariableSpacing::ConstantTime,VariableSpacing::ConstantRow,VariableSpacing::Variable,VariableSpacing::Unknown(99),
-        ]{let root=tempfile::tempdir().unwrap();let mut state=state(root.path());state.spacing_mode=deadsync_editor::zoom::SpacingMode::Variable;let mut preferences=state.minimap_preferences();preferences.set_variable_spacing(raw);state.configure_minimap_preferences(preferences);assert_eq!(state.minimap_projection().unwrap().0.axis,raw.axis());let before=state.workspace.row();let before_focus=state.focus_position.as_ref().map(|p|(p.music_time(),p.row()));let clock=state.minimap_clock().unwrap();state.minimap_effect(Some(Effect::Focus(Position{chart_time:clock.chart_time(192).unwrap(),music_time:clock.chart_time_to_music(clock.note_time(192).unwrap()).unwrap(),row:192.0,
-                }))).unwrap();if raw.supports_navigation(){let focus=state.focus_position.as_ref().expect("navigation must publish the exact display position");assert_eq!(state.workspace.row(),focus.edit_row());if raw.axis()==Axis::Row{assert_eq!(focus.row(),192.0);}else{let time=clock.chart_time_to_music(clock.note_time(192).unwrap()).unwrap();assert_eq!(focus.music_time(),time);assert_eq!(focus.row(),clock.position(time).unwrap());assert!((focus.row()-192.0).abs()<1e-9);}}else{assert_eq!(state.workspace.row(),before);assert_eq!(state.focus_position.as_ref().map(|p|(p.music_time(),p.row())),before_focus);}}}
- #[test]fn both_panels_restore_raw_spacing_and_zero_ranges_and_cancel_preserves_raw(){i18n::init_for_tests();deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(854.0,480.0,
-        ));for options in[false,true]{let root=tempfile::tempdir().unwrap();let mut state=state(root.path());let path=root.path().join("preferences.json");std::fs::write(&path,"{\"Version\":1,\"MiniMap\":{\"MiniMapSpacingModeForVariable\":\"Variable\",\"MiniMapVisibleTimeRange\":0,\"MiniMapVisibleRowRange\":0}}").unwrap();state.configure_audio_preferences(&path).unwrap();let before=state.minimap_preferences();assert_eq!(before.variable_spacing(),VariableSpacing::Variable);if options{state.open_minimap_options();state.minimap_options_key(13,KeyCode::Enter);state.minimap_options_key(15,KeyCode::Enter);}else{state.open_minimap_settings();state.minimap_settings_key(4,KeyCode::Enter);state.minimap_settings_key(6,KeyCode::Enter);}assert_eq!(state.minimap_preferences(),before);if options{state.open_minimap_options();state.minimap_options_key(13,KeyCode::Enter);state.minimap_options_key(14,KeyCode::Enter);}else{state.open_minimap_settings();state.minimap_settings_key(4,KeyCode::Enter);state.minimap_settings_key(5,KeyCode::Enter);}assert_eq!(state.minimap_preferences(),Preferences::default());assert!(state.minimap_viewport_geometry().is_ok());state.command(Command::Undo);assert_eq!(state.minimap_preferences(),before);assert!(state.minimap_viewport_geometry().is_err());state.command(Command::Redo);assert_eq!(state.minimap_preferences(),Preferences::default());}}
+#[cfg(test)]
+mod source_raw_minimap_consumers {
+    use super::*;
+    use deadsync_editor::minimap_preferences::VariableSpacing;
+    fn state(root: &std::path::Path) -> State {
+        let path = root.join("source.ssc");
+        std::fs::write(&path,"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000,0100,0010,0001;").unwrap();
+        State::open(&path, 0).unwrap()
+    }
+    #[test]
+    fn zero_range_is_owned_but_renders_nothing_and_cannot_arm_capture() {
+        i18n::init_for_tests();
+        deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+            854.0, 480.0,
+        ));
+        let root = tempfile::tempdir().unwrap();
+        let mut state = state(root.path());
+        let mut preferences = state.minimap_preferences();
+        for axis in [Axis::Time, Axis::Row] {
+            preferences.set_visible_range(axis, 0.0).unwrap();
+        }
+        state.configure_minimap_preferences(preferences);
+        state.take_audio_commands();
+        state.minimap.focused = true;
+        assert!(state.minimap_viewport_geometry().is_err());
+        let mut actors = Vec::new();
+        state.minimap_actors(&mut actors);
+        assert!(actors.is_empty());
+        let row = state.workspace.row();
+        assert!(state.minimap_key(&RawKeyboardEvent {
+            code: KeyCode::ArrowDown,
+            pressed: true,
+            repeat: false,
+            timestamp: std::time::Instant::now(),
+            host_nanos: 0
+        }));
+        assert!(!state.minimap_capture_active());
+        assert_eq!(state.workspace.row(), row);
+        assert!(state.take_audio_commands().is_empty());
+    }
+    #[test]
+    fn source_variable_and_unknown_render_time_but_do_not_set_position_while_known_modes_do() {
+        i18n::init_for_tests();
+        deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+            854.0, 480.0,
+        ));
+        for raw in [
+            VariableSpacing::ConstantTime,
+            VariableSpacing::ConstantRow,
+            VariableSpacing::Variable,
+            VariableSpacing::Unknown(99),
+        ] {
+            let root = tempfile::tempdir().unwrap();
+            let mut state = state(root.path());
+            state.spacing_mode = deadsync_editor::zoom::SpacingMode::Variable;
+            let mut preferences = state.minimap_preferences();
+            preferences.set_variable_spacing(raw);
+            state.configure_minimap_preferences(preferences);
+            assert_eq!(state.minimap_projection().unwrap().0.axis, raw.axis());
+            let before = state.workspace.row();
+            let before_focus = state
+                .focus_position
+                .as_ref()
+                .map(|p| (p.music_time(), p.row()));
+            let clock = state.minimap_clock().unwrap();
+            state
+                .minimap_effect(Some(Effect::Focus(Position {
+                    chart_time: clock.chart_time(192).unwrap(),
+                    music_time: clock
+                        .chart_time_to_music(clock.note_time(192).unwrap())
+                        .unwrap(),
+                    row: 192.0,
+                })))
+                .unwrap();
+            if raw.supports_navigation() {
+                let focus = state
+                    .focus_position
+                    .as_ref()
+                    .expect("navigation must publish the exact display position");
+                assert_eq!(state.workspace.row(), focus.edit_row());
+                if raw.axis() == Axis::Row {
+                    assert_eq!(focus.row(), 192.0);
+                } else {
+                    let time = clock
+                        .chart_time_to_music(clock.note_time(192).unwrap())
+                        .unwrap();
+                    assert_eq!(focus.music_time(), time);
+                    assert_eq!(focus.row(), clock.position(time).unwrap());
+                    assert!((focus.row() - 192.0).abs() < 1e-9);
+                }
+            } else {
+                assert_eq!(state.workspace.row(), before);
+                assert_eq!(
+                    state
+                        .focus_position
+                        .as_ref()
+                        .map(|p| (p.music_time(), p.row())),
+                    before_focus
+                );
+            }
+        }
+    }
+    #[test]
+    fn both_panels_restore_raw_spacing_and_zero_ranges_and_cancel_preserves_raw() {
+        i18n::init_for_tests();
+        deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
+            854.0, 480.0,
+        ));
+        for options in [false, true] {
+            let root = tempfile::tempdir().unwrap();
+            let mut state = state(root.path());
+            let path = root.path().join("preferences.json");
+            std::fs::write(&path,"{\"Version\":1,\"MiniMap\":{\"MiniMapSpacingModeForVariable\":\"Variable\",\"MiniMapVisibleTimeRange\":0,\"MiniMapVisibleRowRange\":0}}").unwrap();
+            state.configure_audio_preferences(&path).unwrap();
+            let before = state.minimap_preferences();
+            assert_eq!(before.variable_spacing(), VariableSpacing::Variable);
+            if options {
+                state.open_minimap_options();
+                state.minimap_options_key(13, KeyCode::Enter);
+                state.minimap_options_key(15, KeyCode::Enter);
+            } else {
+                state.open_minimap_settings();
+                state.minimap_settings_key(4, KeyCode::Enter);
+                state.minimap_settings_key(6, KeyCode::Enter);
+            }
+            assert_eq!(state.minimap_preferences(), before);
+            if options {
+                state.open_minimap_options();
+                state.minimap_options_key(13, KeyCode::Enter);
+                state.minimap_options_key(14, KeyCode::Enter);
+            } else {
+                state.open_minimap_settings();
+                state.minimap_settings_key(4, KeyCode::Enter);
+                state.minimap_settings_key(5, KeyCode::Enter);
+            }
+            assert_eq!(state.minimap_preferences(), Preferences::default());
+            assert!(state.minimap_viewport_geometry().is_ok());
+            state.command(Command::Undo);
+            assert_eq!(state.minimap_preferences(), before);
+            assert!(state.minimap_viewport_geometry().is_err());
+            state.command(Command::Redo);
+            assert_eq!(state.minimap_preferences(), Preferences::default());
+        }
+    }
 }
 
 #[cfg(test)]
@@ -769,18 +1043,30 @@ mod exact_pause_navigation_tests {
         start(&mut state, owner, 50.25);
         state.toggle_audio();
         assert!(!state.is_playing());
-        assert!(matches!(state.take_audio_commands().as_slice(), [GameplayAudioCommand::EditorPauseMusic {..}]));
+        assert!(matches!(
+            state.take_audio_commands().as_slice(),
+            [GameplayAudioCommand::EditorPauseMusic { .. }]
+        ));
         let position = state.minimap_position().unwrap();
-        let effect = state.minimap.gesture.input(Input::Begin {position, playing:false, stop_playback_on_release:false,
+        let effect = state.minimap.gesture.input(Input::Begin {
+            position,
+            playing: false,
+            stop_playback_on_release: false,
         });
         state.minimap_effect(effect).unwrap();
         let target = move_to(&mut state, 50.75);
-        let effect = state.minimap.gesture.input(Input::Move(Position {row:f64::NAN, ..target}));
+        let effect = state.minimap.gesture.input(Input::Move(Position {
+            row: f64::NAN,
+            ..target
+        }));
         assert!(effect.is_none());
         state.minimap_effect(effect).unwrap();
         state.minimap_end();
         assert!(!state.is_playing());
-        assert_eq!(state.playback_position(), Some((target.chart_time, target.row)));
+        assert_eq!(
+            state.playback_position(),
+            Some((target.chart_time, target.row))
+        );
         assert!(state.take_audio_commands().is_empty());
         state.toggle_audio();
         assert_resume(&mut state, owner, target);

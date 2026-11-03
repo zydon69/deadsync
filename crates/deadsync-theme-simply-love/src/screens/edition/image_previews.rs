@@ -38,15 +38,21 @@ pub(super) fn next_document_identity() -> u64 {
 impl super::State {
     pub fn image_preview_request(&self) -> Option<PreviewRequest> {
         use deadsync_editor::song_text::{Field, Text};
-        let property_panel=matches!(self.panel,Some(super::Panel::SongText(_)));
-        let background=self.has_song()&&!self.song_background_policy().hide;
-        let pack_panel=matches!(self.panel,Some(super::Panel::PackProperties));
-        if !property_panel&&!background&&!pack_panel {return None;}
-        let fields = [Field::Banner, Field::CdTitle,Field::Background];
+        let property_panel = matches!(self.panel, Some(super::Panel::SongText(_)));
+        let background = self.has_song() && !self.song_background_policy().hide;
+        let pack_panel = matches!(self.panel, Some(super::Panel::PackProperties));
+        if !property_panel && !background && !pack_panel {
+            return None;
+        }
+        let fields = [Field::Banner, Field::CdTitle, Field::Background];
         let committed = Text::read(self.workspace.file().session.document());
         let directory = self.workspace.file().resource_base();
         let mut paths = fields.map(|field| {
-            if (field==Field::Background&&!background)||(field!=Field::Background&&!property_panel){return None;}
+            if (field == Field::Background && !background)
+                || (field != Field::Background && !property_panel)
+            {
+                return None;
+            }
             let value = self
                 .song_properties
                 .as_ref()
@@ -57,8 +63,12 @@ impl super::State {
                 Some(directory.join(value))
             }
         });
-        if pack_panel{paths[0]=self.pack_banner_path();}
-        if paths.iter().all(Option::is_none){return None;}
+        if pack_panel {
+            paths[0] = self.pack_banner_path();
+        }
+        if paths.iter().all(Option::is_none) {
+            return None;
+        }
         Some(PreviewRequest {
             document_identity: self.image_preview_identity,
             paths,
@@ -133,7 +143,7 @@ pub enum Role {
     Background,
 }
 impl Role {
-    pub const ALL: [Self; 3] = [Self::Banner, Self::CdTitle,Self::Background];
+    pub const ALL: [Self; 3] = [Self::Banner, Self::CdTitle, Self::Background];
     fn index(self) -> usize {
         match self {
             Self::Banner => 0,
@@ -145,7 +155,7 @@ impl Role {
         match self {
             Self::Banner => (418, 164),
             Self::CdTitle => (164, 164),
-            Self::Background => (640,480),
+            Self::Background => (640, 480),
         }
     }
 }
@@ -181,7 +191,7 @@ struct Animation {
     frames: Vec<Frame>,
     source_size: [u32; 2],
     duration: f64,
-    average_color:[f32;4],
+    average_color: [f32; 4],
 }
 impl Animation {
     fn frame(&self, time: Duration) -> usize {
@@ -246,7 +256,7 @@ impl Worker {
                     generation: 0,
                     path: None,
                 }),
-                results: [None, None,None],
+                results: [None, None, None],
                 stopped: false,
             }),
             Condvar::new(),
@@ -325,8 +335,8 @@ impl Cache {
     /// Compare every update: draft cancel/apply, undo/redo and Save As then work
     /// without manual invalidation hooks. None means unload this role.
     pub fn set_paths(&mut self, paths: [Option<PathBuf>; 2]) {
-        let [banner,cdtitle]=paths;
-        self.set_role_paths([banner,cdtitle,None]);
+        let [banner, cdtitle] = paths;
+        self.set_role_paths([banner, cdtitle, None]);
     }
     pub fn set_role_paths(&mut self, paths: [Option<PathBuf>; 3]) {
         for (index, path) in paths.into_iter().enumerate() {
@@ -343,7 +353,7 @@ impl Cache {
             } else {
                 Status::Empty
             };
-            if slot.request.path.is_none() || index==Role::Background.index() {
+            if slot.request.path.is_none() || index == Role::Background.index() {
                 slot.animation = None;
                 slot.frame = None;
                 slot.upload = false;
@@ -400,8 +410,11 @@ impl Cache {
         View {
             status: &slot.status,
             key: &slot.key,
-            path:slot.request.path.as_deref(),
-            average_color:slot.animation.as_ref().map_or([0.0,0.0,0.0,1.0],|a|a.average_color),
+            path: slot.request.path.as_deref(),
+            average_color: slot
+                .animation
+                .as_ref()
+                .map_or([0.0, 0.0, 0.0, 1.0], |a| a.average_color),
             has_resident_image: slot.animation.is_some(),
             source_size: slot
                 .animation
@@ -446,7 +459,7 @@ fn current(shared: &Arc<(Mutex<Shared>, Condvar)>, index: usize, request: &Reque
     !shared.stopped && shared.requests[index] == *request
 }
 fn worker(shared: Arc<(Mutex<Shared>, Condvar)>) {
-    let mut seen: [Option<(Request, Result<Stamp, std::io::ErrorKind>)>; 3] = [None, None,None];
+    let mut seen: [Option<(Request, Result<Stamp, std::io::ErrorKind>)>; 3] = [None, None, None];
     loop {
         let requests = {
             let state = shared.0.lock().unwrap_or_else(|e| e.into_inner());
@@ -575,9 +588,14 @@ fn decode(path: &Path, role: Role, cancelled: impl Fn() -> bool) -> Result<Anima
         if frames.is_empty() {
             return Err(Status::Failed("Animated image has no frames".into()));
         }
-        let average_color=if role==Role::Background{super::song_background::texture_color(&frames[0].image)}else{[0.0,0.0,0.0,1.0]};
+        let average_color = if role == Role::Background {
+            super::song_background::texture_color(&frames[0].image)
+        } else {
+            [0.0, 0.0, 0.0, 1.0]
+        };
         Ok(Animation {
-            frames,average_color,
+            frames,
+            average_color,
             source_size: [size.0, size.1],
             duration,
         })
@@ -593,8 +611,12 @@ fn decode(path: &Path, role: Role, cancelled: impl Fn() -> bool) -> Result<Anima
         let image = image::DynamicImage::from_decoder(decoder)
             .map_err(fail)?
             .into_rgba8();
-        let image=resize(image,role);
-        let average_color=if role==Role::Background{super::song_background::texture_color(&image)}else{[0.0,0.0,0.0,1.0]};
+        let image = resize(image, role);
+        let average_color = if role == Role::Background {
+            super::song_background::texture_color(&image)
+        } else {
+            [0.0, 0.0, 0.0, 1.0]
+        };
         Ok(Animation {
             average_color,
             frames: vec![Frame {
@@ -612,7 +634,8 @@ mod tests {
     use super::*;
     use std::time::Instant;
     fn fixture_animation(color: u8) -> Animation {
-        Animation {average_color:[f32::from(color)/255.0,0.0,0.0,1.0],
+        Animation {
+            average_color: [f32::from(color) / 255.0, 0.0, 0.0, 1.0],
             frames: vec![Frame {
                 image: Arc::new(RgbaImage::from_pixel(2, 1, image::Rgba([color, 0, 0, 255]))),
                 duration: 0.0,
@@ -761,7 +784,8 @@ mod tests {
         assert_eq!(animation.frame(Duration::ZERO), 1);
         assert_eq!(animation.frame(Duration::from_millis(100)), 2);
         assert_eq!(animation.frame(Duration::from_millis(350)), 1);
-        let zero = Animation {average_color:[0.0,0.0,0.0,1.0],
+        let zero = Animation {
+            average_color: [0.0, 0.0, 0.0, 1.0],
             frames: vec![Frame {
                 image: Arc::new(RgbaImage::new(1, 1)),
                 duration: 0.0,
@@ -802,7 +826,8 @@ mod tests {
         first.slots[0].request = newer;
         first.worker.shared.0.lock().unwrap().results[0] = Some(ResultItem {
             request: old,
-            animation: Ok(Animation {average_color:[0.0,0.0,0.0,1.0],
+            animation: Ok(Animation {
+                average_color: [0.0, 0.0, 0.0, 1.0],
                 frames: vec![Frame {
                     image: Arc::new(RgbaImage::new(1, 1)),
                     duration: 0.0,
@@ -820,38 +845,73 @@ mod tests {
 #[cfg(test)]
 mod background_role_tests {
     use super::*;
-    fn fixture(color:u8)->Animation {Animation{frames:vec![Frame{image:Arc::new(RgbaImage::from_pixel(1,1,image::Rgba([color,0,0,255]))),duration:0.0}],source_size:[1,1],duration:0.0,average_color:[f32::from(color)/255.0,0.0,0.0,1.0]}}
+    fn fixture(color: u8) -> Animation {
+        Animation {
+            frames: vec![Frame {
+                image: Arc::new(RgbaImage::from_pixel(1, 1, image::Rgba([color, 0, 0, 255]))),
+                duration: 0.0,
+            }],
+            source_size: [1, 1],
+            duration: 0.0,
+            average_color: [f32::from(color) / 255.0, 0.0, 0.0, 1.0],
+        }
+    }
     #[test]
-    fn background_is_a_real_separate_role_and_old_pixels_are_retired_on_replacement(){
-        let mut cache=Cache::new().unwrap();
-        assert_ne!(cache.view(Role::Background).key,cache.view(Role::Banner).key);
-        assert_eq!(Role::Background.bounds(),(640,480));
-        cache.slots[2].animation=Some(fixture(255));
-        cache.slots[2].status=Status::Ready;
-        cache.slots[2].request.path=Some(PathBuf::from("old-background.png"));
-        let old=cache.slots[2].request.clone();
-        cache.set_role_paths([None,None,Some(PathBuf::from("new-background.png"))]);
-        cache.worker.request(2,Request{generation:u64::MAX,path:None});
+    fn background_is_a_real_separate_role_and_old_pixels_are_retired_on_replacement() {
+        let mut cache = Cache::new().unwrap();
+        assert_ne!(
+            cache.view(Role::Background).key,
+            cache.view(Role::Banner).key
+        );
+        assert_eq!(Role::Background.bounds(), (640, 480));
+        cache.slots[2].animation = Some(fixture(255));
+        cache.slots[2].status = Status::Ready;
+        cache.slots[2].request.path = Some(PathBuf::from("old-background.png"));
+        let old = cache.slots[2].request.clone();
+        cache.set_role_paths([None, None, Some(PathBuf::from("new-background.png"))]);
+        cache.worker.request(
+            2,
+            Request {
+                generation: u64::MAX,
+                path: None,
+            },
+        );
         assert!(!cache.view(Role::Background).has_resident_image);
-        assert_eq!(*cache.view(Role::Background).status,Status::Loading);
-        assert_eq!(cache.take_retired_keys(),vec![Arc::<str>::from("__editor_song_preview::background")]);
-        cache.worker.shared.0.lock().unwrap().results[2]=Some(ResultItem{request:old,animation:Ok(fixture(1))});
+        assert_eq!(*cache.view(Role::Background).status, Status::Loading);
+        assert_eq!(
+            cache.take_retired_keys(),
+            vec![Arc::<str>::from("__editor_song_preview::background")]
+        );
+        cache.worker.shared.0.lock().unwrap().results[2] = Some(ResultItem {
+            request: old,
+            animation: Ok(fixture(1)),
+        });
         cache.update(Duration::ZERO);
         assert!(!cache.view(Role::Background).has_resident_image);
         assert!(cache.take_uploads().is_empty());
     }
     #[test]
-    fn background_uses_source_image_loader_and_excludes_video(){
-        let root=tempfile::tempdir().unwrap();
-        let path=root.path().join("background.png");
-        RgbaImage::from_pixel(3,2,image::Rgba([0,255,0,0])).save(&path).unwrap();
-        let animation=decode(&path,Role::Background,||false).unwrap_or_else(|e|panic!("{e:?}"));
-        assert_eq!(animation.source_size,[3,2]);
+    fn background_uses_source_image_loader_and_excludes_video() {
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("background.png");
+        RgbaImage::from_pixel(3, 2, image::Rgba([0, 255, 0, 0]))
+            .save(&path)
+            .unwrap();
+        let animation =
+            decode(&path, Role::Background, || false).unwrap_or_else(|e| panic!("{e:?}"));
+        assert_eq!(animation.source_size, [3, 2]);
         // Circular HSV averaging and byte conversion allow one quantization
         // step, as in the original TextureUtils oracle comparison.
-        for (actual, expected) in animation.average_color.into_iter().zip([0.0,1.0,0.0,1.0]) {
-            assert!((actual-expected).abs() <= 1.0/255.0+f32::EPSILON);
+        for (actual, expected) in animation
+            .average_color
+            .into_iter()
+            .zip([0.0, 1.0, 0.0, 1.0])
+        {
+            assert!((actual - expected).abs() <= 1.0 / 255.0 + f32::EPSILON);
         }
-        assert!(matches!(decode(&root.path().join("clip.mp4"),Role::Background,||false),Err(Status::UnsupportedVideo)));
+        assert!(matches!(
+            decode(&root.path().join("clip.mp4"), Role::Background, || false),
+            Err(Status::UnsupportedVideo)
+        ));
     }
 }

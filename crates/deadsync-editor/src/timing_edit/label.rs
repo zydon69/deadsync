@@ -25,8 +25,16 @@ impl Labels {
         if chart >= document.charts().len() {
             return Err(error("Label chart does not exist"));
         }
-        let own=if document.format==Format::Sm {super::uses_chart_timing(document,chart)} else {super::reference_uses_chart_timing(document,chart)};
-        Self::parse(&super::resident::text(document,own.then_some(chart),"LABELS")?)
+        let own = if document.format == Format::Sm {
+            super::uses_chart_timing(document, chart)
+        } else {
+            super::reference_uses_chart_timing(document, chart)
+        };
+        Self::parse(&super::resident::text(
+            document,
+            own.then_some(chart),
+            "LABELS",
+        )?)
     }
     /// Input is the decoded MSD parameter. Do not strip comments after unescaping:
     /// escaped slashes inside an existing label are literal text.
@@ -148,9 +156,11 @@ impl Draft {
     pub fn capture(session: &Session, chart: usize, scope: Scope) -> Result<Self, Error> {
         let target = Target::capture(session, chart, scope)?;
 
-        let current = Labels::parse(
-            &super::resident::text(session.document(),target.origin(),"LABELS")?,
-        )?;
+        let current = Labels::parse(&super::resident::text(
+            session.document(),
+            target.origin(),
+            "LABELS",
+        )?)?;
         Ok(Self {
             target,
             original: current.clone(),

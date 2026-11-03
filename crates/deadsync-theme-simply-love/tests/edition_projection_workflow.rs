@@ -8,7 +8,8 @@ use deadsync_theme_simply_love::{i18n, screens::edition::State};
 use std::fs;
 
 #[test]
-fn detailed_projection_stacks_adjacent_labels_with_visible_hit_targets_and_tiny_viewports_do_not_panic() {
+fn detailed_projection_stacks_adjacent_labels_with_visible_hit_targets_and_tiny_viewports_do_not_panic()
+ {
     i18n::init_for_tests();
     set_current_metrics(Metrics::centered(854.0, 480.0));
     let directory = tempfile::tempdir().unwrap();
@@ -28,9 +29,12 @@ fn detailed_projection_stacks_adjacent_labels_with_visible_hit_targets_and_tiny_
     let labels: Vec<_> = actors
         .iter()
         .filter_map(|actor| match actor {
-            Actor::Text { content,
+            Actor::Text {
+                content,
                 clip: Some(bounds),
-                .. } => content.find("label_")
+                ..
+            } => content
+                .find("label_")
                 .map(|start| (content[start..].to_owned(), *bounds)),
             _ => None,
         })
@@ -52,7 +56,8 @@ fn detailed_projection_stacks_adjacent_labels_with_visible_hit_targets_and_tiny_
     }
     assert_eq!(
         state.workspace().file().session.serialize().unwrap(),
-        source.as_bytes());
+        source.as_bytes()
+    );
     set_current_metrics(Metrics::centered(854.0, 180.0));
     actors.clear();
     state.actors(&mut actors);

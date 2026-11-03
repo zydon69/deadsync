@@ -256,7 +256,10 @@ fn fourth_increment_uses_real_handlers_and_lane_migration_removes_reservations()
         ));
     }
     assert!(key_binding_preferences::supported_key("NumPad0"));
-    assert_eq!(Action::from_id("ArrowModification"), Some(Action::ArrowModification));
+    assert_eq!(
+        Action::from_id("ArrowModification"),
+        Some(Action::ArrowModification)
+    );
     assert_eq!(Action::from_id("New"), Some(Action::FileNew));
 }
 

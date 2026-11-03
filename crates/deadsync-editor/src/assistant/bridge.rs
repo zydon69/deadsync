@@ -63,7 +63,7 @@ impl Snapshot {
                     .map_err(Error::InvalidEdit)?
                     .clone(),
             ),
-})?;
+        })?;
         match self.chart {
             Some(chart) => Workspace::from_file(file, chart),
             None => Ok(Workspace::from_file_unfocused(file)),
@@ -203,7 +203,7 @@ impl Bridge {
         let listener = TcpListener::bind((std::net::Ipv4Addr::LOCALHOST, 0))?;
         listener.set_nonblocking(true)?;
         let secret = uuid::Uuid::new_v4().to_string();
-                        let discovery =
+        let discovery =
             json!({"address":listener.local_addr()?.to_string(),"token":secret,"version":1});
         let parent = registry
             .parent()
@@ -355,13 +355,13 @@ impl Server {
             return;
         }
         while !server.cancelled.load(Ordering::Acquire) {
-                    let (stream, _) = match listener.accept() {
-                        Ok(pair) => pair,
-                        Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => {
-                            std::thread::sleep(Duration::from_millis(25));
-                            continue;
-                        }
-                        Err(error) if error.kind() == std::io::ErrorKind::Interrupted => continue,
+            let (stream, _) = match listener.accept() {
+                Ok(pair) => pair,
+                Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => {
+                    std::thread::sleep(Duration::from_millis(25));
+                    continue;
+                }
+                Err(error) if error.kind() == std::io::ErrorKind::Interrupted => continue,
                 Err(error) => {
                     server.listener_failed(error);
                     break;
@@ -417,31 +417,29 @@ impl Server {
             // of treating ordinary packet arrival latency as a bridge failure.
             stream.set_nonblocking(false).map_err(|e| e.to_string())?;
             stream
-                            .set_read_timeout(Some(Duration::from_secs(3)))
-                            .map_err(|e| e.to_string())?;
-                        stream
-                            .set_write_timeout(Some(Duration::from_secs(3)))
-                            .map_err(|e| e.to_string())?;
-                        let envelope = read_frame(&mut BufReader::new(&stream))?;
-                        if !valid_token(envelope["token"].as_str(), &self.secret) {
-                            return Err("Invalid bridge token".into());
-                        }
-                        let request = &envelope["request"];
-                        let response = match self.respond(&envelope) {
+                .set_read_timeout(Some(Duration::from_secs(3)))
+                .map_err(|e| e.to_string())?;
+            stream
+                .set_write_timeout(Some(Duration::from_secs(3)))
+                .map_err(|e| e.to_string())?;
+            let envelope = read_frame(&mut BufReader::new(&stream))?;
+            if !valid_token(envelope["token"].as_str(), &self.secret) {
+                return Err("Invalid bridge token".into());
+            }
+            let request = &envelope["request"];
+            let response = match self.respond(&envelope) {
                 Ok(value) => value,
-                Err(error) => Some(tool_error(
-                            request,
-                            &error)),
-                                };
+                Err(error) => Some(tool_error(request, &error)),
+            };
             if let Some(response) = response {
-                            write_frame(&mut stream, &response)?;
-                        }
-                        Ok(())
-                    })();
-                    if let Err(error) = result {
-                        let _ = write_frame(&mut stream, &json!({"bridge_error":error}));
-                    }
-                }
+                write_frame(&mut stream, &response)?;
+            }
+            Ok(())
+        })();
+        if let Err(error) = result {
+            let _ = write_frame(&mut stream, &json!({"bridge_error":error}));
+        }
+    }
     fn client(&self, key: &str, snapshot: &Snapshot) -> Result<Arc<Mutex<Client>>, String> {
         if key.len() > 128 {
             return Err("Invalid client identifier".into());
@@ -714,32 +712,33 @@ pub fn connect(path: &Path, mut input: impl BufRead, mut output: impl Write) -> 
         }
         let result = (|| -> Result<Value, String> {
             let metadata = std::fs::metadata(path).map_err(|e| e.to_string())?;
-    if metadata.len() > 4096 {
-        return Err("Invalid discovery file".into());
-    }
-    let discovery: Value = serde_json::from_slice(&std::fs::read(path).map_err(|e| e.to_string())?)
-        .map_err(|e| e.to_string())?;
-    let address: std::net::SocketAddr = discovery["address"]
-        .as_str()
-        .ok_or("Missing address")?
-        .parse()
-        .map_err(|_| "Invalid address")?;
-    if !address.ip().is_loopback() {
-        return Err("Bridge address must be loopback".into());
-    }
+            if metadata.len() > 4096 {
+                return Err("Invalid discovery file".into());
+            }
+            let discovery: Value =
+                serde_json::from_slice(&std::fs::read(path).map_err(|e| e.to_string())?)
+                    .map_err(|e| e.to_string())?;
+            let address: std::net::SocketAddr = discovery["address"]
+                .as_str()
+                .ok_or("Missing address")?
+                .parse()
+                .map_err(|_| "Invalid address")?;
+            if !address.ip().is_loopback() {
+                return Err("Bridge address must be loopback".into());
+            }
             let mut stream = TcpStream::connect_timeout(&address, Duration::from_secs(3))
-            .map_err(|e| e.to_string())?;
-        stream
-            .set_read_timeout(Some(Duration::from_secs(3600)))
-            .map_err(|e| e.to_string())?;
-        write_frame(
-            &mut stream,
-            &json!({"token":discovery["token"],"client":client,"request":request}),
-        )?;
-        let response = read_frame(&mut BufReader::new(stream))?;
-        if let Some(error) = response.get("bridge_error") {
-            return Err(error.to_string());
-        }
+                .map_err(|e| e.to_string())?;
+            stream
+                .set_read_timeout(Some(Duration::from_secs(3600)))
+                .map_err(|e| e.to_string())?;
+            write_frame(
+                &mut stream,
+                &json!({"token":discovery["token"],"client":client,"request":request}),
+            )?;
+            let response = read_frame(&mut BufReader::new(stream))?;
+            if let Some(error) = response.get("bridge_error") {
+                return Err(error.to_string());
+            }
             Ok(response)
         })();
         let response = match result {

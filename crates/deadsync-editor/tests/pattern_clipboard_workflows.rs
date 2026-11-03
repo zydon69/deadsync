@@ -131,12 +131,27 @@ fn detached_definition_preserves_every_field_extras_destination_settings_and_sav
             copied
         );
         let published = std::fs::read(&path).unwrap();
-        source_output_context::assert_context(&after, &published, format,
-            source_output_context::Context { sync_offset: 0.009, chart_type: "dance_double", chart_index: 0 });
+        source_output_context::assert_context(
+            &after,
+            &published,
+            format,
+            source_output_context::Context {
+                sync_offset: 0.009,
+                chart_type: "dance_double",
+                chart_index: 0,
+            },
+        );
         let mut actual_reopen = FileSession::open(&path).unwrap();
         assert_eq!(actual_reopen.session.serialize().unwrap(), published);
         assert_eq!(actual_reopen.session.grid(0).unwrap(), &before_grid);
-        assert_eq!(ChartData::read(actual_reopen.session.document(), 0).unwrap().unwrap().patterns.unwrap()[&192], copied);
+        assert_eq!(
+            ChartData::read(actual_reopen.session.document(), 0)
+                .unwrap()
+                .unwrap()
+                .patterns
+                .unwrap()[&192],
+            copied
+        );
     }
 }
 

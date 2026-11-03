@@ -21,10 +21,20 @@ impl Prepared {
         preferences: Preferences,
         cancelled: &std::sync::atomic::AtomicBool,
     ) -> Result<Self, Error> {
-        Self::new_with_profiles(file,preferences,cancelled,deadsync_editor::runtime::configs_dir())
+        Self::new_with_profiles(
+            file,
+            preferences,
+            cancelled,
+            deadsync_editor::runtime::configs_dir(),
+        )
     }
-    pub(super) fn new_with_profiles(mut file:FileSession,preferences:Preferences,cancelled:&std::sync::atomic::AtomicBool,directory:Option<&std::path::Path>)->Result<Self,Error>{
-        file.resolve_generation_profiles(directory,cancelled)?;
+    pub(super) fn new_with_profiles(
+        mut file: FileSession,
+        preferences: Preferences,
+        cancelled: &std::sync::atomic::AtomicBool,
+        directory: Option<&std::path::Path>,
+    ) -> Result<Self, Error> {
+        file.resolve_generation_profiles(directory, cancelled)?;
         let report = Snapshot::loadable_checked(&mut file.session, cancelled)?;
         let snapshot = report.snapshot;
         Ok(Self {
@@ -46,7 +56,8 @@ impl Prepared {
         self,
         chart: Option<usize>,
     ) -> Result<(Workspace, Vec<Failure>), Error> {
-        self.file.validate_generation_profiles(&std::sync::atomic::AtomicBool::new(false))?;
+        self.file
+            .validate_generation_profiles(&std::sync::atomic::AtomicBool::new(false))?;
         // An empty comparison set means no supported editable chart, including
         // a song whose unsupported source blocks are still retained.
         let workspace = if let Some(chart) = chart {

@@ -192,8 +192,8 @@ fn live_and_looped_playback() {
     );
     let mut generation = music_map_generation();
     runtime.handle(StreamCommand::PlayMusic {
-        asset_epoch:deadlib_audio_core::music_asset_epoch(),
-decode_options: Default::default(),
+        asset_epoch: deadlib_audio_core::music_asset_epoch(),
+        decode_options: Default::default(),
         path: wav.0.clone(),
         cut: Cut::default(),
         looping: true,
@@ -294,7 +294,9 @@ decode_options: Default::default(),
     // The caller invalidates queued audio before the asynchronous stop handoff.
     reset_music_stream_clock_state();
     bump_music_map_generation();
-    runtime.handle(StreamCommand::StopMusic{asset_epoch:deadlib_audio_core::music_asset_epoch()});
+    runtime.handle(StreamCommand::StopMusic {
+        asset_epoch: deadlib_audio_core::music_asset_epoch(),
+    });
     assert!(!deadlib_audio_core::music_track_active());
     output.fill(123);
     renderer.render(
@@ -331,8 +333,8 @@ fn retained_seek_playback() {
     );
     let mut generation = music_map_generation();
     runtime.handle(StreamCommand::PlayMusic {
-        asset_epoch:deadlib_audio_core::music_asset_epoch(),
-decode_options: Default::default(),
+        asset_epoch: deadlib_audio_core::music_asset_epoch(),
+        decode_options: Default::default(),
         path: wav.0.clone(),
         cut: Cut::default(),
         looping: false,
@@ -434,7 +436,9 @@ decode_options: Default::default(),
     assert_eq!(timing[0].music_start_sec, 0.3);
     assert!(pcm.iter().all(|v| *v == 4_000));
     bump_music_map_generation();
-    runtime.handle(StreamCommand::StopMusic{asset_epoch:deadlib_audio_core::music_asset_epoch()});
+    runtime.handle(StreamCommand::StopMusic {
+        asset_epoch: deadlib_audio_core::music_asset_epoch(),
+    });
 }
 
 fn negative_loop_lead_in() {
@@ -456,8 +460,8 @@ fn negative_loop_lead_in() {
     );
     let generation = music_map_generation();
     runtime.handle(StreamCommand::PlayMusic {
-        asset_epoch:deadlib_audio_core::music_asset_epoch(),
-decode_options: Default::default(),
+        asset_epoch: deadlib_audio_core::music_asset_epoch(),
+        decode_options: Default::default(),
         path: wav.0.clone(),
         cut: Cut {
             start_sec: -0.01,
@@ -499,5 +503,7 @@ decode_options: Default::default(),
         "ordinary loop repeated its initial silence"
     );
     bump_music_map_generation();
-    runtime.handle(StreamCommand::StopMusic{asset_epoch:deadlib_audio_core::music_asset_epoch()});
+    runtime.handle(StreamCommand::StopMusic {
+        asset_epoch: deadlib_audio_core::music_asset_epoch(),
+    });
 }

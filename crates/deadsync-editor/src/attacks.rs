@@ -1,14 +1,16 @@
 //! Attack events use absolute song-file seconds and have independent SSC inheritance.
 //! Reference: Fumen AttackPropertyParser / GrooveAuthor UIAttackEvent.
-pub mod placement;
 pub mod inspector;
+pub mod placement;
 pub(crate) mod property;
 /// Resident editing capability; the original file-reader format is unchanged.
-pub fn supports_resident_chart_attacks(document:&crate::document::Document)->bool {property::supports_chart(document)}
-pub(crate) mod selection;
-mod inheritance;
+pub fn supports_resident_chart_attacks(document: &crate::document::Document) -> bool {
+    property::supports_chart(document)
+}
 pub(crate) mod anchoring;
+mod inheritance;
 pub(crate) mod resident;
+pub(crate) mod selection;
 use crate::{
     Error,
     document::Format,
@@ -159,7 +161,9 @@ impl Attacks {
         if pending {
             return Err(invalid("An attack entry must finish with MODS"));
         }
-        if sort { out.events.sort_by(|a, b| a.time.total_cmp(&b.time)); }
+        if sort {
+            out.events.sort_by(|a, b| a.time.total_cmp(&b.time));
+        }
         Ok(out)
     }
     pub fn add(&mut self, time: f64, modifier: Modifier) -> Result<usize, Error> {
@@ -263,15 +267,22 @@ impl Draft {
         if chart >= doc.charts().len() {
             return Err(invalid("Attack chart does not exist"));
         }
-        if scope == Scope::Chart
-            && !supports_resident_chart_attacks(doc)
-        {
+        if scope == Scope::Chart && !supports_resident_chart_attacks(doc) {
             return Err(invalid("Chart attacks require modern SSC"));
         }
-        let song = Attacks::parse(property::read(doc,None)?.as_deref().unwrap_or_default())?;
-        let local_source=if scope==Scope::Chart {property::read(doc,Some(chart))?}else{None};
-        let local=Attacks::parse(local_source.as_deref().unwrap_or_default())?;
-        let inherited=scope==Scope::Chart && if doc.format==Format::Sm {local_source.is_none()}else{local.events.is_empty()};
+        let song = Attacks::parse(property::read(doc, None)?.as_deref().unwrap_or_default())?;
+        let local_source = if scope == Scope::Chart {
+            property::read(doc, Some(chart))?
+        } else {
+            None
+        };
+        let local = Attacks::parse(local_source.as_deref().unwrap_or_default())?;
+        let inherited = scope == Scope::Chart
+            && if doc.format == Format::Sm {
+                local_source.is_none()
+            } else {
+                local.events.is_empty()
+            };
         let current = if scope == Scope::Song || inherited {
             song.clone()
         } else {
@@ -309,12 +320,20 @@ impl Draft {
         if !self.has_changes() {
             return Ok(false);
         }
-        if self.scope == Scope::Chart && self.current.events.is_empty() && self.song_has_attacks && session.document().format!=Format::Sm {
+        if self.scope == Scope::Chart
+            && self.current.events.is_empty()
+            && self.song_has_attacks
+            && session.document().format != Format::Sm
+        {
             return inheritance::clear_chart(session, chart);
         }
         let bytes = self.current.serialize()?;
         // Colons are structure here; set_text would escape them and flatten the MSD parameters.
-        property::write(session,(self.scope==Scope::Chart).then_some(chart),Arc::from(bytes))
+        property::write(
+            session,
+            (self.scope == Scope::Chart).then_some(chart),
+            Arc::from(bytes),
+        )
     }
 }
 /// UIEditEvents.CreateAttackEvent uses one beat at the active rate.

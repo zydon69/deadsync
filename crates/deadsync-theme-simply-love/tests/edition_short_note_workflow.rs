@@ -272,9 +272,8 @@ fn source_rotated_notes_crossing_top_and_bottom_are_clipped_without_losing_uvs()
         let (_dir, mut s, _) = open(layout, "", notes);
         let a = sprites(&s);
         assert!(
-            a.iter()
-                .any(|a| source_sprite_geometry::center(a)
-                .is_some_and(|center| (center[1]-400.0).abs()<1e-4)),
+            a.iter().any(|a| source_sprite_geometry::center(a)
+                .is_some_and(|center| (center[1] - 400.0).abs() < 1e-4)),
             "bottom crossing remains emitted"
         );
         for a in &a {
@@ -287,9 +286,8 @@ fn source_rotated_notes_crossing_top_and_bottom_are_clipped_without_losing_uvs()
         assert_eq!(s.workspace().row(), 72);
         let a = sprites(&s);
         assert!(
-            a.iter()
-                .any(|a| source_sprite_geometry::center(a)
-                .is_some_and(|center| (center[1]-88.0).abs()<1e-4)),
+            a.iter().any(|a| source_sprite_geometry::center(a)
+                .is_some_and(|center| (center[1] - 88.0).abs() < 1e-4)),
             "top crossing remains emitted"
         );
         for a in &a {

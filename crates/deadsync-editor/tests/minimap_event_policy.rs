@@ -1,5 +1,5 @@
-use deadsync_editor::notes;
 use deadsync_editor::minimap_event_policy;
+use deadsync_editor::notes;
 use minimap_event_policy::*;
 use notes::Kind;
 #[test]

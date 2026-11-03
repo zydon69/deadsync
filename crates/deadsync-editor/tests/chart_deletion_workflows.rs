@@ -121,7 +121,9 @@ fn timing_reference_index_missing_index_and_numeric_enums_are_updated_with_futur
         // This test isolates index remapping; inject a deterministic order.
         // Cultural fallback ordering is covered by song_timing_chart_workflows.
         let snapshot = s.song_timing_snapshot().unwrap();
-        draft.prepare_song_timing(&s, &Default::default(), snapshot.source_indices()).unwrap();
+        draft
+            .prepare_song_timing(&s, &Default::default(), snapshot.source_indices())
+            .unwrap();
         draft.apply(&mut s).unwrap();
         let value: serde_json::Value =
             serde_json::from_str(&s.document().text(None, "GASongData").unwrap()).unwrap();
@@ -218,7 +220,13 @@ fn successor_prefers_matching_type_and_difficulty_then_counterpart_and_restores_
     let mut w = Workspace::open(&path, 0).unwrap();
     let mut draft = w.deletion_draft().unwrap();
     let snapshot = w.file().session.song_timing_snapshot().unwrap();
-    draft.prepare_song_timing(&w.file().session, &Default::default(), snapshot.source_indices()).unwrap();
+    draft
+        .prepare_song_timing(
+            &w.file().session,
+            &Default::default(),
+            snapshot.source_indices(),
+        )
+        .unwrap();
     w.delete_chart(&draft).unwrap();
     assert_eq!(w.chart(), 0);
     assert_eq!(

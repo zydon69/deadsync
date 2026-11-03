@@ -49,7 +49,9 @@ fn shortcut(state: &mut State, code: KeyCode) {
     key(state, KeyCode::SuperLeft, true);
     press(state, code);
     key(state, KeyCode::SuperLeft, false);
-    if code == KeyCode::Tab { complete_chart_navigation(state); }
+    if code == KeyCode::Tab {
+        complete_chart_navigation(state);
+    }
 }
 fn actors(state: &State) -> Vec<Actor> {
     let mut a = Vec::new();
@@ -199,7 +201,8 @@ fn sample_and_decoded_waveform_keep_time_inside_a_delay_instead_of_collapsing_to
     let original = state.workspace().file().session.serialize().unwrap();
     shortcut(&mut state, KeyCode::KeyT);
     state.take_audio_commands();
-    let prepared_source = deadlib_audio_decode::prepared::PreparedAudioSource::load_editor(&dir.path().join("pulse.wav"),
+    let prepared_source = deadlib_audio_decode::prepared::PreparedAudioSource::load_editor(
+        &dir.path().join("pulse.wav"),
         deadlib_audio_decode::DecodeOptions::STEP_MANIA_TIMELINE,
         &std::sync::atomic::AtomicBool::new(false),
     )
@@ -273,9 +276,13 @@ fn sample_and_decoded_waveform_keep_time_inside_a_delay_instead_of_collapsing_to
                     scale,
                     ..
                 } if *tint == palette.resolved_sparse().rgba().map(|v| v.clamp(0.0, 1.0))
-                    || *tint == palette.dense().rgba().map(|v| v.clamp(0.0, 1.0)) => {
-                    let width = if *width == 0.0 { scale[0] } else {
-                        width * scale[0] } * ratio;
+                    || *tint == palette.dense().rgba().map(|v| v.clamp(0.0, 1.0)) =>
+                {
+                    let width = if *width == 0.0 {
+                        scale[0]
+                    } else {
+                        width * scale[0]
+                    } * ratio;
                     (width > 10.0).then_some(offset[1])
                 }
                 _ => None,

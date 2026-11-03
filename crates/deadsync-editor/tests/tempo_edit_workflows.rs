@@ -210,7 +210,11 @@ fn sm_shared_timing_saves_and_reopens_with_pending_notes_and_one_property_histor
     let path = dir.path().join("song.sm");
     fs::write(&path, bytes).unwrap();
     let mut file = FileSession::open(&path).unwrap();
-    assert!(TempoDraft::capture(&file.session, 0, Scope::Chart).unwrap().inherited());
+    assert!(
+        TempoDraft::capture(&file.session, 0, Scope::Chart)
+            .unwrap()
+            .inherited()
+    );
     file.session
         .edit_notes(
             1,
@@ -240,14 +244,21 @@ fn sm_shared_timing_saves_and_reopens_with_pending_notes_and_one_property_histor
     workspace.execute(Command::Save).unwrap();
     let reopened = FileSession::open(&path).unwrap();
     assert_eq!(
-        TempoDraft::capture(&reopened.session,0,Scope::Song).unwrap().tempos().serialize(),
+        TempoDraft::capture(&reopened.session, 0, Scope::Song)
+            .unwrap()
+            .tempos()
+            .serialize(),
         "0=187.3,4=200"
     );
     assert_eq!(
         reopened.session.document().text(None, "STOPS").as_deref(),
         Some("1=0.2")
     );
-    assert_eq!(reopened.session.document().text(None,"BPMS").as_deref(),Some("0=120"),"native owner does not overwrite original SM timing tags");
+    assert_eq!(
+        reopened.session.document().text(None, "BPMS").as_deref(),
+        Some("0=120"),
+        "native owner does not overwrite original SM timing tags"
+    );
     workspace.execute(Command::Undo).unwrap();
     assert_eq!(workspace.file().session.serialize().unwrap(), before);
     workspace.execute(Command::Redo).unwrap();

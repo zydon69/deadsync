@@ -299,12 +299,9 @@ fn sidecar_snapshots_preserve_bytes_callbacks_errors_and_load_reports() {
     let blocked = root.join("blocked");
     fs::write(&blocked, b"not a directory").unwrap();
     let cache_present = {
-        let mut cache = RUNTIME_PROFILE_DIR_CACHE
-        .lock()
-        .unwrap();
+        let mut cache = RUNTIME_PROFILE_DIR_CACHE.lock().unwrap();
         if let Some(cache) = cache.as_mut() {
-            cache.map
-        .insert(GUID.into(), blocked.clone());
+            cache.map.insert(GUID.into(), blocked.clone());
             true
         } else {
             false

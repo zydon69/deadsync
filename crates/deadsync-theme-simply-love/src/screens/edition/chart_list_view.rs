@@ -96,7 +96,7 @@ impl State {
             let selected = self.chart_list_selection.position(rows).unwrap_or(0);
             let start = selected / 8 * 8;
             for (position, row) in rows.iter().enumerate().skip(start).take(8) {
-            let ui_row_start=actors.len();
+                let ui_row_start = actors.len();
                 let name = if row.key.name.is_empty() {
                     &row.key.description
                 } else {
@@ -141,8 +141,8 @@ impl State {
                     },
                 );
 
-            self.ui_row(actors,ui_row_start,position==selected,32.);
-        }
+                self.ui_row(actors, ui_row_start, position == selected, 32.);
+            }
         }
         label(
             actors,

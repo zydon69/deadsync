@@ -88,8 +88,14 @@ impl State {
         }
         let document = self.workspace.file().session.document();
         let mut paths = Vec::new();
-        if let Some(value)=document.text(None,"MUSIC"){paths.push(value);}
-        if let Ok(preview)=deadsync_editor::song_text::resident::effective(document){if !preview.is_empty(){paths.push(preview);}}
+        if let Some(value) = document.text(None, "MUSIC") {
+            paths.push(value);
+        }
+        if let Ok(preview) = deadsync_editor::song_text::resident::effective(document) {
+            if !preview.is_empty() {
+                paths.push(preview);
+            }
+        }
         for index in 0..document.charts().len() {
             if let Some(value) = document.text(Some(index), "MUSIC") {
                 paths.push(value);
@@ -155,7 +161,7 @@ impl State {
         // retain the original glyph proportions and clip an overlong URL.
         let mut link = act!(text:font("miso"):settext(url.clone()):align(0.,0.5):xy(20.,y-55.):zoom(15./24.):z(8081));
         if let Actor::Text { clip, .. } = &mut link {
-            *clip = Some([20., y-68., (screen_width()-40.).max(1.), 26.]);
+            *clip = Some([20., y - 68., (screen_width() - 40.).max(1.), 26.]);
         }
         actors.push(link);
         for (i, key) in [
@@ -306,13 +312,46 @@ mod notification_tests {
 mod resident_preview_notification_tests {
     use super::*;
     #[test]
-    fn save_opus_warning_uses_effective_authored_preview_and_ignores_opaque_sm_raw_en_fr(){
-        for language in ["en","fr"]{
-            i18n::init(deadsync_assets::language::load_for_tests(language));let root=tempfile::tempdir().unwrap();let path=root.path().join("raw.sm");
-            std::fs::write(&path,"#MUSIC:main.wav;#PREVIEW:opaque.opus;#BPMS:0=120;#NOTES:dance-single::Edit:9:0,0,0,0,0:1000;").unwrap();let mut state=State::open(&path,0).unwrap();state.general_options.suppress_opus=false;
-            let sentinel:Arc<str>="unchanged".into();state.status=Arc::clone(&sentinel);state.warn_save_opus();assert_eq!(state.status,sentinel,"ignored SM raw path cannot warn as a decoded/configured asset");
-            let mut draft=state.workspace.song_properties().unwrap();draft.set_text(deadsync_editor::song_text::Field::PreviewMusic,"authored.opus").unwrap();state.workspace.apply_song_properties(&draft).unwrap();state.status=Arc::clone(&sentinel);state.warn_save_opus();assert_eq!(state.status,i18n::tr_fmt("Edition","OpusCodecWarning",&[("file","authored.opus")]));
-            let mut draft=state.workspace.song_properties().unwrap();draft.set_text(deadsync_editor::song_text::Field::PreviewMusic,"").unwrap();state.workspace.apply_song_properties(&draft).unwrap();state.status=Arc::clone(&sentinel);state.warn_save_opus();assert_eq!(state.status,sentinel,"explicit clear never revives opaque SM PREVIEW");
+    fn save_opus_warning_uses_effective_authored_preview_and_ignores_opaque_sm_raw_en_fr() {
+        for language in ["en", "fr"] {
+            i18n::init(deadsync_assets::language::load_for_tests(language));
+            let root = tempfile::tempdir().unwrap();
+            let path = root.path().join("raw.sm");
+            std::fs::write(&path,"#MUSIC:main.wav;#PREVIEW:opaque.opus;#BPMS:0=120;#NOTES:dance-single::Edit:9:0,0,0,0,0:1000;").unwrap();
+            let mut state = State::open(&path, 0).unwrap();
+            state.general_options.suppress_opus = false;
+            let sentinel: Arc<str> = "unchanged".into();
+            state.status = Arc::clone(&sentinel);
+            state.warn_save_opus();
+            assert_eq!(
+                state.status, sentinel,
+                "ignored SM raw path cannot warn as a decoded/configured asset"
+            );
+            let mut draft = state.workspace.song_properties().unwrap();
+            draft
+                .set_text(
+                    deadsync_editor::song_text::Field::PreviewMusic,
+                    "authored.opus",
+                )
+                .unwrap();
+            state.workspace.apply_song_properties(&draft).unwrap();
+            state.status = Arc::clone(&sentinel);
+            state.warn_save_opus();
+            assert_eq!(
+                state.status,
+                i18n::tr_fmt("Edition", "OpusCodecWarning", &[("file", "authored.opus")])
+            );
+            let mut draft = state.workspace.song_properties().unwrap();
+            draft
+                .set_text(deadsync_editor::song_text::Field::PreviewMusic, "")
+                .unwrap();
+            state.workspace.apply_song_properties(&draft).unwrap();
+            state.status = Arc::clone(&sentinel);
+            state.warn_save_opus();
+            assert_eq!(
+                state.status, sentinel,
+                "explicit clear never revives opaque SM PREVIEW"
+            );
         }
     }
 }

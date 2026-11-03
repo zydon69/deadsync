@@ -128,10 +128,12 @@ fn participant_shortcut_edits_player_two_and_renders_both_owners() {
             _ => None,
         })
         .collect();
-    assert!(arrows.contains(&[181.0/255.0,23.0/255.0,165.0/255.0,1.0]),
+    assert!(
+        arrows.contains(&[181.0 / 255.0, 23.0 / 255.0, 165.0 / 255.0, 1.0]),
         "P1 source Routine blended quarter-note fill must be present: {arrows:?}"
     );
-    assert!(arrows.contains(&[39.0/255.0,165.0/255.0,165.0/255.0,1.0]),
+    assert!(
+        arrows.contains(&[39.0 / 255.0, 165.0 / 255.0, 165.0 / 255.0, 1.0]),
         "P2 source Routine blended quarter-note fill must be present: {arrows:?}"
     );
     ctrl(&mut screen, KeyCode::KeyS);
@@ -1387,8 +1389,7 @@ fn missing_marker_profiles_are_resolved_once_on_load_without_rewriting_the_song(
         history::Session,
     };
     deadsync_theme_simply_love::i18n::init_for_tests();
-    let mut source = Session::new(
-        Document::parse(marker_song(), Format::Ssc).unwrap());
+    let mut source = Session::new(Document::parse(marker_song(), Format::Ssc).unwrap());
     let mut data = ChartData::read(source.document(), 0).unwrap().unwrap();
     let marker = data.patterns.as_mut().unwrap().get_mut(&0).unwrap();
     marker.pattern_config_guid = Default::default();
@@ -1541,8 +1542,7 @@ fn missing_chart_expression_resolves_to_source_default_without_publishing_until_
         history::Session,
     };
     deadsync_theme_simply_love::i18n::init_for_tests();
-    let mut source = Session::new(
-        Document::parse(marker_song(), Format::Ssc).unwrap());
+    let mut source = Session::new(Document::parse(marker_song(), Format::Ssc).unwrap());
     let mut data = ChartData::read(source.document(), 0).unwrap().unwrap();
     data.expressed_chart_config = Default::default();
     data.save(&mut source, 0).unwrap();
@@ -1562,14 +1562,19 @@ fn missing_chart_expression_resolves_to_source_default_without_publishing_until_
     assert!(screen.generation_report().is_some());
     press(&mut screen, KeyCode::Escape);
     assert_eq!(fs::read(&path).unwrap(), before);
-    let output = screen.workspace().file().session.serialize_for_output().unwrap();
+    let output = screen
+        .workspace()
+        .file()
+        .session
+        .serialize_for_output()
+        .unwrap();
     ctrl(&mut screen, KeyCode::KeyS);
     assert_eq!(fs::read(&path).unwrap(), output);
     let reopened = State::open(&path, 0).unwrap();
     assert_eq!(
         ChartData::read(reopened.workspace().file().session.document(), 0)
-        .unwrap()
-        .unwrap()
+            .unwrap()
+            .unwrap()
             .expressed_chart_config,
         DYNAMIC.parse().unwrap()
     );
@@ -2260,10 +2265,8 @@ fn pattern_shortcut_stops_audio_and_empty_chart_stays_in_note_view() {
     screen.take_audio_commands();
     ctrl(&mut screen, KeyCode::KeyP);
     assert!(!screen.is_playing());
-    assert!(
-        matches!(
-        screen.take_audio_commands().as_slice(), [GameplayAudioCommand::EditorPauseMusic { owner, .. }] if *owner == screen.editor_asset_owner())
-    );
+    assert!(matches!(
+        screen.take_audio_commands().as_slice(), [GameplayAudioCommand::EditorPauseMusic { owner, .. }] if *owner == screen.editor_asset_owner()));
     assert_eq!(
         screen.workspace().file().session.serialize().unwrap(),
         bytes

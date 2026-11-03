@@ -233,8 +233,14 @@ impl Plan {
                 Draft::Region(d)
             }
             Kind::Attack => {
-                let attack_scope=if crate::attacks::supports_resident_chart_attacks(session.document()){Scope::Chart}else{Scope::Song};
-                let mut d = crate::attacks::inspector::Draft::capture(session, chart, attack_scope)?;
+                let attack_scope =
+                    if crate::attacks::supports_resident_chart_attacks(session.document()) {
+                        Scope::Chart
+                    } else {
+                        Scope::Song
+                    };
+                let mut d =
+                    crate::attacks::inspector::Draft::capture(session, chart, attack_scope)?;
                 if d.attacks().events().iter().any(|e| e.row == row) {
                     return Err(occupied());
                 }

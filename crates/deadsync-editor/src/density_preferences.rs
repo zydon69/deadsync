@@ -19,20 +19,31 @@ impl Accumulation {
         }
     }
     pub(crate) fn read(value: Option<&Value>) -> Self {
-        let raw = value.and_then(Value::as_str).and_then(|text| {
-            let text = text.trim();
-            text.parse::<i32>().ok().or_else(|| {
-                text.split(',').try_fold(0, |raw, name| {
-                    ["Step", "Row"].iter().position(|n| n.eq_ignore_ascii_case(name.trim()))
-                        .map(|index| raw | index as i32)
+        let raw = value
+            .and_then(Value::as_str)
+            .and_then(|text| {
+                let text = text.trim();
+                text.parse::<i32>().ok().or_else(|| {
+                    text.split(',').try_fold(0, |raw, name| {
+                        ["Step", "Row"]
+                            .iter()
+                            .position(|n| n.eq_ignore_ascii_case(name.trim()))
+                            .map(|index| raw | index as i32)
+                    })
                 })
             })
-        }).unwrap_or(0);
-        match raw { 0 => Self::Step, 1 => Self::Row, value => Self::Unknown(value) }
+            .unwrap_or(0);
+        match raw {
+            0 => Self::Step,
+            1 => Self::Row,
+            value => Self::Unknown(value),
+        }
     }
     pub(crate) fn validate(self) -> Result<(), Error> {
         if matches!(self, Self::Unknown(0 | 1)) {
-            return Err(Error::InvalidFormat("Known accumulation ordinal must use its named variant".into()));
+            return Err(Error::InvalidFormat(
+                "Known accumulation ordinal must use its named variant".into(),
+            ));
         }
         Ok(())
     }
@@ -207,7 +218,10 @@ impl Preferences {
         }
         for (name, v) in [
             ("AccumulationType", self.accumulation.name()),
-            ("DensityGraphColorModeValue", self.color_mode.name().to_owned()),
+            (
+                "DensityGraphColorModeValue",
+                self.color_mode.name().to_owned(),
+            ),
             ("DensityGraphPositionValue", self.position.name().to_owned()),
         ] {
             fields.insert(name.into(), v.into());

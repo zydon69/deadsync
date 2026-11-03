@@ -80,8 +80,7 @@ impl LaunchArguments {
                 } else {
                     // Unknown OS arguments historically did not prevent game
                     // startup. Editor paths were already extracted losslessly.
-                    Ok(arg.to_string_lossy()
-                        .into_owned())
+                    Ok(arg.to_string_lossy().into_owned())
                 }
             })
             .collect()

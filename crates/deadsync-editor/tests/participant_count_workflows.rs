@@ -108,15 +108,23 @@ fn declared_empty_participants_keep_original_note_bytes_after_note_and_count_und
                 ChartData {
                     max_player_index: players - 1,
                     ..Default::default()
-                }.save(&mut original, 0).unwrap();
+                }
+                .save(&mut original, 0)
+                .unwrap();
                 let bytes = original.serialize().unwrap();
                 let mut resident = Session::new(
                     Document::parse(Arc::<[u8]>::from(bytes.clone()), format).unwrap(),
                 );
                 assert_eq!(resident.grid(0).unwrap().players(), players);
                 assert_eq!(resident.serialize().unwrap(), bytes);
-                let position = Position { player: players - 1, lane: 0, row: 48 };
-                resident.edit_notes(0, "Temporary note", [(position, Some(Note::tap()))]).unwrap();
+                let position = Position {
+                    player: players - 1,
+                    lane: 0,
+                    row: 48,
+                };
+                resident
+                    .edit_notes(0, "Temporary note", [(position, Some(Note::tap()))])
+                    .unwrap();
                 let edited = resident.serialize().unwrap();
                 let mut reopened = Session::new(
                     Document::parse(Arc::<[u8]>::from(edited.clone()), format).unwrap(),

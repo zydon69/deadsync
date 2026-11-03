@@ -61,12 +61,16 @@ pub(super) enum AboutView {
     License { kind: LicenseKind, page: usize },
 }
 #[cfg(test)]
-fn last_page(kind: LicenseKind) -> usize { last_page_with_lines(kind, PAGE_LINES) }
+fn last_page(kind: LicenseKind) -> usize {
+    last_page_with_lines(kind, PAGE_LINES)
+}
 fn last_page_with_lines(kind: LicenseKind, lines: usize) -> usize {
     kind.text().lines().count().saturating_sub(1) / lines
 }
 #[cfg(test)]
-fn license_text(kind: LicenseKind, page: usize) -> String { license_text_with_lines(kind, page, PAGE_LINES) }
+fn license_text(kind: LicenseKind, page: usize) -> String {
+    license_text_with_lines(kind, page, PAGE_LINES)
+}
 fn license_text_with_lines(kind: LicenseKind, page: usize, lines: usize) -> String {
     kind.text()
         .lines()
@@ -80,8 +84,19 @@ impl State {
         // The UI host renders read-only pages in this exact virtual viewport.
         // Recompute for input too so Home/End/PageDown address the rendered page.
         let height = (self.ui_dpi_window[1] / self.ui_dpi_render_scale - 30.).min(510.);
-        let ratio = (self.ui_dpi.filter(|_| self.ui_dpi_supported).unwrap_or_default().font_pixels().unwrap_or(15) as f32 / 15. / self.ui_dpi_render_scale).max(f32::MIN_POSITIVE);
-        ((height - 145.).max(0.) / (24. * 0.45 * ratio)).floor().max(1.).min(PAGE_LINES as f32) as usize
+        let ratio = (self
+            .ui_dpi
+            .filter(|_| self.ui_dpi_supported)
+            .unwrap_or_default()
+            .font_pixels()
+            .unwrap_or(15) as f32
+            / 15.
+            / self.ui_dpi_render_scale)
+            .max(f32::MIN_POSITIVE);
+        ((height - 145.).max(0.) / (24. * 0.45 * ratio))
+            .floor()
+            .max(1.)
+            .min(PAGE_LINES as f32) as usize
     }
     /// Host-provided updater knowledge is independent of notification suppression/once latch.
     /// An absent or unclassified result must never be presented as “up to date”.
@@ -344,63 +359,161 @@ mod tests {
 #[cfg(test)]
 mod license_layout_tests {
     use super::*;
-    use deadlib_present::{actors::SizeSpec, space::{self, Metrics}};
+    use deadlib_present::{
+        actors::SizeSpec,
+        space::{self, Metrics},
+    };
     use deadsync_editor::options_preferences::{General, dpi::Capture};
-    fn px(size: SizeSpec) -> f32 { match size {SizeSpec::Px(value)=>value,SizeSpec::Fill=>panic!("fixed modal")}}
-    fn close(actual:f32,expected:f32) {assert!((actual-expected).abs()<0.03,"{actual} != {expected}");}
+    fn px(size: SizeSpec) -> f32 {
+        match size {
+            SizeSpec::Px(value) => value,
+            SizeSpec::Fill => panic!("fixed modal"),
+        }
+    }
+    fn close(actual: f32, expected: f32) {
+        assert!((actual - expected).abs() < 0.03, "{actual} != {expected}");
+    }
     #[test]
     fn all_license_pages_stay_centered_and_inside_real_viewport_en_fr_dpi_one_and_two() {
-        for language in ["en","fr"] {
+        for language in ["en", "fr"] {
             i18n::init(deadsync_assets::language::load_for_tests(language));
             i18n::set_locale(deadsync_assets::language::load_for_tests(language));
-            let root=tempfile::tempdir().unwrap();
-            let mut state=State::without_song(root.path()).unwrap();
-            for (width,height) in [(854.,480.),(1100.,760.),(3200.,1860.),(3440.,1440.)] { for dpi in [1.,2.] {
-                let metrics=Metrics::centered(width/height*480.,480.);
-                space::with_metrics(metrics,||{
-                    state.set_ui_dpi_viewport(width as u32,height as u32);
-                    state.ui_dpi=Some(Capture::new(&General::default(),dpi));
-                    state.ui_dpi_render_scale=dpi as f32;
-                    state.ui_dpi_supported=true;
-                    let before=state.workspace.file().session.serialize().unwrap();
-                    let lines=state.editor_license_page_lines();
-                    assert!((1..=PAGE_LINES).contains(&lines));
-                    for kind in LicenseKind::ALL {
-                        let last=last_page_with_lines(kind,lines);
-                        let mut contents=Vec::new();
-                        for page in 0..=last {
-                            let view=AboutView::License{kind,page};let panel=Panel::EditorAbout(view);
-                            state.panel=Some(panel);let mut actors=Vec::new();state.panel_actors(panel,&mut actors);
-                            let (transform,origin,children)=if let Actor::SharedTransform{transform,children,..}=&actors[0] {
-                                let Actor::Frame{align,offset,size,children,..}=&children[0] else{panic!("UI frame")};
-                                (*transform,[offset[0]-align[0]*px(size[0]),offset[1]-align[1]*px(size[1])],children.as_slice())
-                            }else{(glam::Mat4::IDENTITY,[0.,0.],actors.as_slice())};
-                            let Actor::Sprite{offset:modal,size,..}=&children[0] else{panic!("modal background")};
-                            let center=transform.transform_point3(glam::Vec3::new(metrics.left+origin[0]+modal[0],metrics.top-origin[1]-modal[1],0.));
-                            let center_px=[(center.x-metrics.left)/space::screen_width()*width,(metrics.top-center.y)/space::screen_height()*height];
-                            close(center_px[0],width*0.5);close(center_px[1],height*0.5);
-                            let physical=[px(size[0])*transform.x_axis.x*width/space::screen_width(),px(size[1])*transform.y_axis.y*height/space::screen_height()];
-                            assert!(center_px[0]-physical[0]*0.5>=-0.03&&center_px[0]+physical[0]*0.5<=width+0.03,"width{width} dpi{dpi}");
-                            assert!(center_px[1]-physical[1]*0.5>=-0.03&&center_px[1]+physical[1]*0.5<=height+0.03,"height{height} dpi{dpi}");
-                            let Actor::Text{content:text,offset,scale,max_height,..}=&children[2] else{panic!("license body")};
-                            contents.push(text.to_string());
-                            assert!(offset[1]>=modal[1]-px(size[1])*0.5);
-                            assert!(offset[1]+max_height.unwrap()<=modal[1]+px(size[1])*0.5);
-                            assert!(text.lines().count() as f32*24.*scale[1]<=max_height.unwrap()+0.03,"body pagination fits at {width}x{height} dpi{dpi}");
-                            let Actor::Text{offset:hint,..}=&children[3] else{panic!("license navigation hint")};
-                            assert!(hint[1]>=offset[1]+max_height.unwrap());
-                            assert!(hint[1]<modal[1]+px(size[1])*0.5);
+            let root = tempfile::tempdir().unwrap();
+            let mut state = State::without_song(root.path()).unwrap();
+            for (width, height) in [(854., 480.), (1100., 760.), (3200., 1860.), (3440., 1440.)] {
+                for dpi in [1., 2.] {
+                    let metrics = Metrics::centered(width / height * 480., 480.);
+                    space::with_metrics(metrics, || {
+                        state.set_ui_dpi_viewport(width as u32, height as u32);
+                        state.ui_dpi = Some(Capture::new(&General::default(), dpi));
+                        state.ui_dpi_render_scale = dpi as f32;
+                        state.ui_dpi_supported = true;
+                        let before = state.workspace.file().session.serialize().unwrap();
+                        let lines = state.editor_license_page_lines();
+                        assert!((1..=PAGE_LINES).contains(&lines));
+                        for kind in LicenseKind::ALL {
+                            let last = last_page_with_lines(kind, lines);
+                            let mut contents = Vec::new();
+                            for page in 0..=last {
+                                let view = AboutView::License { kind, page };
+                                let panel = Panel::EditorAbout(view);
+                                state.panel = Some(panel);
+                                let mut actors = Vec::new();
+                                state.panel_actors(panel, &mut actors);
+                                let (transform, origin, children) =
+                                    if let Actor::SharedTransform {
+                                        transform,
+                                        children,
+                                        ..
+                                    } = &actors[0]
+                                    {
+                                        let Actor::Frame {
+                                            align,
+                                            offset,
+                                            size,
+                                            children,
+                                            ..
+                                        } = &children[0]
+                                        else {
+                                            panic!("UI frame")
+                                        };
+                                        (
+                                            *transform,
+                                            [
+                                                offset[0] - align[0] * px(size[0]),
+                                                offset[1] - align[1] * px(size[1]),
+                                            ],
+                                            children.as_slice(),
+                                        )
+                                    } else {
+                                        (glam::Mat4::IDENTITY, [0., 0.], actors.as_slice())
+                                    };
+                                let Actor::Sprite {
+                                    offset: modal,
+                                    size,
+                                    ..
+                                } = &children[0]
+                                else {
+                                    panic!("modal background")
+                                };
+                                let center = transform.transform_point3(glam::Vec3::new(
+                                    metrics.left + origin[0] + modal[0],
+                                    metrics.top - origin[1] - modal[1],
+                                    0.,
+                                ));
+                                let center_px = [
+                                    (center.x - metrics.left) / space::screen_width() * width,
+                                    (metrics.top - center.y) / space::screen_height() * height,
+                                ];
+                                close(center_px[0], width * 0.5);
+                                close(center_px[1], height * 0.5);
+                                let physical = [
+                                    px(size[0]) * transform.x_axis.x * width
+                                        / space::screen_width(),
+                                    px(size[1]) * transform.y_axis.y * height
+                                        / space::screen_height(),
+                                ];
+                                assert!(
+                                    center_px[0] - physical[0] * 0.5 >= -0.03
+                                        && center_px[0] + physical[0] * 0.5 <= width + 0.03,
+                                    "width{width} dpi{dpi}"
+                                );
+                                assert!(
+                                    center_px[1] - physical[1] * 0.5 >= -0.03
+                                        && center_px[1] + physical[1] * 0.5 <= height + 0.03,
+                                    "height{height} dpi{dpi}"
+                                );
+                                let Actor::Text {
+                                    content: text,
+                                    offset,
+                                    scale,
+                                    max_height,
+                                    ..
+                                } = &children[2]
+                                else {
+                                    panic!("license body")
+                                };
+                                contents.push(text.to_string());
+                                assert!(offset[1] >= modal[1] - px(size[1]) * 0.5);
+                                assert!(
+                                    offset[1] + max_height.unwrap() <= modal[1] + px(size[1]) * 0.5
+                                );
+                                assert!(
+                                    text.lines().count() as f32 * 24. * scale[1]
+                                        <= max_height.unwrap() + 0.03,
+                                    "body pagination fits at {width}x{height} dpi{dpi}"
+                                );
+                                let Actor::Text { offset: hint, .. } = &children[3] else {
+                                    panic!("license navigation hint")
+                                };
+                                assert!(hint[1] >= offset[1] + max_height.unwrap());
+                                assert!(hint[1] < modal[1] + px(size[1]) * 0.5);
+                            }
+                            assert_eq!(
+                                contents.join("\n"),
+                                kind.text().lines().collect::<Vec<_>>().join("\n")
+                            );
+                            state.editor_about_key(
+                                AboutView::License { kind, page: 0 },
+                                KeyCode::End,
+                            );
+                            assert!(
+                                matches!(state.panel,Some(Panel::EditorAbout(AboutView::License{page,..}))if page==last)
+                            );
+                            state.editor_about_key(
+                                AboutView::License { kind, page: last },
+                                KeyCode::Home,
+                            );
+                            assert!(matches!(
+                                state.panel,
+                                Some(Panel::EditorAbout(AboutView::License { page: 0, .. }))
+                            ));
                         }
-                        assert_eq!(contents.join("\n"),kind.text().lines().collect::<Vec<_>>().join("\n"));
-                        state.editor_about_key(AboutView::License{kind,page:0},KeyCode::End);
-                        assert!(matches!(state.panel,Some(Panel::EditorAbout(AboutView::License{page,..}))if page==last));
-                        state.editor_about_key(AboutView::License{kind,page:last},KeyCode::Home);
-                        assert!(matches!(state.panel,Some(Panel::EditorAbout(AboutView::License{page:0,..}))));
-                    }
-                    assert_eq!(state.workspace.file().session.serialize().unwrap(),before);
-                    assert!(state.workspace.file().session.undo_label().is_none());
-                });
-            }}
+                        assert_eq!(state.workspace.file().session.serialize().unwrap(), before);
+                        assert!(state.workspace.file().session.undo_label().is_none());
+                    });
+                }
+            }
         }
     }
 }

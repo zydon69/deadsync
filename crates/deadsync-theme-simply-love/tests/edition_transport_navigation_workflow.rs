@@ -94,10 +94,13 @@ fn arrows_snap_in_screen_direction_and_seek_playing_audio_with_original_default_
                     assert_eq!(s.is_playing(), !stop);
                     let commands = s.take_audio_commands();
                     if stop {
-                        assert_eq!(commands, vec![GameplayAudioCommand::EditorPauseMusic {
+                        assert_eq!(
+                            commands,
+                            vec![GameplayAudioCommand::EditorPauseMusic {
                                 owner: s.editor_asset_owner(),
                                 seconds: 0.126
-                            }]);
+                            }]
+                        );
                     } else {
                         assert_eq!(
                             commands,
@@ -140,12 +143,12 @@ fn repeated_keys_continue_from_snapped_destination_and_modal_panels_keep_arrow_f
         s.take_audio_commands();
     }
     s.raw_key(&RawKeyboardEvent {
-            code: KeyCode::ArrowDown,
-            pressed: false,
-            repeat: false,
-            timestamp: start + std::time::Duration::from_millis(1003),
-            host_nanos: 0,
-        });
+        code: KeyCode::ArrowDown,
+        pressed: false,
+        repeat: false,
+        timestamp: start + std::time::Duration::from_millis(1003),
+        host_nanos: 0,
+    });
     press(&mut s, KeyCode::Enter);
     s.take_audio_commands();
     press(&mut s, KeyCode::ArrowUp);

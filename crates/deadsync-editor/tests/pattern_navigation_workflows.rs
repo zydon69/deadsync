@@ -125,7 +125,8 @@ fn navigation_keeps_note_selection_and_reads_unsaved_marker_moves_deletions_and_
     assert_eq!(workspace.row(), 72);
     workspace.execute(Command::SelectChart(0)).unwrap();
     workspace.execute(Command::Save).unwrap();
-    let mut reopened = Workspace::open(workspace.file().require_existing_path().unwrap(), 0).unwrap();
+    let mut reopened =
+        Workspace::open(workspace.file().require_existing_path().unwrap(), 0).unwrap();
     reopened.navigate_saved_pattern(true).unwrap();
     assert_eq!(reopened.row(), 72);
 }

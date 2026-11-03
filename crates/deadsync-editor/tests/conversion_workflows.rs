@@ -15,11 +15,30 @@ use std::{fs, path::PathBuf, sync::atomic::AtomicBool};
 fn fixture(name: &str, suffix: &str) -> Value {
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("tests/fixtures/grooveauthor")
-        .join(if name.starts_with("parity-pair-"){format!("generation-pairs/{name}.{suffix}.json")}else{format!("{name}.{suffix}.json")});
+        .join(if name.starts_with("parity-pair-") {
+            format!("generation-pairs/{name}.{suffix}.json")
+        } else {
+            format!("{name}.{suffix}.json")
+        });
     serde_json::from_slice(&fs::read(path).unwrap()).unwrap()
 }
-fn source_data(input:&Value)->(Vec<StepEvent>,Vec<deadsync_editor::generation::mines::ExpressedMine>){source_data_checked(input).unwrap()}
-fn source_data_checked(input:&Value)->Result<(Vec<StepEvent>,Vec<deadsync_editor::generation::mines::ExpressedMine>),deadsync_editor::Error>{
+fn source_data(
+    input: &Value,
+) -> (
+    Vec<StepEvent>,
+    Vec<deadsync_editor::generation::mines::ExpressedMine>,
+) {
+    source_data_checked(input).unwrap()
+}
+fn source_data_checked(
+    input: &Value,
+) -> Result<
+    (
+        Vec<StepEvent>,
+        Vec<deadsync_editor::generation::mines::ExpressedMine>,
+    ),
+    deadsync_editor::Error,
+> {
     if let Some(events) = input["LinkEvents"].as_array() {
         let events = events
             .iter()
@@ -147,7 +166,7 @@ fn source_data_checked(input:&Value)->Result<(Vec<StepEvent>,Vec<deadsync_editor
         |_, _, _| {},
     );
     assert_eq!(grid, before);
-    let result=result?;
+    let result = result?;
     Ok((result.events, result.mines))
 }
 fn encode(
@@ -169,9 +188,12 @@ fn encode(
 fn compare(name: &str) {
     let input = fixture(name, "request");
     let expected = fixture(name, "expected");
-    let source=source_data_checked(&input);
-    if expected["Stage"]=="Expression" {assert!(source.is_err(),"{name}: original expression refused");return;}
-    let (events,mines)=source.unwrap_or_else(|error|panic!("{name}: {error}"));
+    let source = source_data_checked(&input);
+    if expected["Stage"] == "Expression" {
+        assert!(source.is_err(), "{name}: original expression refused");
+        return;
+    }
+    let (events, mines) = source.unwrap_or_else(|error| panic!("{name}: {error}"));
     let config: PerformedConfig = serde_json::from_value(input["PerformedConfig"].clone()).unwrap();
     let identity;
     let fallbacks = match input["FallbackMode"].as_str().unwrap() {
@@ -203,10 +225,23 @@ fn compare(name: &str) {
         &AtomicBool::new(false),
         |_, _, _| {},
     );
-    if expected["SourceException"]==true {
+    if expected["SourceException"] == true {
         // Original mine placement throws. Rust must return normally, without
         // mutating source events; no successful-output parity is asserted.
-        if let Ok(performance)=result {assert_eq!(performance.dropped_mines,mines.len()-performance.mines.len());let columns=deadsync_editor::notes::layout_columns(layout).unwrap();assert!(performance.mines.iter().all(|mine|mine.lane<u16::from(columns)));}return;
+        if let Ok(performance) = result {
+            assert_eq!(
+                performance.dropped_mines,
+                mines.len() - performance.mines.len()
+            );
+            let columns = deadsync_editor::notes::layout_columns(layout).unwrap();
+            assert!(
+                performance
+                    .mines
+                    .iter()
+                    .all(|mine| mine.lane < u16::from(columns))
+            );
+        }
+        return;
     }
     if !expected["Success"].as_bool().unwrap() {
         assert!(result.is_err(), "{name}");
@@ -604,7 +639,7 @@ fn actual_file_chart_generation_applies_once_saves_and_reopens_through_rssp() {
 }
 
 #[test]
-fn all_eleven_layout_conversion_pairs_match_source_or_document_its_exception(){
+fn all_eleven_layout_conversion_pairs_match_source_or_document_its_exception() {
     compare("parity-pair-dance-single-to-dance-single");
     compare("parity-pair-dance-single-to-dance-double");
     compare("parity-pair-dance-single-to-dance-solo");

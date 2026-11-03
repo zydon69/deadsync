@@ -261,13 +261,17 @@ fn value(p: Preferences, field: usize) -> String {
         } else {
             "WaveformNo"
         }),
-        2 => if let Accumulation::Unknown(raw) = p.accumulation {
-            i18n::tr("Edition", "AccumulationRawRows").replace("{value}", &raw.to_string())
-        } else { tr(if p.accumulation == Accumulation::Step {
-            "DensityStep"
-        } else {
-            "DensityRow"
-        }) },
+        2 => {
+            if let Accumulation::Unknown(raw) = p.accumulation {
+                i18n::tr("Edition", "AccumulationRawRows").replace("{value}", &raw.to_string())
+            } else {
+                tr(if p.accumulation == Accumulation::Step {
+                    "DensityStep"
+                } else {
+                    "DensityRow"
+                })
+            }
+        }
         3 => tr([
             "DensityRight",
             "DensityLeft",
@@ -380,12 +384,13 @@ mod unknown_accumulation_tests {
     use super::*;
     #[test]
     fn raw_ordinal_is_visible_and_explicit_cycle_and_restore_choose_known_values() {
-        for language in ["en","fr"] {
+        for language in ["en", "fr"] {
             i18n::init(deadsync_assets::language::load_for_tests(language));
-            let mut p=Preferences::default();p.accumulation=Accumulation::Unknown(99);
-            assert!(value(p,2).contains("99"));
-            adjust(&mut p,2,true,false,false);
-            assert_eq!(p.accumulation,Accumulation::Step);
+            let mut p = Preferences::default();
+            p.accumulation = Accumulation::Unknown(99);
+            assert!(value(p, 2).contains("99"));
+            adjust(&mut p, 2, true, false, false);
+            assert_eq!(p.accumulation, Accumulation::Step);
         }
     }
 }

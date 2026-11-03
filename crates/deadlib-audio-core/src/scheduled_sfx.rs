@@ -10,30 +10,115 @@ pub struct ScheduledTrigger {
 }
 
 #[derive(Clone, Debug)]
-pub struct SfxSchedule(Arc<[ScheduledTrigger]>,Option<Arc<crate::SfxScheduleVoice>>,(u64,u64),Option<u64>,Option<SourceMain>);
-#[derive(Clone,Debug)]struct SourceMain{samples:Arc<[i64]>,generation:u64,asset:u64,pcm:Option<(Arc<[f32]>,usize)>,_legacy_pcm:Option<Arc<[i16]>>}
+pub struct SfxSchedule(
+    Arc<[ScheduledTrigger]>,
+    Option<Arc<crate::SfxScheduleVoice>>,
+    (u64, u64),
+    Option<u64>,
+    Option<SourceMain>,
+);
+#[derive(Clone, Debug)]
+struct SourceMain {
+    samples: Arc<[i64]>,
+    generation: u64,
+    asset: u64,
+    pcm: Option<(Arc<[f32]>, usize)>,
+    _legacy_pcm: Option<Arc<[i16]>>,
+}
 impl SfxSchedule {
-    pub fn with_source_main(samples:impl Into<Arc<[i64]>>,voice:Arc<crate::SfxScheduleVoice>,generation:u64,asset:u64)->Option<Self>{
-        let samples=samples.into();if generation==0||asset==0||samples.windows(2).any(|w|w[0]>w[1]){return None;}
-        let mut s=Self::with_voice(Vec::<ScheduledTrigger>::new(),voice)?;s.4=Some(SourceMain{samples,generation,asset,pcm:None,_legacy_pcm:None});Some(s)
+    pub fn with_source_main(
+        samples: impl Into<Arc<[i64]>>,
+        voice: Arc<crate::SfxScheduleVoice>,
+        generation: u64,
+        asset: u64,
+    ) -> Option<Self> {
+        let samples = samples.into();
+        if generation == 0 || asset == 0 || samples.windows(2).any(|w| w[0] > w[1]) {
+            return None;
+        }
+        let mut s = Self::with_voice(Vec::<ScheduledTrigger>::new(), voice)?;
+        s.4 = Some(SourceMain {
+            samples,
+            generation,
+            asset,
+            pcm: None,
+            _legacy_pcm: None,
+        });
+        Some(s)
     }
-    pub fn with_source_main_float(samples:impl Into<Arc<[i64]>>,voice:Arc<crate::SfxScheduleVoice>,generation:u64,asset:u64,pcm:Arc<[f32]>,channels:usize)->Option<Self>{
-        if channels==0||pcm.len()%channels!=0{return None;}let mut snapshot=Self::with_source_main(samples,voice,generation,asset)?;snapshot.4.as_mut()?.pcm=Some((pcm,channels));Some(snapshot)
+    pub fn with_source_main_float(
+        samples: impl Into<Arc<[i64]>>,
+        voice: Arc<crate::SfxScheduleVoice>,
+        generation: u64,
+        asset: u64,
+        pcm: Arc<[f32]>,
+        channels: usize,
+    ) -> Option<Self> {
+        if channels == 0 || pcm.len() % channels != 0 {
+            return None;
+        }
+        let mut snapshot = Self::with_source_main(samples, voice, generation, asset)?;
+        snapshot.4.as_mut()?.pcm = Some((pcm, channels));
+        Some(snapshot)
     }
     /// Keep any legacy PCM storage used by the same queued voice in the
     /// credited object, so producer-first teardown also retires its last Arc.
-    #[doc(hidden)]pub fn retain_pcm_storage(&mut self,pcm:Arc<[i16]>){if let Some(source)=self.4.as_mut(){source._legacy_pcm=Some(pcm);}}
-    pub(crate)fn source_tick_bus(&self)->bool{self.4.is_some()}
-    pub(crate)fn mix_with_source(&self,data:&[i16],output:&mut[f32],before:u64,channels:usize,gain:f32,clock:Option<crate::SourceTickClock>,isolated_source:bool)->bool{
-        if let Some(source)=&self.4{if let Some(voice)=&self.1{
-            let data=if let Some((pcm,source_channels))=&source.pcm{if *source_channels!=channels{return false;}crate::scheduled_voice::TickData::Float(pcm,isolated_source)}else{crate::scheduled_voice::TickData::I16(data)};
-            if let Some(clock)=clock.filter(|c|c.generation==source.generation&&c.asset_epoch==source.asset){return voice.mix_source_pcm(self.2,&source.samples,clock,data,output,before,channels,gain);}
-            return voice.mix_pcm(self.2,&[],data,output,before,channels,gain);
-        }return false;}self.mix(data,output,before,channels,gain)
+    #[doc(hidden)]
+    pub fn retain_pcm_storage(&mut self, pcm: Arc<[i16]>) {
+        if let Some(source) = self.4.as_mut() {
+            source._legacy_pcm = Some(pcm);
+        }
+    }
+    pub(crate) fn source_tick_bus(&self) -> bool {
+        self.4.is_some()
+    }
+    pub(crate) fn mix_with_source(
+        &self,
+        data: &[i16],
+        output: &mut [f32],
+        before: u64,
+        channels: usize,
+        gain: f32,
+        clock: Option<crate::SourceTickClock>,
+        isolated_source: bool,
+    ) -> bool {
+        if let Some(source) = &self.4 {
+            if let Some(voice) = &self.1 {
+                let data = if let Some((pcm, source_channels)) = &source.pcm {
+                    if *source_channels != channels {
+                        return false;
+                    }
+                    crate::scheduled_voice::TickData::Float(pcm, isolated_source)
+                } else {
+                    crate::scheduled_voice::TickData::I16(data)
+                };
+                if let Some(clock) = clock
+                    .filter(|c| c.generation == source.generation && c.asset_epoch == source.asset)
+                {
+                    return voice.mix_source_pcm(
+                        self.2,
+                        &source.samples,
+                        clock,
+                        data,
+                        output,
+                        before,
+                        channels,
+                        gain,
+                    );
+                }
+                return voice.mix_pcm(self.2, &[], data, output, before, channels, gain);
+            }
+            return false;
+        }
+        self.mix(data, output, before, channels, gain)
     }
 
-    pub(crate) fn credit(&self)->Option<u64>{self.3}
-    pub(crate) fn set_credit(&mut self,credit:Option<u64>){self.3=credit;}
+    pub(crate) fn credit(&self) -> Option<u64> {
+        self.3
+    }
+    pub(crate) fn set_credit(&mut self, credit: Option<u64>) {
+        self.3 = credit;
+    }
 
     /// Duplicate frame timestamps are allowed: the final trigger wins, matching
     /// consecutive restarts in source MusicManager. An empty snapshot silences.
@@ -56,10 +141,16 @@ impl SfxSchedule {
             }
             unique.push(trigger);
         }
-        Some(Self(Arc::from(unique),None,(0,0),None,None))
+        Some(Self(Arc::from(unique), None, (0, 0), None, None))
     }
-    pub fn with_voice(triggers:impl Into<Arc<[ScheduledTrigger]>>,voice:Arc<crate::SfxScheduleVoice>)->Option<Self>{
-        let mut snapshot=Self::new(triggers)?;snapshot.2=voice.authority();snapshot.1=Some(voice);Some(snapshot)
+    pub fn with_voice(
+        triggers: impl Into<Arc<[ScheduledTrigger]>>,
+        voice: Arc<crate::SfxScheduleVoice>,
+    ) -> Option<Self> {
+        let mut snapshot = Self::new(triggers)?;
+        snapshot.2 = voice.authority();
+        snapshot.1 = Some(voice);
+        Some(snapshot)
     }
     /// Mix one authoritative snapshot. The producer retains the most recent
     /// past trigger when replacing a lookahead window, so an ongoing voice is
@@ -73,7 +164,9 @@ impl SfxSchedule {
         channels: usize,
         gain: f32,
     ) -> bool {
-        if let Some(voice)=&self.1{return voice.mix(self.2,&self.0,data,output,before,channels,gain);}
+        if let Some(voice) = &self.1 {
+            return voice.mix(self.2, &self.0, data, output, before, channels, gain);
+        }
         if channels == 0 || output.len() % channels != 0 {
             return false;
         }
@@ -156,7 +249,10 @@ mod tests {
         let mut after = [0.; 8];
         old.mix(&data, &mut before, 102, 1, 1.);
         new.mix(&data, &mut after, 104, 1, 1.);
-        assert_eq!(before, std::array::from_fn::<_,4,_>(|i|crate::mixer::i16_to_f32(data[i+2])));
+        assert_eq!(
+            before,
+            std::array::from_fn::<_, 4, _>(|i| crate::mixer::i16_to_f32(data[i + 2]))
+        );
         assert_eq!(
             after,
             [5000, 6000, 7000, 8000, 1000, 2000, 3000, 4000].map(crate::mixer::i16_to_f32)

@@ -113,7 +113,11 @@ fn batch_matches_individual_conversions_and_round_trips_as_one_action() {
         assert_eq!(result.apply(&mut source).unwrap(), vec![3, 4]);
         let after = source.serialize().unwrap();
         for (index, expected) in original_grids.iter().enumerate() {
-            assert_eq!(source.grid(index).unwrap(), expected, "original chart {index}");
+            assert_eq!(
+                source.grid(index).unwrap(),
+                expected,
+                "original chart {index}"
+            );
         }
         for (index, entry) in [3, 4].into_iter().zip(result.entries()) {
             assert_eq!(

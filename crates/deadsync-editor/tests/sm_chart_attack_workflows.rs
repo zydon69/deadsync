@@ -129,7 +129,9 @@ fn timing_changes_duplicate_delete_and_reindex_keep_local_attack_rows() {
     // This workflow isolates attack-owner reindexing. Cultural fallback sorting
     // is exercised independently by song_timing_chart_workflows.
     let order = s.song_timing_snapshot().unwrap();
-    deletion.prepare_song_timing(&s, &Default::default(), order.source_indices()).unwrap();
+    deletion
+        .prepare_song_timing(&s, &Default::default(), order.source_indices())
+        .unwrap();
     deletion.apply(&mut s).unwrap();
     assert_eq!(rows(&s, 0), [96]);
     assert_eq!(rows(&s, duplicate - 1), [240]);

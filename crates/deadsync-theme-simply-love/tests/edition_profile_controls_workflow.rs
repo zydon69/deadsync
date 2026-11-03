@@ -110,9 +110,11 @@ fn pattern_copy_is_paginated_preserves_other_choices_and_applies_to_marker_once(
     press(&mut s, KeyCode::ArrowRight);
     assert!(has(&s, "Right foot:"));
     press(&mut s, KeyCode::PageDown);
-    assert!(has(&s, "Step distribution check period:"),
+    assert!(
+        has(&s, "Step distribution check period:"),
         "{:?}",
-        texts(&s));
+        texts(&s)
+    );
     assert!(!texts(&s).iter().any(|v| v.starts_with("ProfileField")));
     press(&mut s, KeyCode::End);
     press(&mut s, KeyCode::Enter);

@@ -228,22 +228,44 @@ impl Plan {
                 }
             }
         }
-        report.selection_after.sort_by_key(|position| (
-            position.row,
-            prepared.grid.get(*position).expect("selected destination exists").kind.editor_phase(),
-            position.lane,
-            position.player,
-        ));
+        report.selection_after.sort_by_key(|position| {
+            (
+                position.row,
+                prepared
+                    .grid
+                    .get(*position)
+                    .expect("selected destination exists")
+                    .kind
+                    .editor_phase(),
+                position.lane,
+                position.player,
+            )
+        });
         report.selection_after.dedup();
-        let mut selection: Vec<_> = prepared.mappings.iter().map(|(&source, destination)| {
-            (source, destination.as_ref().and_then(|(target, _)| prepared.grid.get(*target).map(|_| *target)))
-        }).collect();
-        selection.sort_by_key(|(position, _)| (
-            position.row,
-            original.get(*position).expect("transformed source exists").kind.editor_phase(),
-            position.lane,
-            position.player,
-        ));
+        let mut selection: Vec<_> = prepared
+            .mappings
+            .iter()
+            .map(|(&source, destination)| {
+                (
+                    source,
+                    destination
+                        .as_ref()
+                        .and_then(|(target, _)| prepared.grid.get(*target).map(|_| *target)),
+                )
+            })
+            .collect();
+        selection.sort_by_key(|(position, _)| {
+            (
+                position.row,
+                original
+                    .get(*position)
+                    .expect("transformed source exists")
+                    .kind
+                    .editor_phase(),
+                position.lane,
+                position.player,
+            )
+        });
         check(cancelled)?;
         Ok(Self {
             guard,
@@ -253,7 +275,10 @@ impl Plan {
             impacts,
             edits,
             selection,
-            owner_selection_order: matches!(transform, Transform::AssignPlayer(_) | Transform::SwapPlayers(_, _)),
+            owner_selection_order: matches!(
+                transform,
+                Transform::AssignPlayer(_) | Transform::SwapPlayers(_, _)
+            ),
         })
     }
     pub(crate) fn with_selection_order(mut self, order: &[Position]) -> Self {
@@ -261,7 +286,10 @@ impl Plan {
         // Player actions retain the selected-event enumeration instead.
         if self.owner_selection_order {
             let mappings: BTreeMap<_, _> = self.selection.into_iter().collect();
-            self.selection = order.iter().filter_map(|source| mappings.get(source).map(|target| (*source, *target))).collect();
+            self.selection = order
+                .iter()
+                .filter_map(|source| mappings.get(source).map(|target| (*source, *target)))
+                .collect();
         }
         self
     }
@@ -285,7 +313,12 @@ impl Plan {
         chart: usize,
         acknowledged: &BTreeSet<Impact>,
     ) -> Result<bool, Failure> {
-        self.apply_named(session, chart, acknowledged, "Apply reviewed note transform")
+        self.apply_named(
+            session,
+            chart,
+            acknowledged,
+            "Apply reviewed note transform",
+        )
     }
     pub(crate) fn apply_named(
         &self,
@@ -303,16 +336,33 @@ impl Plan {
                 "Acknowledge every deleted, overwritten or trimmed original note before applying",
             ));
         }
-        let before = crate::history::SelectionEffect::capture(session, chart,
-            self.selection.iter().map(|(source, _)| crate::event_clipboard::Event::Note(*source)).collect());
+        let before = crate::history::SelectionEffect::capture(
+            session,
+            chart,
+            self.selection
+                .iter()
+                .map(|(source, _)| crate::event_clipboard::Event::Note(*source))
+                .collect(),
+        );
         let changed = session.edit_notes(chart, label, self.edits.clone())?;
         let after = if self.owner_selection_order {
-            self.selection.iter().filter_map(|(_, target)| target.map(crate::event_clipboard::Event::Note)).collect()
+            self.selection
+                .iter()
+                .filter_map(|(_, target)| target.map(crate::event_clipboard::Event::Note))
+                .collect()
         } else {
-            self.report.selection_after.iter().copied().map(crate::event_clipboard::Event::Note).collect()
+            self.report
+                .selection_after
+                .iter()
+                .copied()
+                .map(crate::event_clipboard::Event::Note)
+                .collect()
         };
         let after = crate::history::SelectionEffect::capture(session, chart, after);
-        session.record_event_selection(crate::history::selection_effect::SelectionHistory { before, after }, changed);
+        session.record_event_selection(
+            crate::history::selection_effect::SelectionHistory { before, after },
+            changed,
+        );
         Ok(changed)
     }
 }
@@ -330,13 +380,24 @@ fn check(cancelled: &AtomicBool) -> Result<(), Error> {
 #[cfg(test)]
 mod selection_history_tests {
     use super::*;
-    use crate::{document::{Document, Format}, event_clipboard::{Event, Selection}};
+    use crate::{
+        document::{Document, Format},
+        event_clipboard::{Event, Selection},
+    };
 
     fn fixture() -> Session {
         Session::new(Document::parse(b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000\n0100\n0000\n0000;".to_vec(), Format::Ssc).unwrap())
     }
-    fn pos(row: u64, lane: u16) -> Position { Position { row, lane, player: 0 } }
-    fn events(positions: &[Position]) -> Vec<Event> { positions.iter().copied().map(Event::Note).collect() }
+    fn pos(row: u64, lane: u16) -> Position {
+        Position {
+            row,
+            lane,
+            player: 0,
+        }
+    }
+    fn events(positions: &[Position]) -> Vec<Event> {
+        positions.iter().copied().map(Event::Note).collect()
+    }
 
     #[test]
     fn reviewed_mirror_selects_sorted_destinations_and_restores_originals_on_undo() {
@@ -344,11 +405,17 @@ mod selection_history_tests {
         let mut selection = Selection::capture(&mut session, 0, 0, 192).unwrap();
         selection.select_all(false);
         for position in [pos(48, 1), pos(0, 0)] {
-            let index = selection.events().iter().position(|event| *event == Event::Note(position)).unwrap();
+            let index = selection
+                .events()
+                .iter()
+                .position(|event| *event == Event::Note(position))
+                .unwrap();
             selection.set_selected(index, true).unwrap();
         }
         let before = session.serialize().unwrap();
-        let plan = selection.prepare_transform(&mut session, Transform::Mirror).unwrap();
+        let plan = selection
+            .prepare_transform(&mut session, Transform::Mirror)
+            .unwrap();
         assert!(session.take_event_selection_update().is_none());
         assert!(plan.apply(&mut session, 0, plan.impacts()).unwrap());
         let after = session.serialize().unwrap();
@@ -357,46 +424,97 @@ mod selection_history_tests {
         assert_eq!(update.events(), events(&[pos(0, 3), pos(48, 1)]));
         session.undo().unwrap();
         assert_eq!(session.serialize().unwrap(), before);
-        assert_eq!(session.take_event_selection_update().unwrap().events(), events(&[pos(0, 0), pos(48, 1)]));
+        assert_eq!(
+            session.take_event_selection_update().unwrap().events(),
+            events(&[pos(0, 0), pos(48, 1)])
+        );
         session.redo().unwrap();
         assert_eq!(session.serialize().unwrap(), after);
-        assert_eq!(session.take_event_selection_update().unwrap().events(), events(&[pos(0, 3), pos(48, 1)]));
+        assert_eq!(
+            session.take_event_selection_update().unwrap().events(),
+            events(&[pos(0, 3), pos(48, 1)])
+        );
     }
 
     #[test]
     fn boundary_deletion_selects_only_survivors_but_undo_selects_all_transformed_originals() {
         let mut session = fixture();
         let before = session.serialize().unwrap();
-        let plan = Plan::prepare(&mut session, 0, Scope::All { player: None }, Transform::ShiftLanes { right: false, wrap: false }).unwrap();
+        let plan = Plan::prepare(
+            &mut session,
+            0,
+            Scope::All { player: None },
+            Transform::ShiftLanes {
+                right: false,
+                wrap: false,
+            },
+        )
+        .unwrap();
         assert_eq!(plan.report().deleted, 1);
         assert!(plan.apply(&mut session, 0, plan.impacts()).unwrap());
-        assert_eq!(session.take_event_selection_update().unwrap().events(), events(&[pos(48, 0)]));
+        assert_eq!(
+            session.take_event_selection_update().unwrap().events(),
+            events(&[pos(48, 0)])
+        );
         session.undo().unwrap();
         assert_eq!(session.serialize().unwrap(), before);
-        assert_eq!(session.take_event_selection_update().unwrap().events(), events(&[pos(0, 0), pos(48, 1)]));
+        assert_eq!(
+            session.take_event_selection_update().unwrap().events(),
+            events(&[pos(0, 0), pos(48, 1)])
+        );
     }
 
     #[test]
     fn owner_conversion_preserves_checked_order_and_excludes_notes_already_owned_by_target() {
         let mut session = Session::new(Document::parse(b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-routine;#NOTES:10000000\n01000000\n00000000\n00000000;".to_vec(), Format::Ssc).unwrap());
-        let owned = Position { row: 96, lane: 2, player: 1 };
-        session.edit_notes(0, "fixture", BTreeMap::from([(owned, Some(Note::tap()))])).unwrap();
+        let owned = Position {
+            row: 96,
+            lane: 2,
+            player: 1,
+        };
+        session
+            .edit_notes(0, "fixture", BTreeMap::from([(owned, Some(Note::tap()))]))
+            .unwrap();
         let mut selection = Selection::capture(&mut session, 0, 0, 192).unwrap();
         selection.select_all(false);
         for position in [pos(48, 1), owned, pos(0, 0)] {
-            let index = selection.events().iter().position(|event| *event == Event::Note(position)).unwrap();
+            let index = selection
+                .events()
+                .iter()
+                .position(|event| *event == Event::Note(position))
+                .unwrap();
             selection.set_selected(index, true).unwrap();
         }
         let before = session.serialize().unwrap();
-        let plan = selection.prepare_transform(&mut session, Transform::AssignPlayer(1)).unwrap();
+        let plan = selection
+            .prepare_transform(&mut session, Transform::AssignPlayer(1))
+            .unwrap();
         assert_eq!(plan.report().processed, 2);
         assert!(plan.apply(&mut session, 0, plan.impacts()).unwrap());
-        let expected = events(&[Position { player: 1, ..pos(48, 1) }, Position { player: 1, ..pos(0, 0) }]);
-        assert_eq!(session.take_event_selection_update().unwrap().events(), expected);
+        let expected = events(&[
+            Position {
+                player: 1,
+                ..pos(48, 1)
+            },
+            Position {
+                player: 1,
+                ..pos(0, 0)
+            },
+        ]);
+        assert_eq!(
+            session.take_event_selection_update().unwrap().events(),
+            expected
+        );
         session.undo().unwrap();
         assert_eq!(session.serialize().unwrap(), before);
-        assert_eq!(session.take_event_selection_update().unwrap().events(), events(&[pos(48, 1), pos(0, 0)]));
+        assert_eq!(
+            session.take_event_selection_update().unwrap().events(),
+            events(&[pos(48, 1), pos(0, 0)])
+        );
         session.redo().unwrap();
-        assert_eq!(session.take_event_selection_update().unwrap().events(), expected);
+        assert_eq!(
+            session.take_event_selection_update().unwrap().events(),
+            expected
+        );
     }
 }

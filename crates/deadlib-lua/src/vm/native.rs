@@ -787,7 +787,11 @@ pub(super) fn format_number(n: f64) -> String {
         return if n.is_nan() {
             format!(
                 "{}{}",
-                if n.is_sign_negative() && !cfg!(target_os = "macos") { "-" } else { "" },
+                if n.is_sign_negative() && !cfg!(target_os = "macos") {
+                    "-"
+                } else {
+                    ""
+                },
                 crate::format::nan_body(n)
             )
         } else if n < 0.0 {

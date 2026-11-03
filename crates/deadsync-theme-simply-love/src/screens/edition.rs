@@ -172,7 +172,29 @@ use std::{
     sync::Arc,
 };
 
-const EMPTY_MENU_KEYS:&[&str]=&["NewChartApply", "Undo", "Redo", "Save", "SaveDraft", "Recover", "Close", "PackPropertiesOpen", "PackSongsOpen", "SaveAsOpen", "OutputOpen", "FileMenuTitle", "DensitySettingsOpen", "DarkSettingsOpen", "StreamSettingsOpen", "DisplayOptionsOpen", "GeneralOptionsOpen", "LogOpenPanel", "EditorHelpOpen", "PerformanceOpen", "ProfileManagerOpen", "AssistantTitle",
+const EMPTY_MENU_KEYS: &[&str] = &[
+    "NewChartApply",
+    "Undo",
+    "Redo",
+    "Save",
+    "SaveDraft",
+    "Recover",
+    "Close",
+    "PackPropertiesOpen",
+    "PackSongsOpen",
+    "SaveAsOpen",
+    "OutputOpen",
+    "FileMenuTitle",
+    "DensitySettingsOpen",
+    "DarkSettingsOpen",
+    "StreamSettingsOpen",
+    "DisplayOptionsOpen",
+    "GeneralOptionsOpen",
+    "LogOpenPanel",
+    "EditorHelpOpen",
+    "PerformanceOpen",
+    "ProfileManagerOpen",
+    "AssistantTitle",
 ];
 
 #[derive(Clone, Copy)]
@@ -186,7 +208,12 @@ enum Panel {
     WindowLayout(usize),
     UpdateNotice(usize),
     ExternalFile(usize),
-    FileMenu(usize), FileOpen(usize), FileRecent(usize), FileUnsaved(usize), FileDiscard, FileLoading,
+    FileMenu(usize),
+    FileOpen(usize),
+    FileRecent(usize),
+    FileUnsaved(usize),
+    FileDiscard,
+    FileLoading,
     Analysis,
     ChartList,
     ChartEventCopy,
@@ -393,41 +420,46 @@ impl GenerationPreview {
     }
 }
 
-#[derive(Clone,Copy,Debug,PartialEq,Eq)]
-pub enum ApplicationExit { Pending, Cancelled, Ready,
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ApplicationExit {
+    Pending,
+    Cancelled,
+    Ready,
 }
-#[derive(Clone,Copy,Debug,PartialEq,Eq)]
-enum DocumentPresence { NoSong, Loaded,
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum DocumentPresence {
+    NoSong,
+    Loaded,
 }
 pub struct State {
     assistant: assistant_panel::Ui,
-    document_presence:DocumentPresence,
+    document_presence: DocumentPresence,
     image_preview_identity: u64,
     image_preview_views: Option<[image_previews::PreviewView; 3]>,
     spacing_mode: deadsync_editor::zoom::SpacingMode,
-    spacing_preference:deadsync_editor::scroll_preferences::spacing::Preference,
+    spacing_preference: deadsync_editor::scroll_preferences::spacing::Preference,
     reverse_display: bool,
-    display_options:deadsync_editor::options_preferences::Display,
-    options_draft:Option<deadsync_editor::options_preferences::Display>,
-    options_field:usize,
-    general_options:deadsync_editor::options_preferences::General,
-    general_field:usize,
-    source_preferences_import:source_preferences::ImportUi,
-    startup_graph_index:usize,
-    window_layout:window_layout::WindowLayout,
+    display_options: deadsync_editor::options_preferences::Display,
+    options_draft: Option<deadsync_editor::options_preferences::Display>,
+    options_field: usize,
+    general_options: deadsync_editor::options_preferences::General,
+    general_field: usize,
+    source_preferences_import: source_preferences::ImportUi,
+    startup_graph_index: usize,
+    window_layout: window_layout::WindowLayout,
     spacing_cache: Option<spacing_view::Cache>,
     zoom: deadsync_editor::zoom::Manager,
     zoom_epoch: std::time::Instant,
-    wheel:scroll_wheel::Runtime,
+    wheel: scroll_wheel::Runtime,
     zoom_preferences: deadsync_editor::zoom_preferences::Preferences,
     zoom_preferences_draft: Option<deadsync_editor::zoom_preferences::Preferences>,
-    zoom_preferences_edit:Option<zoom_settings::Edit>,
+    zoom_preferences_edit: Option<zoom_settings::Edit>,
     playback: Option<playback::Playing>,
     paused_playback: Option<playback::Paused>,
     focus_position: Option<deadsync_editor::chart_focus::Position>,
-    unfocused_music:Option<std::path::PathBuf>,
-    audio_backend_available:Option<bool>,
-    observed_audio_owner:Option<u64>,
+    unfocused_music: Option<std::path::PathBuf>,
+    audio_backend_available: Option<bool>,
+    observed_audio_owner: Option<u64>,
     active_views: Option<deadsync_editor::chart_views::ActiveChartViews>,
     view_inputs: view_render::Cache,
     receptor_views: receptor_views::Runtime,
@@ -435,13 +467,13 @@ pub struct State {
     receptor_move: Option<receptor_settings::Movement>,
     dark_preferences: deadsync_editor::dark_preferences::Preferences,
     dark_draft: Option<deadsync_editor::dark_preferences::Preferences>,
-    stream_preferences:deadsync_editor::stream_preferences::Preferences,
-    stream_draft:Option<deadsync_editor::stream_preferences::Preferences>,
+    stream_preferences: deadsync_editor::stream_preferences::Preferences,
+    stream_draft: Option<deadsync_editor::stream_preferences::Preferences>,
     source_density: density_graph::Runtime,
     chart_details: chart_details::Runtime,
     stream_description: Option<stream_description::Pending>,
-    density_draft:Option<density_settings::Draft>,
-    note_color_draft:Option<deadsync_editor::note_color_inspector::Draft>,
+    density_draft: Option<density_settings::Draft>,
+    note_color_draft: Option<deadsync_editor::note_color_inspector::Draft>,
     lane_input: lane_entry::Runtime,
     minimap: minimap::Navigation,
     note_colors: Arc<deadsync_editor::note_color_preferences::Preferences>,
@@ -451,27 +483,27 @@ pub struct State {
     audio_preferences: deadsync_editor::audio_preferences::Audio,
     audio_preferences_file: Option<deadsync_editor::audio_preferences::File>,
     audio_preferences_path: Option<std::path::PathBuf>,
-    preferences_load_error:Option<Arc<str>>,
+    preferences_load_error: Option<Arc<str>>,
     audio_preferences_draft: Option<deadsync_editor::audio_preferences::Audio>,
     audio_numeric_text: Option<String>,
     preference_numeric: Option<preference_numeric::Edit>,
     audio_commands: Vec<deadsync_gameplay::GameplayAudioCommand>,
-    audio_session:audio_scope::EditorAudioSession,
-    audio_field:usize,
+    audio_session: audio_scope::EditorAudioSession,
+    audio_field: usize,
     workspace: Workspace,
     generation: GenerationSettings,
-    autogen_preferences:deadsync_editor::autogen_preferences::Preferences,
+    autogen_preferences: deadsync_editor::autogen_preferences::Preferences,
     autogen_source: autogen_source::Runtime,
     marker_generation: marker_generation::Runtime,
-    autogen_expression_back:Option<Panel>,
+    autogen_expression_back: Option<Panel>,
     profile_sort: profile_sort::Runtime,
-    profile_order_culture:Option<String>,
+    profile_order_culture: Option<String>,
     batch_source: Option<String>,
-    batch_inventory:batch::SourceInventory,
+    batch_inventory: batch::SourceInventory,
     pattern: PatternSettings,
     pattern_set: Option<pattern_set::Settings>,
     marker: Option<deadsync_editor::generation::marker_edit::Draft>,
-    pattern_added:pattern_added::Runtime,
+    pattern_added: pattern_added::Runtime,
     chart_properties: Option<deadsync_editor::chart_properties::Draft>,
     chart_rating_input: Option<String>,
     display_tempo_draft: Option<deadsync_editor::display_tempo::Value>,
@@ -491,29 +523,31 @@ pub struct State {
     chart_list_cache: chart_list::Cache,
     chart_list_selection: chart_list::Selection,
     chart_event_copy: Option<chart_event_copy::Settings>,
-    chart_event_copy_request:Option<chart_event_copy::Request>,
-    log_view:log_view::View,
-    performance:performance::Runtime,
+    chart_event_copy_request: Option<chart_event_copy::Request>,
+    log_view: log_view::View,
+    performance: performance::Runtime,
     ftue: deadsync_editor::ftue::Preferences,
-    editor_external_open:Option<editor_help::ExternalOpen>,
+    editor_external_open: Option<editor_help::ExternalOpen>,
     pack_properties: Option<pack_properties::Settings>,
-    pack_banner:pack_banner::Runtime,
+    pack_banner: pack_banner::Runtime,
     pack_song_list: Option<pack_song_list::Settings>,
     song_open_warnings: Vec<deadsync_editor::chart_order::loadable::Failure>,
     attacks: Option<attacks::Settings>,
     event_selection: Option<event_selection::Settings>,
-    region_selection:Option<region_selection::Settings>,
-    misc_draft_widgets:Option<region_selection::DraftWidgetCache>,
-    selection_preferences:deadsync_editor::selection_preferences::Preferences,
-    selection_preferences_draft:Option<deadsync_editor::selection_preferences::Preferences>,
-    misc_inventories:std::collections::BTreeMap<usize,deadsync_editor::region_selection::inventory::Inventory>,
+    region_selection: Option<region_selection::Settings>,
+    misc_draft_widgets: Option<region_selection::DraftWidgetCache>,
+    selection_preferences: deadsync_editor::selection_preferences::Preferences,
+    selection_preferences_draft: Option<deadsync_editor::selection_preferences::Preferences>,
+    misc_inventories:
+        std::collections::BTreeMap<usize, deadsync_editor::region_selection::inventory::Inventory>,
     attack_clipboard: Option<deadsync_editor::attacks::inspector::Clipboard>,
     attack_view: Option<attack_view::Cache>,
     note_owners: note_owners::Settings,
     profile_saved_choices: Option<profile_edit::Choices>,
     application_profile_created: Option<ProfileKind>,
     profile_preference_history: std::collections::BTreeMap<u64, profile_edit::PreferenceChange>,
-    profile_creations: std::collections::BTreeMap<u64, (ProfileKind, deadsync_editor::generation::metadata::Guid)>,
+    profile_creations:
+        std::collections::BTreeMap<u64, (ProfileKind, deadsync_editor::generation::metadata::Guid)>,
     profile_preference_revision: u64,
     profile_preference_serial: u64,
     text_buffer: Option<deadsync_editor::text_buffer::Buffer>,
@@ -521,18 +555,18 @@ pub struct State {
     music_picker_request: Option<music_file::Request>,
     music_picker_pending: Option<music_file::Pending>,
     chart_order_request: Option<chart_order::Request>,
-    source_output_order:Option<deadsync_editor::source_output_order::SourceOutputOrder>,
-    source_output_request:Option<source_output_order::Request>,
-    source_output_request_epoch:std::sync::Arc<()>,
+    source_output_order: Option<deadsync_editor::source_output_order::SourceOutputOrder>,
+    source_output_request: Option<source_output_order::Request>,
+    source_output_request_epoch: std::sync::Arc<()>,
     text_edit_serial: u64,
     song_properties: Option<deadsync_editor::song_properties::Draft>,
-    song_timing_request:Option<song_timing_chart::Request>,
+    song_timing_request: Option<song_timing_chart::Request>,
     sample_region: Option<sample_region::Cache>,
     waveform: waveform::View,
     waveform_preferences: deadsync_editor::waveform_preferences::Preferences,
     waveform_preferences_draft: Option<deadsync_editor::waveform_preferences::Preferences>,
     timing: Option<timing::Settings>,
-    sm_authoring:Option<sm_authoring::Settings>,
+    sm_authoring: Option<sm_authoring::Settings>,
     timing_migration: Option<deadsync_editor::timing_edit::migration::Draft>,
     catalog_target: ProfileTarget,
     profile_directory: Option<PathBuf>,
@@ -551,20 +585,20 @@ pub struct State {
     profile_selection: Option<ProfileSettings>,
     preview: Option<GenerationPreview>,
     label_preedit: String,
-    command_bindings:command_bindings::Runtime,
-    key_binding_draft:Option<key_binding_settings::Settings>,
-    scroll_modifier_settings:Option<scroll_modifier_settings::Settings>,
+    command_bindings: command_bindings::Runtime,
+    key_binding_draft: Option<key_binding_settings::Settings>,
+    scroll_modifier_settings: Option<scroll_modifier_settings::Settings>,
     control: bool,
     control_keys: u8,
-    notifications:notifications::Notifications,
-    system_alert:system_alert::Runtime,
+    notifications: notifications::Notifications,
+    system_alert: system_alert::Runtime,
     folder_request: Option<PathBuf>,
-    pack_watch:pack_watch::Runtime,
-    ui_dpi:Option<deadsync_editor::options_preferences::dpi::Capture>,
-    ui_rows:std::cell::RefCell<ui_dpi::Rows>,
-    ui_dpi_render_scale:f32,
-    ui_dpi_window:[f32;2],
-    ui_dpi_supported:bool,
+    pack_watch: pack_watch::Runtime,
+    ui_dpi: Option<deadsync_editor::options_preferences::dpi::Capture>,
+    ui_rows: std::cell::RefCell<ui_dpi::Rows>,
+    ui_dpi_render_scale: f32,
+    ui_dpi_window: [f32; 2],
+    ui_dpi_supported: bool,
     shift: bool,
     shift_keys: u8,
     help: bool,
@@ -578,14 +612,15 @@ pub struct State {
     save_as: save_as::Ui,
     output_ui: output_ui::Ui,
     file_menu: file_menu::Ui,
-    external_watch:external_watch::Runtime,
+    external_watch: external_watch::Runtime,
 }
 
 impl State {
     pub fn open(path: &Path, chart: usize) -> Result<Self, deadsync_editor::Error> {
-        let context=Self::capture_open_context()?;
-        let file=Self::open_profiled_file(path,context,deadsync_editor::runtime::configs_dir())?;
-        Self::from_workspace(Workspace::from_file(file,chart)?)
+        let context = Self::capture_open_context()?;
+        let file =
+            Self::open_profiled_file(path, context, deadsync_editor::runtime::configs_dir())?;
+        Self::from_workspace(Workspace::from_file(file, chart)?)
     }
 
     pub fn open_with_profiles(
@@ -593,19 +628,31 @@ impl State {
         chart: usize,
         directory: &Path,
     ) -> Result<Self, deadsync_editor::Error> {
-        let file=Self::open_profiled_file(path,Self::capture_open_context()?,Some(directory))?;
-        let mut state=Self::from_workspace(Workspace::from_file(file,chart)?)?;
+        let file = Self::open_profiled_file(path, Self::capture_open_context()?, Some(directory))?;
+        let mut state = Self::from_workspace(Workspace::from_file(file, chart)?)?;
         state.profile_directory = Some(directory.to_owned());
         Ok(state)
     }
 
-    fn report_profile_load_repairs(file:&deadsync_editor::storage::FileSession){
-        for repair in file.generation_profile_repairs(){log::warn!("Pattern at row {} in chart {} uses unavailable {:?} profile {}; using {}.",repair.row,repair.chart+1,repair.kind,repair.previous,repair.replacement);}
+    fn report_profile_load_repairs(file: &deadsync_editor::storage::FileSession) {
+        for repair in file.generation_profile_repairs() {
+            log::warn!(
+                "Pattern at row {} in chart {} uses unavailable {:?} profile {}; using {}.",
+                repair.row,
+                repair.chart + 1,
+                repair.kind,
+                repair.previous,
+                repair.replacement
+            );
+        }
     }
-    fn open_profiled_file(path:&Path,context:deadsync_editor::document::LoadContext,directory:Option<&Path>,
-    )->Result<deadsync_editor::storage::FileSession,deadsync_editor::Error>{
-        let mut file=deadsync_editor::storage::FileSession::open_with_context(path,context)?;
-        file.resolve_generation_profiles(directory,&std::sync::atomic::AtomicBool::new(false))?;
+    fn open_profiled_file(
+        path: &Path,
+        context: deadsync_editor::document::LoadContext,
+        directory: Option<&Path>,
+    ) -> Result<deadsync_editor::storage::FileSession, deadsync_editor::Error> {
+        let mut file = deadsync_editor::storage::FileSession::open_with_context(path, context)?;
+        file.resolve_generation_profiles(directory, &std::sync::atomic::AtomicBool::new(false))?;
         file.validate_generation_profiles(&std::sync::atomic::AtomicBool::new(false))?;
         Self::report_profile_load_repairs(&file);
         Ok(file)
@@ -617,10 +664,18 @@ impl State {
         description: &str,
         meter: u32,
     ) -> Result<Self, deadsync_editor::Error> {
-        let file = Self::open_profiled_file(path,Self::capture_open_context()?,deadsync_editor::runtime::configs_dir(),
+        let file = Self::open_profiled_file(
+            path,
+            Self::capture_open_context()?,
+            deadsync_editor::runtime::configs_dir(),
         )?;
-        if file.session.document().charts().iter()
-            .all(|c| deadsync_editor::notes::layout_columns(&c.steps_type).is_none()) {
+        if file
+            .session
+            .document()
+            .charts()
+            .iter()
+            .all(|c| deadsync_editor::notes::layout_columns(&c.steps_type).is_none())
+        {
             return Self::from_workspace(Workspace::from_file(file, 0)?);
         }
         let matches: Vec<_> = file
@@ -650,33 +705,37 @@ impl State {
     }
 
     fn from_workspace(workspace: Workspace) -> Result<Self, deadsync_editor::Error> {
-        let target=0;
-        let note_colors=Arc::new(deadsync_editor::note_color_preferences::Preferences::default());
-        let hold_colors=deadsync_editor::note_color_palette::Palette::capture(Arc::clone(&note_colors))?;
+        let target = 0;
+        let note_colors = Arc::new(deadsync_editor::note_color_preferences::Preferences::default());
+        let hold_colors =
+            deadsync_editor::note_color_palette::Palette::capture(Arc::clone(&note_colors))?;
         let mut state = Self {
             assistant: Default::default(),
-            document_presence:DocumentPresence::Loaded,
+            document_presence: DocumentPresence::Loaded,
             spacing_mode: deadsync_editor::zoom::SpacingMode::ConstantTime,
-            spacing_preference:Default::default(),
+            spacing_preference: Default::default(),
             reverse_display: false,
-            display_options:Default::default(),
-            options_draft:None,options_field:0,
-            general_options:Default::default(),general_field:0,source_preferences_import:Default::default(),
-            startup_graph_index:0,
-            window_layout:window_layout::WindowLayout::default(),
+            display_options: Default::default(),
+            options_draft: None,
+            options_field: 0,
+            general_options: Default::default(),
+            general_field: 0,
+            source_preferences_import: Default::default(),
+            startup_graph_index: 0,
+            window_layout: window_layout::WindowLayout::default(),
             spacing_cache: None,
             zoom: Default::default(),
-            wheel:Default::default(),
+            wheel: Default::default(),
             zoom_preferences: Default::default(),
             zoom_preferences_draft: None,
-            zoom_preferences_edit:None,
+            zoom_preferences_edit: None,
             zoom_epoch: std::time::Instant::now(),
             playback: None,
             paused_playback: None,
             focus_position: None,
-            unfocused_music:None,
-            audio_backend_available:None,
-            observed_audio_owner:None,
+            unfocused_music: None,
+            audio_backend_available: None,
+            observed_audio_owner: None,
             active_views: None,
             view_inputs: view_render::Cache::default(),
             receptor_views: receptor_views::Runtime::default(),
@@ -684,13 +743,13 @@ impl State {
             receptor_move: None,
             dark_preferences: Default::default(),
             dark_draft: None,
-            stream_preferences:Default::default(),
-            stream_draft:None,
-            source_density:Default::default(),
-            chart_details:Default::default(),
-            stream_description:None,
-            density_draft:None,
-            note_color_draft:None,
+            stream_preferences: Default::default(),
+            stream_draft: None,
+            source_density: Default::default(),
+            chart_details: Default::default(),
+            stream_description: None,
+            density_draft: None,
+            note_color_draft: None,
             lane_input: lane_entry::Runtime::default(),
             minimap: Default::default(),
             note_colors,
@@ -700,19 +759,19 @@ impl State {
             audio_preferences: Default::default(),
             audio_preferences_file: None,
             audio_preferences_path: None,
-            preferences_load_error:None,
+            preferences_load_error: None,
             audio_preferences_draft: None,
             audio_numeric_text: None,
             preference_numeric: None,
             audio_commands: Vec::new(),
-            audio_session:Default::default(),
-            audio_field:0,
-            autogen_preferences:Default::default(),
+            audio_session: Default::default(),
+            audio_field: 0,
+            autogen_preferences: Default::default(),
             autogen_source: autogen_source::Runtime::default(),
             marker_generation: marker_generation::Runtime::default(),
-            autogen_expression_back:None,
+            autogen_expression_back: None,
             profile_sort: profile_sort::Runtime::default(),
-            profile_order_culture:None,
+            profile_order_culture: None,
             generation: GenerationSettings {
                 target,
                 preset: 0,
@@ -722,7 +781,7 @@ impl State {
                 expressed_name: None,
             },
             batch_source: None,
-            batch_inventory:Default::default(),
+            batch_inventory: Default::default(),
             pattern_set: None,
             pattern: PatternSettings {
                 span: Span {
@@ -737,7 +796,7 @@ impl State {
                 ignore_distribution: false,
             },
             marker: None,
-            pattern_added:Default::default(),
+            pattern_added: Default::default(),
             chart_properties: None,
             chart_rating_input: None,
             display_tempo_draft: None,
@@ -757,22 +816,22 @@ impl State {
             chart_list_cache: Default::default(),
             chart_list_selection: Default::default(),
             chart_event_copy: None,
-            chart_event_copy_request:None,
-            log_view:log_view::View::default(),
-            performance:performance::Runtime::default(),
+            chart_event_copy_request: None,
+            log_view: log_view::View::default(),
+            performance: performance::Runtime::default(),
             ftue: deadsync_editor::ftue::Preferences::default(),
-            editor_external_open:None,
+            editor_external_open: None,
             pack_properties: None,
-            pack_banner:pack_banner::Runtime::default(),
+            pack_banner: pack_banner::Runtime::default(),
             pack_song_list: None,
             song_open_warnings: Vec::new(),
             attacks: None,
             event_selection: None,
-            region_selection:None,
-            misc_draft_widgets:None,
-            selection_preferences:Default::default(),
-            selection_preferences_draft:None,
-            misc_inventories:Default::default(),
+            region_selection: None,
+            misc_draft_widgets: None,
+            selection_preferences: Default::default(),
+            selection_preferences_draft: None,
+            misc_inventories: Default::default(),
             attack_clipboard: None,
             attack_view: None,
             note_owners: Default::default(),
@@ -787,18 +846,20 @@ impl State {
             music_picker_request: None,
             music_picker_pending: None,
             chart_order_request: None,
-            source_output_order:None,source_output_request:None,source_output_request_epoch:std::sync::Arc::new(()),
+            source_output_order: None,
+            source_output_request: None,
+            source_output_request_epoch: std::sync::Arc::new(()),
             text_edit_serial: 0,
             image_preview_identity: image_previews::next_document_identity(),
             image_preview_views: None,
             song_properties: None,
-            song_timing_request:None,
+            song_timing_request: None,
             sample_region: None,
             waveform: waveform::View::default(),
             waveform_preferences: Default::default(),
             waveform_preferences_draft: None,
             timing: None,
-            sm_authoring:None,
+            sm_authoring: None,
             timing_migration: None,
             catalog_target: ProfileTarget::Marker,
             profile_directory: deadsync_editor::runtime::configs_dir().map(Path::to_path_buf),
@@ -818,16 +879,20 @@ impl State {
             preview: None,
             workspace,
             label_preedit: String::new(),
-            command_bindings:Default::default(),
-            key_binding_draft:None,
-            scroll_modifier_settings:None,
+            command_bindings: Default::default(),
+            key_binding_draft: None,
+            scroll_modifier_settings: None,
             control: false,
             control_keys: 0,
-            notifications:Default::default(),
-            system_alert:Default::default(),
+            notifications: Default::default(),
+            system_alert: Default::default(),
             folder_request: None,
-            pack_watch:Default::default(),
-            ui_dpi:None,ui_rows:Default::default(),ui_dpi_render_scale:1.,ui_dpi_window:[854.,480.],ui_dpi_supported:true,
+            pack_watch: Default::default(),
+            ui_dpi: None,
+            ui_rows: Default::default(),
+            ui_dpi_render_scale: 1.,
+            ui_dpi_window: [854., 480.],
+            ui_dpi_supported: true,
             shift: false,
             shift_keys: 0,
             help: false,
@@ -841,17 +906,21 @@ impl State {
             save_as: Default::default(),
             output_ui: Default::default(),
             file_menu: Default::default(),
-            external_watch:Default::default(),
+            external_watch: Default::default(),
         };
         state.refresh();
         if let Some(path) = deadsync_editor::runtime::preferences_path() {
             if let Err(error) = state.configure_audio_preferences(path) {
                 // A rejected file is not an installable application snapshot.
                 // Keep its bytes read-only and let Explicit/Empty use defaults.
-                state.audio_preferences_path=None;state.audio_preferences_file=None;
-                state.preferences_load_error=Some(Arc::from(error.to_string()));
+                state.audio_preferences_path = None;
+                state.audio_preferences_file = None;
+                state.preferences_load_error = Some(Arc::from(error.to_string()));
                 log::warn!("Editor preferences rejected; continuing with defaults: {error}");
-                state.status = i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))],
+                state.status = i18n::tr_fmt(
+                    "Edition",
+                    "Error",
+                    &[("message", &crate::i18n::editor_error(&error))],
                 );
             }
         }
@@ -864,9 +933,13 @@ impl State {
         self.cancel_receptor_move();
         self.finish_preference_numeric();
         self.wheel.cancel();
-        if let Some(settings)=self.scroll_modifier_settings.as_mut(){settings.release_input();}
+        if let Some(settings) = self.scroll_modifier_settings.as_mut() {
+            settings.release_input();
+        }
         self.command_bindings.release_input();
-        if let Some(settings)=self.key_binding_draft.as_mut(){settings.release_input();}
+        if let Some(settings) = self.key_binding_draft.as_mut() {
+            settings.release_input();
+        }
         self.minimap_release_input();
         self.receptor_views.release_input();
         self.lane_entry_release_input();
@@ -961,7 +1034,10 @@ impl State {
                 self.status = i18n::tr("Edition", "GenerationPreparing");
             }
             Err(error) => {
-                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))],
+                self.status = i18n::tr_fmt(
+                    "Edition",
+                    "Error",
+                    &[("message", &crate::i18n::editor_error(&error))],
                 )
             }
         }
@@ -977,7 +1053,10 @@ impl State {
                 self.status = i18n::tr("Edition", "MarkerHelp");
             }
             Err(error) => {
-                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))],
+                self.status = i18n::tr_fmt(
+                    "Edition",
+                    "Error",
+                    &[("message", &crate::i18n::editor_error(&error))],
                 )
             }
         }
@@ -1007,21 +1086,29 @@ impl State {
                 self.panel = Some(Panel::ChartProperties(0));
             }
             Err(error) => {
-                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))],
+                self.status = i18n::tr_fmt(
+                    "Edition",
+                    "Error",
+                    &[("message", &crate::i18n::editor_error(&error))],
                 )
             }
         }
     }
     fn normalize_stepf2_chart(&mut self) {
         if self.chart_rating_input.is_some()
-            || self.chart_properties.as_ref().is_some_and(|draft| draft.has_changes())
+            || self
+                .chart_properties
+                .as_ref()
+                .is_some_and(|draft| draft.has_changes())
         {
             self.status = i18n::tr("Edition", "StepF2NormalizePending");
             return;
         }
         self.apply_dialog_operation(
             |workspace| workspace.execute(Command::NormalizeStepF2),
-            "StepF2Normalized", "StepF2NormalizeUnavailable", "StepF2NormalizeFailed",
+            "StepF2Normalized",
+            "StepF2NormalizeUnavailable",
+            "StepF2NormalizeFailed",
         );
         if self.panel.is_none() {
             self.chart_properties = None;
@@ -1040,7 +1127,10 @@ impl State {
         match self
             .profile_catalog_chart()
             .and_then(|chart| {
-                draft.profile_task(&self.workspace.file().session,chart,self.profile_directory.as_deref(),
+                draft.profile_task(
+                    &self.workspace.file().session,
+                    chart,
+                    self.profile_directory.as_deref(),
                 )
             })
             .and_then(|task| task.spawn())
@@ -1053,13 +1143,22 @@ impl State {
                 self.status = i18n::tr("Edition", "ProfileLoading");
             }
             Err(error) => {
-                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))],
+                self.status = i18n::tr_fmt(
+                    "Edition",
+                    "Error",
+                    &[("message", &crate::i18n::editor_error(&error))],
                 )
             }
         }
     }
     fn stage_chart_expression(&mut self) {
-        let chart=match self.profile_catalog_chart(){Ok(chart)=>chart,Err(error)=>{self.status=crate::i18n::editor_error(&error).into();return;}};
+        let chart = match self.profile_catalog_chart() {
+            Ok(chart) => chart,
+            Err(error) => {
+                self.status = crate::i18n::editor_error(&error).into();
+                return;
+            }
+        };
         let (Some(settings), Some(draft)) = (&self.profile_selection, &mut self.chart_properties)
         else {
             return;
@@ -1071,50 +1170,89 @@ impl State {
             self.status = i18n::tr("Edition", "ChartChooseExpression");
             return;
         };
-        match draft.select_expression(&self.workspace.file().session,chart,&settings.catalog,&entry.guid,
-        )
-        {
+        match draft.select_expression(
+            &self.workspace.file().session,
+            chart,
+            &settings.catalog,
+            &entry.guid,
+        ) {
             Ok(()) => {
                 self.profile_selection = None;
-                if let Some(back)=self.autogen_expression_back {
+                if let Some(back) = self.autogen_expression_back {
                     self.apply_chart_properties();
-                    if self.chart_properties.is_none(){self.autogen_expression_back=None;self.autogen_source.expression_target=None;self.panel=Some(back);self.status=i18n::tr("Edition","AutogenSourceExpressionApplied");}
+                    if self.chart_properties.is_none() {
+                        self.autogen_expression_back = None;
+                        self.autogen_source.expression_target = None;
+                        self.panel = Some(back);
+                        self.status = i18n::tr("Edition", "AutogenSourceExpressionApplied");
+                    }
                 } else {
                     self.panel = Some(Panel::ChartProperties(0));
                     self.status = i18n::tr("Edition", "ChartExpressionStaged");
                 }
             }
             Err(error) => {
-                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))],
+                self.status = i18n::tr_fmt(
+                    "Edition",
+                    "Error",
+                    &[("message", &crate::i18n::editor_error(&error))],
                 )
             }
         }
     }
     fn apply_chart_properties(&mut self) {
-        let chart=match self.profile_catalog_chart(){Ok(chart)=>chart,Err(error)=>{self.status=crate::i18n::editor_error(&error).into();return;}};
+        let chart = match self.profile_catalog_chart() {
+            Ok(chart) => chart,
+            Err(error) => {
+                self.status = crate::i18n::editor_error(&error).into();
+                return;
+            }
+        };
         if !self.stage_chart_rating() {
             return;
         }
         let Some(draft) = &self.chart_properties else {
             return;
         };
-        let presentation=match self.capture_chart_property_presentation(){
-            Ok(value)=>value,
-            Err(error)=>{self.status=i18n::editor_error(&error).into();return;}
+        let presentation = match self.capture_chart_property_presentation() {
+            Ok(value) => value,
+            Err(error) => {
+                self.status = i18n::editor_error(&error).into();
+                return;
+            }
         };
-        let audio=draft.preserves_presentation_audio(self.workspace.file().session.document());
-        let position=match presentation.as_ref().map(|before| {
-                self.workspace.file().session.chart_properties_edit_position(draft,chart,before.focus())
-            }).transpose(){
-            Ok(value)=>value,
-            Err(error)=>{self.status=i18n::editor_error(&error).into();return;}
+        let audio = draft.preserves_presentation_audio(self.workspace.file().session.document());
+        let position = match presentation
+            .as_ref()
+            .map(|before| {
+                self.workspace
+                    .file()
+                    .session
+                    .chart_properties_edit_position(draft, chart, before.focus())
+            })
+            .transpose()
+        {
+            Ok(value) => value,
+            Err(error) => {
+                self.status = i18n::editor_error(&error).into();
+                return;
+            }
         };
-        match self.workspace.apply_chart_properties_at_with_presentation_receipt(chart,draft) {
+        match self
+            .workspace
+            .apply_chart_properties_at_with_presentation_receipt(chart, draft)
+        {
             Ok(applied) => {
                 if applied.changed() {
-                    if let Err(error)=self.finish_chart_property_presentation(presentation,position,chart,audio,&applied,
-                    ){
-                        self.status=i18n::editor_error(&error).into();return;
+                    if let Err(error) = self.finish_chart_property_presentation(
+                        presentation,
+                        position,
+                        chart,
+                        audio,
+                        &applied,
+                    ) {
+                        self.status = i18n::editor_error(&error).into();
+                        return;
                     }
                 }
                 self.chart_properties = None;
@@ -1123,19 +1261,29 @@ impl State {
                 self.refresh();
             }
             Err(error) => {
-                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))],
+                self.status = i18n::tr_fmt(
+                    "Edition",
+                    "Error",
+                    &[("message", &crate::i18n::editor_error(&error))],
                 )
             }
         }
     }
     fn profile_catalog_context(&self) -> Result<profile_catalog::Context, deadsync_editor::Error> {
-        if matches!(self.catalog_target, ProfileTarget::Application) { Ok(profile_catalog::Context::Application) }
-        else { self.profile_catalog_chart().map(profile_catalog::Context::Chart) }
+        if matches!(self.catalog_target, ProfileTarget::Application) {
+            Ok(profile_catalog::Context::Application)
+        } else {
+            self.profile_catalog_chart()
+                .map(profile_catalog::Context::Chart)
+        }
     }
     fn profile_catalog_current(&self, catalog: &profile_catalog::Catalog) -> bool {
-        self.profile_catalog_context().is_ok_and(|context|catalog.is_current_in(&self.workspace.file().session,context))
+        self.profile_catalog_context()
+            .is_ok_and(|context| catalog.is_current_in(&self.workspace.file().session, context))
     }
-    fn open_profile_manager(&mut self) { self.open_conversion_profiles_for(ProfileTarget::Application); }
+    fn open_profile_manager(&mut self) {
+        self.open_conversion_profiles_for(ProfileTarget::Application);
+    }
     fn open_conversion_profiles(&mut self) {
         self.open_conversion_profiles_for(ProfileTarget::Conversion);
     }
@@ -1144,16 +1292,21 @@ impl State {
             return;
         }
         let task = if matches!(target, ProfileTarget::Application) {
-            profile_catalog::Task::capture_application(&self.workspace.file().session,self.profile_directory.as_deref(),
+            profile_catalog::Task::capture_application(
+                &self.workspace.file().session,
+                self.profile_directory.as_deref(),
             )
         } else {
-            self.capture_autogen_catalog_chart(target).and_then(|source| {
-                    profile_catalog::Task::capture(&self.workspace.file().session,source,self.profile_directory.as_deref(),
+            self.capture_autogen_catalog_chart(target)
+                .and_then(|source| {
+                    profile_catalog::Task::capture(
+                        &self.workspace.file().session,
+                        source,
+                        self.profile_directory.as_deref(),
                     )
                 })
         };
-        match task.and_then(|task|task.spawn())
-        {
+        match task.and_then(|task| task.spawn()) {
             Ok(job) => {
                 self.profile_selection = None;
                 self.catalog_target = target;
@@ -1162,7 +1315,10 @@ impl State {
                 self.status = i18n::tr("Edition", "ProfileLoading");
             }
             Err(error) => {
-                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))],
+                self.status = i18n::tr_fmt(
+                    "Edition",
+                    "Error",
+                    &[("message", &crate::i18n::editor_error(&error))],
                 )
             }
         }
@@ -1189,11 +1345,17 @@ impl State {
         };
         let source = match self.profile_catalog_chart() {
             Ok(chart) => chart,
-            Err(error) => { self.status = crate::i18n::editor_error(&error).into(); return; }
+            Err(error) => {
+                self.status = crate::i18n::editor_error(&error).into();
+                return;
+            }
         };
         match settings.catalog.conversion(
-            &self.workspace.file().session, source,
-            ProfileOverrides { performed, expressed,
+            &self.workspace.file().session,
+            source,
+            ProfileOverrides {
+                performed,
+                expressed,
             },
         ) {
             Ok(profiles) => {
@@ -1207,7 +1369,10 @@ impl State {
                 self.status = i18n::tr("Edition", "ConversionProfilesStaged");
             }
             Err(error) => {
-                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))],
+                self.status = i18n::tr_fmt(
+                    "Edition",
+                    "Error",
+                    &[("message", &crate::i18n::editor_error(&error))],
                 )
             }
         }
@@ -1216,10 +1381,18 @@ impl State {
     fn profile_return_panel(&self) -> Panel {
         match self.catalog_target {
             ProfileTarget::Application => {
-                if !self.has_song(){Panel::FileMenu(17)}else if self.workspace.has_chart(){Panel::Menu(34)}else{Panel::EmptyMenu(20)}
+                if !self.has_song() {
+                    Panel::FileMenu(17)
+                } else if self.workspace.has_chart() {
+                    Panel::Menu(34)
+                } else {
+                    Panel::EmptyMenu(20)
+                }
             }
             ProfileTarget::Marker => Panel::Marker(12),
-            ProfileTarget::Chart => self.autogen_expression_back.unwrap_or(Panel::ChartProperties(0)),
+            ProfileTarget::Chart => self
+                .autogen_expression_back
+                .unwrap_or(Panel::ChartProperties(0)),
             ProfileTarget::Conversion => Panel::Generation(5),
             ProfileTarget::Batch => Panel::Batch(4),
         }
@@ -1245,7 +1418,10 @@ impl State {
                 self.status = i18n::tr("Edition", "ProfileLoading");
             }
             Err(error) => {
-                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))],
+                self.status = i18n::tr_fmt(
+                    "Edition",
+                    "Error",
+                    &[("message", &crate::i18n::editor_error(&error))],
                 )
             }
         }
@@ -1281,7 +1457,10 @@ impl State {
                 self.status = i18n::tr("Edition", "ProfileStaged");
             }
             Err(error) => {
-                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))],
+                self.status = i18n::tr_fmt(
+                    "Edition",
+                    "Error",
+                    &[("message", &crate::i18n::editor_error(&error))],
                 )
             }
         }
@@ -1303,11 +1482,13 @@ impl State {
                     && match self.catalog_target {
                         ProfileTarget::Marker => self.marker.is_some(),
                         ProfileTarget::Chart => self.chart_properties.is_some(),
-                        ProfileTarget::Application | ProfileTarget::Conversion | ProfileTarget::Batch => true,
+                        ProfileTarget::Application
+                        | ProfileTarget::Conversion
+                        | ProfileTarget::Batch => true,
                     } =>
             {
                 let (mut pattern, mut performed, mut expressed) = match self.catalog_target {
-                    ProfileTarget::Application => (Some(0),Some(0),Some(0)),
+                    ProfileTarget::Application => (Some(0), Some(0), Some(0)),
                     ProfileTarget::Marker => {
                         let draft = self.marker.as_ref().unwrap();
                         (
@@ -1361,9 +1542,16 @@ impl State {
                 };
                 if let Some(choices) = saved_choice {
                     let index = |kind, id: Option<&deadsync_editor::generation::metadata::Guid>| {
-                        let offset = usize::from(matches!(self.catalog_target, ProfileTarget::Conversion | ProfileTarget::Batch));
+                        let offset = usize::from(matches!(
+                            self.catalog_target,
+                            ProfileTarget::Conversion | ProfileTarget::Batch
+                        ));
                         match id {
-                            Some(id) => catalog.entries(kind).iter().position(|entry| &entry.guid == id).map(|i| i + offset),
+                            Some(id) => catalog
+                                .entries(kind)
+                                .iter()
+                                .position(|entry| &entry.guid == id)
+                                .map(|i| i + offset),
                             None if offset == 1 => Some(0),
                             None => None,
                         }
@@ -1378,7 +1566,11 @@ impl State {
                         ProfileTarget::Application => "ProfileManagerHelp",
                         ProfileTarget::Marker => "ProfilePickerHelp",
                         ProfileTarget::Chart => {
-                            if self.autogen_expression_back.is_some(){"AutogenSourceExpressionHelp"}else{"ChartExpressionPickerHelp"}
+                            if self.autogen_expression_back.is_some() {
+                                "AutogenSourceExpressionHelp"
+                            } else {
+                                "ChartExpressionPickerHelp"
+                            }
                         }
                         ProfileTarget::Conversion | ProfileTarget::Batch => {
                             "ConversionProfilesHelp"
@@ -1386,7 +1578,7 @@ impl State {
                     },
                     &[("issues", &catalog.issues().len().to_string())],
                 );
-                self.profile_order_culture=None;
+                self.profile_order_culture = None;
                 self.profile_selection = Some(ProfileSettings {
                     catalog,
                     pattern,
@@ -1406,28 +1598,39 @@ impl State {
                 self.status = if cancelled {
                     i18n::tr("Edition", "GenerationCancelled")
                 } else {
-                    i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))],
+                    i18n::tr_fmt(
+                        "Edition",
+                        "Error",
+                        &[("message", &crate::i18n::editor_error(&error))],
                     )
                 }
             }
         }
-        if let Some(kind)=self.application_profile_created.take() {
-            if self.profile_selection.is_some(){
-                let back=match self.catalog_target{
-                    ProfileTarget::Application|ProfileTarget::Marker=> {
-                        Panel::Profiles(match kind{ProfileKind::Pattern=>0,ProfileKind::Performed=>1,ProfileKind::Expressed=>2,
+        if let Some(kind) = self.application_profile_created.take() {
+            if self.profile_selection.is_some() {
+                let back = match self.catalog_target {
+                    ProfileTarget::Application | ProfileTarget::Marker => {
+                        Panel::Profiles(match kind {
+                            ProfileKind::Pattern => 0,
+                            ProfileKind::Performed => 1,
+                            ProfileKind::Expressed => 2,
                         })
                     }
-                    ProfileTarget::Chart=>Panel::ChartExpression(0),
-                    ProfileTarget::Conversion|ProfileTarget::Batch=> {
-                        Panel::ConversionProfiles(usize::from(kind==ProfileKind::Expressed))
+                    ProfileTarget::Chart => Panel::ChartExpression(0),
+                    ProfileTarget::Conversion | ProfileTarget::Batch => {
+                        Panel::ConversionProfiles(usize::from(kind == ProfileKind::Expressed))
                     }
                 };
-                self.open_profile_edit(kind,back);
+                self.open_profile_edit(kind, back);
             }
         }
-        if self.autogen_expression_back.is_some()&&!matches!(self.panel,Some(Panel::ChartExpression(_)))&&!(matches!(self.catalog_target,ProfileTarget::Chart)&&self.profile_edit.is_some()){
-            let status=self.status.clone();self.cancel_autogen_expression();self.status=status;
+        if self.autogen_expression_back.is_some()
+            && !matches!(self.panel, Some(Panel::ChartExpression(_)))
+            && !(matches!(self.catalog_target, ProfileTarget::Chart) && self.profile_edit.is_some())
+        {
+            let status = self.status.clone();
+            self.cancel_autogen_expression();
+            self.status = status;
         }
     }
 
@@ -1458,17 +1661,17 @@ impl State {
                 self.status = i18n::tr("Edition", "GenerationPreparing");
             }
             Err(error) => {
-                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))],
+                self.status = i18n::tr_fmt(
+                    "Edition",
+                    "Error",
+                    &[("message", &crate::i18n::editor_error(&error))],
                 )
             }
         }
     }
     fn navigate_marker(&mut self, forward: bool) {
         // Source inspector buttons require an existing displayed Pattern.
-        let Some(start) = self
-            .marker
-            .as_ref()
-            .map(|draft| draft.start) else {
+        let Some(start) = self.marker.as_ref().map(|draft| draft.start) else {
             return;
         };
         self.navigate_marker_from(forward, start);
@@ -1491,8 +1694,10 @@ impl State {
             return;
         }
         let result = deadsync_editor::generation::metadata::ChartData::read(
-            self.workspace.file().session.document(), self.workspace.chart(),
-        ).map(|data| data.and_then(|data| data.adjacent_marker_at(start as f64, forward)));
+            self.workspace.file().session.document(),
+            self.workspace.chart(),
+        )
+        .map(|data| data.and_then(|data| data.adjacent_marker_at(start as f64, forward)));
         match result {
             Ok(Some(row)) => match self.navigate_wheel_position(false, row as f64, true) {
                 Ok(()) => {
@@ -1531,7 +1736,10 @@ impl State {
                 self.status = i18n::tr("Edition", "GenerationPreparing");
             }
             Err(error) => {
-                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))],
+                self.status = i18n::tr_fmt(
+                    "Edition",
+                    "Error",
+                    &[("message", &crate::i18n::editor_error(&error))],
                 )
             }
         }
@@ -1548,17 +1756,36 @@ impl State {
         self.poll_assistant();
         self.sync_autogen_source();
         self.update_source_visual_clock(now);
-        let recovery=if !self.has_song()||self.audio_output_busy()||self.save_as_modal()||self.file_modal() {self.auto_recovery.poll_pending()} else {self.auto_recovery.update(self.workspace.file(), now)};
-        match recovery {Err(error)=>self.recovery_error(error),Ok(true)=>{if let Some(error)=self.workspace.file().recovery_durability_warning(){self.status=i18n::tr_fmt("Edition","RecoveryDurabilityPending",&[("error",&error)]);}}
-            Ok(false)=>{}}
+        let recovery = if !self.has_song()
+            || self.audio_output_busy()
+            || self.save_as_modal()
+            || self.file_modal()
+        {
+            self.auto_recovery.poll_pending()
+        } else {
+            self.auto_recovery.update(self.workspace.file(), now)
+        };
+        match recovery {
+            Err(error) => self.recovery_error(error),
+            Ok(true) => {
+                if let Some(error) = self.workspace.file().recovery_durability_warning() {
+                    self.status =
+                        i18n::tr_fmt("Edition", "RecoveryDurabilityPending", &[("error", &error)]);
+                }
+            }
+            Ok(false) => {}
+        }
         self.update_external_watch(now);
         self.update_pack_watch(now);
         self.update_log();
         self.update_pack_banner();
         self.update_wheel(now);
-        self.zoom.update(now.saturating_duration_since(self.zoom_epoch).as_secs_f64())
+        self.zoom
+            .update(now.saturating_duration_since(self.zoom_epoch).as_secs_f64())
             .expect("finite monotonic frame clock");
-        if let Err(error)=self.sync_wheel_spacing(){self.status=crate::i18n::editor_error(&error).into();}
+        if let Err(error) = self.sync_wheel_spacing() {
+            self.status = crate::i18n::editor_error(&error).into();
+        }
         self.update_receptors(now.saturating_duration_since(self.zoom_epoch).as_secs_f64());
         self.command_bindings_update(now);
         self.poll_pack_song_list();
@@ -1604,7 +1831,10 @@ impl State {
                     self.status = if cancelled {
                         i18n::tr("Edition", "GenerationCancelled")
                     } else {
-                        i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))],
+                        i18n::tr_fmt(
+                            "Edition",
+                            "Error",
+                            &[("message", &crate::i18n::editor_error(&error))],
                         )
                     };
                 }
@@ -1653,8 +1883,11 @@ impl State {
                 self.generation.target = (self.generation.target
                     + if forward { 1 } else { TARGET_LAYOUTS.len() - 1 })
                     % TARGET_LAYOUTS.len();
-                self.autogen_preferences.target=deadsync_editor::autogen_preferences::Target::from_layout(TARGET_LAYOUTS[self.generation.target],
-                    ).expect("supported target");
+                self.autogen_preferences.target =
+                    deadsync_editor::autogen_preferences::Target::from_layout(
+                        TARGET_LAYOUTS[self.generation.target],
+                    )
+                    .expect("supported target");
             }
             1 => {
                 self.profile_preferences_changed();
@@ -1671,12 +1904,19 @@ impl State {
             7 => self.adjust_autogen_source(forward),
             _ => {}
         }
-        if index<2 {self.publish_autogen_profile_preferences();}
+        if index < 2 {
+            self.publish_autogen_profile_preferences();
+        }
     }
 
     fn generation_label(&self, index: usize, key: &str) -> Arc<str> {
         let value = match index {
-            0 => self.autogen_preferences.target.layout().map(str::to_owned).unwrap_or_else(|_|self.autogen_preferences.target.source_name()),
+            0 => self
+                .autogen_preferences
+                .target
+                .layout()
+                .map(str::to_owned)
+                .unwrap_or_else(|_| self.autogen_preferences.target.source_name()),
             1 => self
                 .generation
                 .performed_name
@@ -1694,9 +1934,19 @@ impl State {
                     .to_string()
                 }),
             2 => self.generation.seed.to_string(),
-            5 => self.generation.expressed_name.as_ref().map(|name|name.to_string()).or_else(|| {
-                    self.generation.profiles.expressed.as_ref().map(|guid|guid.to_string())
-                }).unwrap_or_else(||i18n::tr("Edition","AutogenNoExpressionOverride").to_string()),
+            5 => self
+                .generation
+                .expressed_name
+                .as_ref()
+                .map(|name| name.to_string())
+                .or_else(|| {
+                    self.generation
+                        .profiles
+                        .expressed
+                        .as_ref()
+                        .map(|guid| guid.to_string())
+                })
+                .unwrap_or_else(|| i18n::tr("Edition", "AutogenNoExpressionOverride").to_string()),
             6 => self.autogen_source_expression_label(),
             7 => self.autogen_source_label(),
             _ => String::new(),
@@ -1708,8 +1958,8 @@ impl State {
         }
     }
 
-    fn generation_options(&self) -> Result<ChartOptions,deadsync_editor::Error> {
-        let target=self.autogen_preferences.target.layout()?;
+    fn generation_options(&self) -> Result<ChartOptions, deadsync_editor::Error> {
+        let target = self.autogen_preferences.target.layout()?;
         let mut options = ChartOptions::balanced(target);
         options.seed = self.generation.seed;
         options.performed = PerformedConfig::preset(match self.generation.preset {
@@ -1727,14 +1977,27 @@ impl State {
         if self.is_generating() {
             return;
         }
-        let options = match self.generation_options(){Ok(value)=>value,Err(_)=>{self.status=i18n::tr_fmt("Edition","AutogenUnsupportedTarget",&[("value",&self.autogen_preferences.target.source_name())],
-                );return;}};
+        let options = match self.generation_options() {
+            Ok(value) => value,
+            Err(_) => {
+                self.status = i18n::tr_fmt(
+                    "Edition",
+                    "AutogenUnsupportedTarget",
+                    &[("value", &self.autogen_preferences.target.source_name())],
+                );
+                return;
+            }
+        };
         self.sync_autogen_source();
-        let Some(source)=self.autogen_source_chart()else{self.status=self.autogen_source_label().into();return;};
+        let Some(source) = self.autogen_source_chart() else {
+            self.status = self.autogen_source_label().into();
+            return;
+        };
         match self
             .workspace
             .generation_task_at_with_profiles(
-                source,options,
+                source,
+                options,
                 self.profile_directory.as_deref(),
                 self.generation.profiles.clone(),
             )
@@ -1748,7 +2011,10 @@ impl State {
                 self.status = i18n::tr("Edition", "GenerationPreparing");
             }
             Err(error) => {
-                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))],
+                self.status = i18n::tr_fmt(
+                    "Edition",
+                    "Error",
+                    &[("message", &crate::i18n::editor_error(&error))],
                 )
             }
         }
@@ -1765,10 +2031,16 @@ impl State {
         }
     }
 
-    fn has_song(&self)->bool{self.document_presence==DocumentPresence::Loaded}
+    fn has_song(&self) -> bool {
+        self.document_presence == DocumentPresence::Loaded
+    }
     fn refresh(&mut self) {
-        if matches!(self.panel,Some(Panel::Batch(_))){self.refresh_batch_sources();}
-        if self.preference_numeric.is_some() && !self.preference_numeric_is_current(){self.finish_preference_numeric();}
+        if matches!(self.panel, Some(Panel::Batch(_))) {
+            self.refresh_batch_sources();
+        }
+        if self.preference_numeric.is_some() && !self.preference_numeric_is_current() {
+            self.finish_preference_numeric();
+        }
         self.sync_autogen_source();
         self.sync_profile_edit_notice();
         self.sync_editor_asset_registration();
@@ -1788,19 +2060,53 @@ impl State {
         self.refresh_hotbar_context();
         self.sync_pattern_added_presentation();
         self.sync_attack_presentation();
-        if !self.has_song(){
-            self.chart_label=i18n::tr("Edition","FileNoSong");self.toolbar=i18n::tr("Edition","FileNoSongHelp");return;
+        if !self.has_song() {
+            self.chart_label = i18n::tr("Edition", "FileNoSong");
+            self.toolbar = i18n::tr("Edition", "FileNoSongHelp");
+            return;
         }
         if !self.workspace.has_chart() {
-            self.saved_regions.clear(); self.region_index=Default::default(); self.labels=None; self.signatures=None; self.marker_cache=None;
-            self.chart_label=i18n::tr("Edition",if self.workspace.file().requires_save_as(){"FileUntitledNoChart"}else{"NoActiveChart"},
+            self.saved_regions.clear();
+            self.region_index = Default::default();
+            self.labels = None;
+            self.signatures = None;
+            self.marker_cache = None;
+            self.chart_label = i18n::tr(
+                "Edition",
+                if self.workspace.file().requires_save_as() {
+                    "FileUntitledNoChart"
+                } else {
+                    "NoActiveChart"
+                },
             );
-            self.toolbar=i18n::tr_fmt("Edition", "NoChartToolbar", &[("dirty", if self.workspace.file().has_unsaved_document(){" *"}else{""},
-                    ),("save_keys",&self.command_binding_label(deadsync_editor::key_binding_preferences::Action::Save,
+            self.toolbar = i18n::tr_fmt(
+                "Edition",
+                "NoChartToolbar",
+                &[
+                    (
+                        "dirty",
+                        if self.workspace.file().has_unsaved_document() {
+                            " *"
+                        } else {
+                            ""
+                        },
+                    ),
+                    (
+                        "save_keys",
+                        &self.command_binding_label(
+                            deadsync_editor::key_binding_preferences::Action::Save,
                         ),
-                    ),("undo_keys",&self.command_binding_label(deadsync_editor::key_binding_preferences::Action::Undo,
+                    ),
+                    (
+                        "undo_keys",
+                        &self.command_binding_label(
+                            deadsync_editor::key_binding_preferences::Action::Undo,
                         ),
-                    ),("new_keys",&self.command_binding_label(deadsync_editor::key_binding_preferences::Action::NewChart,
+                    ),
+                    (
+                        "new_keys",
+                        &self.command_binding_label(
+                            deadsync_editor::key_binding_preferences::Action::NewChart,
                         ),
                     ),
                 ],
@@ -1818,11 +2124,15 @@ impl State {
             })
         {
             self.labels = deadsync_editor::timing_edit::label::Labels::from_document(
-                session.document(), chart,
-            ).ok();
+                session.document(),
+                chart,
+            )
+            .ok();
             self.signatures = deadsync_editor::timing_edit::signature::Signatures::from_document(
-                session.document(), chart,
-            ).ok();
+                session.document(),
+                chart,
+            )
+            .ok();
             self.saved_regions =
                 deadsync_editor::generation::metadata::ChartData::read(session.document(), chart)
                     .ok()
@@ -1832,8 +2142,9 @@ impl State {
                     .into_iter()
                     .map(|(row, marker)| (row, row + marker.length))
                     .collect();
-            self.region_index = deadsync_editor::region_index::RegionIndex::new(self.saved_regions.clone())
-                .expect("validated pattern metadata regions");
+            self.region_index =
+                deadsync_editor::region_index::RegionIndex::new(self.saved_regions.clone())
+                    .expect("validated pattern metadata regions");
             self.marker_cache = Some((Arc::clone(source), session.revision(), chart));
         }
         let dirty = if self.workspace.file().has_unsaved_document() {
@@ -1845,18 +2156,35 @@ impl State {
             "Edition",
             "Toolbar",
             &[
-                ("save_keys",&self.command_binding_label(deadsync_editor::key_binding_preferences::Action::Save,
+                (
+                    "save_keys",
+                    &self.command_binding_label(
+                        deadsync_editor::key_binding_preferences::Action::Save,
                     ),
                 ),
-                ("undo_keys",&self.command_binding_label(deadsync_editor::key_binding_preferences::Action::Undo,
+                (
+                    "undo_keys",
+                    &self.command_binding_label(
+                        deadsync_editor::key_binding_preferences::Action::Undo,
                     ),
                 ),
                 ("dirty", dirty),
                 (
                     "beat",
-                    &format!("{:.3}", self.playback_position().map_or(self.workspace.row() as f64, |(_, row)| row) / ROWS_PER_BEAT as f64),
+                    &format!(
+                        "{:.3}",
+                        self.playback_position()
+                            .map_or(self.workspace.row() as f64, |(_, row)| row)
+                            / ROWS_PER_BEAT as f64
+                    ),
                 ),
-                ("snap", &if SNAP_ROWS[self.workspace.snap()]==0 {i18n::tr("Edition","SnapOff").to_string()}else{SNAP_NAMES[self.workspace.snap()].to_string()},
+                (
+                    "snap",
+                    &if SNAP_ROWS[self.workspace.snap()] == 0 {
+                        i18n::tr("Edition", "SnapOff").to_string()
+                    } else {
+                        SNAP_NAMES[self.workspace.snap()].to_string()
+                    },
                 ),
                 ("player", &(self.workspace.player() + 1).to_string()),
                 (
@@ -1887,12 +2215,26 @@ impl State {
         ));
     }
 
-    fn apply_dialog_transform(&mut self, transform: deadsync_editor::transform::Transform, applied: &str, unchanged: &str, failed: &str,
+    fn apply_dialog_transform(
+        &mut self,
+        transform: deadsync_editor::transform::Transform,
+        applied: &str,
+        unchanged: &str,
+        failed: &str,
     ) {
-        self.apply_dialog_operation(|workspace| workspace.execute(Command::Transform(transform)), applied, unchanged, failed,
+        self.apply_dialog_operation(
+            |workspace| workspace.execute(Command::Transform(transform)),
+            applied,
+            unchanged,
+            failed,
         );
     }
-    fn apply_dialog_operation(&mut self, operation: impl FnOnce(&mut Workspace) -> Result<(), deadsync_editor::Error>, applied: &str, unchanged: &str, failed: &str,
+    fn apply_dialog_operation(
+        &mut self,
+        operation: impl FnOnce(&mut Workspace) -> Result<(), deadsync_editor::Error>,
+        applied: &str,
+        unchanged: &str,
+        failed: &str,
     ) {
         let revision = self.workspace.file().session.revision();
         match operation(&mut self.workspace) {
@@ -1911,13 +2253,47 @@ impl State {
     }
 
     fn command(&mut self, command: Command) {
-        if !self.wheel_intent_guard(){return;}
-        if self.audio_output_busy() {self.status=i18n::tr("Edition","AudioOutputBusy");return;}
-        if !self.has_song()&&!self.is_application_history_command(command){self.status=i18n::tr("Edition","FileNoSongHelp");return;}
-        if (self.file_io_active() || self.auto_recovery.is_pending()) && matches!(command,Command::Save|Command::SaveRecovery|Command::Recover){self.queue_system_alert(system_alert::Refusal::FileIoBusy);self.status=i18n::tr("Edition","FileBusy");return;}
-        if self.save_as_modal() && matches!(command,Command::Save|Command::SaveRecovery|Command::Recover) {self.status=i18n::tr("Edition","SaveAsBusy");return;}
-        if matches!(command,Command::Save|Command::SaveRecovery|Command::Recover) && self.save_as_pending_guard() {return;}
-        if matches!(command,Command::Save) && self.workspace.file().requires_save_as() {self.open_save_as();return;}
+        if !self.wheel_intent_guard() {
+            return;
+        }
+        if self.audio_output_busy() {
+            self.status = i18n::tr("Edition", "AudioOutputBusy");
+            return;
+        }
+        if !self.has_song() && !self.is_application_history_command(command) {
+            self.status = i18n::tr("Edition", "FileNoSongHelp");
+            return;
+        }
+        if (self.file_io_active() || self.auto_recovery.is_pending())
+            && matches!(
+                command,
+                Command::Save | Command::SaveRecovery | Command::Recover
+            )
+        {
+            self.queue_system_alert(system_alert::Refusal::FileIoBusy);
+            self.status = i18n::tr("Edition", "FileBusy");
+            return;
+        }
+        if self.save_as_modal()
+            && matches!(
+                command,
+                Command::Save | Command::SaveRecovery | Command::Recover
+            )
+        {
+            self.status = i18n::tr("Edition", "SaveAsBusy");
+            return;
+        }
+        if matches!(
+            command,
+            Command::Save | Command::SaveRecovery | Command::Recover
+        ) && self.save_as_pending_guard()
+        {
+            return;
+        }
+        if matches!(command, Command::Save) && self.workspace.file().requires_save_as() {
+            self.open_save_as();
+            return;
+        }
         self.lane_entry_command(command);
         if matches!(command, Command::Recover)
             && (self.pack_has_unsaved_changes() || self.pack_has_pending_durability())
@@ -1926,13 +2302,39 @@ impl State {
             self.status = i18n::tr("Edition", "PackRecoveryBlocked");
             return;
         }
-        if matches!(command, Command::Move(_) | Command::Seek(_) | Command::PreviousMeasure | Command::NextMeasure | Command::PreviousLabel | Command::NextLabel | Command::SelectChart(_) | Command::Recover) {
+        if matches!(
+            command,
+            Command::Move(_)
+                | Command::Seek(_)
+                | Command::PreviousMeasure
+                | Command::NextMeasure
+                | Command::PreviousLabel
+                | Command::NextLabel
+                | Command::SelectChart(_)
+                | Command::Recover
+        ) {
             self.receptor_views.reset();
         }
         // Explicit edit/cursor intentions reset fractional transport anchors,
         // including Seek(0) when a negative anchor already clamps to row zero.
         // Preference history and generic refresh retain the musical position.
-        if matches!(command, Command::Move(_) | Command::Seek(_) | Command::PreviousMeasure | Command::NextMeasure | Command::PreviousLabel | Command::NextLabel | Command::SelectChart(_) | Command::Place(_) | Command::Delete | Command::Cut | Command::Paste | Command::CutEvents | Command::Transform(_) | Command::Recover) {
+        if matches!(
+            command,
+            Command::Move(_)
+                | Command::Seek(_)
+                | Command::PreviousMeasure
+                | Command::NextMeasure
+                | Command::PreviousLabel
+                | Command::NextLabel
+                | Command::SelectChart(_)
+                | Command::Place(_)
+                | Command::Delete
+                | Command::Cut
+                | Command::Paste
+                | Command::CutEvents
+                | Command::Transform(_)
+                | Command::Recover
+        ) {
             self.wheel.cancel();
             self.focus_position = None;
         }
@@ -1940,51 +2342,227 @@ impl State {
             self.paste_selected_events();
             return;
         }
-        if matches!(command,Command::Undo|Command::Redo)&&self.workspace.file().session.history_changes_pack_properties(matches!(command,Command::Redo)){self.apply_pack_properties_history(matches!(command,Command::Redo));return;}
-        if matches!(command,Command::Undo|Command::Redo)&&self.workspace.file().session.chart_properties_history_chart(matches!(command,Command::Redo)).is_some(){self.apply_chart_properties_history(matches!(command,Command::Redo));return;}
-        if matches!(command,Command::Undo|Command::Redo)&&self.workspace.file().session.history_changes_chart_event_copy(matches!(command,Command::Redo)){self.apply_chart_event_copy_history(matches!(command,Command::Redo));return;}
-        if matches!(command,Command::Undo|Command::Redo)&&self.workspace.file().session.history_preserves_song_properties_metadata(matches!(command,Command::Redo)){self.apply_song_properties_metadata_history(matches!(command,Command::Redo));return;}
-        if matches!(command,Command::Undo|Command::Redo)&&self.workspace.file().session.history_preserves_marker_metadata(matches!(command,Command::Redo)){self.apply_marker_metadata_history(matches!(command,Command::Redo));return;}
-        if matches!(command,Command::Undo|Command::Redo)&&self.workspace.file().session.history_changes_song_properties_live(matches!(command,Command::Redo)){self.apply_live_song_properties_history(matches!(command,Command::Redo));return;}
-        if matches!(command,Command::Undo|Command::Redo)&&self.workspace.file().session.history_changes_timing_edit(matches!(command,Command::Redo)){self.apply_live_timing_history(matches!(command,Command::Redo));return;}
-        if matches!(command,Command::Undo|Command::Redo)&&self.workspace.file().session.history_preserves_timing_migration(matches!(command,Command::Redo)){self.apply_timing_migration_history(matches!(command,Command::Redo));return;}
-        if matches!(command,Command::Save){self.output_save_current(false);return;}
-        if matches!(command,Command::Undo|Command::Redo)&&self.workspace.file().session.history_changes_sm_authoring(matches!(command,Command::Redo)){self.sm_authoring_history(matches!(command,Command::Redo));return;}
-        if matches!(command,Command::Undo|Command::Redo)&&self.workspace.file().session.song_timing_history_preserves_presentation(matches!(command,Command::Redo)){self.apply_song_timing_history(matches!(command,Command::Redo));return;}
-        if ((matches!(command,Command::Undo)&&self.workspace.file().session.undo_changes_receptor_preferences())||(matches!(command,Command::Redo)&&self.workspace.file().session.redo_changes_receptor_preferences()))&&!self.wheel_intent_guard(){return;}
-        if matches!(command,Command::Undo|Command::Redo){match self.capture_application_preferences_file(){Ok(file)=>self.workspace.capture_source_preferences_context(&file),Err(error)=>{self.status=i18n::editor_error(&error).into();return;}}}
+        if matches!(command, Command::Undo | Command::Redo)
+            && self
+                .workspace
+                .file()
+                .session
+                .history_changes_pack_properties(matches!(command, Command::Redo))
+        {
+            self.apply_pack_properties_history(matches!(command, Command::Redo));
+            return;
+        }
+        if matches!(command, Command::Undo | Command::Redo)
+            && self
+                .workspace
+                .file()
+                .session
+                .chart_properties_history_chart(matches!(command, Command::Redo))
+                .is_some()
+        {
+            self.apply_chart_properties_history(matches!(command, Command::Redo));
+            return;
+        }
+        if matches!(command, Command::Undo | Command::Redo)
+            && self
+                .workspace
+                .file()
+                .session
+                .history_changes_chart_event_copy(matches!(command, Command::Redo))
+        {
+            self.apply_chart_event_copy_history(matches!(command, Command::Redo));
+            return;
+        }
+        if matches!(command, Command::Undo | Command::Redo)
+            && self
+                .workspace
+                .file()
+                .session
+                .history_preserves_song_properties_metadata(matches!(command, Command::Redo))
+        {
+            self.apply_song_properties_metadata_history(matches!(command, Command::Redo));
+            return;
+        }
+        if matches!(command, Command::Undo | Command::Redo)
+            && self
+                .workspace
+                .file()
+                .session
+                .history_preserves_marker_metadata(matches!(command, Command::Redo))
+        {
+            self.apply_marker_metadata_history(matches!(command, Command::Redo));
+            return;
+        }
+        if matches!(command, Command::Undo | Command::Redo)
+            && self
+                .workspace
+                .file()
+                .session
+                .history_changes_song_properties_live(matches!(command, Command::Redo))
+        {
+            self.apply_live_song_properties_history(matches!(command, Command::Redo));
+            return;
+        }
+        if matches!(command, Command::Undo | Command::Redo)
+            && self
+                .workspace
+                .file()
+                .session
+                .history_changes_timing_edit(matches!(command, Command::Redo))
+        {
+            self.apply_live_timing_history(matches!(command, Command::Redo));
+            return;
+        }
+        if matches!(command, Command::Undo | Command::Redo)
+            && self
+                .workspace
+                .file()
+                .session
+                .history_preserves_timing_migration(matches!(command, Command::Redo))
+        {
+            self.apply_timing_migration_history(matches!(command, Command::Redo));
+            return;
+        }
+        if matches!(command, Command::Save) {
+            self.output_save_current(false);
+            return;
+        }
+        if matches!(command, Command::Undo | Command::Redo)
+            && self
+                .workspace
+                .file()
+                .session
+                .history_changes_sm_authoring(matches!(command, Command::Redo))
+        {
+            self.sm_authoring_history(matches!(command, Command::Redo));
+            return;
+        }
+        if matches!(command, Command::Undo | Command::Redo)
+            && self
+                .workspace
+                .file()
+                .session
+                .song_timing_history_preserves_presentation(matches!(command, Command::Redo))
+        {
+            self.apply_song_timing_history(matches!(command, Command::Redo));
+            return;
+        }
+        if ((matches!(command, Command::Undo)
+            && self
+                .workspace
+                .file()
+                .session
+                .undo_changes_receptor_preferences())
+            || (matches!(command, Command::Redo)
+                && self
+                    .workspace
+                    .file()
+                    .session
+                    .redo_changes_receptor_preferences()))
+            && !self.wheel_intent_guard()
+        {
+            return;
+        }
+        if matches!(command, Command::Undo | Command::Redo) {
+            match self.capture_application_preferences_file() {
+                Ok(file) => self.workspace.capture_source_preferences_context(&file),
+                Err(error) => {
+                    self.status = i18n::editor_error(&error).into();
+                    return;
+                }
+            }
+        }
         // Application-only history keeps the content token and its current
         // presentation intact; capturing a fallback row would manufacture a
         // focus anchor when none existed before the global preference edit.
-        let history_anchor=if matches!(command,Command::Undo|Command::Redo)&&!self.is_application_history_command(command){self.capture_history_row_anchor()}else{None};
-        let structural_presentation=if matches!(command,Command::Undo|Command::Redo)
-            && self.workspace.file().session.history_changes_chart_set(matches!(command,Command::Redo)) {
-            match self.capture_structural_chart_presentation(){Ok(value)=>Some(value),Err(error)=>{self.status=i18n::editor_error(&error).into();return;}}
-        }else{None};
+        let history_anchor = if matches!(command, Command::Undo | Command::Redo)
+            && !self.is_application_history_command(command)
+        {
+            self.capture_history_row_anchor()
+        } else {
+            None
+        };
+        let structural_presentation = if matches!(command, Command::Undo | Command::Redo)
+            && self
+                .workspace
+                .file()
+                .session
+                .history_changes_chart_set(matches!(command, Command::Redo))
+        {
+            match self.capture_structural_chart_presentation() {
+                Ok(value) => Some(value),
+                Err(error) => {
+                    self.status = i18n::editor_error(&error).into();
+                    return;
+                }
+            }
+        } else {
+            None
+        };
         let before_revision = self.workspace.file().session.revision();
         match self.workspace.execute(command) {
             Ok(()) => {
-                if let Some(presentation)=structural_presentation {
-                    if let Err(error)=self.finish_structural_chart_presentation(presentation){self.status=i18n::editor_error(&error).into();self.refresh();return;}
+                if let Some(presentation) = structural_presentation {
+                    if let Err(error) = self.finish_structural_chart_presentation(presentation) {
+                        self.status = i18n::editor_error(&error).into();
+                        self.refresh();
+                        return;
+                    }
                 }
-                if matches!(command, Command::Recover) { Self::report_profile_load_repairs(self.workspace.file());self.profile_preference_history.clear(); self.profile_creations.clear(); }
-                if let Err(error)=self.sync_source_preferences_history(){self.status=i18n::editor_error(&error).into();self.refresh();return;}
+                if matches!(command, Command::Recover) {
+                    Self::report_profile_load_repairs(self.workspace.file());
+                    self.profile_preference_history.clear();
+                    self.profile_creations.clear();
+                }
+                if let Err(error) = self.sync_source_preferences_history() {
+                    self.status = i18n::editor_error(&error).into();
+                    self.refresh();
+                    return;
+                }
                 self.sync_audio_preferences_history();
                 self.sync_receptor_preferences_history();
-                if let Err(error)=self.sync_restore_options_history(){self.status=i18n::tr_fmt("Edition","GeneralOptionsSaveFailedReason",&[("error",&crate::i18n::editor_error(&error))],
-                    );self.refresh();return;}
-                if let Err(error)=self.sync_restore_scroll_history(){self.status=i18n::tr_fmt("Edition","ScrollRestoreFailedReason",&[("error",&i18n::editor_error(&error))],
-                    );self.refresh();return;}
+                if let Err(error) = self.sync_restore_options_history() {
+                    self.status = i18n::tr_fmt(
+                        "Edition",
+                        "GeneralOptionsSaveFailedReason",
+                        &[("error", &crate::i18n::editor_error(&error))],
+                    );
+                    self.refresh();
+                    return;
+                }
+                if let Err(error) = self.sync_restore_scroll_history() {
+                    self.status = i18n::tr_fmt(
+                        "Edition",
+                        "ScrollRestoreFailedReason",
+                        &[("error", &i18n::editor_error(&error))],
+                    );
+                    self.refresh();
+                    return;
+                }
                 self.sync_general_options_history();
                 self.sync_display_options_history();
                 self.sync_dark_preferences_history();
                 self.sync_visual_preferences_history();
-                if let Err(error)=self.sync_scroll_preferences_history(){self.status=i18n::tr_fmt("Edition","ScrollRestoreFailedReason",&[("error",&i18n::editor_error(&error))],
-                    );self.refresh();return;}
+                if let Err(error) = self.sync_scroll_preferences_history() {
+                    self.status = i18n::tr_fmt(
+                        "Edition",
+                        "ScrollRestoreFailedReason",
+                        &[("error", &i18n::editor_error(&error))],
+                    );
+                    self.refresh();
+                    return;
+                }
                 self.sync_selection_preferences_history();
                 self.sync_stream_preferences_history();
-                if let Err(error)=self.sync_performance_history(){self.status=i18n::tr_fmt("Edition","PerformanceSaveFailed",&[("error",&i18n::editor_error(&error))],
-                    );self.refresh();return;}
+                if let Err(error) = self.sync_performance_history() {
+                    self.status = i18n::tr_fmt(
+                        "Edition",
+                        "PerformanceSaveFailed",
+                        &[("error", &i18n::editor_error(&error))],
+                    );
+                    self.refresh();
+                    return;
+                }
                 self.sync_event_selection_history();
                 self.sync_density_preferences_history();
                 self.sync_note_color_preferences_history();
@@ -1993,8 +2571,15 @@ impl State {
                 self.status = match command {
                     Command::Save => i18n::tr("Edition", "Saved"),
                     Command::SaveRecovery => {
-                        if let Some(error)=self.workspace.file().recovery_durability_warning(){i18n::tr_fmt("Edition","RecoveryDurabilityPending",&[("error",&error)],
-                            )}else{i18n::tr("Edition", "DraftSaved")}
+                        if let Some(error) = self.workspace.file().recovery_durability_warning() {
+                            i18n::tr_fmt(
+                                "Edition",
+                                "RecoveryDurabilityPending",
+                                &[("error", &error)],
+                            )
+                        } else {
+                            i18n::tr("Edition", "DraftSaved")
+                        }
                     }
                     Command::Recover => i18n::tr("Edition", "DraftRecovered"),
                     Command::DuplicateChart => i18n::tr("Edition", "ChartDuplicated"),
@@ -2002,13 +2587,23 @@ impl State {
                 }
             }
             Err(error) => {
-                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))],
+                self.status = i18n::tr_fmt(
+                    "Edition",
+                    "Error",
+                    &[("message", &crate::i18n::editor_error(&error))],
                 )
             }
         }
         self.sync_profile_edit_notice();
-        if let Some(anchor)=history_anchor{if let Err(error)=self.restore_history_row_anchor(anchor){self.status=i18n::tr_fmt("Edition","Error",&[("message",&i18n::editor_error(&error))],
-                );}}
+        if let Some(anchor) = history_anchor {
+            if let Err(error) = self.restore_history_row_anchor(anchor) {
+                self.status = i18n::tr_fmt(
+                    "Edition",
+                    "Error",
+                    &[("message", &i18n::editor_error(&error))],
+                );
+            }
+        }
         self.refresh();
     }
 
@@ -2016,28 +2611,69 @@ impl State {
     /// this screen is open, so an Escape cannot silently abandon edited data.
     /// Returns true only after an explicit, safe close decision.
     pub fn raw_key(&mut self, event: &RawKeyboardEvent) -> bool {
-        if self.assistant.open { self.command_bindings_observe(event); self.assistant_key(event); return false; }
+        if self.assistant.open {
+            self.command_bindings_observe(event);
+            self.assistant_key(event);
+            return false;
+        }
         self.system_alert_modal_transition();
         let result = self.raw_key_with_system_alert(event);
         self.system_alert_modal_transition();
         result
     }
     fn raw_key_with_system_alert(&mut self, event: &RawKeyboardEvent) -> bool {
-        if self.preference_numeric.is_some() { self.preference_numeric_raw_key(event); return false; }
-        if event.pressed && !event.repeat && event.code==KeyCode::F5 && deadsync_editor::audio_preferences::durability::has_pending_publications(){
+        if self.preference_numeric.is_some() {
+            self.preference_numeric_raw_key(event);
+            return false;
+        }
+        if event.pressed
+            && !event.repeat
+            && event.code == KeyCode::F5
+            && deadsync_editor::audio_preferences::durability::has_pending_publications()
+        {
             self.release_input();
-            if self.retry_preferences_durability(){self.status=i18n::tr("Edition","PreferencesSyncComplete");}
+            if self.retry_preferences_durability() {
+                self.status = i18n::tr("Edition", "PreferencesSyncComplete");
+            }
             return true;
         }
-        if self.audio_output_busy()&&event.pressed {self.status=i18n::tr("Edition","AudioOutputBusy");return false;}
+        if self.audio_output_busy() && event.pressed {
+            self.status = i18n::tr("Edition", "AudioOutputBusy");
+            return false;
+        }
         self.command_bindings_observe(event);
         self.update_receptor_move();
         // Navigation between UI rows, dismiss/help and physical modifier state
         // remain available after a persistence refusal. No failed input is queued.
-        if event.pressed&&!event.repeat&&!matches!(event.code,KeyCode::ArrowUp|KeyCode::ArrowDown|KeyCode::Tab|KeyCode::Escape|KeyCode::F1|KeyCode::ShiftLeft|KeyCode::ShiftRight|KeyCode::ControlLeft|KeyCode::ControlRight|KeyCode::AltLeft|KeyCode::AltRight|KeyCode::SuperLeft|KeyCode::SuperRight)&&!self.wheel_intent_guard(){return false;}
-        if event.pressed&&self.ui_dpi_key(event.code){return false;}
+        if event.pressed
+            && !event.repeat
+            && !matches!(
+                event.code,
+                KeyCode::ArrowUp
+                    | KeyCode::ArrowDown
+                    | KeyCode::Tab
+                    | KeyCode::Escape
+                    | KeyCode::F1
+                    | KeyCode::ShiftLeft
+                    | KeyCode::ShiftRight
+                    | KeyCode::ControlLeft
+                    | KeyCode::ControlRight
+                    | KeyCode::AltLeft
+                    | KeyCode::AltRight
+                    | KeyCode::SuperLeft
+                    | KeyCode::SuperRight
+            )
+            && !self.wheel_intent_guard()
+        {
+            return false;
+        }
+        if event.pressed && self.ui_dpi_key(event.code) {
+            return false;
+        }
         self.receptor_modifiers(event);
-        if self.lane_entry_before_key(event) {return false;}
+        if self.lane_entry_before_key(event) {
+            return false;
+        }
         match event.code {
             KeyCode::ControlLeft
             | KeyCode::ControlRight
@@ -2061,7 +2697,11 @@ impl State {
                 return self.take_file_close();
             }
             KeyCode::ShiftLeft | KeyCode::ShiftRight => {
-                let bit = if event.code == KeyCode::ShiftLeft { 1 } else { 2 };
+                let bit = if event.code == KeyCode::ShiftLeft {
+                    1
+                } else {
+                    2
+                };
                 if event.pressed {
                     self.shift_keys |= bit;
                 } else {
@@ -2074,8 +2714,10 @@ impl State {
             }
             _ => {}
         }
-        let binding_consumed=self.command_bindings_key(event);
-        if self.key_binding_capture_event(event)||binding_consumed{return self.take_file_close();}
+        let binding_consumed = self.command_bindings_key(event);
+        if self.key_binding_capture_event(event) || binding_consumed {
+            return self.take_file_close();
+        }
         if self.help && self.panel.is_none() {
             self.help_key(event);
             return false;
@@ -2089,21 +2731,45 @@ impl State {
         if !self.label_preedit.is_empty() {
             return false;
         }
-        let repeating_label = self.wants_text_input()
-            && matches!(event.code, KeyCode::Backspace | KeyCode::Delete);
+        let repeating_label =
+            self.wants_text_input() && matches!(event.code, KeyCode::Backspace | KeyCode::Delete);
         let repeating_text_cursor = matches!(
-            self.panel, Some(Panel::FileOpen(0) | Panel::SaveAsDestination(0) | Panel::ChartText(_) | Panel::SongText(_) | Panel::NoteAttributes(_) | Panel::Attacks(_) | Panel::ProfileText | Panel::PackProperties)
-        )
-            && matches!(
-                event.code,
-                KeyCode::ArrowLeft | KeyCode::ArrowRight | KeyCode::Home | KeyCode::End
-            );
+            self.panel,
+            Some(
+                Panel::FileOpen(0)
+                    | Panel::SaveAsDestination(0)
+                    | Panel::ChartText(_)
+                    | Panel::SongText(_)
+                    | Panel::NoteAttributes(_)
+                    | Panel::Attacks(_)
+                    | Panel::ProfileText
+                    | Panel::PackProperties
+            )
+        ) && matches!(
+            event.code,
+            KeyCode::ArrowLeft | KeyCode::ArrowRight | KeyCode::Home | KeyCode::End
+        );
         let repeating_analysis = matches!(self.panel, Some(Panel::Analysis))
             && matches!(event.code, KeyCode::ArrowLeft | KeyCode::ArrowRight);
-        let repeating_note_color=matches!(self.panel,Some(Panel::NoteColorSettings(1..=3))) && self.note_color_draft.as_ref().is_some_and(|d|d.field()<=30) && matches!(event.code,KeyCode::ArrowLeft|KeyCode::ArrowRight);
+        let repeating_note_color = matches!(self.panel, Some(Panel::NoteColorSettings(1..=3)))
+            && self
+                .note_color_draft
+                .as_ref()
+                .is_some_and(|d| d.field() <= 30)
+            && matches!(event.code, KeyCode::ArrowLeft | KeyCode::ArrowRight);
         let repeating_offset = matches!(
             self.panel,
-            Some(Panel::MinimapSettings(1 | 2) | Panel::MinimapOptions(3..=6 | 8 | 10 | 12) | Panel::ChartProperties(2 | 8) | Panel::SongProperties(0 | 4) | Panel::SongSample(0 | 1 | 2) | Panel::AudioSettings(0 | 1) | Panel::ZoomSettings(0..=2) | Panel::WaveformSettings(2 | 3 | 8 | 10..=12) | Panel::WaveformColors(1..=13))
+            Some(
+                Panel::MinimapSettings(1 | 2)
+                    | Panel::MinimapOptions(3..=6 | 8 | 10 | 12)
+                    | Panel::ChartProperties(2 | 8)
+                    | Panel::SongProperties(0 | 4)
+                    | Panel::SongSample(0 | 1 | 2)
+                    | Panel::AudioSettings(0 | 1)
+                    | Panel::ZoomSettings(0..=2)
+                    | Panel::WaveformSettings(2 | 3 | 8 | 10..=12)
+                    | Panel::WaveformColors(1..=13)
+            )
         ) && matches!(event.code, KeyCode::ArrowLeft | KeyCode::ArrowRight);
         if event.repeat
             && !repeating_offset
@@ -2119,7 +2785,7 @@ impl State {
             return false;
         }
         if self.panel.is_some() {
-            let close=self.panel_key(event.code);
+            let close = self.panel_key(event.code);
             return close || self.take_file_close();
         }
         if !self.workspace.has_chart() {
@@ -2132,7 +2798,9 @@ impl State {
     }
 
     pub(super) fn request_close(&mut self) -> bool {
-        if self.save_as_pending_guard(){return false;}
+        if self.save_as_pending_guard() {
+            return false;
+        }
         self.request_file_close()
     }
 
@@ -2143,51 +2811,182 @@ impl State {
                 return false;
             }
         }
-        if self.preference_numeric_key(code) { return false; }
-        if self.ui_dpi_key(code){return false;}
+        if self.preference_numeric_key(code) {
+            return false;
+        }
+        if self.ui_dpi_key(code) {
+            return false;
+        }
         self.reset_ui_manual_vertical();
         let panel = self.panel.unwrap();
-        if self.profile_sort_key(panel,code){return false;}
-        if let Panel::Ftue(index)=panel{self.ftue_key(index,code);return false;}
-        if let Panel::SmAuthoring(index)=panel{self.sm_authoring_key(index,code);return false;}
-        if let Panel::Performance(index)=panel{self.performance_key(index,code);return false;}
-        if matches!(panel,Panel::Log){self.log_key(code);return false;}
-        if let Panel::WindowLayout(index)=panel{self.window_layout_key(index,code);return false;}
-        if let Panel::EditorHelp(index)=panel{self.editor_help_key(index,code);return false;}
-        if let Panel::Hotbar(index)=panel{self.hotbar_key(index,code);return false;}
-        if let Panel::EditorAbout(view)=panel{self.editor_about_key(view,code);return false;}
-        if let Panel::UpdateNotice(index)=panel{self.update_notice_key(index,code);return false;}
-        if let Panel::ExternalFile(index)=panel{self.external_file_key(index,code);return false;}
-        if matches!(panel, Panel::Regeneration(_)) && code == KeyCode::F8 { self.open_pattern_actions(false); return false; }
-        if matches!(panel, Panel::Transforms(_)) && code == KeyCode::F4 { self.open_shift_all(); return false; }
-        if matches!(panel, Panel::Transforms(_)) && code == KeyCode::F8 { self.open_selected_transform_review(false); return false; }
-        if let Panel::FileMenu(index)|Panel::FileOpen(index)|Panel::FileRecent(index)|Panel::FileUnsaved(index)=panel{return self.file_menu_key(index,code);}
-        if matches!(panel,Panel::FileDiscard|Panel::FileLoading){return self.file_menu_key(0,code);}
-        if let Panel::OutputSettings(index)|Panel::OutputLoss(index)=panel {self.output_key(index,code);return false;}
-        if let Panel::SaveAsDestination(index)|Panel::SaveAsReview(index)|Panel::SaveAsPending(index)=panel {self.save_as_key(index,code);return false;}
-        if matches!(panel, Panel::PackSongList) { self.pack_song_list_key(code); return false; }
-        if matches!(panel, Panel::PackProperties) { self.pack_properties_key(code); return false; }
-        if matches!(panel, Panel::ChartEventCopy) { self.chart_event_copy_key(code); return false; }
-        if matches!(panel, Panel::ChartList) { self.chart_list_key(code); return false; }
-        if matches!(panel, Panel::EventSelection) { self.event_selection_key(code); return false; }
-        if let Panel::Attacks(index) = panel { self.attacks_key(index, code); return false; }
-        if let Panel::NoteAttributes(index) = panel { self.note_attributes_key(index, code); return false; }
-        if let Panel::NoteOwners(index) = panel { self.note_owners_key(index, code); return false; }
-        if let Panel::SelectionPresets(index) = panel { self.selection_presets_key(index, code); return false; }
-        if let Panel::TimingConversion(index) = panel { self.timing_conversion_key(index, code); return false; }
-        if let Panel::SelectedTransformReview(index) = panel { self.selected_transform_review_key(index, code); return false; }
-        if let Panel::PatternActions(index) = panel { self.pattern_actions_key(index, code); return false; }
-        if let Panel::QuickAdd(index) = panel { self.quick_add_key(index, code); return false; }
-        if let Panel::ShiftAll(index) = panel { self.shift_all_key(index, code); return false; }
-        if let Panel::NoteOperationReview(index) = panel { self.note_operation_review_key(index, code); return false; }
-        if let Panel::NoteConversion(index) = panel { self.note_conversion_key(index, code); return false; }
-        if let Panel::ProfileWeights(index) = panel { self.profile_weights_key(index, code); return false; }
-        if let Panel::ProfileDelete(index) = panel { self.profile_delete_key(index, code); return false; }
-        if let Panel::ProfileDefaults(index) = panel { self.profile_defaults_key(index, code); return false; }
-        if let Panel::ProfileSpeed(index) = panel { self.profile_speed_key(index, code); return false; }
-        if matches!(panel, Panel::ProfileText) { self.profile_text_key(code); return false; }
-        if let Panel::ProfileEdit(index) = panel { self.profile_edit_key(index, code); return false; }
-        if let Panel::DisplayTempo(index) = panel { self.display_tempo_key(index, code); return false; }
+        if self.profile_sort_key(panel, code) {
+            return false;
+        }
+        if let Panel::Ftue(index) = panel {
+            self.ftue_key(index, code);
+            return false;
+        }
+        if let Panel::SmAuthoring(index) = panel {
+            self.sm_authoring_key(index, code);
+            return false;
+        }
+        if let Panel::Performance(index) = panel {
+            self.performance_key(index, code);
+            return false;
+        }
+        if matches!(panel, Panel::Log) {
+            self.log_key(code);
+            return false;
+        }
+        if let Panel::WindowLayout(index) = panel {
+            self.window_layout_key(index, code);
+            return false;
+        }
+        if let Panel::EditorHelp(index) = panel {
+            self.editor_help_key(index, code);
+            return false;
+        }
+        if let Panel::Hotbar(index) = panel {
+            self.hotbar_key(index, code);
+            return false;
+        }
+        if let Panel::EditorAbout(view) = panel {
+            self.editor_about_key(view, code);
+            return false;
+        }
+        if let Panel::UpdateNotice(index) = panel {
+            self.update_notice_key(index, code);
+            return false;
+        }
+        if let Panel::ExternalFile(index) = panel {
+            self.external_file_key(index, code);
+            return false;
+        }
+        if matches!(panel, Panel::Regeneration(_)) && code == KeyCode::F8 {
+            self.open_pattern_actions(false);
+            return false;
+        }
+        if matches!(panel, Panel::Transforms(_)) && code == KeyCode::F4 {
+            self.open_shift_all();
+            return false;
+        }
+        if matches!(panel, Panel::Transforms(_)) && code == KeyCode::F8 {
+            self.open_selected_transform_review(false);
+            return false;
+        }
+        if let Panel::FileMenu(index)
+        | Panel::FileOpen(index)
+        | Panel::FileRecent(index)
+        | Panel::FileUnsaved(index) = panel
+        {
+            return self.file_menu_key(index, code);
+        }
+        if matches!(panel, Panel::FileDiscard | Panel::FileLoading) {
+            return self.file_menu_key(0, code);
+        }
+        if let Panel::OutputSettings(index) | Panel::OutputLoss(index) = panel {
+            self.output_key(index, code);
+            return false;
+        }
+        if let Panel::SaveAsDestination(index)
+        | Panel::SaveAsReview(index)
+        | Panel::SaveAsPending(index) = panel
+        {
+            self.save_as_key(index, code);
+            return false;
+        }
+        if matches!(panel, Panel::PackSongList) {
+            self.pack_song_list_key(code);
+            return false;
+        }
+        if matches!(panel, Panel::PackProperties) {
+            self.pack_properties_key(code);
+            return false;
+        }
+        if matches!(panel, Panel::ChartEventCopy) {
+            self.chart_event_copy_key(code);
+            return false;
+        }
+        if matches!(panel, Panel::ChartList) {
+            self.chart_list_key(code);
+            return false;
+        }
+        if matches!(panel, Panel::EventSelection) {
+            self.event_selection_key(code);
+            return false;
+        }
+        if let Panel::Attacks(index) = panel {
+            self.attacks_key(index, code);
+            return false;
+        }
+        if let Panel::NoteAttributes(index) = panel {
+            self.note_attributes_key(index, code);
+            return false;
+        }
+        if let Panel::NoteOwners(index) = panel {
+            self.note_owners_key(index, code);
+            return false;
+        }
+        if let Panel::SelectionPresets(index) = panel {
+            self.selection_presets_key(index, code);
+            return false;
+        }
+        if let Panel::TimingConversion(index) = panel {
+            self.timing_conversion_key(index, code);
+            return false;
+        }
+        if let Panel::SelectedTransformReview(index) = panel {
+            self.selected_transform_review_key(index, code);
+            return false;
+        }
+        if let Panel::PatternActions(index) = panel {
+            self.pattern_actions_key(index, code);
+            return false;
+        }
+        if let Panel::QuickAdd(index) = panel {
+            self.quick_add_key(index, code);
+            return false;
+        }
+        if let Panel::ShiftAll(index) = panel {
+            self.shift_all_key(index, code);
+            return false;
+        }
+        if let Panel::NoteOperationReview(index) = panel {
+            self.note_operation_review_key(index, code);
+            return false;
+        }
+        if let Panel::NoteConversion(index) = panel {
+            self.note_conversion_key(index, code);
+            return false;
+        }
+        if let Panel::ProfileWeights(index) = panel {
+            self.profile_weights_key(index, code);
+            return false;
+        }
+        if let Panel::ProfileDelete(index) = panel {
+            self.profile_delete_key(index, code);
+            return false;
+        }
+        if let Panel::ProfileDefaults(index) = panel {
+            self.profile_defaults_key(index, code);
+            return false;
+        }
+        if let Panel::ProfileSpeed(index) = panel {
+            self.profile_speed_key(index, code);
+            return false;
+        }
+        if matches!(panel, Panel::ProfileText) {
+            self.profile_text_key(code);
+            return false;
+        }
+        if let Panel::ProfileEdit(index) = panel {
+            self.profile_edit_key(index, code);
+            return false;
+        }
+        if let Panel::DisplayTempo(index) = panel {
+            self.display_tempo_key(index, code);
+            return false;
+        }
         if let Panel::ChartText(index) | Panel::SongText(index) = panel {
             self.text_field_key(index, code);
             return false;
@@ -2200,22 +2999,71 @@ impl State {
             self.waveform_settings_key(index, code);
             return false;
         }
-        if let Panel::NoteColorSettings(index)=panel{self.note_color_settings_key(index,code);return false;}
-        if let Panel::ScrollModifierSettings(index)=panel{self.scroll_modifier_key(index,code);return false;}
-        if let Panel::KeyBindingSettings(index)=panel{self.key_binding_settings_key(index,code);return false;}
-        if let Panel::DensitySettings(index)=panel{self.density_settings_key(index,code);return false;}
-        if let Panel::StreamSettings(index)=panel{self.stream_settings_key(index,code);return false;}
-        if let Panel::SelectionSettings(index)=panel{self.selection_settings_key(index,code);return false;}
-        if let Panel::SourcePreferencesImport(index)|Panel::SourcePreferencesReview(index)=panel{self.source_preferences_key(index,code);return false;}
-        if let Panel::GeneralOptions(index)=panel{self.general_options_key(index,code);return false;}
-        if let Panel::OptionsSettings(index)=panel{self.display_options_key(index,code);return false;}
-        if let Panel::DarkSettings(index)=panel{self.dark_settings_key(index,code);return false;}
-        if let Panel::ReceptorSettings(index)=panel{self.receptor_settings_key(index,code);return false;}
-        if let Panel::MinimapOptions(index) = panel { self.minimap_options_key(index, code); return false; }
-        if let Panel::MinimapSettings(index) = panel { self.minimap_settings_key(index, code); return false; }
-        if let Panel::ScrollValues(index)=panel{self.scroll_values_key(index,code);return false;}
-        if let Panel::ScrollSettings(index) = panel { self.scroll_settings_key(index, code); return false; }
-        if let Panel::ZoomSettings(index) = panel { self.zoom_settings_key(index, code); return false; }
+        if let Panel::NoteColorSettings(index) = panel {
+            self.note_color_settings_key(index, code);
+            return false;
+        }
+        if let Panel::ScrollModifierSettings(index) = panel {
+            self.scroll_modifier_key(index, code);
+            return false;
+        }
+        if let Panel::KeyBindingSettings(index) = panel {
+            self.key_binding_settings_key(index, code);
+            return false;
+        }
+        if let Panel::DensitySettings(index) = panel {
+            self.density_settings_key(index, code);
+            return false;
+        }
+        if let Panel::StreamSettings(index) = panel {
+            self.stream_settings_key(index, code);
+            return false;
+        }
+        if let Panel::SelectionSettings(index) = panel {
+            self.selection_settings_key(index, code);
+            return false;
+        }
+        if let Panel::SourcePreferencesImport(index) | Panel::SourcePreferencesReview(index) = panel
+        {
+            self.source_preferences_key(index, code);
+            return false;
+        }
+        if let Panel::GeneralOptions(index) = panel {
+            self.general_options_key(index, code);
+            return false;
+        }
+        if let Panel::OptionsSettings(index) = panel {
+            self.display_options_key(index, code);
+            return false;
+        }
+        if let Panel::DarkSettings(index) = panel {
+            self.dark_settings_key(index, code);
+            return false;
+        }
+        if let Panel::ReceptorSettings(index) = panel {
+            self.receptor_settings_key(index, code);
+            return false;
+        }
+        if let Panel::MinimapOptions(index) = panel {
+            self.minimap_options_key(index, code);
+            return false;
+        }
+        if let Panel::MinimapSettings(index) = panel {
+            self.minimap_settings_key(index, code);
+            return false;
+        }
+        if let Panel::ScrollValues(index) = panel {
+            self.scroll_values_key(index, code);
+            return false;
+        }
+        if let Panel::ScrollSettings(index) = panel {
+            self.scroll_settings_key(index, code);
+            return false;
+        }
+        if let Panel::ZoomSettings(index) = panel {
+            self.zoom_settings_key(index, code);
+            return false;
+        }
         if let Panel::AudioSettings(index) = panel {
             self.audio_settings_key(index, code);
             return false;
@@ -2239,8 +3087,8 @@ impl State {
                 KeyCode::PageUp | KeyCode::PageDown | KeyCode::Home | KeyCode::End
             )
         {
-            if let Err(error)=self.navigate_generation_preview(code){
-                self.status=i18n::editor_error(&error).into();
+            if let Err(error) = self.navigate_generation_preview(code) {
+                self.status = i18n::editor_error(&error).into();
                 return false;
             }
             self.status = i18n::tr(
@@ -2254,17 +3102,24 @@ impl State {
             return false;
         }
         if code == KeyCode::Escape {
-            let discarded_preview=matches!(panel,Panel::GenerationPreview(_));
-            if matches!(panel,Panel::GenerationPreview(_)) && !self.marker_generation.active() {
-                self.status=i18n::tr("Edition","GenerationDiscarded");
+            let discarded_preview = matches!(panel, Panel::GenerationPreview(_));
+            if matches!(panel, Panel::GenerationPreview(_)) && !self.marker_generation.active() {
+                self.status = i18n::tr("Edition", "GenerationDiscarded");
                 self.pattern_action_preview_discarded();
             }
-            if matches!(panel,Panel::GenerationPreview(_)) && self.marker_generation.active() {
-                self.preview=None;self.panel=None;self.finish_marker_generation(false);
-                self.status=i18n::tr("Edition","GenerationDiscarded");return false;
+            if matches!(panel, Panel::GenerationPreview(_)) && self.marker_generation.active() {
+                self.preview = None;
+                self.panel = None;
+                self.finish_marker_generation(false);
+                self.status = i18n::tr("Edition", "GenerationDiscarded");
+                return false;
             }
-            if matches!(panel,Panel::Generation(_)){self.close_generation_source();}
-            if matches!(panel,Panel::ChartExpression(_))&&self.cancel_autogen_expression(){return false;}
+            if matches!(panel, Panel::Generation(_)) {
+                self.close_generation_source();
+            }
+            if matches!(panel, Panel::ChartExpression(_)) && self.cancel_autogen_expression() {
+                return false;
+            }
             if matches!(
                 panel,
                 Panel::Profiles(_) | Panel::ChartExpression(_) | Panel::ConversionProfiles(_)
@@ -2293,7 +3148,9 @@ impl State {
             self.marker = None;
             self.preview = None;
             self.panel = None;
-            if discarded_preview{self.refresh();}
+            if discarded_preview {
+                self.refresh();
+            }
             return false;
         }
         match panel {
@@ -2306,8 +3163,21 @@ impl State {
             Panel::EventSelection => unreachable!("event selection dispatched above"),
             Panel::ChartList => unreachable!("chart list dispatched above"),
             Panel::ChartEventCopy => unreachable!("chart event copy dispatched above"),
-            Panel::Ftue(_)|Panel::Performance(_)|Panel::Log|Panel::WindowLayout(_)|Panel::Hotbar(_)|Panel::EditorHelp(_)|Panel::EditorAbout(_)=>unreachable!("log/help dispatched above"),
-            Panel::UpdateNotice(_)|Panel::ExternalFile(_)|Panel::FileMenu(_)|Panel::FileOpen(_)|Panel::FileRecent(_)|Panel::FileUnsaved(_)|Panel::FileDiscard|Panel::FileLoading=>unreachable!("File panels dispatched above"),
+            Panel::Ftue(_)
+            | Panel::Performance(_)
+            | Panel::Log
+            | Panel::WindowLayout(_)
+            | Panel::Hotbar(_)
+            | Panel::EditorHelp(_)
+            | Panel::EditorAbout(_) => unreachable!("log/help dispatched above"),
+            Panel::UpdateNotice(_)
+            | Panel::ExternalFile(_)
+            | Panel::FileMenu(_)
+            | Panel::FileOpen(_)
+            | Panel::FileRecent(_)
+            | Panel::FileUnsaved(_)
+            | Panel::FileDiscard
+            | Panel::FileLoading => unreachable!("File panels dispatched above"),
             Panel::PackProperties => unreachable!("pack properties dispatched above"),
             Panel::PackSongList => unreachable!("pack song list dispatched above"),
             Panel::NoteAttributes(_) => unreachable!("note inspector dispatched above"),
@@ -2331,11 +3201,18 @@ impl State {
             Panel::DeleteChart(index) => self.deletion_key(index, code),
             Panel::EmptyMenu(index) => return self.empty_menu_key(index, code),
             Panel::ConversionProfiles(index) => {
-                if code==KeyCode::KeyN&&!self.control&&index<2{self.create_inline_profile([ProfileKind::Performed,ProfileKind::Expressed][index],
-                    );return false;}
+                if code == KeyCode::KeyN && !self.control && index < 2 {
+                    self.create_inline_profile(
+                        [ProfileKind::Performed, ProfileKind::Expressed][index],
+                    );
+                    return false;
+                }
                 if code == KeyCode::KeyE && !self.control && index < 2 {
-                    self.open_profile_edit([ProfileKind::Performed, ProfileKind::Expressed][index], Panel::ConversionProfiles(index),
-                    ); return false;
+                    self.open_profile_edit(
+                        [ProfileKind::Performed, ProfileKind::Expressed][index],
+                        Panel::ConversionProfiles(index),
+                    );
+                    return false;
                 }
                 if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
                     self.panel = Some(Panel::ConversionProfiles(
@@ -2371,7 +3248,9 @@ impl State {
                 } else if code == KeyCode::Enter {
                     match index {
                         2 => self.stage_conversion_profiles(),
-                        4..=5 => self.open_profile_edit([ProfileKind::Performed, ProfileKind::Expressed][index-4], Panel::ConversionProfiles(index-4),
+                        4..=5 => self.open_profile_edit(
+                            [ProfileKind::Performed, ProfileKind::Expressed][index - 4],
+                            Panel::ConversionProfiles(index - 4),
                         ),
                         3 => {
                             self.profile_selection = None;
@@ -2388,18 +3267,23 @@ impl State {
             Panel::WaveformSettings(_) => unreachable!("waveform settings dispatched above"),
             Panel::ScrollValues(_) => unreachable!("scroll values dispatched above"),
             Panel::ScrollSettings(_) => unreachable!("scroll settings dispatched above"),
-            Panel::SmAuthoring(_)|Panel::OutputSettings(_)|Panel::OutputLoss(_)|Panel::SaveAsDestination(_)|Panel::SaveAsReview(_)|Panel::SaveAsPending(_)=>unreachable!("Save As dispatched above"),
+            Panel::SmAuthoring(_)
+            | Panel::OutputSettings(_)
+            | Panel::OutputLoss(_)
+            | Panel::SaveAsDestination(_)
+            | Panel::SaveAsReview(_)
+            | Panel::SaveAsPending(_) => unreachable!("Save As dispatched above"),
             Panel::MinimapOptions(_) | Panel::MinimapSettings(_) => {
                 unreachable!("minimap settings dispatched above")
             }
             Panel::DensitySettings(_) => unreachable!("density settings dispatched above"),
             Panel::StreamSettings(_) => unreachable!("stream settings dispatched above"),
             Panel::SelectionSettings(_) => unreachable!("selection settings dispatched above"),
-            Panel::SourcePreferencesImport(_)|Panel::SourcePreferencesReview(_)=> {
+            Panel::SourcePreferencesImport(_) | Panel::SourcePreferencesReview(_) => {
                 unreachable!("Source preferences dispatched above")
             }
-            Panel::GeneralOptions(_)=>unreachable!("General Options dispatched above"),
-            Panel::OptionsSettings(_)=>unreachable!("options dispatched above"),
+            Panel::GeneralOptions(_) => unreachable!("General Options dispatched above"),
+            Panel::OptionsSettings(_) => unreachable!("options dispatched above"),
             Panel::DarkSettings(_) => unreachable!("dark settings dispatched above"),
             Panel::ReceptorSettings(_) => unreachable!("receptor settings dispatched above"),
             Panel::ScrollModifierSettings(_) | Panel::KeyBindingSettings(_) => {
@@ -2410,8 +3294,14 @@ impl State {
             Panel::AudioSettings(_) => unreachable!("audio settings dispatched above"),
             Panel::TimingMigration(index) => self.timing_migration_key(index, code),
             Panel::ChartProperties(index) => {
-                if code==KeyCode::F6 {self.open_chart_details(Some(Panel::ChartProperties(index)));return false;}
-                if code==KeyCode::F5 {self.use_stream_description();return false;}
+                if code == KeyCode::F6 {
+                    self.open_chart_details(Some(Panel::ChartProperties(index)));
+                    return false;
+                }
+                if code == KeyCode::F5 {
+                    self.use_stream_description();
+                    return false;
+                }
                 if index == 8 && self.rating_input(code) {
                     return false;
                 }
@@ -2420,9 +3310,19 @@ impl State {
                     return false;
                 }
                 if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
-                    let count = if self.workspace.can_normalize_stepf2_chart() { 12 } else { 11 };
+                    let count = if self.workspace.can_normalize_stepf2_chart() {
+                        12
+                    } else {
+                        11
+                    };
                     self.panel = Some(Panel::ChartProperties(
-                        (index + if code == KeyCode::ArrowUp { count - 1 } else { 1 }) % count,
+                        (index
+                            + if code == KeyCode::ArrowUp {
+                                count - 1
+                            } else {
+                                1
+                            })
+                            % count,
                     ));
                 } else if matches!(code, KeyCode::ArrowLeft | KeyCode::ArrowRight) {
                     if let Some(draft) = &mut self.chart_properties {
@@ -2440,7 +3340,9 @@ impl State {
                             }
                             1 => draft.set_use_chart_offset(!draft.uses_chart_offset()),
                             2 => {
-                                if !draft.uses_chart_offset() { return false; }
+                                if !draft.uses_chart_offset() {
+                                    return false;
+                                }
                                 let delta = if self.shift { 0.001 } else { 0.0001 }
                                     * if code == KeyCode::ArrowRight {
                                         1.0
@@ -2483,8 +3385,14 @@ impl State {
                 }
             }
             Panel::ChartExpression(index) => {
-                if index==0&&code==KeyCode::KeyN&&!self.control{self.create_inline_profile(ProfileKind::Expressed);return false;}
-                if index == 0 && code == KeyCode::KeyE && !self.control { self.open_profile_edit(ProfileKind::Expressed, Panel::ChartExpression(0)); return false; }
+                if index == 0 && code == KeyCode::KeyN && !self.control {
+                    self.create_inline_profile(ProfileKind::Expressed);
+                    return false;
+                }
+                if index == 0 && code == KeyCode::KeyE && !self.control {
+                    self.open_profile_edit(ProfileKind::Expressed, Panel::ChartExpression(0));
+                    return false;
+                }
                 if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
                     self.panel = Some(Panel::ChartExpression(
                         (index + if code == KeyCode::ArrowUp { 3 } else { 1 }) % 4,
@@ -2516,24 +3424,39 @@ impl State {
                 } else if code == KeyCode::Enter {
                     match index {
                         1 => self.stage_chart_expression(),
-                        3 => self.open_profile_edit(ProfileKind::Expressed, Panel::ChartExpression(0)),
+                        3 => self
+                            .open_profile_edit(ProfileKind::Expressed, Panel::ChartExpression(0)),
                         2 => {
-                            if !self.cancel_autogen_expression(){self.profile_selection = None;self.panel = Some(Panel::ChartProperties(0));}
+                            if !self.cancel_autogen_expression() {
+                                self.profile_selection = None;
+                                self.panel = Some(Panel::ChartProperties(0));
+                            }
                         }
                         _ => {}
                     }
                 }
             }
             Panel::Profiles(index) => {
-                if code==KeyCode::KeyN && !self.control && index<3 {
-                    self.create_inline_profile([ProfileKind::Pattern,ProfileKind::Performed,ProfileKind::Expressed,
+                if code == KeyCode::KeyN && !self.control && index < 3 {
+                    self.create_inline_profile(
+                        [
+                            ProfileKind::Pattern,
+                            ProfileKind::Performed,
+                            ProfileKind::Expressed,
                         ][index],
-                    );return false;
+                    );
+                    return false;
                 }
                 if code == KeyCode::KeyE && !self.control && index < 3 {
-                    self.open_profile_edit([ProfileKind::Pattern, ProfileKind::Performed, ProfileKind::Expressed,
-                        ][index], Panel::Profiles(index),
-                    ); return false;
+                    self.open_profile_edit(
+                        [
+                            ProfileKind::Pattern,
+                            ProfileKind::Performed,
+                            ProfileKind::Expressed,
+                        ][index],
+                        Panel::Profiles(index),
+                    );
+                    return false;
                 }
                 if matches!(code, KeyCode::ArrowUp | KeyCode::ArrowDown) {
                     self.panel = Some(Panel::Profiles(
@@ -2571,14 +3494,27 @@ impl State {
                     }
                 } else if code == KeyCode::Enter {
                     match index {
-                        3 if matches!(self.catalog_target,ProfileTarget::Application) => { self.profile_selection=None; self.panel=Some(self.profile_return_panel()); }
+                        3 if matches!(self.catalog_target, ProfileTarget::Application) => {
+                            self.profile_selection = None;
+                            self.panel = Some(self.profile_return_panel());
+                        }
                         3 => self.stage_marker_profiles(),
-                        5..=7 => self.open_profile_edit([ProfileKind::Pattern, ProfileKind::Performed, ProfileKind::Expressed,
-                            ][index-5], Panel::Profiles(index-5),
+                        5..=7 => self.open_profile_edit(
+                            [
+                                ProfileKind::Pattern,
+                                ProfileKind::Performed,
+                                ProfileKind::Expressed,
+                            ][index - 5],
+                            Panel::Profiles(index - 5),
                         ),
                         4 => {
                             self.profile_selection = None;
-                            self.panel = Some(if matches!(self.catalog_target,ProfileTarget::Application){self.profile_return_panel()}else{Panel::Marker(12)},
+                            self.panel = Some(
+                                if matches!(self.catalog_target, ProfileTarget::Application) {
+                                    self.profile_return_panel()
+                                } else {
+                                    Panel::Marker(12)
+                                },
                             );
                         }
                         _ => {}
@@ -2598,7 +3534,8 @@ impl State {
                 } else if matches!(code, KeyCode::ArrowLeft | KeyCode::ArrowRight) {
                     if let Some(draft) = &mut self.marker {
                         let forward = code == KeyCode::ArrowRight;
-                        let spacing = deadsync_editor::workspace::snap_edit_rows(self.workspace.snap());
+                        let spacing =
+                            deadsync_editor::workspace::snap_edit_rows(self.workspace.snap());
                         let adjust = |value: u64| {
                             if forward {
                                 value.saturating_add(spacing).min(i32::MAX as u64)
@@ -2709,7 +3646,10 @@ impl State {
                 } else if code == KeyCode::Enter {
                     match index {
                         3 => self.start_generation(),
-                        4 => {self.close_generation_source();self.panel=None;}
+                        4 => {
+                            self.close_generation_source();
+                            self.panel = None;
+                        }
                         5 => self.open_conversion_profiles(),
                         6 => self.open_autogen_source_expression(Panel::Generation(6)),
                         _ => {}
@@ -2741,13 +3681,32 @@ impl State {
                         let pattern_set = matches!(preview, GenerationPreview::PatternSet { .. });
                         let no_changes = matches!(preview,GenerationPreview::PatternSet{preview,..} if !preview.has_changes());
                         let batch = matches!(preview, GenerationPreview::Batch { .. });
-                        let note_presentation=if pattern||clearing||pattern_set{
-                            match self.capture_song_property_presentation(){Ok(before)=>Some(before),Err(error)=>{self.status=i18n::editor_error(&error).into();return false;}}
-                        }else{None};
-                        let generated_chart_focus=if matches!(preview,GenerationPreview::Chart(_)|GenerationPreview::Batch{..}){
-                            match self.chart_focus_time(){Ok(time)=>Some((time,self.paused_playback.is_some())),Err(error)=>{self.status=i18n::editor_error(&error).into();return false;}}
-                        }else{None};
-                        let mut note_application=None;
+                        let note_presentation = if pattern || clearing || pattern_set {
+                            match self.capture_song_property_presentation() {
+                                Ok(before) => Some(before),
+                                Err(error) => {
+                                    self.status = i18n::editor_error(&error).into();
+                                    return false;
+                                }
+                            }
+                        } else {
+                            None
+                        };
+                        let generated_chart_focus = if matches!(
+                            preview,
+                            GenerationPreview::Chart(_) | GenerationPreview::Batch { .. }
+                        ) {
+                            match self.chart_focus_time() {
+                                Ok(time) => Some((time, self.paused_playback.is_some())),
+                                Err(error) => {
+                                    self.status = i18n::editor_error(&error).into();
+                                    return false;
+                                }
+                            }
+                        } else {
+                            None
+                        };
+                        let mut note_application = None;
                         let result = match preview {
                             GenerationPreview::Chart(p) => {
                                 self.workspace.apply_generated(p).map(|_| ())
@@ -2756,12 +3715,28 @@ impl State {
                                 self.workspace.apply_batch_generated(preview).map(|_| ())
                             }
                             GenerationPreview::Pattern(p) => {
-                                if note_presentation.is_some(){
-                                    self.workspace.apply_generated_pattern_with_presentation_receipt(p).map(|application|{note_application=Some(application);})
-                                }else{self.workspace.apply_generated_pattern(p).map(|_| ())}
+                                if note_presentation.is_some() {
+                                    self.workspace
+                                        .apply_generated_pattern_with_presentation_receipt(p)
+                                        .map(|application| {
+                                            note_application = Some(application);
+                                        })
+                                } else {
+                                    self.workspace.apply_generated_pattern(p).map(|_| ())
+                                }
                             }
-                            GenerationPreview::Clear(p) => self.workspace.apply_cleared_pattern_with_presentation_receipt(p).map(|application|{note_application=Some(application);}),
-                            GenerationPreview::PatternSet { preview, .. } => self.workspace.apply_pattern_set_with_presentation_receipt(preview).map(|application|{note_application=Some(application);}),
+                            GenerationPreview::Clear(p) => self
+                                .workspace
+                                .apply_cleared_pattern_with_presentation_receipt(p)
+                                .map(|application| {
+                                    note_application = Some(application);
+                                }),
+                            GenerationPreview::PatternSet { preview, .. } => self
+                                .workspace
+                                .apply_pattern_set_with_presentation_receipt(preview)
+                                .map(|application| {
+                                    note_application = Some(application);
+                                }),
                         };
                         match result {
                             Ok(_) => {
@@ -2786,24 +3761,37 @@ impl State {
                                         "GenerationApplied"
                                     },
                                 );
-                                if let (Some(before),Some(application))=(note_presentation,note_application){
-                                    if let Some(receipt)=application.presentation_receipt(){
-                                        if let Err(error)=self.rebind_song_property_presentation(before,receipt){self.status=i18n::editor_error(&error).into();}
+                                if let (Some(before), Some(application)) =
+                                    (note_presentation, note_application)
+                                {
+                                    if let Some(receipt) = application.presentation_receipt() {
+                                        if let Err(error) =
+                                            self.rebind_song_property_presentation(before, receipt)
+                                        {
+                                            self.status = i18n::editor_error(&error).into();
+                                        }
                                     }
                                 }
-                                if let Some((time,paused))=generated_chart_focus{
-                                    let focused=(||->Result<(),deadsync_editor::Error>{
-                                        let chart=self.workspace.chart();
-                                        let position=deadsync_editor::chart_focus::Position::at_time(&self.workspace.file().session,chart,time,
+                                if let Some((time, paused)) = generated_chart_focus {
+                                    let focused = (|| -> Result<(), deadsync_editor::Error> {
+                                        let chart = self.workspace.chart();
+                                        let position =
+                                            deadsync_editor::chart_focus::Position::at_time(
+                                                &self.workspace.file().session,
+                                                chart,
+                                                time,
                                             )?;
-                                        let audio=self.prepare_chart_focus_audio(chart);
-                                        self.workspace.seek_preserving_selection(position.edit_row())?;
+                                        let audio = self.prepare_chart_focus_audio(chart);
+                                        self.workspace
+                                            .seek_preserving_selection(position.edit_row())?;
                                         self.clear_unfocused_chart_selection();
-                                        self.apply_chart_focus_audio(audio,paused,&position);
-                                        self.focus_position=Some(position);
+                                        self.apply_chart_focus_audio(audio, paused, &position);
+                                        self.focus_position = Some(position);
                                         Ok(())
                                     })();
-                                    if let Err(error)=focused{self.status=i18n::editor_error(&error).into();}
+                                    if let Err(error) = focused {
+                                        self.status = i18n::editor_error(&error).into();
+                                    }
                                 }
                                 self.refresh();
                                 // Rebind the inspector after refresh has consumed
@@ -2859,11 +3847,16 @@ impl State {
                         let transform = match index {
                             0 => Transform::Mirror,
                             1 => Transform::Flip,
-                            2 => Transform::ShiftRows(-(deadsync_editor::workspace::snap_shift_rows(self.workspace.snap()) as i64),
+                            2 => Transform::ShiftRows(
+                                -(deadsync_editor::workspace::snap_shift_rows(self.workspace.snap())
+                                    as i64),
                             ),
-                            3 => Transform::ShiftRows(deadsync_editor::workspace::snap_shift_rows(self.workspace.snap(),
+                            3 => Transform::ShiftRows(deadsync_editor::workspace::snap_shift_rows(
+                                self.workspace.snap(),
                             ) as i64),
-                            4..=7 => Transform::ShiftLanes { right: index % 2 == 1, wrap: index >= 6,
+                            4..=7 => Transform::ShiftLanes {
+                                right: index % 2 == 1,
+                                wrap: index >= 6,
                             },
                             8 => Transform::MirrorAndFlip,
                             _ => unreachable!("bounded transform menu"),
@@ -2893,7 +3886,10 @@ impl State {
                             9 => self.open_chart_properties(),
                             10 => self.open_batch(),
                             11 => self.command(Command::SaveRecovery),
-                            12 => { self.help = true; self.help_page = 0; }
+                            12 => {
+                                self.help = true;
+                                self.help_page = 0;
+                            }
                             13 => return self.request_close(),
                             14 => self.open_analysis(),
                             15 => self.command(Command::DuplicateChart),
@@ -2901,7 +3897,7 @@ impl State {
                             17 => self.open_chart_event_copy(),
                             18 => self.open_pack_properties(),
                             19 => self.open_pack_song_list(),
-                    20 => self.open_receptor_settings(),
+                            20 => self.open_receptor_settings(),
                             21 => self.open_note_color_settings(),
                             22 => self.open_save_as(),
                             23 => self.open_key_binding_settings(),
@@ -2910,13 +3906,13 @@ impl State {
                             26 => self.open_density_settings(),
                             27 => self.open_dark_settings(),
                             28 => self.open_stream_settings(),
-                            29=>self.open_display_options(),
-                            30=>self.open_general_options(),
-                            31=>self.open_log(),
-                            32=>self.open_editor_help(),
-                            33=>self.open_performance(),
-                            34=>self.open_profile_manager(),
-                            35=>self.open_assistant(),
+                            29 => self.open_display_options(),
+                            30 => self.open_general_options(),
+                            31 => self.open_log(),
+                            32 => self.open_editor_help(),
+                            33 => self.open_performance(),
+                            34 => self.open_profile_manager(),
+                            35 => self.open_assistant(),
                             _ => {}
                         }
                     }
@@ -2935,9 +3931,17 @@ impl State {
 
     /// Request a background draft without waiting for disk I/O.
     pub fn autosave(&mut self) {
-        if !self.has_song(){return;}
-        if self.save_as_modal() {self.status=i18n::tr("Edition","SaveAsBusy");return;}
-        if let Err(error) = self.auto_recovery.request(self.workspace.file(), std::time::Instant::now()) {
+        if !self.has_song() {
+            return;
+        }
+        if self.save_as_modal() {
+            self.status = i18n::tr("Edition", "SaveAsBusy");
+            return;
+        }
+        if let Err(error) = self
+            .auto_recovery
+            .request(self.workspace.file(), std::time::Instant::now())
+        {
             self.recovery_error(error);
         }
     }
@@ -2946,19 +3950,27 @@ impl State {
         self.status = if matches!(error, deadsync_editor::Error::RecoveryConflict) {
             i18n::tr("Edition", "RecoveryExists")
         } else {
-            i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))],
+            i18n::tr_fmt(
+                "Edition",
+                "Error",
+                &[("message", &crate::i18n::editor_error(&error))],
             )
         };
     }
 
     pub fn actors(&self, actors: &mut Vec<Actor>) {
-        if self.assistant.open { self.assistant_actors(actors); return; }
+        if self.assistant.open {
+            self.assistant_actors(actors);
+            return;
+        }
         self.begin_waveform_frame();
         self.preferences_durability_actors(actors);
         let width = screen_width();
         let height = screen_height();
         self.song_background_actors(actors);
-        self.dark_background_actors(actors,deadsync_editor::dark_preferences::Order::AfterBackground,
+        self.dark_background_actors(
+            actors,
+            deadsync_editor::dark_preferences::Order::AfterBackground,
         );
         text(
             actors,
@@ -2978,7 +3990,17 @@ impl State {
             [0.65, 0.7, 0.8, 1.0],
         );
         self.chart_views_actors(actors);
-        let shortcuts = i18n::tr_fmt("Edition", if self.workspace.has_chart() { "Shortcuts" } else { "NoChartShortcuts" }, &[("close", &self.command_binding_label(deadsync_editor::key_binding_preferences::Action::CloseEditor,
+        let shortcuts = i18n::tr_fmt(
+            "Edition",
+            if self.workspace.has_chart() {
+                "Shortcuts"
+            } else {
+                "NoChartShortcuts"
+            },
+            &[(
+                "close",
+                &self.command_binding_label(
+                    deadsync_editor::key_binding_preferences::Action::CloseEditor,
                 ),
             )],
         );
@@ -2988,13 +4010,17 @@ impl State {
         let status_width = (width - 36.0).max(1.0);
         actors.push(act!(text: font("miso"): settext(self.status.clone()): align(0.0,0.0): xy(18.0,height-50.0): zoom(0.5): wrapwidthpixels(status_width/0.5): maxwidth(status_width): maxheight(42.0): diffuse(0.9,0.9,0.9,1.0): z(8006)));
         if self.help && self.preview.is_none() && self.panel.is_none() {
-            self.dark_background_actors(actors,deadsync_editor::dark_preferences::Order::AfterWaveForm,
+            self.dark_background_actors(
+                actors,
+                deadsync_editor::dark_preferences::Order::AfterWaveForm,
             );
             self.help_actors(actors);
             return;
         }
         if !self.workspace.has_chart() {
-            self.dark_background_actors(actors,deadsync_editor::dark_preferences::Order::AfterWaveForm,
+            self.dark_background_actors(
+                actors,
+                deadsync_editor::dark_preferences::Order::AfterWaveForm,
             );
             self.no_chart_actors(actors);
             return;
@@ -3005,14 +4031,17 @@ impl State {
             .as_ref()
             .map(GenerationPreview::grid)
             .unwrap_or_else(|| self.workspace.grid());
-        let preview_data=self.preview_source_chart().and_then(|source| {
-            self.view_inputs.get(&self.workspace.file().session,source).ok()
+        let preview_data = self.preview_source_chart().and_then(|source| {
+            self.view_inputs
+                .get(&self.workspace.file().session, source)
+                .ok()
         });
-        let display_signatures=preview_data.map_or(self.signatures.as_ref(),|data|data.signatures.as_ref());
-        let display_labels=preview_data.map_or(self.labels.as_ref(),|data|data.labels.as_ref());
-        let display_regions=preview_data.map_or(&self.region_index,|data|&data.regions);
+        let display_signatures =
+            preview_data.map_or(self.signatures.as_ref(), |data| data.signatures.as_ref());
+        let display_labels = preview_data.map_or(self.labels.as_ref(), |data| data.labels.as_ref());
+        let display_regions = preview_data.map_or(&self.region_index, |data| &data.regions);
         let side_panel = self.pattern_set_side_panel();
-        let field_center=self.receptor_canvas_position().0;
+        let field_center = self.receptor_canvas_position().0;
         let available_width = if side_panel {
             width - 570.0
         } else {
@@ -3029,19 +4058,27 @@ impl State {
             Err(error) => {
                 text(
                     actors,
-                    &i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))],
+                    &i18n::tr_fmt(
+                        "Edition",
+                        "Error",
+                        &[("message", &crate::i18n::editor_error(&error))],
                     ),
                     18.0,
                     top,
                     0.6,
                     [1.0, 0.5, 0.5, 1.0],
                 );
-                if let Some(panel) = self.panel { self.panel_actors(panel, actors); }
+                if let Some(panel) = self.panel {
+                    self.panel_actors(panel, actors);
+                }
                 return;
             }
         };
-        let label_end = display_labels.and_then(|labels| labels.values().last_key_value().map(|(&row, _)| row)).unwrap_or(0);
-        let last_row = grid.last_row()
+        let label_end = display_labels
+            .and_then(|labels| labels.values().last_key_value().map(|(&row, _)| row))
+            .unwrap_or(0);
+        let last_row = grid
+            .last_row()
             .max(self.workspace.row().saturating_add(48 * 16))
             .max(display_regions.last_row())
             .max(label_end)
@@ -3051,32 +4088,48 @@ impl State {
             Err(error) => {
                 text(
                     actors,
-                    &i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))],
+                    &i18n::tr_fmt(
+                        "Edition",
+                        "Error",
+                        &[("message", &crate::i18n::editor_error(&error))],
                     ),
                     18.0,
                     top,
                     0.6,
                     [1.0, 0.5, 0.5, 1.0],
                 );
-                if let Some(panel) = self.panel { self.panel_actors(panel, actors); }
+                if let Some(panel) = self.panel {
+                    self.panel_actors(panel, actors);
+                }
                 return;
             }
         };
         let geometry = view_layout::Geometry {
-            source: self.workspace.chart(), order: 0, focused: true,
-            left, field_width, lane_width,
+            source: self.workspace.chart(),
+            order: 0,
+            focused: true,
+            left,
+            field_width,
+            lane_width,
             clip_left: 0.0,
             clip_right: if side_panel { width - 390.0 } else { width },
         };
-        let viewport = view_render::Viewport { top, bottom, cursor: cursor_y,
+        let viewport = view_render::Viewport {
+            top,
+            bottom,
+            cursor: cursor_y,
         };
-        self.source_density_actors(actors,geometry,viewport);
-        let waveform_started=std::time::Instant::now();
+        self.source_density_actors(actors, geometry, viewport);
+        let waveform_started = std::time::Instant::now();
         self.waveform_all_view_actors(actors, top, bottom, &projection);
-        self.record_performance_stage(deadsync_editor::performance::monitor::Timing::Waveform,waveform_started.elapsed(),
+        self.record_performance_stage(
+            deadsync_editor::performance::monitor::Timing::Waveform,
+            waveform_started.elapsed(),
         );
-        let chart_events_started=std::time::Instant::now();
-        self.dark_background_actors(actors,deadsync_editor::dark_preferences::Order::AfterWaveForm,
+        let chart_events_started = std::time::Instant::now();
+        self.dark_background_actors(
+            actors,
+            deadsync_editor::dark_preferences::Order::AfterWaveForm,
         );
         self.sample_region_actors(actors, field_center, field_width, top, bottom, &projection);
         self.attack_actors(actors, left, top, bottom, &projection, &ranges);
@@ -3088,62 +4141,64 @@ impl State {
             .saturating_add(2)
             .clamp(1, 4096);
         let range_budget = (overview_bins / ranges.len().max(1)).max(1);
-        let render=self.render_policy();
-        let mut marker_count=0usize;
-        let marker_limit=self.selection_marker_budget(self.workspace.chart());
+        let render = self.render_policy();
+        let mut marker_count = 0usize;
+        let marker_limit = self.selection_marker_budget(self.workspace.chart());
         for &(start, end) in ranges.iter().take(overview_bins) {
             let bands = deadsync_editor::projection::RowBands::new(start, end, range_budget)
                 .expect("ordered viewport bounds and bounded overview bins");
             for (a, b) in bands {
                 // Query one representative boundary per pixel band. At detailed
                 // scales each band contains at most two integer rows.
-                if render.markers && marker_count<marker_limit {
-                if let Some(beat_row) = a.div_ceil(48).checked_mul(48).filter(|r| *r <= b) {
-                    let is_measure = display_signatures.is_some_and(|signatures| {
-                        signatures
-                            .measure_position(beat_row)
-                            .is_ok_and(|position| position.row_in_measure == 0)
-                    });
-                    if !is_measure {
-                        if let Some(y) = projection
-                            .y(beat_row)
-                            .filter(|y| *y >= f64::from(top) && *y <= f64::from(bottom))
-                        {
-                            let y = y as f32;
-                            actors.push(act!(quad: xy(field_center,y): zoomto(field_width,1.0): diffuse(0.6,0.7,0.8,0.15): z(8001)));
-                            marker_count+=1;
+                if render.markers && marker_count < marker_limit {
+                    if let Some(beat_row) = a.div_ceil(48).checked_mul(48).filter(|r| *r <= b) {
+                        let is_measure = display_signatures.is_some_and(|signatures| {
+                            signatures
+                                .measure_position(beat_row)
+                                .is_ok_and(|position| position.row_in_measure == 0)
+                        });
+                        if !is_measure {
+                            if let Some(y) = projection
+                                .y(beat_row)
+                                .filter(|y| *y >= f64::from(top) && *y <= f64::from(bottom))
+                            {
+                                let y = y as f32;
+                                actors.push(act!(quad: xy(field_center,y): zoomto(field_width,1.0): diffuse(0.6,0.7,0.8,0.15): z(8001)));
+                                marker_count += 1;
+                            }
                         }
                     }
-                }
-                if let Some(signatures) = display_signatures {
-                    if marker_count>=marker_limit {continue;}
-                    if a <= i32::MAX as u64 {
-                        if let Ok(mut starts) = signatures.measure_starts(a, b.min(i32::MAX as u64))
-                        {
-                            if let Some((measure_row, measure)) = starts.next() {
-                                if let Some(y) = projection
-                                    .y(measure_row)
-                                    .filter(|y| *y >= f64::from(top) && *y <= f64::from(bottom))
-                                {
-                                    let y = y as f32;
-                                    actors.push(act!(quad: xy(field_center,y): zoomto(field_width,1.0): diffuse(0.6,0.7,0.8,0.4): z(8001)));
-                                    marker_count+=1;
-                                    text(
-                                        actors,
-                                        &(measure + 1).to_string(),
-                                        left - 30.0,
-                                        y,
-                                        0.45,
-                                        [0.6, 0.7, 0.8, 1.0],
-                                    );
+                    if let Some(signatures) = display_signatures {
+                        if marker_count >= marker_limit {
+                            continue;
+                        }
+                        if a <= i32::MAX as u64 {
+                            if let Ok(mut starts) =
+                                signatures.measure_starts(a, b.min(i32::MAX as u64))
+                            {
+                                if let Some((measure_row, measure)) = starts.next() {
+                                    if let Some(y) = projection
+                                        .y(measure_row)
+                                        .filter(|y| *y >= f64::from(top) && *y <= f64::from(bottom))
+                                    {
+                                        let y = y as f32;
+                                        actors.push(act!(quad: xy(field_center,y): zoomto(field_width,1.0): diffuse(0.6,0.7,0.8,0.4): z(8001)));
+                                        marker_count += 1;
+                                        text(
+                                            actors,
+                                            &(measure + 1).to_string(),
+                                            left - 30.0,
+                                            y,
+                                            0.45,
+                                            [0.6, 0.7, 0.8, 1.0],
+                                        );
+                                    }
                                 }
                             }
                         }
                     }
                 }
-                }
-
-        }
+            }
         }
 
         let mut shown_regions = std::collections::BTreeSet::new();
@@ -3162,8 +4217,9 @@ impl State {
                     continue;
                 };
                 let (y1, y2) = (y1 as f32, y2 as f32);
-                if render.regions {actors.push(act!(quad: xy(left-9.0,(y1+y2)*0.5): zoomto(4.0,(y2-y1).abs().max(2.0)): diffuse(0.7,0.4,1.0,0.8): z(8002)));}
-
+                if render.regions {
+                    actors.push(act!(quad: xy(left-9.0,(y1+y2)*0.5): zoomto(4.0,(y2-y1).abs().max(2.0)): diffuse(0.7,0.4,1.0,0.8): z(8002)));
+                }
             }
         }
         let selection = match &self.preview {
@@ -3177,7 +4233,11 @@ impl State {
                 })
             }
             _ => {
-                if self.preview.is_none(){self.workspace.selection()}else{None}
+                if self.preview.is_none() {
+                    self.workspace.selection()
+                } else {
+                    None
+                }
             }
         };
         if let Some((a, b)) = selection {
@@ -3189,58 +4249,124 @@ impl State {
                 actors.push(act!(quad: xy(field_center, (y1 + y2) * 0.5): zoomto(field_width, (y2 - y1).abs().max(2.0)): diffuse(0.2, 0.6, 0.9, 0.2): z(8002)));
             }
         }
-        let layout = self.preview.as_ref().map(GenerationPreview::layout).unwrap_or_else(|| {
-            &self.workspace.file().session.document().charts()[self.workspace.chart()].steps_type
-        });
-        let indicator_layout=layout;
-        let players=&self.note_color_preferences().colors.players;
-        if let Some(rgb)=players.get(self.workspace.player() as usize%players.len()) {
-            if let Ok(mut indicator)=player_indicator::actors(indicator_layout,true,geometry.right(),viewport.cursor,geometry.lane_width*self.zoom.size_zoom() as f32/128.0,*rgb,
+        let layout = self
+            .preview
+            .as_ref()
+            .map(GenerationPreview::layout)
+            .unwrap_or_else(|| {
+                &self.workspace.file().session.document().charts()[self.workspace.chart()]
+                    .steps_type
+            });
+        let indicator_layout = layout;
+        let players = &self.note_color_preferences().colors.players;
+        if let Some(rgb) = players.get(self.workspace.player() as usize % players.len()) {
+            if let Ok(mut indicator) = player_indicator::actors(
+                indicator_layout,
+                true,
+                geometry.right(),
+                viewport.cursor,
+                geometry.lane_width * self.zoom.size_zoom() as f32 / 128.0,
+                *rgb,
             ) {
                 for actor in &mut indicator {
-                    let _=hold_render::clip_world_sprite(actor,[geometry.clip_left,viewport.top,geometry.clip_right,viewport.bottom,
+                    let _ = hold_render::clip_world_sprite(
+                        actor,
+                        [
+                            geometry.clip_left,
+                            viewport.top,
+                            geometry.clip_right,
+                            viewport.bottom,
                         ],
                     );
                 }
-                actors.extend(indicator.into_iter().filter(|a|matches!(a,Actor::Sprite{visible:true,..})),
+                actors.extend(
+                    indicator
+                        .into_iter()
+                        .filter(|a| matches!(a, Actor::Sprite { visible: true, .. })),
                 );
             }
         }
         let policy = self.receptor_policy(geometry.source);
         let padding = lane_width * self.zoom.size_zoom() as f32;
-        let note_ranges = projection.visible_ranges(top-padding,bottom+padding,last_row).unwrap_or_else(|_|ranges.clone());
-        let source_plan=self.source_viewport_plan(geometry,viewport);
-        if let Ok(plan)=&source_plan{self.misc_event_actors_from_plan(actors,geometry,viewport,plan);}else if let Err(error)=&source_plan{text(actors,&i18n::tr_fmt("Edition","Error",&[("message",&crate::i18n::editor_error(error))],
-                ),geometry.left,viewport.bottom-48.0,0.35,[1.0,0.5,0.3,1.0],
-            );}
+        let note_ranges = projection
+            .visible_ranges(top - padding, bottom + padding, last_row)
+            .unwrap_or_else(|_| ranges.clone());
+        let source_plan = self.source_viewport_plan(geometry, viewport);
+        if let Ok(plan) = &source_plan {
+            self.misc_event_actors_from_plan(actors, geometry, viewport, plan);
+        } else if let Err(error) = &source_plan {
+            text(
+                actors,
+                &i18n::tr_fmt(
+                    "Edition",
+                    "Error",
+                    &[("message", &crate::i18n::editor_error(error))],
+                ),
+                geometry.left,
+                viewport.bottom - 48.0,
+                0.35,
+                [1.0, 0.5, 0.3, 1.0],
+            );
+        }
         if render.notes {
-            let mut stats=view_render::NoteRenderStats::default();
-            if let Ok(plan)=&source_plan {
+            let mut stats = view_render::NoteRenderStats::default();
+            if let Ok(plan) = &source_plan {
                 // Preserve original admitted identities and their order. An
                 // edited head and a committed head may share one Position.
-                for group in plan.admission.heads().chunk_by(|a,b|a.edited==b.edited){
+                for group in plan.admission.heads().chunk_by(|a, b| a.edited == b.edited) {
                     if group[0].edited {
-                        let drafts=group.iter().filter_map(deadsync_editor::lane_entry::Head::draft).collect::<Vec<_>>();
-                        stats.partial|=self.lane_entry_actors(actors,&projection,geometry,viewport,&drafts,
+                        let drafts = group
+                            .iter()
+                            .filter_map(deadsync_editor::lane_entry::Head::draft)
+                            .collect::<Vec<_>>();
+                        stats.partial |= self.lane_entry_actors(
+                            actors,
+                            &projection,
+                            geometry,
+                            viewport,
+                            &drafts,
                         );
-                    }else{
-                        let positions=group.iter().map(|h|h.position).collect::<Vec<_>>();
-                        let part=view_render::notes(actors,grid,layout,&projection,geometry,viewport,&note_ranges,self.zoom.size_zoom()as f32,positions.len(),policy.as_ref(),self.reverse_display,selection,Some((&self.hold_colors,display_signatures)),None,Some(&positions),self.selected_note_positions_for_render(geometry.source).as_ref(),
+                    } else {
+                        let positions = group.iter().map(|h| h.position).collect::<Vec<_>>();
+                        let part = view_render::notes(
+                            actors,
+                            grid,
+                            layout,
+                            &projection,
+                            geometry,
+                            viewport,
+                            &note_ranges,
+                            self.zoom.size_zoom() as f32,
+                            positions.len(),
+                            policy.as_ref(),
+                            self.reverse_display,
+                            selection,
+                            Some((&self.hold_colors, display_signatures)),
+                            None,
+                            Some(&positions),
+                            self.selected_note_positions_for_render(geometry.source)
+                                .as_ref(),
                         );
-                        stats.partial|=part.partial;stats.candidates+=part.candidates;stats.tree_queries+=part.tree_queries;
+                        stats.partial |= part.partial;
+                        stats.candidates += part.candidates;
+                        stats.tree_queries += part.tree_queries;
                     }
                 }
-                stats.partial|=plan.admission.stopped_by_quota;
+                stats.partial |= plan.admission.stopped_by_quota;
             }
-            view_render::partial_notice(actors,geometry,viewport,stats);
+            view_render::partial_notice(actors, geometry, viewport, stats);
         }
         view_render::cursor(actors, geometry, viewport);
-        self.region_selection_overlay(actors,geometry,viewport,source_plan.as_ref().ok());
-        self.record_performance_stage(deadsync_editor::performance::monitor::Timing::ChartEvents,chart_events_started.elapsed(),
+        self.region_selection_overlay(actors, geometry, viewport, source_plan.as_ref().ok());
+        self.record_performance_stage(
+            deadsync_editor::performance::monitor::Timing::ChartEvents,
+            chart_events_started.elapsed(),
         );
-        let minimap_started=std::time::Instant::now();
+        let minimap_started = std::time::Instant::now();
         self.minimap_actors(actors);
-        self.record_performance_stage(deadsync_editor::performance::monitor::Timing::MiniMap,minimap_started.elapsed(),
+        self.record_performance_stage(
+            deadsync_editor::performance::monitor::Timing::MiniMap,
+            minimap_started.elapsed(),
         );
         if let Some(panel) = self.panel {
             self.panel_actors(panel, actors);
@@ -3249,96 +4375,278 @@ impl State {
 
     /// The overlay owns generated notes, but its timing comes from the chart
     /// actually used by that worker, not the focused destination placeholder.
-    pub(super) fn preview_source_chart(&self)->Option<usize>{
-        self.preview.as_ref().map(|preview|match preview{
-            GenerationPreview::Chart(p)=>p.source_chart(),
-            GenerationPreview::Batch{preview,entry}=>preview.entries()[*entry].source_chart,
-            _=>self.workspace.chart(),
+    pub(super) fn preview_source_chart(&self) -> Option<usize> {
+        self.preview.as_ref().map(|preview| match preview {
+            GenerationPreview::Chart(p) => p.source_chart(),
+            GenerationPreview::Batch { preview, entry } => preview.entries()[*entry].source_chart,
+            _ => self.workspace.chart(),
         })
     }
-    pub(super) fn preview_position(&self,
-    )->Result<Option<deadsync_editor::chart_focus::Position>,deadsync_editor::Error>{
-        let Some(source)=self.preview_source_chart()else{return Ok(None);
+    pub(super) fn preview_position(
+        &self,
+    ) -> Result<Option<deadsync_editor::chart_focus::Position>, deadsync_editor::Error> {
+        let Some(source) = self.preview_source_chart() else {
+            return Ok(None);
         };
-        let session=&self.workspace.file().session;
-        if let Some(position)=self.receptor_views.preview_navigation().filter(|position|position.is_bound_to(session,source)){
-            let time=self.chart_focus_time()?;
-            return if time.to_bits()==position.music_time().to_bits(){Ok(Some(position.clone()))}else{deadsync_editor::chart_focus::Position::at_time(session,source,time).map(Some)};
+        let session = &self.workspace.file().session;
+        if let Some(position) = self
+            .receptor_views
+            .preview_navigation()
+            .filter(|position| position.is_bound_to(session, source))
+        {
+            let time = self.chart_focus_time()?;
+            return if time.to_bits() == position.music_time().to_bits() {
+                Ok(Some(position.clone()))
+            } else {
+                deadsync_editor::chart_focus::Position::at_time(session, source, time).map(Some)
+            };
         }
-        if self.chart_transport_is_playing(){
-            let time=self.chart_focus_time()?;
-            return deadsync_editor::chart_focus::Position::at_time(session,source,time).map(Some);
+        if self.chart_transport_is_playing() {
+            let time = self.chart_focus_time()?;
+            return deadsync_editor::chart_focus::Position::at_time(session, source, time)
+                .map(Some);
         }
-        let row=self.capture_song_property_presentation()?.row();
-        deadsync_editor::chart_focus::Position::at_fractional_row(session,source,row).map(Some)
+        let row = self.capture_song_property_presentation()?.row();
+        deadsync_editor::chart_focus::Position::at_fractional_row(session, source, row).map(Some)
     }
-    fn row_projection(&self, top: f32, bottom: f32, cursor_y: f32,
+    fn row_projection(
+        &self,
+        top: f32,
+        bottom: f32,
+        cursor_y: f32,
     ) -> deadsync_editor::projection::RowProjection {
         deadsync_editor::projection::RowProjection::new(
-            self.workspace.row(), f64::from(cursor_y), self.zoom.spacing(deadsync_editor::zoom::SpacingMode::ConstantRow)*self.zoom.spacing_zoom(), f64::from(top), f64::from(bottom),
-        ).expect("finite editor viewport with cursor inside bounds")
-            .with_reverse(self.reverse_display)
-            .with_row_offset(self.preview_position().ok().flatten().map(|position|position.row()).or_else(||self.playback_position().map(|(_,row)|row)).map_or(0.0,|row|row-self.workspace.row()as f64),
+            self.workspace.row(),
+            f64::from(cursor_y),
+            self.zoom
+                .spacing(deadsync_editor::zoom::SpacingMode::ConstantRow)
+                * self.zoom.spacing_zoom(),
+            f64::from(top),
+            f64::from(bottom),
         )
-            .expect("finite mapped playback row")
+        .expect("finite editor viewport with cursor inside bounds")
+        .with_reverse(self.reverse_display)
+        .with_row_offset(
+            self.preview_position()
+                .ok()
+                .flatten()
+                .map(|position| position.row())
+                .or_else(|| self.playback_position().map(|(_, row)| row))
+                .map_or(0.0, |row| row - self.workspace.row() as f64),
+        )
+        .expect("finite mapped playback row")
     }
 
     fn panel_actors_unscaled(&self, panel: Panel, actors: &mut Vec<Actor>) {
-        if let Panel::Ftue(index)=panel{self.ftue_actors(actors,index);return;}
-        if let Panel::Performance(index)=panel{self.performance_actors(index,actors);return;}
-        if matches!(panel,Panel::Log){self.log_actors(actors);return;}
-        if let Panel::SmAuthoring(index)=panel{self.sm_authoring_actors(actors,index);return;}
-        if let Panel::WindowLayout(index)=panel{self.window_layout_actors(actors,index);return;}
-        if let Panel::EditorHelp(index)=panel{self.editor_help_actors(actors,index);return;}
-        if let Panel::Hotbar(index)=panel{self.hotbar_actors(actors,index);return;}
-        if let Panel::EditorAbout(view)=panel{self.editor_about_actors(actors,view);return;}
-        if let Panel::UpdateNotice(index)=panel{self.update_notice_actors(index,actors);return;}
-        if let Panel::ExternalFile(index)=panel{self.external_file_actors(index,actors);return;}
-        if let Panel::FileMenu(index)|Panel::FileOpen(index)|Panel::FileRecent(index)|Panel::FileUnsaved(index)=panel{self.file_menu_actors(index,actors);return;}
-        if matches!(panel,Panel::FileDiscard|Panel::FileLoading){self.file_menu_actors(0,actors);return;}
-        if let Panel::OutputSettings(index)|Panel::OutputLoss(index)=panel {self.output_actors(index,actors);return;}
-        if let Panel::SaveAsDestination(index)|Panel::SaveAsReview(index)|Panel::SaveAsPending(index)=panel {self.save_as_actors(index,actors);return;}
-        if matches!(panel, Panel::PackSongList) { self.pack_song_list_actors(actors); return; }
-        if matches!(panel, Panel::PackProperties) { self.pack_properties_actors(actors); return; }
-        if let Panel::NoteColorSettings(index)=panel{self.note_color_settings_actors(index,actors);return;}
-        if let Panel::ScrollModifierSettings(index)=panel{self.scroll_modifier_actors(index,actors);return;}
-        if let Panel::KeyBindingSettings(index)=panel{self.key_binding_settings_actors(index,actors);return;}
-        if let Panel::DensitySettings(index)=panel{self.density_settings_actors(index,actors);return;}
-        if let Panel::AudioSettings(index)=panel{self.audio_settings_actors(index,actors);return;}
-        if let Panel::StreamSettings(index)=panel{self.stream_settings_actors(index,actors);return;}
-        if let Panel::SelectionSettings(index)=panel{self.selection_settings_actors(index,actors);return;}
-        if let Panel::DarkSettings(index)=panel{self.dark_settings_actors(index,actors);return;}
-        if let Panel::ReceptorSettings(index)=panel{self.receptor_settings_actors(index,actors);return;}
-        if let Panel::MinimapOptions(index) = panel { self.minimap_options_actors(index, actors); return; }
-        if let Panel::MinimapSettings(index) = panel { self.minimap_settings_actors(index, actors); return; }
-        if matches!(panel, Panel::ChartEventCopy) { self.chart_event_copy_actors(actors); return; }
-        if matches!(panel, Panel::ChartList) { self.chart_list_actors(actors); return; }
-        if matches!(panel, Panel::EventSelection) { self.event_selection_actors(actors); return; }
+        if let Panel::Ftue(index) = panel {
+            self.ftue_actors(actors, index);
+            return;
+        }
+        if let Panel::Performance(index) = panel {
+            self.performance_actors(index, actors);
+            return;
+        }
+        if matches!(panel, Panel::Log) {
+            self.log_actors(actors);
+            return;
+        }
+        if let Panel::SmAuthoring(index) = panel {
+            self.sm_authoring_actors(actors, index);
+            return;
+        }
+        if let Panel::WindowLayout(index) = panel {
+            self.window_layout_actors(actors, index);
+            return;
+        }
+        if let Panel::EditorHelp(index) = panel {
+            self.editor_help_actors(actors, index);
+            return;
+        }
+        if let Panel::Hotbar(index) = panel {
+            self.hotbar_actors(actors, index);
+            return;
+        }
+        if let Panel::EditorAbout(view) = panel {
+            self.editor_about_actors(actors, view);
+            return;
+        }
+        if let Panel::UpdateNotice(index) = panel {
+            self.update_notice_actors(index, actors);
+            return;
+        }
+        if let Panel::ExternalFile(index) = panel {
+            self.external_file_actors(index, actors);
+            return;
+        }
+        if let Panel::FileMenu(index)
+        | Panel::FileOpen(index)
+        | Panel::FileRecent(index)
+        | Panel::FileUnsaved(index) = panel
+        {
+            self.file_menu_actors(index, actors);
+            return;
+        }
+        if matches!(panel, Panel::FileDiscard | Panel::FileLoading) {
+            self.file_menu_actors(0, actors);
+            return;
+        }
+        if let Panel::OutputSettings(index) | Panel::OutputLoss(index) = panel {
+            self.output_actors(index, actors);
+            return;
+        }
+        if let Panel::SaveAsDestination(index)
+        | Panel::SaveAsReview(index)
+        | Panel::SaveAsPending(index) = panel
+        {
+            self.save_as_actors(index, actors);
+            return;
+        }
+        if matches!(panel, Panel::PackSongList) {
+            self.pack_song_list_actors(actors);
+            return;
+        }
+        if matches!(panel, Panel::PackProperties) {
+            self.pack_properties_actors(actors);
+            return;
+        }
+        if let Panel::NoteColorSettings(index) = panel {
+            self.note_color_settings_actors(index, actors);
+            return;
+        }
+        if let Panel::ScrollModifierSettings(index) = panel {
+            self.scroll_modifier_actors(index, actors);
+            return;
+        }
+        if let Panel::KeyBindingSettings(index) = panel {
+            self.key_binding_settings_actors(index, actors);
+            return;
+        }
+        if let Panel::DensitySettings(index) = panel {
+            self.density_settings_actors(index, actors);
+            return;
+        }
+        if let Panel::AudioSettings(index) = panel {
+            self.audio_settings_actors(index, actors);
+            return;
+        }
+        if let Panel::StreamSettings(index) = panel {
+            self.stream_settings_actors(index, actors);
+            return;
+        }
+        if let Panel::SelectionSettings(index) = panel {
+            self.selection_settings_actors(index, actors);
+            return;
+        }
+        if let Panel::DarkSettings(index) = panel {
+            self.dark_settings_actors(index, actors);
+            return;
+        }
+        if let Panel::ReceptorSettings(index) = panel {
+            self.receptor_settings_actors(index, actors);
+            return;
+        }
+        if let Panel::MinimapOptions(index) = panel {
+            self.minimap_options_actors(index, actors);
+            return;
+        }
+        if let Panel::MinimapSettings(index) = panel {
+            self.minimap_settings_actors(index, actors);
+            return;
+        }
+        if matches!(panel, Panel::ChartEventCopy) {
+            self.chart_event_copy_actors(actors);
+            return;
+        }
+        if matches!(panel, Panel::ChartList) {
+            self.chart_list_actors(actors);
+            return;
+        }
+        if matches!(panel, Panel::EventSelection) {
+            self.event_selection_actors(actors);
+            return;
+        }
         if matches!(panel, Panel::Analysis) {
             self.analysis_actors(actors);
             return;
         }
-        let profile_keys: Vec<&str> = self.profile_edit.as_ref().map(|draft| {
-            let mut keys = vec!["ProfileEditField"; draft.editor.fields().len()];
-            keys.extend(["ExpressionEditSaveCopy", "ExpressionEditCancel", "ProfileEditName", "ProfileEditSaveOriginal", "ProfileEditDescription",
+        let profile_keys: Vec<&str> = self
+            .profile_edit
+            .as_ref()
+            .map(|draft| {
+                let mut keys = vec!["ProfileEditField"; draft.editor.fields().len()];
+                keys.extend([
+                    "ExpressionEditSaveCopy",
+                    "ExpressionEditCancel",
+                    "ProfileEditName",
+                    "ProfileEditSaveOriginal",
+                    "ProfileEditDescription",
                 ]);
-            if draft.supports_travel_speed() { keys.extend(["ProfileSpeedOpen", "ProfileWeightsOpen"]); }
-            keys.extend(["ProfileRestoreDefaults", "ProfileUndoSave", "ProfileRedoSave", "ProfileDeleteOpen", "ProfileImportOpen", "ProfileExportOpen",
+                if draft.supports_travel_speed() {
+                    keys.extend(["ProfileSpeedOpen", "ProfileWeightsOpen"]);
+                }
+                keys.extend([
+                    "ProfileRestoreDefaults",
+                    "ProfileUndoSave",
+                    "ProfileRedoSave",
+                    "ProfileDeleteOpen",
+                    "ProfileImportOpen",
+                    "ProfileExportOpen",
                 ]);
-            keys
-        }).unwrap_or_default();
-        let profile_rows=self.profile_edit.as_ref().map(profile_edit::Draft::visible_rows).unwrap_or_default();
-        let profile_keys:Vec<_>=profile_rows.iter().map(|index|profile_keys[*index]).collect();
+                keys
+            })
+            .unwrap_or_default();
+        let profile_rows = self
+            .profile_edit
+            .as_ref()
+            .map(profile_edit::Draft::visible_rows)
+            .unwrap_or_default();
+        let profile_keys: Vec<_> = profile_rows
+            .iter()
+            .map(|index| profile_keys[*index])
+            .collect();
         let keys: &[&str] = match panel {
-            Panel::UpdateNotice(_)|Panel::ExternalFile(_)|Panel::FileMenu(_)|Panel::FileOpen(_)|Panel::FileRecent(_)|Panel::FileUnsaved(_)|Panel::FileDiscard|Panel::FileLoading=>&[],
-            Panel::SmAuthoring(_)|Panel::OutputSettings(_)|Panel::OutputLoss(_)|Panel::SaveAsDestination(_)|Panel::SaveAsReview(_)|Panel::SaveAsPending(_)=>&[],
-            Panel::Analysis | Panel::EventSelection | Panel::ChartList | Panel::ChartEventCopy | Panel::PackProperties | Panel::PackSongList | Panel::MinimapSettings(_) | Panel::MinimapOptions(_) | Panel::DensitySettings(_) | Panel::StreamSettings(_) | Panel::SelectionSettings(_) | Panel::DarkSettings(_) | Panel::ReceptorSettings(_) | Panel::NoteColorSettings(_) | Panel::ScrollModifierSettings(_) | Panel::KeyBindingSettings(_) => &[],
-            Panel::SourcePreferencesImport(_)=> &source_preferences::IMPORT_KEYS,
-            Panel::SourcePreferencesReview(_)=> &source_preferences::REVIEW_KEYS,
-            Panel::GeneralOptions(_)=> &general_options::GENERAL_KEYS,
-            Panel::OptionsSettings(_)=> &options_values::DISPLAY_KEYS,
+            Panel::UpdateNotice(_)
+            | Panel::ExternalFile(_)
+            | Panel::FileMenu(_)
+            | Panel::FileOpen(_)
+            | Panel::FileRecent(_)
+            | Panel::FileUnsaved(_)
+            | Panel::FileDiscard
+            | Panel::FileLoading => &[],
+            Panel::SmAuthoring(_)
+            | Panel::OutputSettings(_)
+            | Panel::OutputLoss(_)
+            | Panel::SaveAsDestination(_)
+            | Panel::SaveAsReview(_)
+            | Panel::SaveAsPending(_) => &[],
+            Panel::Analysis
+            | Panel::EventSelection
+            | Panel::ChartList
+            | Panel::ChartEventCopy
+            | Panel::PackProperties
+            | Panel::PackSongList
+            | Panel::MinimapSettings(_)
+            | Panel::MinimapOptions(_)
+            | Panel::DensitySettings(_)
+            | Panel::StreamSettings(_)
+            | Panel::SelectionSettings(_)
+            | Panel::DarkSettings(_)
+            | Panel::ReceptorSettings(_)
+            | Panel::NoteColorSettings(_)
+            | Panel::ScrollModifierSettings(_)
+            | Panel::KeyBindingSettings(_) => &[],
+            Panel::SourcePreferencesImport(_) => &source_preferences::IMPORT_KEYS,
+            Panel::SourcePreferencesReview(_) => &source_preferences::REVIEW_KEYS,
+            Panel::GeneralOptions(_) => &general_options::GENERAL_KEYS,
+            Panel::OptionsSettings(_) => &options_values::DISPLAY_KEYS,
             Panel::DeleteChart(_) => &["KeepEditing", "DeleteChartConfirm"],
-            Panel::Ftue(_)|Panel::Performance(_)|Panel::Log|Panel::WindowLayout(_)|Panel::Hotbar(_)|Panel::EditorHelp(_)|Panel::EditorAbout(_)=>unreachable!("log/help actors dispatched above"),
+            Panel::Ftue(_)
+            | Panel::Performance(_)
+            | Panel::Log
+            | Panel::WindowLayout(_)
+            | Panel::Hotbar(_)
+            | Panel::EditorHelp(_)
+            | Panel::EditorAbout(_) => unreachable!("log/help actors dispatched above"),
             Panel::EmptyMenu(_) => EMPTY_MENU_KEYS,
             Panel::NewChart(_) => &["NewChartLayout", "NewChartApply", "KeepEditing"],
             Panel::Menu(_) => &[
@@ -3379,7 +4687,19 @@ impl State {
                 "ProfileManagerOpen",
                 "AssistantTitle",
             ],
-            Panel::Transforms(_) => &["Mirror", "Flip", "ShiftEarlier", "ShiftLater", "ShiftLanesLeft", "ShiftLanesRight", "WrapLanesLeft", "WrapLanesRight", "MirrorAndFlip", "NoteConversionOpen", "NoteOwnersOpen", "NoteAttributesOpen",
+            Panel::Transforms(_) => &[
+                "Mirror",
+                "Flip",
+                "ShiftEarlier",
+                "ShiftLater",
+                "ShiftLanesLeft",
+                "ShiftLanesRight",
+                "WrapLanesLeft",
+                "WrapLanesRight",
+                "MirrorAndFlip",
+                "NoteConversionOpen",
+                "NoteOwnersOpen",
+                "NoteAttributesOpen",
             ],
             Panel::Unsaved(_) => &["KeepEditing", "SaveAndClose", "Discard"],
             Panel::ConfirmDiscard => &["ConfirmDiscard"],
@@ -3442,54 +4762,200 @@ impl State {
                 "MarkerNewSeed",
                 "MarkerNewSeedGenerate",
             ],
-            Panel::NoteOwners(_) => &["NoteOwnersMode", "NoteOwnersA", "NoteOwnersB", "NoteOwnersCount", "NoteOwnersApply", "KeepEditing",
+            Panel::NoteOwners(_) => &[
+                "NoteOwnersMode",
+                "NoteOwnersA",
+                "NoteOwnersB",
+                "NoteOwnersCount",
+                "NoteOwnersApply",
+                "KeepEditing",
             ],
-            Panel::Attacks(_) => &["AttackScope", "AttackEvent", "AttackModifier", "AttackTime", "AttackName", "AttackLevel", "AttackSpeed", "AttackLength", "AttackAddModifier", "AttackDeleteModifier", "AttackAddEvent", "AttackDeleteEvent", "AttacksApply", "AttacksCancel",
+            Panel::Attacks(_) => &[
+                "AttackScope",
+                "AttackEvent",
+                "AttackModifier",
+                "AttackTime",
+                "AttackName",
+                "AttackLevel",
+                "AttackSpeed",
+                "AttackLength",
+                "AttackAddModifier",
+                "AttackDeleteModifier",
+                "AttackAddEvent",
+                "AttackDeleteEvent",
+                "AttacksApply",
+                "AttacksCancel",
             ],
-            Panel::NoteAttributes(_) if self.note_attribute_typed => &["NoteAttributesLane", "NoteAttributesEndpoint", "NoteAttributesVisibility", "NoteAttributesFake", "NoteAttributesReserved", "NoteAttributesRaw", "NoteAttributesApply", "NoteAttributesCancel",
+            Panel::NoteAttributes(_) if self.note_attribute_typed => &[
+                "NoteAttributesLane",
+                "NoteAttributesEndpoint",
+                "NoteAttributesVisibility",
+                "NoteAttributesFake",
+                "NoteAttributesReserved",
+                "NoteAttributesRaw",
+                "NoteAttributesApply",
+                "NoteAttributesCancel",
             ],
-            Panel::NoteAttributes(_) => &["NoteAttributesLane", "NoteAttributesHead", "NoteAttributesTail", "NoteAttributesApply", "NoteAttributesCancel",
+            Panel::NoteAttributes(_) => &[
+                "NoteAttributesLane",
+                "NoteAttributesHead",
+                "NoteAttributesTail",
+                "NoteAttributesApply",
+                "NoteAttributesCancel",
             ],
-            Panel::SelectionPresets(_) => &["SelectionPresetsType", "SelectionPresetsPlayer", "SelectionPresetsMode", "SelectionPresetsApply", "KeepEditing",
+            Panel::SelectionPresets(_) => &[
+                "SelectionPresetsType",
+                "SelectionPresetsPlayer",
+                "SelectionPresetsMode",
+                "SelectionPresetsApply",
+                "KeepEditing",
             ],
-            Panel::TimingConversion(_) => &["TimingConversionDirection", "TimingConversionScope", "TimingConversionReview", "TimingConversionCollision", "TimingConversionApply", "KeepEditing",
+            Panel::TimingConversion(_) => &[
+                "TimingConversionDirection",
+                "TimingConversionScope",
+                "TimingConversionReview",
+                "TimingConversionCollision",
+                "TimingConversionApply",
+                "KeepEditing",
             ],
-            Panel::SelectedTransformReview(_) => &["SelectedTransformOperation", "NoteOperationScope", "SelectedTransformPlayerA", "SelectedTransformPlayerB", "SelectedTransformPrepare", "SelectedTransformEffect", "SelectedTransformApply", "KeepEditing",
+            Panel::SelectedTransformReview(_) => &[
+                "SelectedTransformOperation",
+                "NoteOperationScope",
+                "SelectedTransformPlayerA",
+                "SelectedTransformPlayerB",
+                "SelectedTransformPrepare",
+                "SelectedTransformEffect",
+                "SelectedTransformApply",
+                "KeepEditing",
             ],
-            Panel::PatternActions(_) => &["PatternActionsKind","PatternActionsScope","PatternActionsPrepare","PatternActionsSeedHistory","PatternActionsStart","KeepEditing",
+            Panel::PatternActions(_) => &[
+                "PatternActionsKind",
+                "PatternActionsScope",
+                "PatternActionsPrepare",
+                "PatternActionsSeedHistory",
+                "PatternActionsStart",
+                "KeepEditing",
             ],
-            Panel::QuickAdd(_) => &["QuickAddKind","QuickAddRow","QuickAddPrepare","QuickAddApply","KeepEditing",
+            Panel::QuickAdd(_) => &[
+                "QuickAddKind",
+                "QuickAddRow",
+                "QuickAddPrepare",
+                "QuickAddApply",
+                "KeepEditing",
             ],
-            Panel::ShiftAll(_) => &["ShiftAllDirection","ShiftAllPrepare","ShiftAllApply","KeepEditing",
+            Panel::ShiftAll(_) => &[
+                "ShiftAllDirection",
+                "ShiftAllPrepare",
+                "ShiftAllApply",
+                "KeepEditing",
             ],
-            Panel::NoteOperationReview(_) => &["NoteOperationKind", "NoteOperationScope", "NoteOperationPrepare", "NoteOperationApply", "KeepEditing",
+            Panel::NoteOperationReview(_) => &[
+                "NoteOperationKind",
+                "NoteOperationScope",
+                "NoteOperationPrepare",
+                "NoteOperationApply",
+                "KeepEditing",
             ],
-            Panel::NoteConversion(_) => &["NoteConversionFrom", "NoteConversionTo", "NoteConversionDuration", "NoteConversionApply", "KeepEditing", "NoteSwapPair", "NoteSwapApply",
+            Panel::NoteConversion(_) => &[
+                "NoteConversionFrom",
+                "NoteConversionTo",
+                "NoteConversionDuration",
+                "NoteConversionApply",
+                "KeepEditing",
+                "NoteSwapPair",
+                "NoteSwapApply",
             ],
             Panel::ConversionProfiles(_) => &[
                 "GenerationPerformedProfile",
                 "GenerationExpressionProfile",
                 "ConversionProfileUse",
                 "ProfileBack",
-                "ProfileEditPerformed", "ExpressionEditOpen",
+                "ProfileEditPerformed",
+                "ExpressionEditOpen",
             ],
             Panel::TimingMigration(_) => &["LegacyTimingApply", "LegacyTimingCancel"],
-            Panel::WaveformColors(_) => &["WaveformColorMode","WaveformColorDarken","WaveformDenseRed","WaveformDenseGreen","WaveformDenseBlue","WaveformDenseAlpha","WaveformSparseRed","WaveformSparseGreen","WaveformSparseBlue","WaveformSparseAlpha","WaveformBackgroundRed","WaveformBackgroundGreen","WaveformBackgroundBlue","WaveformBackgroundAlpha","WaveformColorsBack",
+            Panel::WaveformColors(_) => &[
+                "WaveformColorMode",
+                "WaveformColorDarken",
+                "WaveformDenseRed",
+                "WaveformDenseGreen",
+                "WaveformDenseBlue",
+                "WaveformDenseAlpha",
+                "WaveformSparseRed",
+                "WaveformSparseGreen",
+                "WaveformSparseBlue",
+                "WaveformSparseAlpha",
+                "WaveformBackgroundRed",
+                "WaveformBackgroundGreen",
+                "WaveformBackgroundBlue",
+                "WaveformBackgroundAlpha",
+                "WaveformColorsBack",
             ],
-            Panel::WaveformSettings(_) => &["WaveformSettingShow", "WaveformSettingEnabled", "WaveformSettingWidth", "WaveformSettingDense", "WaveformSettingScroll", "WaveformScaleWithZoom", "WaveformSizeToChart", "WaveformDrawLocation", "WaveformLoadingParallelism", "WaveformAntialias", "WaveformSubpix", "WaveformEdgeThreshold", "WaveformEdgeThresholdMin", "WaveformSettingsDefaults", "WaveformSettingsSave", "WaveformSettingsCancel",
+            Panel::WaveformSettings(_) => &[
+                "WaveformSettingShow",
+                "WaveformSettingEnabled",
+                "WaveformSettingWidth",
+                "WaveformSettingDense",
+                "WaveformSettingScroll",
+                "WaveformScaleWithZoom",
+                "WaveformSizeToChart",
+                "WaveformDrawLocation",
+                "WaveformLoadingParallelism",
+                "WaveformAntialias",
+                "WaveformSubpix",
+                "WaveformEdgeThreshold",
+                "WaveformEdgeThresholdMin",
+                "WaveformSettingsDefaults",
+                "WaveformSettingsSave",
+                "WaveformSettingsCancel",
             ],
-            Panel::ScrollValues(_)=> &["ScrollTimeSpeed","ScrollRowSpeed","ScrollVariableSpeed","ScrollReverse",
+            Panel::ScrollValues(_) => &[
+                "ScrollTimeSpeed",
+                "ScrollRowSpeed",
+                "ScrollVariableSpeed",
+                "ScrollReverse",
             ],
-            Panel::ScrollSettings(_) => &["ScrollStopPlayback", "ScrollStopDragging", "ScrollSettingsDefaults", "ScrollSettingsSave", "ScrollSettingsCancel", "ScrollWheelTimeValue", "ScrollWheelRowValue",
+            Panel::ScrollSettings(_) => &[
+                "ScrollStopPlayback",
+                "ScrollStopDragging",
+                "ScrollSettingsDefaults",
+                "ScrollSettingsSave",
+                "ScrollSettingsCancel",
+                "ScrollWheelTimeValue",
+                "ScrollWheelRowValue",
             ],
-            Panel::ZoomSettings(_) => &["ZoomDuration", "ZoomMultiplier", "ZoomSizeCap", "ZoomLimited", "ZoomSettingsDefaults", "ZoomSettingsSave", "ZoomSettingsCancel",
+            Panel::ZoomSettings(_) => &[
+                "ZoomDuration",
+                "ZoomMultiplier",
+                "ZoomSizeCap",
+                "ZoomLimited",
+                "ZoomSettingsDefaults",
+                "ZoomSettingsSave",
+                "ZoomSettingsCancel",
             ],
-            Panel::AudioSettings(_) => &["AudioFadeIn", "AudioFadeOut", "AudioMusicRate", "AudioSettingsDefaults", "AudioSettingsApply", "AudioSettingsCancel",
+            Panel::AudioSettings(_) => &[
+                "AudioFadeIn",
+                "AudioFadeOut",
+                "AudioMusicRate",
+                "AudioSettingsDefaults",
+                "AudioSettingsApply",
+                "AudioSettingsCancel",
             ],
-            Panel::SongSample(_) => &["SongSampleStart", "SongSampleLength", "SongLastSecondHint", "SongSampleBack",
+            Panel::SongSample(_) => &[
+                "SongSampleStart",
+                "SongSampleLength",
+                "SongLastSecondHint",
+                "SongSampleBack",
             ],
             Panel::SongProperties(_) => &[
-                "SongSyncOffset", "SongPropertiesApply", "SongPropertiesCancel", "SongTextOpen", "SongMusicOffset", "SongItgApply", "SongTimingChart", "SongSelectable",
+                "SongSyncOffset",
+                "SongPropertiesApply",
+                "SongPropertiesCancel",
+                "SongTextOpen",
+                "SongMusicOffset",
+                "SongItgApply",
+                "SongTimingChart",
+                "SongSelectable",
             ],
             Panel::Timing(_) => &[
                 "TimingScope",
@@ -3505,28 +4971,76 @@ impl State {
                 "AttacksOpen",
             ],
             Panel::SongText(_) => &[
-                "SongTitle", "SongSubtitle", "SongArtist", "SongCredit", "SongGenre", "SongOrigin",
-                "SongTitleTranslit", "SongSubtitleTranslit", "SongArtistTranslit", "SongMusic", "SongPreviewMusic",
-                "SongBanner", "SongBackground", "SongCdTitle", "SongJacket", "SongCdImage", "SongDiscImage", "SongPreviewVideo", "SongLyrics", "SongTextBack",
+                "SongTitle",
+                "SongSubtitle",
+                "SongArtist",
+                "SongCredit",
+                "SongGenre",
+                "SongOrigin",
+                "SongTitleTranslit",
+                "SongSubtitleTranslit",
+                "SongArtistTranslit",
+                "SongMusic",
+                "SongPreviewMusic",
+                "SongBanner",
+                "SongBackground",
+                "SongCdTitle",
+                "SongJacket",
+                "SongCdImage",
+                "SongDiscImage",
+                "SongPreviewVideo",
+                "SongLyrics",
+                "SongTextBack",
             ],
             Panel::ChartText(_) => &[
-                "ChartName", "ChartDescription", "ChartCredit", "ChartStyle",
-                "ChartMusic", "ChartTextBack",
+                "ChartName",
+                "ChartDescription",
+                "ChartCredit",
+                "ChartStyle",
+                "ChartMusic",
+                "ChartTextBack",
             ],
             Panel::ProfileEdit(_) => &profile_keys,
             Panel::ProfileText => self.profile_text_keys(),
-            Panel::ProfileWeights(_) => &["ProfileWeightsLayout", "ProfileWeightsState", "ProfileWeightsAdd", "ProfileWeightsRemove", "ProfileWeightsReturn",
+            Panel::ProfileWeights(_) => &[
+                "ProfileWeightsLayout",
+                "ProfileWeightsState",
+                "ProfileWeightsAdd",
+                "ProfileWeightsRemove",
+                "ProfileWeightsReturn",
             ],
             Panel::ProfileDelete(_) => &["ProfileDeleteCancel", "ProfileDeleteConfirm"],
             Panel::ProfileDefaults(_) => &["ProfileDefaultsApply", "ProfileDefaultsCancel"],
-            Panel::ProfileSpeed(_) => &["ProfileSpeedSubdivision", "ProfileSpeedMin", "ProfileSpeedMax", "ProfileSpeedMinSeconds", "ProfileSpeedMaxSeconds", "ProfileSpeedStage", "ProfileSpeedCancel",
+            Panel::ProfileSpeed(_) => &[
+                "ProfileSpeedSubdivision",
+                "ProfileSpeedMin",
+                "ProfileSpeedMax",
+                "ProfileSpeedMinSeconds",
+                "ProfileSpeedMaxSeconds",
+                "ProfileSpeedStage",
+                "ProfileSpeedCancel",
             ],
-            Panel::DisplayTempo(_) => &["DisplayTempoMode", "DisplayTempoMin", "DisplayTempoRange", "DisplayTempoMax", "DisplayTempoStage", "DisplayTempoCancel",
+            Panel::DisplayTempo(_) => &[
+                "DisplayTempoMode",
+                "DisplayTempoMin",
+                "DisplayTempoRange",
+                "DisplayTempoMax",
+                "DisplayTempoStage",
+                "DisplayTempoCancel",
             ],
             Panel::ChartProperties(_) if self.workspace.can_normalize_stepf2_chart() => &[
-                "ChartChooseExpression", "ChartUseOffset", "ChartMusicOffset", "ChartEffectiveOffset",
-                "ChartApplyProperties", "KeepEditing", "TimingOpen", "ChartDifficulty", "ChartRating",
-                "ChartTextOpen", "DisplayTempoOpen", "StepF2NormalizeOpen",
+                "ChartChooseExpression",
+                "ChartUseOffset",
+                "ChartMusicOffset",
+                "ChartEffectiveOffset",
+                "ChartApplyProperties",
+                "KeepEditing",
+                "TimingOpen",
+                "ChartDifficulty",
+                "ChartRating",
+                "ChartTextOpen",
+                "DisplayTempoOpen",
+                "StepF2NormalizeOpen",
             ],
             Panel::ChartProperties(_) => &[
                 "ChartChooseExpression",
@@ -3542,12 +5056,31 @@ impl State {
                 "DisplayTempoOpen",
             ],
             Panel::ChartExpression(_) => {
-                if self.autogen_expression_back.is_some(){&["ProfileExpression","AutogenApplySourceExpression","ProfileBack","ExpressionEditOpen",
-                    ]}
-                else {&["ProfileExpression", "ChartStageExpression", "ProfileBack", "ExpressionEditOpen",
-                    ]}
+                if self.autogen_expression_back.is_some() {
+                    &[
+                        "ProfileExpression",
+                        "AutogenApplySourceExpression",
+                        "ProfileBack",
+                        "ExpressionEditOpen",
+                    ]
+                } else {
+                    &[
+                        "ProfileExpression",
+                        "ChartStageExpression",
+                        "ProfileBack",
+                        "ExpressionEditOpen",
+                    ]
+                }
             }
-            Panel::Profiles(_) if matches!(self.catalog_target,ProfileTarget::Application) => &["ProfilePattern","ProfilePerformed","ProfileExpression","KeepEditing","ProfileBack","ProfileEditPattern","ProfileEditPerformed","ExpressionEditOpen",
+            Panel::Profiles(_) if matches!(self.catalog_target, ProfileTarget::Application) => &[
+                "ProfilePattern",
+                "ProfilePerformed",
+                "ProfileExpression",
+                "KeepEditing",
+                "ProfileBack",
+                "ProfileEditPattern",
+                "ProfileEditPerformed",
+                "ExpressionEditOpen",
             ],
             Panel::Profiles(_) => &[
                 "ProfilePattern",
@@ -3555,7 +5088,9 @@ impl State {
                 "ProfileExpression",
                 "ProfileStage",
                 "ProfileBack",
-                "ProfileEditPattern", "ProfileEditPerformed", "ExpressionEditOpen",
+                "ProfileEditPattern",
+                "ProfileEditPerformed",
+                "ExpressionEditOpen",
             ],
             Panel::ConfirmMarkerDelete => &["MarkerConfirmDelete"],
             Panel::Generating => &["GenerationCancel"],
@@ -3565,7 +5100,14 @@ impl State {
             Panel::GenerationPreview(_) => &["GenerationApply", "GenerationDiscard"],
         };
         let selected = match panel {
-            Panel::SmAuthoring(i)|Panel::UpdateNotice(i)|Panel::ExternalFile(i)|Panel::OutputSettings(i)|Panel::OutputLoss(i)|Panel::SaveAsDestination(i)|Panel::SaveAsReview(i)|Panel::SaveAsPending(i)
+            Panel::SmAuthoring(i)
+            | Panel::UpdateNotice(i)
+            | Panel::ExternalFile(i)
+            | Panel::OutputSettings(i)
+            | Panel::OutputLoss(i)
+            | Panel::SaveAsDestination(i)
+            | Panel::SaveAsReview(i)
+            | Panel::SaveAsPending(i)
             | Panel::EmptyMenu(i)
             | Panel::DeleteChart(i)
             | Panel::NewChart(i)
@@ -3631,11 +5173,34 @@ impl State {
             | Panel::GenerationPreview(i) => i,
             _ => 0,
         };
-        let selected=if matches!(panel,Panel::ProfileEdit(_)){profile_rows.iter().position(|row|*row==selected).unwrap_or(0)}else{selected};
-        let menu_start = if matches!(panel, Panel::Menu(_) | Panel::Attacks(_) | Panel::SongText(_) | Panel::WaveformColors(_) | Panel::ProfileEdit(_)) {
+        let selected = if matches!(panel, Panel::ProfileEdit(_)) {
+            profile_rows
+                .iter()
+                .position(|row| *row == selected)
+                .unwrap_or(0)
+        } else {
+            selected
+        };
+        let menu_start = if matches!(
+            panel,
+            Panel::Menu(_)
+                | Panel::Attacks(_)
+                | Panel::SongText(_)
+                | Panel::WaveformColors(_)
+                | Panel::ProfileEdit(_)
+        ) {
             selected / 8 * 8
-        } else { 0 };
-        let visible_keys = if matches!(panel, Panel::Menu(_) | Panel::Attacks(_) | Panel::SongText(_) | Panel::WaveformColors(_) | Panel::ProfileEdit(_)) {
+        } else {
+            0
+        };
+        let visible_keys = if matches!(
+            panel,
+            Panel::Menu(_)
+                | Panel::Attacks(_)
+                | Panel::SongText(_)
+                | Panel::WaveformColors(_)
+                | Panel::ProfileEdit(_)
+        ) {
             keys.len().saturating_sub(menu_start).min(8)
         } else {
             keys.len()
@@ -3669,10 +5234,23 @@ impl State {
         } else {
             0.0
         };
-        let menu_footer = if matches!(panel, Panel::Menu(_) | Panel::Attacks(_) | Panel::SongText(_) | Panel::WaveformColors(_) | Panel::ProfileEdit(_)) {
+        let menu_footer = if matches!(
+            panel,
+            Panel::Menu(_)
+                | Panel::Attacks(_)
+                | Panel::SongText(_)
+                | Panel::WaveformColors(_)
+                | Panel::ProfileEdit(_)
+        ) {
             24.0
-        } else { 0.0 };
-        let row_height = if matches!(panel, Panel::ChartProperties(_)) { 26.0 } else { 32.0 };
+        } else {
+            0.0
+        };
+        let row_height = if matches!(panel, Panel::ChartProperties(_)) {
+            26.0
+        } else {
+            32.0
+        };
         let panel_height = visible_keys as f32 * row_height + 30.0 + extra_height + menu_footer;
         let panel_y = if previewing && !side_panel {
             screen_height() - panel_height * 0.5 - 8.0
@@ -3680,14 +5258,35 @@ impl State {
             screen_height() * 0.5
         };
         actors.push(act!(quad: xy(panel_x, panel_y): setsize(panel_width, panel_height): diffuse(0.08, 0.1, 0.15, 1.0): z(8020)));
-        if matches!(panel, Panel::SongText(_)) { self.image_preview_actors(actors, panel_x, panel_y-panel_height*0.5+43.0, panel_width-24.0,
-            ); }
-        if matches!(panel, Panel::Menu(_) | Panel::Attacks(_) | Panel::SongText(_) | Panel::WaveformColors(_) | Panel::ProfileEdit(_)) {
-            let page = i18n::tr_fmt("Edition",
-                if matches!(panel, Panel::WaveformColors(_)) { "WaveformColorsPage" } else if matches!(panel, Panel::SongText(_)) { "TextFieldsPage" } else { "MenuPage" }, &[
-                ("page", &(selected / 8 + 1).to_string()),
-                ("pages", &keys.len().div_ceil(8).to_string()),
-            ],
+        if matches!(panel, Panel::SongText(_)) {
+            self.image_preview_actors(
+                actors,
+                panel_x,
+                panel_y - panel_height * 0.5 + 43.0,
+                panel_width - 24.0,
+            );
+        }
+        if matches!(
+            panel,
+            Panel::Menu(_)
+                | Panel::Attacks(_)
+                | Panel::SongText(_)
+                | Panel::WaveformColors(_)
+                | Panel::ProfileEdit(_)
+        ) {
+            let page = i18n::tr_fmt(
+                "Edition",
+                if matches!(panel, Panel::WaveformColors(_)) {
+                    "WaveformColorsPage"
+                } else if matches!(panel, Panel::SongText(_)) {
+                    "TextFieldsPage"
+                } else {
+                    "MenuPage"
+                },
+                &[
+                    ("page", &(selected / 8 + 1).to_string()),
+                    ("pages", &keys.len().div_ceil(8).to_string()),
+                ],
             );
             actors.push(act!(text: font("miso"): settext(page): align(0.5,0.5): xy(panel_x,panel_y+panel_height*0.5-10.0): zoom(0.45): z(8021)));
         }
@@ -3797,14 +5396,17 @@ impl State {
             }
         }
         for (index, key) in keys.iter().enumerate().skip(menu_start).take(visible_keys) {
-            let ui_row_start=actors.len();
+            let ui_row_start = actors.len();
             let color = if index == selected {
                 [1.0, 0.85, 0.25, 1.0]
             } else {
                 [0.8, 0.8, 0.85, 1.0]
             };
-            let label = if let Some(label) = self.preference_numeric_label(index) { label } else if (matches!(panel, Panel::ChartText(_)) && index < 5)
-                || (matches!(panel, Panel::SongText(_)) && index < deadsync_editor::song_text::Field::ALL.len())
+            let label = if let Some(label) = self.preference_numeric_label(index) {
+                label
+            } else if (matches!(panel, Panel::ChartText(_)) && index < 5)
+                || (matches!(panel, Panel::SongText(_))
+                    && index < deadsync_editor::song_text::Field::ALL.len())
             {
                 self.text_field_label(index)
             } else if matches!(panel, Panel::ProfileText) && index == 0 {
@@ -3893,9 +5495,16 @@ impl State {
                     })
                     .unwrap_or_default();
                 let label = i18n::tr_fmt("Edition", key, &[("value", &value)]);
-                if index == 2 && self.chart_properties.as_ref().is_some_and(|draft| !draft.uses_chart_offset()) {
+                if index == 2
+                    && self
+                        .chart_properties
+                        .as_ref()
+                        .is_some_and(|draft| !draft.uses_chart_offset())
+                {
                     i18n::tr_fmt("Edition", "PreferenceReadOnlyMode", &[("value", &label)])
-                } else { label }
+                } else {
+                    label
+                }
             } else if (matches!(panel, Panel::Profiles(_)) && index < 3)
                 || (matches!(panel, Panel::ChartExpression(_)) && index == 0)
             {
@@ -4037,30 +5646,48 @@ impl State {
             } else if matches!(panel, Panel::Timing(_)) {
                 self.timing_label(index, key)
             } else if matches!(panel, Panel::WaveformColors(_)) && index < 14 {
-                self.waveform_colors_label(index,key)
+                self.waveform_colors_label(index, key)
             } else if matches!(panel, Panel::WaveformSettings(_)) && index < 13 {
                 self.waveform_settings_label(index, key)
-            } else if matches!(panel,Panel::ScrollValues(_)){self.scroll_values_label(index)
+            } else if matches!(panel, Panel::ScrollValues(_)) {
+                self.scroll_values_label(index)
             } else if matches!(panel, Panel::ScrollSettings(_)) && (index <= 1 || index >= 5) {
                 self.scroll_settings_label(key)
-            } else if matches!(panel,Panel::SourcePreferencesImport(_)|Panel::SourcePreferencesReview(_)){self.source_preferences_label(index,key)
-            } else if matches!(panel,Panel::GeneralOptions(_)){self.general_options_label(index,key)
-            } else if matches!(panel,Panel::OptionsSettings(_)){self.display_options_label(index,key)
+            } else if matches!(
+                panel,
+                Panel::SourcePreferencesImport(_) | Panel::SourcePreferencesReview(_)
+            ) {
+                self.source_preferences_label(index, key)
+            } else if matches!(panel, Panel::GeneralOptions(_)) {
+                self.general_options_label(index, key)
+            } else if matches!(panel, Panel::OptionsSettings(_)) {
+                self.display_options_label(index, key)
             } else if matches!(panel, Panel::ZoomSettings(_)) && index < 4 {
                 self.zoom_settings_label(index, key)
-
             } else if matches!(panel, Panel::SongSample(_)) && index < 3 {
                 self.song_sample_label(index, key)
-            } else if matches!(panel,Panel::SongProperties(_)) && index==5 && self.song_properties.as_ref().is_some_and(|draft| !draft.can_apply_itg_offset()) {
-                i18n::tr_fmt("Edition", "PreferenceReadOnlyMode", &[("value", &i18n::tr("Edition", key))],
+            } else if matches!(panel, Panel::SongProperties(_))
+                && index == 5
+                && self
+                    .song_properties
+                    .as_ref()
+                    .is_some_and(|draft| !draft.can_apply_itg_offset())
+            {
+                i18n::tr_fmt(
+                    "Edition",
+                    "PreferenceReadOnlyMode",
+                    &[("value", &i18n::tr("Edition", key))],
                 )
-            } else if matches!(panel,Panel::SongProperties(_)) && index==7 {
+            } else if matches!(panel, Panel::SongProperties(_)) && index == 7 {
                 self.song_selectable_label(key)
-            } else if matches!(panel,Panel::SongProperties(_)) && index==6 {
+            } else if matches!(panel, Panel::SongProperties(_)) && index == 6 {
                 self.song_timing_label(key)
             } else if matches!(panel, Panel::SongProperties(_)) && matches!(index, 0 | 4) {
                 let offset = self.song_properties.as_ref().map_or(0.0, |draft| {
-                    if index == 4 { draft.music_offset() } else { draft.sync_offset()
+                    if index == 4 {
+                        draft.music_offset()
+                    } else {
+                        draft.sync_offset()
                     }
                 });
                 i18n::tr_fmt("Edition", key, &[("seconds", &format!("{offset:.6}"))])
@@ -4073,20 +5700,48 @@ impl State {
             } else {
                 i18n::tr("Edition", key)
             };
-            let color=if (matches!(panel,Panel::ProfileEdit(_))&&self.profile_edit.as_ref().is_some_and(|draft|!draft.row_enabled(profile_rows[index])))||(matches!(panel,Panel::ProfileSpeed(_))&&matches!(index,0|1|2|5)&&self.profile_edit.as_ref().is_some_and(|draft|!draft.editor.source_travel_speed_enabled())){[0.45,0.47,0.5,1.0]}else{color};
+            let color = if (matches!(panel, Panel::ProfileEdit(_))
+                && self
+                    .profile_edit
+                    .as_ref()
+                    .is_some_and(|draft| !draft.row_enabled(profile_rows[index])))
+                || (matches!(panel, Panel::ProfileSpeed(_))
+                    && matches!(index, 0 | 1 | 2 | 5)
+                    && self
+                        .profile_edit
+                        .as_ref()
+                        .is_some_and(|draft| !draft.editor.source_travel_speed_enabled()))
+            {
+                [0.45, 0.47, 0.5, 1.0]
+            } else {
+                color
+            };
             actors.push(act!(text: font("miso"): settext(label): align(0.5, 0.5): xy(panel_x, panel_y - panel_height * 0.5 + extra_height + 30.0 + (index - menu_start) as f32 * row_height): zoom(0.8): diffuse(color[0], color[1], color[2], color[3]): z(8021)));
-            if matches!(panel, Panel::WaveformColors(_)) && index<14 {
-                let rgba=self.waveform_color_swatch(index);
-                let y=panel_y-panel_height*0.5+extra_height+30.0+(index-menu_start) as f32*32.0;
+            if matches!(panel, Panel::WaveformColors(_)) && index < 14 {
+                let rgba = self.waveform_color_swatch(index);
+                let y = panel_y - panel_height * 0.5
+                    + extra_height
+                    + 30.0
+                    + (index - menu_start) as f32 * 32.0;
                 actors.push(act!(quad: xy(panel_x+panel_width*0.5-20.0,y): zoomto(16.0,16.0): diffuse(rgba[0],rgba[1],rgba[2],rgba[3]): z(8022)));
             }
-            if side_panel || matches!(panel, Panel::ChartText(_) | Panel::SongText(_) | Panel::NoteAttributes(_) | Panel::Attacks(_) | Panel::ProfileEdit(_) | Panel::ProfileText) {
+            if side_panel
+                || matches!(
+                    panel,
+                    Panel::ChartText(_)
+                        | Panel::SongText(_)
+                        | Panel::NoteAttributes(_)
+                        | Panel::Attacks(_)
+                        | Panel::ProfileEdit(_)
+                        | Panel::ProfileText
+                )
+            {
                 if let Some(Actor::Text { max_width, .. }) = actors.last_mut() {
                     *max_width = Some(panel_width - 30.0);
                 }
             }
 
-            self.ui_row(actors,ui_row_start,index==selected,row_height);
+            self.ui_row(actors, ui_row_start, index == selected, row_height);
         }
     }
 }
@@ -4107,9 +5762,18 @@ fn profile_entry_name(entry: &profile_catalog::Entry) -> String {
             BuiltinLabel::AggressiveBrackets => "ProfileAggressiveBrackets",
             BuiltinLabel::NoBrackets => "ProfileNoBrackets",
         };
-        let label=i18n::tr("Edition",key);return entry.display.as_deref().and_then(|display|display.strip_prefix(entry.source_name())).map_or_else(||label.to_string(),|suffix|format!("{label}{suffix}"));
+        let label = i18n::tr("Edition", key);
+        return entry
+            .display
+            .as_deref()
+            .and_then(|display| display.strip_prefix(entry.source_name()))
+            .map_or_else(|| label.to_string(), |suffix| format!("{label}{suffix}"));
     }
-    entry.display.clone().or_else(||entry.name.clone()).unwrap_or_default()
+    entry
+        .display
+        .clone()
+        .or_else(|| entry.name.clone())
+        .unwrap_or_default()
 }
 
 fn text(actors: &mut Vec<Actor>, label: &str, x: f32, y: f32, zoom: f32, color: [f32; 4]) {
@@ -4128,7 +5792,6 @@ fn player_color(player: u32) -> [f32; 4] {
     COLORS[player as usize % COLORS.len()]
 }
 
-
 fn tool_key(kind: Kind) -> &'static str {
     match kind {
         Kind::Tap => "Tap",
@@ -4143,19 +5806,54 @@ fn tool_key(kind: Kind) -> &'static str {
 }
 
 impl State {
- fn capture_open_context()->Result<deadsync_editor::document::LoadContext,deadsync_editor::Error>{
-  let context=deadsync_editor::runtime::preferences_path().map(|path| {
-                deadsync_editor::audio_preferences::File::open(path)?.opening().map(|p|p.load_context())
-            }).transpose();
-  match context{Ok(context)=>Ok(context.unwrap_or_default()),Err(error)=>{log::warn!("Editor preferences rejected; opening explicit song with defaults: {error}");Ok(Default::default())}}
- }
+    fn capture_open_context()
+    -> Result<deadsync_editor::document::LoadContext, deadsync_editor::Error> {
+        let context = deadsync_editor::runtime::preferences_path()
+            .map(|path| {
+                deadsync_editor::audio_preferences::File::open(path)?
+                    .opening()
+                    .map(|p| p.load_context())
+            })
+            .transpose();
+        match context {
+            Ok(context) => Ok(context.unwrap_or_default()),
+            Err(error) => {
+                log::warn!(
+                    "Editor preferences rejected; opening explicit song with defaults: {error}"
+                );
+                Ok(Default::default())
+            }
+        }
+    }
 
- pub fn open_with_preferences(path:&Path,chart:usize,preferences:&Path,
-    )->Result<Self,deadsync_editor::Error>{let file=deadsync_editor::audio_preferences::File::open(preferences)?;let context=file.opening()?.load_context();let mut state=Self::from_workspace(Workspace::from_file(Self::open_profiled_file(path,context,deadsync_editor::runtime::configs_dir())?,chart,
-        )?)?;state.configure_audio_preferences(preferences)?;Ok(state)}
+    pub fn open_with_preferences(
+        path: &Path,
+        chart: usize,
+        preferences: &Path,
+    ) -> Result<Self, deadsync_editor::Error> {
+        let file = deadsync_editor::audio_preferences::File::open(preferences)?;
+        let context = file.opening()?.load_context();
+        let mut state = Self::from_workspace(Workspace::from_file(
+            Self::open_profiled_file(path, context, deadsync_editor::runtime::configs_dir())?,
+            chart,
+        )?)?;
+        state.configure_audio_preferences(preferences)?;
+        Ok(state)
+    }
 }
 
-impl State {pub fn preferences_load_diagnostic(&self)->Option<&str>{self.preferences_load_error.as_deref()}}
+impl State {
+    pub fn preferences_load_diagnostic(&self) -> Option<&str> {
+        self.preferences_load_error.as_deref()
+    }
+}
 
-impl State {fn is_application_history_command(&self,command:Command)->bool{match command{Command::Undo=>self.workspace.file().session.can_undo_application_change(),Command::Redo=>self.workspace.file().session.can_redo_application_change(),_=>false,
-        }}}
+impl State {
+    fn is_application_history_command(&self, command: Command) -> bool {
+        match command {
+            Command::Undo => self.workspace.file().session.can_undo_application_change(),
+            Command::Redo => self.workspace.file().session.can_redo_application_change(),
+            _ => false,
+        }
+    }
+}

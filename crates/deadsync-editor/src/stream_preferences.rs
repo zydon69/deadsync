@@ -151,10 +151,7 @@ impl Preferences {
         self.validate()?;
         for (k, v) in [
             ("NoteType", Value::from(self.note_type.name())),
-            (
-                "AccumulationType",
-                Value::from(self.accumulation.name()),
-            ),
+            ("AccumulationType", Value::from(self.accumulation.name())),
             ("ShowBreakLengths", Value::from(self.show_break_lengths)),
             (
                 "MinimumLengthToConsiderStream",

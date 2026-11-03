@@ -106,11 +106,19 @@ impl Plan {
                 "Chart-copy source and destinations must be distinct existing charts",
             ));
         }
-        let shared:BTreeSet<_>=types.iter().copied().filter(|kind| {
-            if *kind==EventType::Pattern {false}
-            else if *kind==EventType::Attack {!crate::attacks::supports_resident_chart_attacks(session.document())}
-            else {!crate::timing_edit::supports_resident_chart_timing(session.document())}
-        }).collect();
+        let shared: BTreeSet<_> = types
+            .iter()
+            .copied()
+            .filter(|kind| {
+                if *kind == EventType::Pattern {
+                    false
+                } else if *kind == EventType::Attack {
+                    !crate::attacks::supports_resident_chart_attacks(session.document())
+                } else {
+                    !crate::timing_edit::supports_resident_chart_timing(session.document())
+                }
+            })
+            .collect();
         types.retain(|kind| !shared.contains(kind));
         let selected = selected(session, source, &types)?;
         let origin = selected
@@ -172,7 +180,9 @@ impl Plan {
                 Ok(())
             },
         )?;
-        if report.changed{session.wrap_chart_event_copy();}
+        if report.changed {
+            session.wrap_chart_event_copy();
+        }
         Ok(report)
     }
 }
@@ -195,4 +205,6 @@ fn invalid(message: &str) -> Error {
 }
 
 /// Closed prospective presentation, independent of the focused source chart.
-pub mod live { pub use crate::history::chart_copy_live::{Plan,Application,Receipt}; }
+pub mod live {
+    pub use crate::history::chart_copy_live::{Application, Plan, Receipt};
+}

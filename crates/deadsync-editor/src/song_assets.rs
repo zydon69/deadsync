@@ -189,10 +189,18 @@ pub struct Assets {
 impl Assets {
     /// Source global auto-assets action: one fresh song transaction, no inspector
     /// draft, and no history entry when every discovered path is already set.
-    pub fn apply(&self, session: &mut crate::history::Session, only_unset: bool) -> Result<usize, Error> {
+    pub fn apply(
+        &self,
+        session: &mut crate::history::Session,
+        only_unset: bool,
+    ) -> Result<usize, Error> {
         let mut draft = crate::song_properties::Draft::capture(session)?;
         let count = draft.stage_assets(self, only_unset)?;
-        if draft.apply_with_presentation_receipt(session)?.changed() { Ok(count) } else { Ok(0) }
+        if draft.apply_with_presentation_receipt(session)?.changed() {
+            Ok(count)
+        } else {
+            Ok(0)
+        }
     }
     pub fn discover<F>(directory: &Path, files: &[PathBuf], mut dimensions: F) -> Self
     where

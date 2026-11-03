@@ -8,8 +8,8 @@ use crate::{
 use std::ops::Range;
 pub struct Draft {
     token: RevisionToken,
-    intent:crate::history::file_intent::IntentGuard,
-    timing_after:Option<crate::song_timing_chart::Choice>,
+    intent: crate::history::file_intent::IntentGuard,
+    timing_after: Option<crate::song_timing_chart::Choice>,
     chart: usize,
     layout: String,
     description: String,
@@ -23,21 +23,35 @@ impl Draft {
             .get(chart)
             .ok_or_else(|| invalid("No chart selected for deletion"))?;
         Ok(Self {
-            token: session.revision_token(),intent:crate::history::file_intent::IntentGuard::capture(session),timing_after:None,
+            token: session.revision_token(),
+            intent: crate::history::file_intent::IntentGuard::capture(session),
+            timing_after: None,
             chart,
             layout: descriptor.steps_type.clone(),
             description: descriptor.description.clone(),
             last: session.document().charts().len() == 1,
         })
     }
-    pub fn prepare_song_timing(&mut self,session:&Session,preferences:&crate::open_preferences::Preferences,cultural_order:&[usize])->Result<(),Error>{
-        self.check(session,self.chart)?;
-        let snapshot=session.song_timing_snapshot()?;
+    pub fn prepare_song_timing(
+        &mut self,
+        session: &Session,
+        preferences: &crate::open_preferences::Preferences,
+        cultural_order: &[usize],
+    ) -> Result<(), Error> {
+        self.check(session, self.chart)?;
+        let snapshot = session.song_timing_snapshot()?;
         // Validate the complete current order before removing our source index.
-        preferences.select(&snapshot,cultural_order)?;
-        let remaining=snapshot.without_source(self.chart);
-        let order=cultural_order.iter().copied().filter(|index|*index!=self.chart).collect::<Vec<_>>();
-        let mut choice=session.song_timing_choice()?;choice.reconcile_after_deletion(&remaining,preferences,&order)?;self.timing_after=Some(choice);Ok(())
+        preferences.select(&snapshot, cultural_order)?;
+        let remaining = snapshot.without_source(self.chart);
+        let order = cultural_order
+            .iter()
+            .copied()
+            .filter(|index| *index != self.chart)
+            .collect::<Vec<_>>();
+        let mut choice = session.song_timing_choice()?;
+        choice.reconcile_after_deletion(&remaining, preferences, &order)?;
+        self.timing_after = Some(choice);
+        Ok(())
     }
     pub fn layout(&self) -> &str {
         &self.layout
@@ -49,7 +63,10 @@ impl Draft {
         self.last
     }
     pub(crate) fn check(&self, session: &Session, chart: usize) -> Result<(), Error> {
-        if chart != self.chart || !session.accepts_token(&self.token) || !self.intent.is_current(session) {
+        if chart != self.chart
+            || !session.accepts_token(&self.token)
+            || !self.intent.is_current(session)
+        {
             return Err(invalid(
                 "Chart deletion belongs to another chart or revision",
             ));
@@ -58,7 +75,7 @@ impl Draft {
     }
     pub fn apply(&self, session: &mut Session) -> Result<(), Error> {
         self.check(session, self.chart)?;
-        session.remove_chart(self.chart,self.timing_after.as_ref())
+        session.remove_chart(self.chart, self.timing_after.as_ref())
     }
 }
 /// Original SelectBestChart type/difficulty priorities, with file order for ties.

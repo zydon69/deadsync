@@ -347,10 +347,15 @@ fn selector_all_none_individual_and_selected_area_are_read_only_until_acceptance
     press(&mut screen, KeyCode::ArrowDown); // Select beat 1 through beat 2.
     press(&mut screen, KeyCode::Space);
     press(&mut screen, KeyCode::ArrowDown);
-    assert_eq!(screen.workspace().source_row_selection_at(screen.workspace().row() as f64)
-            .unwrap(), Some((48, 96)),
+    assert_eq!(
+        screen
+            .workspace()
+            .source_row_selection_at(screen.workspace().row() as f64)
+            .unwrap(),
+        Some((48, 96)),
         "{:?}",
-        texts(&screen));
+        texts(&screen)
+    );
     press(&mut screen, KeyCode::F9);
     down(&mut screen, 4);
     press(&mut screen, KeyCode::Enter);

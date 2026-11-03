@@ -361,9 +361,15 @@ fn original_chart_wide_action_matches_representable_ssc_cases_and_undo_redo() {
             // real charts acquire row-zero initial nodes before this action.
             // The separate loaded_initial_nodes test executes the source action
             // after those load preconditions, then compares native behavior.
-            assert!(expected["After"][0].as_array().unwrap().iter().any(|event| {
-                event["Kind"] == "Tempo" && event["Row"] == 48 && event["Bpm"] == 180
-            }));
+            assert!(
+                expected["After"][0]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .any(|event| {
+                        event["Kind"] == "Tempo" && event["Row"] == 48 && event["Bpm"] == 180
+                    })
+            );
             continue;
         }
         let charts: Vec<_> = std::iter::once(&case["Source"])
@@ -740,26 +746,43 @@ fn sm_copy_replaces_resident_timing_and_attacks_per_chart_without_activating_raw
 fn loaded_initial_nodes_and_copy_match_original_action_with_real_load_preconditions() {
     let request: serde_json::Value = serde_json::from_str(include_str!(
         "fixtures/grooveauthor/chart-copy-loaded-initial.request.json"
-    )).unwrap();
+    ))
+    .unwrap();
     let expected: Vec<serde_json::Value> = serde_json::from_str(include_str!(
         "fixtures/grooveauthor/chart-copy-loaded-initial.expected.json"
-    )).unwrap();
+    ))
+    .unwrap();
     let case = &request["Cases"][0];
     let reference = &expected[0];
     assert_eq!(case["Name"], reference["Name"]);
-    let kinds = ["Tempo".to_owned(), "Signature".to_owned()].into_iter().collect();
+    let kinds = ["Tempo".to_owned(), "Signature".to_owned()]
+        .into_iter()
+        .collect();
     let mut session = fixture_session(case);
     let source = fixture_projection(&mut session, 0, &kinds);
-    assert_eq!(source, canonical(reference["SourceBefore"].as_array().unwrap().clone()));
-    assert_eq!(fixture_projection(&mut session, 1, &kinds), canonical(reference["Before"][0].as_array().unwrap().clone()));
+    assert_eq!(
+        source,
+        canonical(reference["SourceBefore"].as_array().unwrap().clone())
+    );
+    assert_eq!(
+        fixture_projection(&mut session, 1, &kinds),
+        canonical(reference["Before"][0].as_array().unwrap().clone())
+    );
     let before = session.serialize().unwrap();
-    let notes: Vec<_> = (0..2).map(|chart| session.grid(chart).unwrap().clone()).collect();
-    Plan::capture(&mut session, 0, [1], [Type::Tempo, Type::Signature]).unwrap().apply(&mut session).unwrap();
+    let notes: Vec<_> = (0..2)
+        .map(|chart| session.grid(chart).unwrap().clone())
+        .collect();
+    Plan::capture(&mut session, 0, [1], [Type::Tempo, Type::Signature])
+        .unwrap()
+        .apply(&mut session)
+        .unwrap();
     let after = session.serialize().unwrap();
     let expected_after = canonical(reference["After"][0].as_array().unwrap().clone());
     assert_eq!(fixture_projection(&mut session, 1, &kinds), expected_after);
     assert_eq!(fixture_projection(&mut session, 0, &kinds), source);
-    for (chart, grid) in notes.iter().enumerate() { assert_eq!(session.grid(chart).unwrap(), grid); }
+    for (chart, grid) in notes.iter().enumerate() {
+        assert_eq!(session.grid(chart).unwrap(), grid);
+    }
     let mut reopened = Session::new(Document::parse(after.clone(), Format::Ssc).unwrap());
     assert_eq!(fixture_projection(&mut reopened, 1, &kinds), expected_after);
     session.undo().unwrap();

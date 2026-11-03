@@ -114,13 +114,19 @@ impl Change {
         };
         // Initial mixed publication includes direct SizeCap once; history
         // thereafter merges only the actual source Undo-owned leaves.
-        let target=if forward{self.initial.as_ref().unwrap_or(target)}else{target};
+        let target = if forward {
+            self.initial.as_ref().unwrap_or(target)
+        } else {
+            target
+        };
         let mut preferences = *target;
         preferences = crate::audio_preferences::publication::publish(
-            &mut self.file, live, preferences,
+            &mut self.file,
+            live,
+            preferences,
             |current| Snapshot::merged(current, expected, target),
         )?;
-        self.initial=None;
+        self.initial = None;
         Ok(Update {
             preferences,
             file: self.file.clone(),

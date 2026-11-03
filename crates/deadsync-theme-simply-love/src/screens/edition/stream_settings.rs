@@ -63,7 +63,9 @@ impl State {
     }
     pub(super) fn sync_stream_preferences_history(&mut self) {
         if let Some(update) = self.workspace.take_stream_preferences_update() {
-            if let Some(file) = update.file {self.publish_application_preferences_owner(file);}
+            if let Some(file) = update.file {
+                self.publish_application_preferences_owner(file);
+            }
             if self
                 .configure_stream_preferences(update.preferences)
                 .is_err()
@@ -197,20 +199,25 @@ impl State {
             act!(quad:xy(x,top+132.0):zoomto(580.0,310.0):diffuse(0.04,0.06,0.1,0.98):z(8050)),
         );
         for (row, key) in KEYS.iter().enumerate() {
-            let ui_row_start=actors.len();
+            let ui_row_start = actors.len();
             let value = match row {
                 0 => format!("1/{}", p.note_type.count()),
-                1 => if let Accumulation::Unknown(raw) = p.accumulation {
-                    i18n::tr("Edition", "AccumulationRawRows").replace("{value}", &raw.to_string())
-                } else { i18n::tr(
-                    "Edition",
-                    if p.accumulation == Accumulation::Step {
-                        "DensityStep"
+                1 => {
+                    if let Accumulation::Unknown(raw) = p.accumulation {
+                        i18n::tr("Edition", "AccumulationRawRows")
+                            .replace("{value}", &raw.to_string())
                     } else {
-                        "DensityRow"
-                    },
-                )
-                .to_string() },
+                        i18n::tr(
+                            "Edition",
+                            if p.accumulation == Accumulation::Step {
+                                "DensityStep"
+                            } else {
+                                "DensityRow"
+                            },
+                        )
+                        .to_string()
+                    }
+                }
                 2 => i18n::tr(
                     "Edition",
                     if p.show_break_lengths {
@@ -240,14 +247,16 @@ impl State {
                 }
                 _ => String::new(),
             };
-            let label = if let Some(label)=self.preference_numeric_label(row){label}else if row < 7 {
+            let label = if let Some(label) = self.preference_numeric_label(row) {
+                label
+            } else if row < 7 {
                 i18n::tr_fmt("Edition", key, &[("value", &value)])
             } else {
                 i18n::tr("Edition", key)
             };
             actors.push(act!(text:font("miso"):settext(label):xy(x,top+row as f32*29.0):zoom(0.62):maxwidth(550.0):diffuse(1.0,if row==index{0.8}else{1.0},if row==index{0.3}else{1.0},1.0):z(8051)));
 
-            self.ui_row(actors,ui_row_start,row==index,31.);
+            self.ui_row(actors, ui_row_start, row == index, 31.);
         }
     }
 }

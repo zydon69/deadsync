@@ -39,10 +39,21 @@ fn defaults_choose_challenge_of_single_even_when_source_starts_with_double() {
             ],
         );
         let before = session.serialize().unwrap();
-        let token = (session.revision(), session.content_revision(), session.chart_ids().to_vec());
+        let token = (
+            session.revision(),
+            session.content_revision(),
+            session.chart_ids().to_vec(),
+        );
         assert_eq!(selected(&mut session, Preferences::default()), Some(3));
         assert_eq!(session.serialize().unwrap(), before);
-        assert_eq!((session.revision(), session.content_revision(), session.chart_ids().to_vec()), token);
+        assert_eq!(
+            (
+                session.revision(),
+                session.content_revision(),
+                session.chart_ids().to_vec()
+            ),
+            token
+        );
         assert!(!session.is_dirty());
     }
 }
@@ -98,13 +109,24 @@ fn invalid_chart_permutation_is_rejected_without_mutating_the_song() {
         ],
     );
     let before = song.serialize().unwrap();
-    let token = (song.revision(), song.content_revision(), song.chart_ids().to_vec());
+    let token = (
+        song.revision(),
+        song.content_revision(),
+        song.chart_ids().to_vec(),
+    );
     let snapshot = Snapshot::resident(&mut song).unwrap();
     for order in [vec![], vec![0, 0], vec![0, 7], vec![0]] {
         assert!(Preferences::default().select(&snapshot, &order).is_err());
     }
     assert_eq!(song.serialize().unwrap(), before);
-    assert_eq!((song.revision(), song.content_revision(), song.chart_ids().to_vec()), token);
+    assert_eq!(
+        (
+            song.revision(),
+            song.content_revision(),
+            song.chart_ids().to_vec()
+        ),
+        token
+    );
 }
 #[test]
 fn common_options_are_read_and_survive_other_preference_saves() {

@@ -192,7 +192,9 @@ impl Preferences {
         self.channel_width
     }
     /// WaveFormRenderer.SetXPerChannelScale clamps the consumer, never the persisted preference.
-    pub fn effective_channel_width(self)->f64{f64::from((self.channel_width as f32).clamp(0.0,1.0))}
+    pub fn effective_channel_width(self) -> f64 {
+        f64::from((self.channel_width as f32).clamp(0.0, 1.0))
+    }
     pub fn dense_scale(&self) -> f64 {
         self.dense_scale
     }
@@ -248,7 +250,12 @@ impl Preferences {
             };
         }
         if let Some(field) = fields.get("WaveFormDrawLocation") {
-            value.location = match (field.as_str(), field.as_i64().or_else(||field.as_str().and_then(|value|value.parse::<i64>().ok()))) {
+            value.location = match (
+                field.as_str(),
+                field
+                    .as_i64()
+                    .or_else(|| field.as_str().and_then(|value| value.parse::<i64>().ok())),
+            ) {
                 (Some("FocusedChart"), _) | (_, Some(0)) => DrawLocation::FocusedChart,
                 (Some("AllCharts"), _) | (_, Some(1)) => DrawLocation::AllCharts,
                 (Some("AllChartsWithSameMusic"), _) | (_, Some(2)) => {
@@ -307,7 +314,9 @@ impl Preferences {
         fields.insert(
             "WaveFormDrawLocation".into(),
             match self.location {
-                DrawLocation::Unknown(n) => crate::preference_enum::unknown_ordinal(n,fields.get("WaveFormDrawLocation")),
+                DrawLocation::Unknown(n) => {
+                    crate::preference_enum::unknown_ordinal(n, fields.get("WaveFormDrawLocation"))
+                }
                 known => known.name().into(),
             },
         );
@@ -331,7 +340,15 @@ impl Preferences {
         self.palette.write(fields);
     }
 }
-fn source_scalar(value:f64)->Result<f64,Error>{if value.is_finite()&&(value as f32).is_finite(){Ok(value)}else{Err(Error::InvalidEdit("Waveform value must be a finite 32-bit number".into()))}}
+fn source_scalar(value: f64) -> Result<f64, Error> {
+    if value.is_finite() && (value as f32).is_finite() {
+        Ok(value)
+    } else {
+        Err(Error::InvalidEdit(
+            "Waveform value must be a finite 32-bit number".into(),
+        ))
+    }
+}
 
 #[cfg(test)]
 mod source_layout_tests {
@@ -437,4 +454,26 @@ mod fxaa_tests {
     }
 }
 
-#[cfg(test)]mod source_scalar_tests{use super::*;#[test]fn source_preferences_retain_raw_and_only_width_consumer_clamps(){for raw in[-10.0,-0.1,0.0,0.25,1.0,10.01,512.0]{let fields=Map::from_iter([("WaveFormMaxXPercentagePerChannel".into(),raw.into()),("DenseScale".into(),raw.into())]);let p=Preferences::read(&fields).unwrap();assert_eq!(p.channel_width(),raw);assert_eq!(p.dense_scale(),raw);assert_eq!(p.effective_channel_width(),f64::from((raw as f32).clamp(0.0,1.0)));let mut written=Map::new();p.write(&mut written);assert_eq!(Preferences::read(&written).unwrap(),p);}}}
+#[cfg(test)]
+mod source_scalar_tests {
+    use super::*;
+    #[test]
+    fn source_preferences_retain_raw_and_only_width_consumer_clamps() {
+        for raw in [-10.0, -0.1, 0.0, 0.25, 1.0, 10.01, 512.0] {
+            let fields = Map::from_iter([
+                ("WaveFormMaxXPercentagePerChannel".into(), raw.into()),
+                ("DenseScale".into(), raw.into()),
+            ]);
+            let p = Preferences::read(&fields).unwrap();
+            assert_eq!(p.channel_width(), raw);
+            assert_eq!(p.dense_scale(), raw);
+            assert_eq!(
+                p.effective_channel_width(),
+                f64::from((raw as f32).clamp(0.0, 1.0))
+            );
+            let mut written = Map::new();
+            p.write(&mut written);
+            assert_eq!(Preferences::read(&written).unwrap(), p);
+        }
+    }
+}

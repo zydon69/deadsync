@@ -337,13 +337,9 @@ fn sm_keeps_shared_timing_and_legacy_ssc_migrates_before_local_timing() {
         press(&mut screen, KeyCode::Enter);
         let session = &screen.workspace().file().session;
         let effective = TempoDraft::capture(session, 0, Scope::Song).unwrap();
-        assert_eq!(effective.tempos()
-                .serialize(), "0=160");
+        assert_eq!(effective.tempos().serialize(), "0=160");
         assert_eq!(
-            session
-                .document()
-                .text(None, "BPMS")
-                .as_deref(),
+            session.document().text(None, "BPMS").as_deref(),
             if name.ends_with("sm") {
                 Some("0=120")
             } else {
@@ -515,7 +511,8 @@ fn stops_and_delays_share_one_draft_and_one_undo_without_changing_bpm() {
     ctrl(&mut screen, KeyCode::KeyZ);
     key(&mut screen, KeyCode::ShiftLeft, false);
     ctrl(&mut screen, KeyCode::KeyS);
-    assert_eq!(serialized(&State::open(&path, 0).unwrap()),
+    assert_eq!(
+        serialized(&State::open(&path, 0).unwrap()),
         screen
             .workspace()
             .file()
@@ -788,7 +785,8 @@ fn native_warp_and_fake_edits_match_original_editor_flags_times_apply_undo_save_
         .unwrap();
     ctrl(&mut screen, KeyCode::KeyS);
     assert_eq!(fs::read(&path).unwrap(), output);
-    assert_eq!(serialized(&State::open(&path, 0).unwrap()),
+    assert_eq!(
+        serialized(&State::open(&path, 0).unwrap()),
         screen
             .workspace()
             .file()
@@ -1099,12 +1097,8 @@ fn signatures_on_sm_move_and_remove_in_draft_then_apply_one_shared_edit() {
     let session = &screen.workspace().file().session;
     let effective =
         deadsync_editor::timing_edit::signature::Draft::capture(session, 0, Scope::Song).unwrap();
-    assert_eq!(effective.signatures()
-            .serialize(), "0=4=4,2=5=8");
-    assert!(session
-            .document()
-            .text(None, "TIMESIGNATURES")
-            .is_none());
+    assert_eq!(effective.signatures().serialize(), "0=4=4,2=5=8");
+    assert!(session.document().text(None, "TIMESIGNATURES").is_none());
     ctrl(&mut screen, KeyCode::KeyZ);
     assert_eq!(serialized(&screen), bytes);
 }
@@ -1135,13 +1129,9 @@ fn file_reader_signature_denominators_can_move_without_being_revalidated_as_new_
     let session = &screen.workspace().file().session;
     let effective =
         deadsync_editor::timing_edit::signature::Draft::capture(session, 0, Scope::Song).unwrap();
-    assert_eq!(effective.signatures()
-            .serialize(), "0=4=4,2=5=6");
+    assert_eq!(effective.signatures().serialize(), "0=4=4,2=5=6");
     assert_eq!(
-        session
-            .document()
-            .text(None, "TIMESIGNATURES")
-            .as_deref(),
+        session.document().text(None, "TIMESIGNATURES").as_deref(),
         Some("0=4=4,1=5=6")
     );
 }
@@ -1398,13 +1388,9 @@ fn sm_tick_events_are_accessible_and_signed_source_nodes_move_delete_and_save() 
     let session = &reopened.workspace().file().session;
     let effective =
         deadsync_editor::timing_edit::tick::Draft::capture(session, 0, Scope::Song).unwrap();
-    assert_eq!(effective.counts()
-            .serialize(), "1=0,4=4");
+    assert_eq!(effective.counts().serialize(), "1=0,4=4");
     assert_eq!(
-        session
-            .document()
-            .text(None, "TICKCOUNTS")
-            .as_deref(),
+        session.document().text(None, "TICKCOUNTS").as_deref(),
         Some("0=-2,4=4")
     );
     ctrl(&mut screen, KeyCode::KeyZ);
@@ -1794,14 +1780,11 @@ fn unicode_labels_stage_move_empty_apply_render_undo_and_save_reopen() {
         .text(Some(0), "LABELS")
         .unwrap();
     assert_eq!(value, "0=,1=Pré-refrain 日本語 🎵 _ ,");
-    assert!(
-        texts(&screen)
-            .iter()
-            .any(|s| s == &format!(
+    assert!(texts(&screen).iter().any(|s| s
+        == &format!(
             "{} Pré-refrain 日本語 🎵 _ ",
             i18n::tr("Edition", "EventSelectionLabel")
-        ))
-    );
+        )));
     ctrl(&mut screen, KeyCode::KeyZ);
     assert_eq!(serialized(&screen), SONG);
     ctrl(&mut screen, KeyCode::KeyY);
@@ -1876,7 +1859,8 @@ fn escaped_legacy_label_moves_preserve_text_and_sm_filter_does_not_change_unknow
         .replace("#LABELS:0=keep;", "#LABELS:0=Legacy\\/\\/intro,4=End;");
     fs::write(&path, &bytes).unwrap();
     let mut screen = State::open(&path, 0).unwrap();
-    assert!(texts(&screen).iter().any(|s| s == &format!(
+    assert!(texts(&screen).iter().any(|s| s
+        == &format!(
             "{} Legacy//intro",
             i18n::tr("Edition", "EventSelectionLabel")
         )));
@@ -1902,7 +1886,11 @@ fn escaped_legacy_label_moves_preserve_text_and_sm_filter_does_not_change_unknow
             .unwrap(),
         "2=Legacy//intro,4=End"
     );
-    assert!(texts(&reopened).iter().any(|s| s == &format!("{} End", i18n::tr("Edition", "EventSelectionLabel"))));
+    assert!(
+        texts(&reopened)
+            .iter()
+            .any(|s| s == &format!("{} End", i18n::tr("Edition", "EventSelectionLabel")))
+    );
     let sm = dir.path().join("song.sm");
     let original = b"#BPMS:0=120;#LABELS:0=Keep;#NOTES:dance-single::Hard:9::1000;";
     fs::write(&sm, original).unwrap();
