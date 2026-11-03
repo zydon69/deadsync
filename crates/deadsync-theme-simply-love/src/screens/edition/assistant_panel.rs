@@ -1,6 +1,6 @@
 //! Keyboard-only host for isolated assistant proposals.
 use super::*;
-use deadsync_editor::assistant::agent::{Draft, Event, Job, PreviewChart};
+use deadsync_editor::assistant::agent::{Draft, Event, Job, PreviewChart, Runtime};
 const INPUT_BYTE_LIMIT: usize = 8192;
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum ProposalSource {
@@ -19,6 +19,8 @@ pub(super) struct Ui {
     conversation: String,
     pending_input: Option<String>,
     job: Option<Job>,
+    runtime: Runtime,
+    runtime_detected: bool,
     draft: Option<PendingDraft>,
     bridge: Option<deadsync_editor::assistant::bridge::Bridge>,
     bridge_generation: u64,
@@ -39,6 +41,11 @@ impl State {
         self.stop_audio();
         self.label_preedit.clear();
         self.assistant.open = true;
+        // Detect once per editor; F6 then overrides it for this session.
+        if !self.assistant.runtime_detected {
+            self.assistant.runtime = Runtime::preferred();
+            self.assistant.runtime_detected = true;
+        }
     }
     fn assistant_start_bridge(&mut self) {
         self.assistant.bridge = None;
@@ -242,6 +249,14 @@ impl State {
                     self.assistant_start_bridge();
                 }
             }
+            KeyCode::F6 if self.assistant.job.is_none() => {
+                self.assistant.runtime = self.assistant.runtime.toggled();
+                self.assistant.transcript.push_str(&format!(
+                    "\n{}: {}\n",
+                    i18n::tr("Edition", "AssistantRuntime"),
+                    self.assistant.runtime.label()
+                ));
+            }
             KeyCode::F3 if self.assistant.job.is_none() => {
                 self.assistant_discard_pending();
             }
@@ -283,6 +298,7 @@ impl State {
                     &self.workspace,
                     prompt,
                     self.assistant.draft.as_ref().map(|pending| &pending.draft),
+                    self.assistant.runtime,
                 ) {
                     Ok(job) => {
                         self.assistant
@@ -485,7 +501,11 @@ impl State {
             actors.push(act!(text: font("miso"): settext(content): align(0.0,0.0): xy(22.0,y): zoom(zoom): wrapwidthpixels((width-44.0)/zoom): maxwidth(width-44.0): maxheight(h): z(8101)));
         };
         add(
-            i18n::tr("Edition", "AssistantTitle").to_string(),
+            format!(
+                "{} - {}",
+                i18n::tr("Edition", "AssistantTitle"),
+                self.assistant.runtime.label()
+            ),
             16.0,
             32.0,
             0.8,
@@ -916,6 +936,24 @@ mod tests {
         assert_eq!(rows, vec![0, 96]);
     }
 
+    #[test]
+    fn runtime_toggle_switches_between_codex_and_claude_only_while_idle() {
+        let (_directory, mut state) = input_fixture();
+        state.assistant.runtime = Runtime::Codex;
+        key(&mut state, KeyCode::F6, true);
+        key(&mut state, KeyCode::F6, false);
+        assert_eq!(state.assistant.runtime, Runtime::Claude);
+        assert!(state.assistant.transcript.contains("Claude"));
+        let (job, _worker) = Job::pending_for_test();
+        state.assistant.job = Some(job);
+        key(&mut state, KeyCode::F6, true);
+        key(&mut state, KeyCode::F6, false);
+        assert_eq!(state.assistant.runtime, Runtime::Claude);
+        state.assistant.job = None;
+        key(&mut state, KeyCode::F6, true);
+        key(&mut state, KeyCode::F6, false);
+        assert_eq!(state.assistant.runtime, Runtime::Codex);
+    }
     #[test]
     fn conversational_completion_has_no_proposal_or_apply_status() {
         let (_directory, mut state) = input_fixture();

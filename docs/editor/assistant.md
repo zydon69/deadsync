@@ -21,6 +21,11 @@ under the chart assistant action in keyboard settings.
   Escape returns to the conversation. Only the selected grid is retained.
   This is a notes preview; review metadata and timing changes separately.
 - **Page Up / Page Down** scroll through the response.
+- **F6** switches the runtime between Codex and Claude while no request runs.
+  The panel title shows the selected runtime. On first opening, the editor picks
+  Codex when it is installed, otherwise Claude Code; set
+  `DEADSYNC_ASSISTANT_RUNTIME` to `codex` or `claude` to choose explicitly.
+  The F6 choice lasts until the game exits.
 - **F4** enables or disables external MCP access. It is off by default.
   While enabled, the bridge follows editor revisions automatically.
 - Close the panel and use the usual Undo or Save commands to revert or persist.
@@ -76,6 +81,37 @@ Fingerprinting uses a 64 KiB buffer, supports cancellation, and rejects audio
 files larger than 2 GiB. Service usage is subject to the user's
 Codex account limits. No API key is required by this adapter.
 
+### Claude runtime
+
+Install Claude Code and sign in using `claude auth login`. An
+`ANTHROPIC_API_KEY` is used only if it is present in the environment that
+launches the game; a game opened from the Finder or Dock does not inherit
+variables exported in a shell profile. The assistant looks for
+`~/.local/bin/claude` (`%USERPROFILE%\.local\bin\claude.exe` on Windows), then
+Homebrew locations and `PATH`; set `DEADSYNC_CLAUDE_PATH` to an explicit
+executable path for another installation. Claude Code 2.1.280 or later is required.
+
+The CLI runs headless in a private empty working directory with `--safe-mode`,
+no setting sources, no built-in tools (`--tools ""`), strict MCP configuration,
+no slash commands and no session persistence. Permission mode `dontAsk` allows
+only the DeadSync tools; nothing prompts the host. The DeadSync tools are not a
+separate process: Claude Code forwards each MCP request through its SDK control
+protocol and the game answers it on the detached draft. Other control requests
+are refused.
+
+Unlike the Codex adapter, Claude is not pinned to one CLI version: the built-in
+tool set is an allowlist, and before any tool runs the adapter checks the session
+inventory. A session that exposes any tool other than `mcp__deadsync__*`, or any
+MCP server other than DeadSync, is refused. So is a session whose DeadSync server
+is not connected or lacks one of the DeadSync tools. Escape also cancels the
+initial version check of either runtime, which times out after 15 seconds.
+DeadSync tools run synchronously while Claude Code waits, so the adapter sets
+`MCP_TOOL_TIMEOUT` to one hour, matching the external helper's response bound. Failed turns report the
+CLI's error explanation, truncated to 500 characters. Claude Code manages its own
+credentials; DeadSync never reads or copies them. Raw stderr is handled as for
+Codex: only the error category is displayed. The same data leaves the machine as
+with Codex, and usage is subject to the user's Claude plan or API limits.
+
 ## External MCP access to the open editor
 
 Press **F4** in the assistant to explicitly start the authenticated loopback
@@ -101,6 +137,12 @@ For Codex, the corresponding local registration command is:
 
 ```sh
 codex mcp add deadsync -- /absolute/path/deadsync-mcp --connect-editor
+```
+
+For Claude Code:
+
+```sh
+claude mcp add deadsync -- /absolute/path/deadsync-mcp --connect-editor
 ```
 
 Each MCP client owns a detached working snapshot. Host edits, Undo/Redo and

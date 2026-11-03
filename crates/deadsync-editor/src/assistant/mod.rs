@@ -4,6 +4,7 @@ pub mod agent;
 #[cfg(feature = "assistant-audio")]
 mod audio;
 pub mod bridge;
+mod claude;
 pub mod protocol;
 
 use crate::{
