@@ -1007,6 +1007,50 @@ mod tests {
                         .is_some_and(|byte| *byte == b'Z')
             })
     }
+    #[cfg(unix)]
+    #[test]
+    fn version_probe_ignores_detached_descendants_and_reports_cancellation() {
+        use std::os::unix::fs::PermissionsExt;
+        let directory = tempfile::tempdir().unwrap();
+        let pid_file = directory.path().join("detached.pid");
+        let launcher = directory.path().join("detached");
+        // The descendant leaves the probe's process group (POSIX setpgid via
+        // perl) and keeps the inherited stdout open after the launcher exits.
+        std::fs::write(
+            &launcher,
+            format!(
+                "#!/bin/sh\nperl -e 'setpgrp(0, 0); sleep 30' &\necho $! > '{}'\necho 9.9.9\n",
+                pid_file.display()
+            ),
+        )
+        .unwrap();
+        std::fs::set_permissions(&launcher, std::fs::Permissions::from_mode(0o755)).unwrap();
+        let holder = Mutex::new(None);
+        let started = Instant::now();
+        let result = probe_version(
+            &launcher,
+            &AtomicBool::new(false),
+            &holder,
+            Duration::from_secs(10),
+        );
+        let elapsed = started.elapsed();
+        if let Ok(pid) = std::fs::read_to_string(&pid_file)
+            && let Ok(pid) = pid.trim().parse::<libc::pid_t>()
+        {
+            // SAFETY: the test owns this detached descendant.
+            unsafe { libc::kill(pid, libc::SIGKILL) };
+        }
+        let (success, text) = result.unwrap();
+        assert!(success && text.contains("9.9.9"), "{text}");
+        assert!(elapsed < Duration::from_secs(5), "{elapsed:?}");
+        assert!(holder.lock().unwrap().is_none());
+        // Cancellation wins over any probe or output error, for Codex as well.
+        let error =
+            verify_adapter_version(&launcher, &AtomicBool::new(true), &holder, VERSION_TIMEOUT)
+                .unwrap_err();
+        assert_eq!(error, "Assistant cancelled");
+        assert!(holder.lock().unwrap().is_none());
+    }
     #[test]
     fn runtime_override_then_installed_codex_then_claude() {
         assert_eq!(Runtime::choose("CLAUDE", true, false), Runtime::Claude);
