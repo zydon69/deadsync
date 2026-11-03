@@ -27,7 +27,7 @@ const LAYOUT_OPTIONS: &[LayoutOption] = &[
 ];
 
 #[derive(Template)]
-#[template(path = "../examples/gameplay/export_gameplay_viewer.html")]
+#[template(path = "export_gameplay_viewer.html")]
 struct GalleryTemplate {
     layouts: &'static [LayoutOption],
     resolutions: Vec<ResolutionOption>,
