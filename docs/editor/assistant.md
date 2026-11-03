@@ -106,14 +106,17 @@ MCP server other than DeadSync, is refused. So is a session whose DeadSync serve
 is not connected or lacks one of the DeadSync tools. Escape also cancels the
 initial version check of either runtime, which times out after 15 seconds.
 The probe owns an isolated Unix process group or Windows Job Object. Completion,
-cancellation and timeout terminate its descendants before the stdout reader is
-joined, including when a launcher exits before its descendants.
+cancellation and timeout terminate the processes still contained there. Version
+output is captured without waiting for pipe closure, so a Unix descendant that
+escapes the group cannot hold the probe open. No reader thread is left waiting.
+
 DeadSync tools run synchronously while Claude Code waits, so the adapter sets
-`MCP_TOOL_TIMEOUT` to one hour, matching the external helper's response bound. Failed turns report the
-CLI's error explanation, truncated to 500 characters. Claude Code manages its own
-credentials; DeadSync never reads or copies them. Raw stderr is handled as for
-Codex: only the error category is displayed. The same data leaves the machine as
-with Codex, and usage is subject to the user's Claude plan or API limits.
+`MCP_TOOL_TIMEOUT` to one hour, matching the external helper's response bound.
+Failed turns report the CLI's error explanation, truncated to 500 characters.
+Claude Code manages its own credentials; DeadSync never reads or copies them.
+Raw stderr is handled as for Codex: only the error category is displayed. The
+same data leaves the machine as with Codex, and usage is subject to the user's
+Claude plan or API limits.
 
 ## External MCP access to the open editor
 

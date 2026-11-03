@@ -164,3 +164,108 @@ mod windows {
         ))
     }
 }
+
+/// Bounded, single-owner stdout capture. Polling never waits for EOF, which
+/// can be held open by a Unix descendant that detached from the probe group.
+pub(super) struct VersionOutput {
+    stdout: std::process::ChildStdout,
+    bytes: Vec<u8>,
+    eof: bool,
+}
+impl VersionOutput {
+    pub(super) fn new(stdout: std::process::ChildStdout) -> io::Result<Self> {
+        #[cfg(unix)]
+        {
+            use std::os::fd::AsRawFd;
+            // SAFETY: stdout exclusively owns this live pipe's read descriptor.
+            let flags = unsafe { libc::fcntl(stdout.as_raw_fd(), libc::F_GETFL) };
+            if flags == -1 {
+                return Err(io::Error::last_os_error());
+            }
+            // SAFETY: retain existing flags and enable nonblocking reads.
+            if unsafe { libc::fcntl(stdout.as_raw_fd(), libc::F_SETFL, flags | libc::O_NONBLOCK) }
+                == -1
+            {
+                return Err(io::Error::last_os_error());
+            }
+        }
+        Ok(Self {
+            stdout,
+            bytes: Vec::new(),
+            eof: false,
+        })
+    }
+    pub(super) fn poll(&mut self) -> io::Result<()> {
+        let mut buffer = [0u8; 4096];
+        while !self.eof && self.bytes.len() < buffer.len() {
+            let remaining = buffer.len() - self.bytes.len();
+            match read_available(&mut self.stdout, &mut buffer[..remaining]) {
+                Ok(0) => self.eof = true,
+                Ok(count) => self.bytes.extend_from_slice(&buffer[..count]),
+                Err(error) if error.kind() == io::ErrorKind::WouldBlock => break,
+                Err(error) if error.kind() == io::ErrorKind::Interrupted => continue,
+                Err(error) => return Err(error),
+            }
+        }
+        Ok(())
+    }
+    pub(super) fn finish(mut self) -> io::Result<String> {
+        self.poll()?;
+        String::from_utf8(self.bytes)
+            .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))
+    }
+}
+
+#[cfg(unix)]
+fn read_available(stdout: &mut std::process::ChildStdout, buffer: &mut [u8]) -> io::Result<usize> {
+    use std::io::Read;
+    stdout.read(buffer)
+}
+
+#[cfg(windows)]
+fn read_available(stdout: &mut std::process::ChildStdout, buffer: &mut [u8]) -> io::Result<usize> {
+    use std::{io::Read, os::windows::io::AsRawHandle, ptr};
+    use windows_sys::Win32::{
+        Foundation::{ERROR_BROKEN_PIPE, ERROR_NO_DATA},
+        System::Pipes::PeekNamedPipe,
+    };
+    let mut available = 0;
+    // SAFETY: this object is the only reader and has no pending I/O on the
+    // handle. Peek reports availability without waiting for data or pipe EOF.
+    if unsafe {
+        PeekNamedPipe(
+            stdout.as_raw_handle(),
+            ptr::null_mut(),
+            0,
+            ptr::null_mut(),
+            &mut available,
+            ptr::null_mut(),
+        )
+    } == 0
+    {
+        let error = io::Error::last_os_error();
+        return if matches!(error.raw_os_error(), Some(code) if code == ERROR_BROKEN_PIPE as i32 || code == ERROR_NO_DATA as i32)
+        {
+            Ok(0)
+        } else {
+            Err(error)
+        };
+    }
+    if available == 0 {
+        return Err(io::ErrorKind::WouldBlock.into());
+    }
+    // No other reader can consume bytes between Peek and this bounded read.
+    let count = buffer.len().min(available as usize);
+    stdout.read(&mut buffer[..count])
+}
+
+#[cfg(not(any(unix, windows)))]
+fn read_available(
+    _stdout: &mut std::process::ChildStdout,
+    _buffer: &mut [u8],
+) -> io::Result<usize> {
+    Err(io::Error::new(
+        io::ErrorKind::Unsupported,
+        "Nonblocking version output is unsupported on this platform",
+    ))
+}

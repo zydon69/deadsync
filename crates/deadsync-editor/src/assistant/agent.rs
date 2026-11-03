@@ -689,7 +689,7 @@ fn verify_adapter_version(
     let (success, text) =
         probe_version(executable, cancelled, holder, timeout).map_err(|error| {
             if cancelled.load(Ordering::Acquire) {
-                return error;
+                return "Assistant cancelled".into();
             }
             format!(
                 "Codex CLI: {error}. Set DEADSYNC_CODEX_PATH to the installed Codex executable."
@@ -713,8 +713,8 @@ pub(super) fn stop(holder: &Mutex<Option<Child>>) {
     }
 }
 
-/// Run a bounded, cancellable version probe in its own process tree. Cleanup
-/// terminates descendants before waiting for stdout and joining its reader.
+/// Capture version bytes without waiting for pipe EOF. A detached descendant
+/// cannot hold this bounded, cancellable probe open or strand a reader thread.
 pub(super) fn probe_version(
     executable: &Path,
     cancelled: &AtomicBool,
@@ -730,7 +730,6 @@ pub(super) fn probe_version(
     let (child, mut tree) = super::probe_process::ProcessTree::spawn(&mut command)
         .map_err(|error| format!("cannot start the executable ({error})"))?;
     let mut unpublished = Some(child);
-    let mut reader = None;
     let mut output = None;
     // All setup and wait failures pass through the same cleanup below.
     let result = (|| {
@@ -738,32 +737,21 @@ pub(super) fn probe_version(
             .as_mut()
             .and_then(|child| child.stdout.take())
             .ok_or("missing standard output")?;
+        output = Some(
+            super::probe_process::VersionOutput::new(stdout).map_err(|error| error.to_string())?,
+        );
         let mut guard = holder
             .lock()
             .map_err(|_| "Assistant process lock poisoned")?;
         *guard = unpublished.take();
         drop(guard);
-        let (sender, receiver) = mpsc::channel();
-        reader = Some(
-            std::thread::Builder::new()
-                .name("deadsync-assistant-version".into())
-                .spawn(move || {
-                    let mut text = String::new();
-                    let result = std::io::Read::read_to_string(
-                        &mut std::io::Read::take(stdout, 4096),
-                        &mut text,
-                    )
-                    .map(|_| text)
-                    .map_err(|error| error.to_string());
-                    let _ = sender.send(result);
-                })
-                .map_err(|error| error.to_string())?,
-        );
-        output = Some(receiver);
         let deadline = Instant::now() + timeout;
         loop {
             if cancelled.load(Ordering::Acquire) {
                 return Err("Assistant cancelled".into());
+            }
+            if let Some(output) = output.as_mut() {
+                output.poll().map_err(|error| error.to_string())?;
             }
             {
                 let mut guard = holder
@@ -792,20 +780,18 @@ pub(super) fn probe_version(
         let _ = child.kill();
         let _ = child.wait();
     }
-    let text = if let Some(output) = output {
-        let text = output.recv_timeout(Duration::from_secs(1)).map_err(|_| {
-            "Version probe output did not close after process-tree cleanup".to_owned()
-        })?;
-        if let Some(reader) = reader {
-            reader
-                .join()
-                .map_err(|_| "Version probe reader failed".to_owned())?;
-        }
-        text?
-    } else {
-        String::new()
-    };
-    result.map(|success| (success, text))
+    // Cancellation and the primary process error take precedence over output
+    // capture errors, consistently for both runtimes.
+    if cancelled.load(Ordering::Acquire) {
+        return Err("Assistant cancelled".into());
+    }
+    let success = result?;
+    let text = output
+        .map(|output| output.finish())
+        .transpose()
+        .map_err(|error| error.to_string())?
+        .unwrap_or_default();
+    Ok((success, text))
 }
 
 /// Resolve a bare program name the way a spawned process would.
