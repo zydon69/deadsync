@@ -15608,9 +15608,9 @@ mod performance_profile_regressions {
                 crate::runtime_test_support::restore(
                     std::mem::take(&mut self.session),
                     std::mem::replace(
-                        &mut self.profiles,
-                        std::array::from_fn(|_| Profile::default()),
-                    ),
+                    &mut self.profiles,
+                    std::array::from_fn(|_| Profile::default()),
+                ),
                     self.cache.take(),
                 );
                 let _ = fs::remove_dir_all(&self.root);

@@ -301,11 +301,7 @@ impl Drop for OffscreenTarget {
     fn drop(&mut self) {
         // SAFETY: targets retire only after device idle; framebuffer dies before
         // its texture/depth attachments (including the retained raw capture).
-        unsafe {
-            self.texture
-                .device
-                .destroy_framebuffer(self.framebuffer, None);
-        }
+        unsafe {self.texture.device.destroy_framebuffer(self.framebuffer, None);}
     }
 }
 
@@ -2790,7 +2786,7 @@ pub fn draw(
                 tmesh_instance: target_base.tmesh_instance + target_cursor.tmesh_instance,
             };
             let target = &state.offscreen_targets[index];
-            let capture = target.raw_capture.as_deref().unwrap_or(target);
+            let capture=target.raw_capture.as_deref().unwrap_or(target);
             let preserve = target_frame.preserve && capture.initialized;
             let [viewport_width, viewport_height] =
                 deadlib_render_core::render_target_viewport(target_frame);
@@ -2824,30 +2820,18 @@ pub fn draw(
                     [target_frame.depth as usize]
                     .pipelines[target_frame.alpha as usize],
             );
-            if let Some(pass) = target_frame.postprocess {
-                let source =
-                    if let Some(source_index) = fxaa::source_index(&frame.render_targets, index)? {
-                        &state.offscreen_targets[source_index]
-                    } else {
-                        capture
-                    };
+            if let Some(pass)=target_frame.postprocess {
+                let source=if let Some(source_index)=fxaa::source_index(&frame.render_targets,index)? {
+                    &state.offscreen_targets[source_index]
+                }else {capture};
                 // Parent pass has ended in shader-read layout. This separate
                 // fullscreen pass publishes the filtered image before later
                 // targets/main resolve its public handle in the same command buffer.
-                fxaa::record(
-                    state,
-                    cmd,
-                    target,
-                    source,
-                    pass.quality,
-                    target_frame.alpha,
-                    target_frame.depth,
+                fxaa::record(state,cmd,target,source,pass.quality,target_frame.alpha,target_frame.depth,
                 );
-                offscreen_vertices += 3;
+                offscreen_vertices+=3;
             }
-            if let Some(raw) = state.offscreen_targets[index].raw_capture.as_mut() {
-                raw.initialized = true;
-            }
+            if let Some(raw)=state.offscreen_targets[index].raw_capture.as_mut(){raw.initialized=true;}
             state.offscreen_targets[index].initialized = true;
             target_cursor.sprite += target_frame.sprite_instances.len() as u32;
             target_cursor.mesh += target_frame.mesh_vertices.len() as u32;
@@ -3370,24 +3354,8 @@ fn color_blend_for(mode: BlendMode, write_alpha: bool) -> vk::PipelineColorBlend
         vk::ColorComponentFlags::R | vk::ColorComponentFlags::G | vk::ColorComponentFlags::B
     };
     match mode {
-        BlendMode::Replace => vk::PipelineColorBlendAttachmentState::default()
-            .color_write_mask(write_mask)
-            .blend_enable(true)
-            .src_color_blend_factor(vk::BlendFactor::ONE)
-            .dst_color_blend_factor(vk::BlendFactor::ZERO)
-            .color_blend_op(vk::BlendOp::ADD)
-            .src_alpha_blend_factor(vk::BlendFactor::ONE)
-            .dst_alpha_blend_factor(vk::BlendFactor::ZERO)
-            .alpha_blend_op(vk::BlendOp::ADD),
-        BlendMode::PremultipliedAlpha => vk::PipelineColorBlendAttachmentState::default()
-            .color_write_mask(write_mask)
-            .blend_enable(true)
-            .src_color_blend_factor(vk::BlendFactor::ONE)
-            .dst_color_blend_factor(vk::BlendFactor::ONE_MINUS_SRC_ALPHA)
-            .color_blend_op(vk::BlendOp::ADD)
-            .src_alpha_blend_factor(vk::BlendFactor::ONE)
-            .dst_alpha_blend_factor(vk::BlendFactor::ONE_MINUS_SRC_ALPHA)
-            .alpha_blend_op(vk::BlendOp::ADD),
+        BlendMode::Replace => vk::PipelineColorBlendAttachmentState::default().color_write_mask(write_mask).blend_enable(true).src_color_blend_factor(vk::BlendFactor::ONE).dst_color_blend_factor(vk::BlendFactor::ZERO).color_blend_op(vk::BlendOp::ADD).src_alpha_blend_factor(vk::BlendFactor::ONE).dst_alpha_blend_factor(vk::BlendFactor::ZERO).alpha_blend_op(vk::BlendOp::ADD),
+        BlendMode::PremultipliedAlpha => vk::PipelineColorBlendAttachmentState::default().color_write_mask(write_mask).blend_enable(true).src_color_blend_factor(vk::BlendFactor::ONE).dst_color_blend_factor(vk::BlendFactor::ONE_MINUS_SRC_ALPHA).color_blend_op(vk::BlendOp::ADD).src_alpha_blend_factor(vk::BlendFactor::ONE).dst_alpha_blend_factor(vk::BlendFactor::ONE_MINUS_SRC_ALPHA).alpha_blend_op(vk::BlendOp::ADD),
         BlendMode::NoEffect => vk::PipelineColorBlendAttachmentState::default()
             .color_write_mask(write_mask)
             .blend_enable(true)
@@ -5013,15 +4981,15 @@ fn create_pass_pipelines(
             let mut variants = Vec::with_capacity(6);
             for depth_mode in deadlib_render_core::DepthMode::ALL {
                 variants.push(build_blend_pipelines(|blend| {
-                    create_textured_mesh_pipeline(
-                        device,
-                        render_pass,
-                        descriptor_layout,
-                        blend,
-                        write_alpha,
+                create_textured_mesh_pipeline(
+                    device,
+                    render_pass,
+                    descriptor_layout,
+                    blend,
+                    write_alpha,
                         depth_mode,
-                    )
-                })?);
+                )
+            })?);
             }
             Some(variants.try_into().ok().expect("six depth modes"))
         } else {
@@ -5217,9 +5185,7 @@ fn ensure_offscreen_targets(
 ) -> Result<(), Box<dyn Error>> {
     // Validate before touching resources: a filtered pass may sample only an
     // earlier published target, never itself, a future target or an asset.
-    for index in 0..passes.len() {
-        fxaa::source_index(passes, index)?;
-    }
+    for index in 0..passes.len() {fxaa::source_index(passes,index)?;}
     let matches = state.offscreen_targets.len() == passes.len()
         && state
             .offscreen_targets
@@ -5230,7 +5196,7 @@ fn ensure_offscreen_targets(
                     && target.width == pass.width.max(1)
                     && target.height == pass.height.max(1)
                     && target.float_color == pass.float_color
-                    && target.postprocess_source == pass.postprocess.map(|fx| fx.source)
+                    && target.postprocess_source == pass.postprocess.map(|fx|fx.source)
                     && target._depth.is_some() == pass.depth
             });
     if matches {
@@ -5247,10 +5213,10 @@ fn ensure_offscreen_targets(
     state.target_uploads.reserve(passes.len());
     for pass in passes {
         let mut target = create_offscreen_target(state, pass)?;
-        target.postprocess_source = pass.postprocess.map(|fx| fx.source);
-        if target.postprocess_source == Some(None) {
+        target.postprocess_source=pass.postprocess.map(|fx|fx.source);
+        if target.postprocess_source==Some(None) {
             // Parent capture must remain unfiltered between preserve frames.
-            target.raw_capture = Some(Box::new(create_offscreen_target(state, pass)?));
+            target.raw_capture=Some(Box::new(create_offscreen_target(state,pass)?));
         }
         state.offscreen_targets.push(target);
         state

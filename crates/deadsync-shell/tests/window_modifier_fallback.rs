@@ -38,12 +38,9 @@ fn command_snapshot_drives_editor_paste_when_no_physical_modifier_arrives() {
     )
     .unwrap();
     let mut state = State::open(&path, 0).unwrap();
-    for code in [
-        KeyCode::F11,
+    for code in [KeyCode::F11, KeyCode::ArrowDown,
         KeyCode::ArrowDown,
-        KeyCode::ArrowDown,
-        KeyCode::ArrowDown,
-        KeyCode::Enter,
+        KeyCode::ArrowDown, KeyCode::Enter,
     ] {
         key(&mut state, code, true);
         key(&mut state, code, false);

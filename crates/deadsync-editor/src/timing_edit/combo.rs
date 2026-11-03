@@ -140,11 +140,9 @@ impl Draft {
     pub fn capture(session: &Session, chart: usize, scope: Scope) -> Result<Self, Error> {
         let target = Target::capture(session, chart, scope)?;
 
-        let current = Combos::parse(&super::resident::text(
-            session.document(),
-            target.origin(),
-            "COMBOS",
-        )?)?;
+        let current = Combos::parse(
+            &super::resident::text(session.document(),target.origin(),"COMBOS")?,
+        )?;
         Ok(Self {
             target,
             original: current.clone(),

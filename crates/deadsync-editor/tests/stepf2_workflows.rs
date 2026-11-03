@@ -97,16 +97,8 @@ fn session_file_save_typed_inspector_and_exact_history_preserve_unedited_data() 
         assert_eq!(file.session.serialize().unwrap(), original.as_bytes());
         file.save().unwrap();
         assert_eq!(file.session.serialize().unwrap(), original.as_bytes());
-        source_output_context::assert_context(
-            original.as_bytes(),
-            &std::fs::read(&path).unwrap(),
-            format,
-            source_output_context::Context {
-                sync_offset: 0.009,
-                chart_type: "dance_single",
-                chart_index: 0,
-            },
-        );
+        source_output_context::assert_context(original.as_bytes(), &std::fs::read(&path).unwrap(), format,
+            source_output_context::Context { sync_offset: 0.009, chart_type: "dance_single", chart_index: 0 });
         let mut draft = Draft::capture(&mut file.session, 0, pos(1, 1, 0)).unwrap();
         let before = draft.stepf2_attributes(Field::Head).unwrap().unwrap();
         assert_eq!(before.visibility, Visibility::Hidden);
@@ -140,16 +132,8 @@ fn session_file_save_typed_inspector_and_exact_history_preserve_unedited_data() 
             file.session.grid(0).unwrap()
         );
         assert_eq!(file.session.serialize().unwrap(), edited);
-        source_output_context::assert_context(
-            &edited,
-            &std::fs::read(&path).unwrap(),
-            format,
-            source_output_context::Context {
-                sync_offset: 0.009,
-                chart_type: "dance_single",
-                chart_index: 0,
-            },
-        );
+        source_output_context::assert_context(&edited, &std::fs::read(&path).unwrap(), format,
+            source_output_context::Context { sync_offset: 0.009, chart_type: "dance_single", chart_index: 0 });
     }
 }
 
@@ -292,16 +276,8 @@ fn cross_notation_edits_fail_atomically_and_transient_grids_cannot_export_decora
         assert_eq!(file.session.serialize().unwrap(), original.as_bytes());
         file.save().unwrap();
         assert_eq!(file.session.serialize().unwrap(), original.as_bytes());
-        source_output_context::assert_context(
-            original.as_bytes(),
-            &std::fs::read(&path).unwrap(),
-            Format::Ssc,
-            source_output_context::Context {
-                sync_offset: 0.009,
-                chart_type: "dance_single",
-                chart_index: 0,
-            },
-        );
+        source_output_context::assert_context(original.as_bytes(), &std::fs::read(&path).unwrap(), Format::Ssc,
+            source_output_context::Context { sync_offset: 0.009, chart_type: "dance_single", chart_index: 0 });
         // Internal projections may retain the decoration temporarily, but
         // canonical serialization must refuse false standard-file semantics.
         let mut projected = Grid::new(10, 1).unwrap();
@@ -382,16 +358,8 @@ fn source_layout_minimum_participants_survive_coop_decode_edit_save_and_reopen()
                 file.session.grid(0).unwrap()
             );
             assert_eq!(file.session.serialize().unwrap(), edited);
-            source_output_context::assert_context(
-                &edited,
-                &std::fs::read(&path).unwrap(),
-                format,
-                source_output_context::Context {
-                    sync_offset: 0.009,
-                    chart_type: "dance_single",
-                    chart_index: 0,
-                },
-            );
+        source_output_context::assert_context(&edited, &std::fs::read(&path).unwrap(), format,
+            source_output_context::Context { sync_offset: 0.009, chart_type: "dance_single", chart_index: 0 });
             file.session.undo().unwrap();
             assert_eq!(file.session.serialize().unwrap(), original.as_bytes());
         }
@@ -488,16 +456,8 @@ fn raw_fake_toggles_keep_note_kind_typed_fields_and_saved_wire_consistent() {
                 file.session.grid(0).unwrap()
             );
             assert_eq!(file.session.serialize().unwrap(), edited);
-            source_output_context::assert_context(
-                &edited,
-                &std::fs::read(&path).unwrap(),
-                format,
-                source_output_context::Context {
-                    sync_offset: 0.009,
-                    chart_type: "dance_single",
-                    chart_index: 0,
-                },
-            );
+        source_output_context::assert_context(&edited, &std::fs::read(&path).unwrap(), format,
+            source_output_context::Context { sync_offset: 0.009, chart_type: "dance_single", chart_index: 0 });
             let readback = Draft::capture(&mut reopened.session, 0, pos(0, 0, 0)).unwrap();
             assert_eq!(
                 readback

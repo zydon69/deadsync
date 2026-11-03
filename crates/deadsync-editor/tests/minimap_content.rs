@@ -1,5 +1,5 @@
-use deadsync_editor::minimap_content;
 use deadsync_editor::minimap_projection;
+use deadsync_editor::minimap_content;
 use minimap_content::{AddResult, Raster};
 #[test]
 fn pinned_csharp_visibility_lane_layout_and_raster_match_168_cases() {

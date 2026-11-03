@@ -13,9 +13,7 @@ pub enum GenerationTask {
 }
 impl GenerationTask {
     pub fn spawn(self) -> Result<super::job::Job<super::pattern_job::Preview>, Error> {
-        match self {
-            Self::Builtin(task) => task.spawn(),
-            Self::Directory(task) => task.spawn(),
+        match self { Self::Builtin(task) => task.spawn(), Self::Directory(task) => task.spawn(),
         }
     }
 }
@@ -33,51 +31,24 @@ pub struct Draft {
 }
 impl Draft {
     /// Preserve pending values across the immediately following disk-only copy creation.
-    pub fn new_profile_plan(
-        &self,
-        session: &Session,
-        kind: super::profiles::Kind,
-    ) -> Result<crate::history::profile_creation::Plan, Error> {
-        self.data(session, self.chart)?;
-        if let Some(selection) = &self.profiles {
-            selection.check(
-                &self.definition.pattern_config_guid,
-                &self.definition.performed_chart_config_guid,
-                &self.expressed_chart_config,
-            )?;
-        }
-        crate::history::profile_creation::Plan::marker(
-            session,
-            self.chart,
-            self.original_start,
-            kind,
+    pub fn new_profile_plan(&self,session:&Session,kind:super::profiles::Kind,
+    )->Result<crate::history::profile_creation::Plan,Error>{
+        self.data(session,self.chart)?;
+        if let Some(selection)=&self.profiles{selection.check(&self.definition.pattern_config_guid,&self.definition.performed_chart_config_guid,&self.expressed_chart_config,
+            )?;}
+        crate::history::profile_creation::Plan::marker(session,self.chart,self.original_start,kind,
         )
     }
-    pub fn after_inline_profile_creation(
-        &mut self,
-        session: &Session,
-        receipt: &crate::history::profile_creation::Committed,
-    ) -> Result<(), Error> {
-        let guid = receipt.rebind(session, &self.token, self.chart, Some(self.original_start))?;
-        match receipt.kind() {
-            super::profiles::Kind::Pattern => {
-                self.original.pattern_config_guid = guid.clone();
-                self.definition.pattern_config_guid = guid;
-            }
-            super::profiles::Kind::Performed => {
-                self.original.performed_chart_config_guid = guid.clone();
-                self.definition.performed_chart_config_guid = guid;
-            }
-            super::profiles::Kind::Expressed => {
-                self.original_expression = guid.clone();
-                self.expressed_chart_config = guid;
-            }
+    pub fn after_inline_profile_creation(&mut self,session:&Session,receipt:&crate::history::profile_creation::Committed,
+    )->Result<(),Error>{
+        let guid=receipt.rebind(session,&self.token,self.chart,Some(self.original_start))?;
+        match receipt.kind(){
+            super::profiles::Kind::Pattern=>{self.original.pattern_config_guid=guid.clone();self.definition.pattern_config_guid=guid;}
+            super::profiles::Kind::Performed=>{self.original.performed_chart_config_guid=guid.clone();self.definition.performed_chart_config_guid=guid;}
+            super::profiles::Kind::Expressed=>{self.original_expression=guid.clone();self.expressed_chart_config=guid;}
         }
-        if let Some(selection) = self.profiles.as_mut() {
-            selection.after_inline_creation(receipt);
-        }
-        self.token = session.revision_token();
-        Ok(())
+        if let Some(selection)=self.profiles.as_mut(){selection.after_inline_creation(receipt);}
+        self.token=session.revision_token();Ok(())
     }
     pub fn after_profile_history(&mut self, session: &Session, redo: bool) -> Result<(), Error> {
         self.token = session.after_profile_history(&self.token, redo)?;
@@ -139,32 +110,18 @@ impl Draft {
 
     /// Generate the inspected marker without resolving it again at the cursor.
     pub fn generation_task(
-        &self,
-        session: &Session,
-        chart: usize,
-        directory: Option<&std::path::Path>,
+        &self, session: &Session, chart: usize, directory: Option<&std::path::Path>,
     ) -> Result<GenerationTask, Error> {
         self.data(session, chart)?;
         if self.has_changes() {
-            return Err(invalid(
-                "Apply or discard marker edits before generating its notes",
+            return Err(invalid("Apply or discard marker edits before generating its notes",
             ));
         }
         match directory {
-            Some(directory) => Ok(GenerationTask::Directory(
-                super::pattern_job::SavedTask::capture(
-                    session,
-                    chart,
-                    self.original_start,
-                    directory,
+            Some(directory) => Ok(GenerationTask::Directory(super::pattern_job::SavedTask::capture(session, chart, self.original_start, directory,
                 )?,
             )),
-            None => Ok(GenerationTask::Builtin(
-                super::pattern_job::Task::capture_saved(
-                    session,
-                    chart,
-                    self.original_start,
-                    &super::metadata::Registry::builtin(),
+            None => Ok(GenerationTask::Builtin(super::pattern_job::Task::capture_saved(session, chart, self.original_start, &super::metadata::Registry::builtin(),
                 )?,
             )),
         }
@@ -172,35 +129,17 @@ impl Draft {
 
     /// Source random-seed callbacks are immediate, independent actions. A pending
     /// native Apply draft must be resolved before this action can target its event.
-    pub(crate) fn reseed(
-        &self,
-        session: &mut Session,
-        chart: usize,
-        seed: i32,
-    ) -> Result<bool, Error> {
-        let mut data = self.data(session, chart)?;
-        if self.has_changes() {
-            return Err(invalid(
-                "Apply or discard marker edits before choosing a new seed",
-            ));
-        }
-        if !(0..i32::MAX).contains(&seed) {
-            return Err(invalid(
-                "New random seed is outside System.Random.Next's range",
-            ));
-        }
-        let definition = data
-            .patterns
-            .as_mut()
-            .and_then(|patterns| patterns.get_mut(&self.original_start))
-            .ok_or_else(|| invalid("Inspected pattern marker is missing"))?;
-        if *definition != self.original {
-            return Err(invalid("Inspected pattern marker changed"));
-        }
-        definition.random_seed = seed;
-        if data.save_with_offset(session, chart, None, "Set pattern random seed")? {
-            return Ok(true);
-        }
+    pub(crate) fn reseed(&self, session:&mut Session, chart:usize, seed:i32,
+    )->Result<bool,Error>{
+        let mut data=self.data(session,chart)?;
+        if self.has_changes(){return Err(invalid("Apply or discard marker edits before choosing a new seed",
+            ));}
+        if !(0..i32::MAX).contains(&seed){return Err(invalid("New random seed is outside System.Random.Next's range",
+            ));}
+        let definition=data.patterns.as_mut().and_then(|patterns|patterns.get_mut(&self.original_start)).ok_or_else(||invalid("Inspected pattern marker is missing"))?;
+        if *definition!=self.original{return Err(invalid("Inspected pattern marker changed"));}
+        definition.random_seed=seed;
+        if data.save_with_offset(session,chart,None,"Set pattern random seed")?{return Ok(true);}
         // Random.Next may repeat the previous value. Source still enqueues the
         // explicit seed action; preserve history without inventing byte changes.
         session.commit_marker_seed_touch(chart)

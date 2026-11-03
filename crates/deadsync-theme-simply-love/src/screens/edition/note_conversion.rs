@@ -1,19 +1,8 @@
 use super::{Panel, SNAP_ROWS, State};
 use crate::i18n;
 use deadlib_platform::input::KeyCode;
-use deadsync_editor::{note_swap::Pair, notes::Kind, transform::Transform};
-const PAIRS: [Pair; 10] = [
-    Pair::TapsMines,
-    Pair::TapsFakes,
-    Pair::TapsLifts,
-    Pair::MinesFakes,
-    Pair::MinesLifts,
-    Pair::HoldsRolls,
-    Pair::HoldsTaps,
-    Pair::HoldsMines,
-    Pair::RollsTaps,
-    Pair::RollsMines,
-];
+use deadsync_editor::{notes::Kind, transform::Transform, note_swap::Pair};
+const PAIRS: [Pair; 10] = [Pair::TapsMines, Pair::TapsFakes, Pair::TapsLifts, Pair::MinesFakes, Pair::MinesLifts, Pair::HoldsRolls, Pair::HoldsTaps, Pair::HoldsMines, Pair::RollsTaps, Pair::RollsMines];
 const SOURCES: [Kind; 8] = [
     Kind::Tap,
     Kind::Hold,
@@ -49,26 +38,13 @@ impl Default for Settings {
     }
 }
 impl State {
-    pub(super) fn note_conversion_operation(
-        &self,
-        swap: bool,
-    ) -> deadsync_editor::note_operation::Operation {
+    pub(super) fn note_conversion_operation(&self, swap: bool) -> deadsync_editor::note_operation::Operation {
         let settings = &self.note_conversion;
-        if swap {
-            deadsync_editor::note_operation::Operation::Swap(PAIRS[settings.swap])
-        } else {
-            deadsync_editor::note_operation::Operation::Convert {
-                from: SOURCES[settings.from],
-                to: TARGETS[settings.to],
-                sustain_rows: SNAP_ROWS[settings.duration],
-            }
-        }
+        if swap { deadsync_editor::note_operation::Operation::Swap(PAIRS[settings.swap]) }
+        else { deadsync_editor::note_operation::Operation::Convert { from: SOURCES[settings.from], to: TARGETS[settings.to], sustain_rows: SNAP_ROWS[settings.duration] } }
     }
     pub(super) fn note_conversion_key(&mut self, index: usize, code: KeyCode) {
-        if code == KeyCode::F8 {
-            self.open_note_operation_review(false);
-            return;
-        }
+        if code == KeyCode::F8 { self.open_note_operation_review(false); return; }
         match code {
             KeyCode::Escape => self.panel = Some(Panel::Transforms(9)),
             KeyCode::ArrowUp => self.panel = Some(Panel::NoteConversion((index + 6) % 7)),
@@ -80,48 +56,26 @@ impl State {
                 let (value, count) = match index {
                     0 => (&mut self.note_conversion.from, SOURCES.len()),
                     1 => (&mut self.note_conversion.to, TARGETS.len()),
-                    _ => (&mut self.note_conversion.duration, SNAP_ROWS.len() - 1),
+                    _ => (&mut self.note_conversion.duration, SNAP_ROWS.len()-1),
                 };
                 *value = (*value + if forward { 1 } else { count - 1 }) % count;
             }
             KeyCode::ArrowLeft | KeyCode::ArrowRight | KeyCode::Enter if index == 5 => {
                 let count = PAIRS.len();
-                self.note_conversion.swap = (self.note_conversion.swap
-                    + if code == KeyCode::ArrowLeft {
-                        count - 1
-                    } else {
-                        1
-                    })
-                    % count;
+                self.note_conversion.swap = (self.note_conversion.swap + if code == KeyCode::ArrowLeft { count - 1 } else { 1 }) % count;
             }
             KeyCode::Enter if index == 6 => {
                 let pair = PAIRS[self.note_conversion.swap];
                 match self.workspace.swap_note_types_detailed(pair) {
                     Ok(changed) => {
-                        if changed {
-                            self.panel = None;
-                        }
+                        if changed { self.panel = None; }
                         self.sync_event_selection_history();
-                        self.status = i18n::tr(
-                            "Edition",
-                            if changed {
-                                "NoteSwapApplied"
-                            } else {
-                                "NoteSwapNoChange"
-                            },
-                        );
+                        self.status = i18n::tr("Edition", if changed { "NoteSwapApplied" } else { "NoteSwapNoChange" });
                     }
-                    Err(error) => {
-                        self.status = i18n::tr(
-                            "Edition",
-                            match error.kind() {
-                                deadsync_editor::note_swap::Refusal::ZeroDurationSustain => {
-                                    "NoteSwapZeroSustain"
-                                }
-                                deadsync_editor::note_swap::Refusal::Invalid => "NoteSwapFailed",
-                            },
-                        )
-                    }
+                    Err(error) => self.status = i18n::tr("Edition", match error.kind() {
+                        deadsync_editor::note_swap::Refusal::ZeroDurationSustain => "NoteSwapZeroSustain",
+                        deadsync_editor::note_swap::Refusal::Invalid => "NoteSwapFailed",
+                    }),
                 }
                 self.refresh();
             }
@@ -150,7 +104,7 @@ impl State {
             1 => i18n::tr("Edition", &format!("{:?}", TARGETS[settings.to])).to_string(),
             2 => SNAP_ROWS[settings.duration].to_string(),
             5 => {
-                let (a, b) = PAIRS[settings.swap].kinds();
+                let (a,b) = PAIRS[settings.swap].kinds();
                 let a = i18n::tr("Edition", &format!("{a:?}"));
                 let b = i18n::tr("Edition", &format!("{b:?}"));
                 format!("{a} / {b}")
@@ -169,37 +123,22 @@ mod selection_history_tests {
     #[test]
     fn legacy_convert_and_swap_panels_preserve_selection_on_apply_undo_redo_en_fr() {
         for fr in [false, true] {
-            if fr {
-                crate::i18n::init(deadsync_assets::language::load_for_tests("fr"));
-            } else {
-                crate::i18n::init_for_tests();
-            }
+            if fr { crate::i18n::init(deadsync_assets::language::load_for_tests("fr")); }
+            else { crate::i18n::init_for_tests(); }
             for swap in [false, true] {
                 let root = tempfile::tempdir().unwrap();
                 let path = root.path().join("notes.ssc");
                 std::fs::write(&path, b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000\n0100\n0000\n0000;").unwrap();
                 let mut state = State::open(&path, 0).unwrap();
-                let target = Position {
-                    row: 0,
-                    lane: 0,
-                    player: 0,
-                };
+                let target = Position { row: 0, lane: 0, player: 0 };
                 let before = state.workspace.file().session.serialize().unwrap();
                 let index = if swap { 6 } else { 3 };
                 state.panel = Some(Panel::NoteConversion(index));
                 state.note_conversion_key(index, KeyCode::Enter);
                 assert!(state.panel.is_none(), "{}", state.status);
                 let expected_kind = if swap { Kind::Mine } else { Kind::Hold };
-                assert_eq!(
-                    state.workspace.grid().get(target).unwrap().kind,
-                    expected_kind
-                );
-                let selected = |state: &State| {
-                    state
-                        .event_selection
-                        .as_ref()
-                        .map(|settings| settings.selection.selected_events().collect::<Vec<_>>())
-                };
+                assert_eq!(state.workspace.grid().get(target).unwrap().kind, expected_kind);
+                let selected = |state: &State| state.event_selection.as_ref().map(|settings| settings.selection.selected_events().collect::<Vec<_>>());
                 assert_eq!(selected(&state), Some(vec![Event::Note(target)]));
                 let after = state.workspace.file().session.serialize().unwrap();
                 state.command(Command::Undo);

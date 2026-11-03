@@ -153,10 +153,7 @@ fn native_scan_executes_original_full_traversal_earlyouts_and_layout_for_216_cas
         .unwrap();
         let expected_calls = case["calls"].as_array().unwrap();
         let positions = |calls: &[Value]| {
-            calls
-                .iter()
-                .map(|call| (call["id"].as_u64().unwrap(), call["y"].as_f64().unwrap()))
-                .collect::<Vec<_>>()
+            calls.iter().map(|call| (call["id"].as_u64().unwrap(), call["y"].as_f64().unwrap())).collect::<Vec<_>>()
         };
         // Compare exact numeric coordinates and call order. .NET emits whole
         // doubles as JSON integers; serde emits their decimal representation.

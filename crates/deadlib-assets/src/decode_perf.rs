@@ -45,10 +45,7 @@ fn batching_matches_original_pixels_errors_and_cancellation() {
                 output.push((
                     result.key,
                     result.sampler,
-                    result
-                        .decoded
-                        .map(|decoded| (decoded.source_size, decoded.image))
-                        .map_err(|e| e.to_string()),
+                    result.decoded.map(|decoded| (decoded.source_size, decoded.image)).map_err(|e| e.to_string()),
                 ));
                 Ok(())
             };

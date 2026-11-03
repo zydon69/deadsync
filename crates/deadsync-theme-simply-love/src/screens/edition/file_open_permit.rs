@@ -36,7 +36,7 @@ impl Permit {
         #[cfg(not(any(test, feature = "test-support")))]
         {
             static GATE: std::sync::OnceLock<Gate> = std::sync::OnceLock::new();
-            GATE.get_or_init(Gate::default).acquire()
+        GATE.get_or_init(Gate::default).acquire()
         }
     }
 }

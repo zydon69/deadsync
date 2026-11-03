@@ -106,9 +106,7 @@ pub struct Item {
 /// Resolve only authored menu labels. User playlist and saved-profile names
 /// remain shared/owned text and must never pass through the label lookup.
 pub(super) fn localized_label(label: &TextContent) -> TextContent {
-    let TextContent::Static(source) = label else {
-        return label.clone();
-    };
+    let TextContent::Static(source) = label else { return label.clone(); };
     let key = match *source {
         "PRESS &SELECT; TO CANCEL" => "PRESSSELECTTOCANCEL",
         "Sorts..." => "CategorySorts",

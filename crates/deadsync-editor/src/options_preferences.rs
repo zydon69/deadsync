@@ -250,7 +250,7 @@ pub(crate) mod history;
 pub use history::Update;
 
 pub(crate) mod general;
-pub use general::{General, Update as GeneralUpdate};
+pub use general::{General,Update as GeneralUpdate};
 
 pub mod startup;
 

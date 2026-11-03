@@ -282,49 +282,24 @@ fn chart_playback_discards_old_wheel_interpolation_and_admits_new_detents() {
         let song = root.path().join("song.ssc");
         std::fs::write(root.path().join("music.ogg"), b"command-only fixture").unwrap();
         std::fs::write(&song,b"#VERSION:0.83;#GASongDataVersion:1;#GASongData:{\"SyncOffset\":0};#MUSIC:music.ogg;#OFFSET:0;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;").unwrap();
-        let prefs = root.path().join("prefs.json");
+        let prefs=root.path().join("prefs.json");
         std::fs::write(&prefs,serde_json::to_vec(&serde_json::json!({"Version":1,"Scroll":{"SpacingMode":"ConstantTime","StopPlaybackWhenScrolling":stop},"Zoom":{"ScrollInterpolationDuration":1},"KeyBinds":{"SnapToNone":[["F14"]]}})).unwrap()).unwrap();
-        let mut s = State::open_with_preferences(&song, 0, &prefs).unwrap();
-        let owner = s
-            .take_audio_commands()
-            .iter()
-            .find_map(|command| match command {
-                deadsync_gameplay::GameplayAudioCommand::EditorBeginAudio { owner, .. } => {
-                    Some(*owner)
-                }
-                _ => None,
-            })
-            .expect("editor scope");
-        let mut ack = deadsync_gameplay::GameplayAudioSnapshot::default();
-        ack.editor.owner = owner;
-        ack.editor.output.available = true;
-        ack.editor.output.leased = true;
-        ack.editor.output.period_control = deadsync_gameplay::EditorBufferControl::Adjustable;
-        ack.editor.output.requested_period = Some(512);
-        ack.editor.output.negotiated_period = Some(512);
-        s.update_audio(ack);
-        s.take_audio_commands();
-        press(&mut s, KeyCode::F14);
-        let now = Instant::now();
-        s.update_with_time(now);
-        assert!(s.wheel_lines(-1.));
-        s.update_with_time(now + Duration::from_millis(16));
-        press(&mut s, KeyCode::Enter);
-        assert!(s.is_playing());
-        s.take_audio_commands();
-        s.update_with_time(now + Duration::from_millis(32));
-        assert!(s.is_playing());
-        assert!(
-            s.take_audio_commands().is_empty(),
-            "old interpolation must not seek or stop transport"
-        );
-        assert!(s.wheel_lines(-1.));
-        s.update_with_time(now + Duration::from_millis(48));
-        assert_eq!(s.is_playing(), !stop);
-        assert!(
-            !s.take_audio_commands().is_empty(),
-            "new playing detent still seeks or stops immediately"
-        );
+        let mut s=State::open_with_preferences(&song,0,&prefs).unwrap();
+        let owner=s.take_audio_commands().iter().find_map(|command|match command {deadsync_gameplay::GameplayAudioCommand::EditorBeginAudio{owner,..}=>Some(*owner),_=>None}).expect("editor scope");
+        let mut ack=deadsync_gameplay::GameplayAudioSnapshot::default();
+        ack.editor.owner=owner;ack.editor.output.available=true;ack.editor.output.leased=true;
+        ack.editor.output.period_control=deadsync_gameplay::EditorBufferControl::Adjustable;
+        ack.editor.output.requested_period=Some(512);ack.editor.output.negotiated_period=Some(512);
+        s.update_audio(ack);s.take_audio_commands();
+        press(&mut s,KeyCode::F14);
+        let now=Instant::now();s.update_with_time(now);
+        assert!(s.wheel_lines(-1.));s.update_with_time(now+Duration::from_millis(16));
+        press(&mut s,KeyCode::Enter);assert!(s.is_playing());s.take_audio_commands();
+        s.update_with_time(now+Duration::from_millis(32));
+        assert!(s.is_playing());assert!(s.take_audio_commands().is_empty(),"old interpolation must not seek or stop transport");
+        assert!(s.wheel_lines(-1.));s.update_with_time(now+Duration::from_millis(48));
+        assert_eq!(s.is_playing(),!stop);
+        assert!(!s.take_audio_commands().is_empty(),"new playing detent still seeks or stops immediately");
     }
 }
 

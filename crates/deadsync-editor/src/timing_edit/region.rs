@@ -129,11 +129,17 @@ impl Draft {
     pub fn capture(session: &Session, chart: usize, scope: Scope) -> Result<Self, Error> {
         let target = Target::capture(session, chart, scope)?;
         let document = session.document();
-        let properties = super::resident::Properties::capture(document, target.origin())?;
+        let properties = super::resident::Properties::capture(document,target.origin())?;
 
         let current = [
-            Regions::parse(Kind::Warp, &properties.text("WARPS"))?,
-            Regions::parse(Kind::Fake, &properties.text("FAKES"))?,
+            Regions::parse(
+                Kind::Warp,
+                &properties.text("WARPS"),
+            )?,
+            Regions::parse(
+                Kind::Fake,
+                &properties.text("FAKES"),
+            )?,
         ];
         Ok(Self {
             target,

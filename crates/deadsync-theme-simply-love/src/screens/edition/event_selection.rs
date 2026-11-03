@@ -15,11 +15,12 @@ const HELP_BOTTOM_RESERVE: f32 = 215.0;
 
 fn page_size(height: f32) -> usize {
     // Leave a full text row between the final event and the help block.
-    (((height - HELP_BOTTOM_RESERVE - FIRST_EVENT_Y - 24.0) / EVENT_ROW_HEIGHT)
+    (((height - HELP_BOTTOM_RESERVE - FIRST_EVENT_Y - 24.0)
+        / EVENT_ROW_HEIGHT)
         .floor()
         .max(0.0) as usize
         + 1)
-    .min(MAX_PAGE)
+        .min(MAX_PAGE)
 }
 pub(super) struct Settings {
     pub(super) selection: Selection,
@@ -27,72 +28,41 @@ pub(super) struct Settings {
     presets: Option<presets::Settings>,
 }
 impl State {
-    pub(super) fn selected_note_positions_for_render(
-        &self,
-        chart: usize,
-    ) -> Option<BTreeSet<deadsync_editor::notes::Position>> {
+    pub(super) fn selected_note_positions_for_render(&self, chart: usize)
+        -> Option<BTreeSet<deadsync_editor::notes::Position>>
+    {
         if self.preview.is_some() || self.workspace.active_chart() != Some(chart) {
             return None;
         }
-        let settings = self.event_selection.as_ref().filter(|settings| {
-            settings.selection.chart() == chart
-                && settings
-                    .selection
-                    .is_current(&self.workspace.file().session)
-        })?;
-        Some(
-            settings
-                .selection
-                .selected_events()
-                .filter_map(|event| match event {
-                    Event::Note(position) => Some(position),
-                    _ => None,
-                })
-                .collect(),
-        )
+        let settings = self.event_selection.as_ref()
+            .filter(|settings| settings.selection.chart() == chart
+                && settings.selection.is_current(&self.workspace.file().session))?;
+        Some(settings.selection.selected_events()
+            .filter_map(|event| match event { Event::Note(position) => Some(position), _ => None })
+            .collect())
     }
 
     /// Source OnDelete consumes only selected events. No selection is a no-op;
     /// the legacy native row-delete command deliberately keeps its own contract.
     pub(super) fn delete_source_event_selection(&mut self) {
         if self.event_selection.is_none() {
-            if self.workspace.selection().is_none() {
-                self.status = i18n::tr("Edition", "EventSelectionNoChoice");
-                return;
-            }
+            if self.workspace.selection().is_none() {self.status=i18n::tr("Edition","EventSelectionNoChoice");return;}
             match self.workspace.note_range_event_selection() {
-                Ok(selection) => self.replace_region_event_selection(selection),
-                Err(error) => {
-                    self.status = i18n::editor_error(&error).into();
-                    return;
-                }
+                Ok(selection)=>self.replace_region_event_selection(selection),
+                Err(error)=>{self.status=i18n::editor_error(&error).into();return;}
             }
         }
-        let settings = self
-            .event_selection
-            .take()
-            .expect("selection prepared above");
-        let result = self.workspace.delete_event_selection(&settings.selection);
-        if settings
-            .selection
-            .is_current(&self.workspace.file().session)
-        {
-            self.event_selection = Some(settings);
-        }
-        self.status = match result {
-            Ok(true) => i18n::tr("Edition", "EventSelectionDeleted"),
-            Ok(false) => i18n::tr("Edition", "EventSelectionNoChange"),
-            Err(error) => i18n::editor_error(&error).into(),
+        let settings=self.event_selection.take().expect("selection prepared above");
+        let result=self.workspace.delete_event_selection(&settings.selection);
+        if settings.selection.is_current(&self.workspace.file().session) {self.event_selection=Some(settings);}
+        self.status=match result {
+            Ok(true)=>i18n::tr("Edition","EventSelectionDeleted"),
+            Ok(false)=>i18n::tr("Edition","EventSelectionNoChange"),
+            Err(error)=>i18n::editor_error(&error).into(),
         };
         self.refresh();
     }
-    pub(super) fn replace_region_event_selection(&mut self, selection: Selection) {
-        self.event_selection = Some(Settings {
-            selection,
-            index: 0,
-            presets: None,
-        });
-    }
+    pub(super) fn replace_region_event_selection(&mut self,selection:Selection){self.event_selection=Some(Settings{selection,index:0,presets:None});}
 
     pub(super) fn sync_event_selection_history(&mut self) {
         let Some(effect) = self.workspace.take_event_selection_update() else {
@@ -215,11 +185,7 @@ impl State {
                 self.status = i18n::tr("Edition", "EventSelectionTitle");
             }
             Err(error) => {
-                self.status = i18n::tr_fmt(
-                    "Edition",
-                    "Error",
-                    &[("message", &crate::i18n::editor_error(&error))],
-                )
+                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))])
             }
         }
     }
@@ -241,14 +207,8 @@ impl State {
             .prepare_selected_timing_conversion(selection, direction)
     }
     pub(super) fn event_selection_key(&mut self, code: KeyCode) {
-        if self.region_selection.is_some() {
-            self.region_selection_key(code);
-            return;
-        }
-        if code == KeyCode::F4 {
-            self.open_region_selection();
-            return;
-        }
+        if self.region_selection.is_some(){self.region_selection_key(code);return;}
+        if code==KeyCode::F4 {self.open_region_selection();return;}
         if code == KeyCode::F6 {
             self.open_pattern_actions(true);
             return;
@@ -297,12 +257,9 @@ impl State {
                 KeyCode::ArrowDown => {
                     settings.index = (settings.index + 1).min(length.saturating_sub(1))
                 }
-                KeyCode::PageUp => {
-                    settings.index = settings.index.saturating_sub(page_size(screen_height()))
-                }
+                KeyCode::PageUp => settings.index = settings.index.saturating_sub(page_size(screen_height())),
                 KeyCode::PageDown => {
-                    settings.index =
-                        (settings.index + page_size(screen_height())).min(length.saturating_sub(1))
+                    settings.index = (settings.index + page_size(screen_height())).min(length.saturating_sub(1))
                 }
                 KeyCode::Home => settings.index = 0,
                 KeyCode::End => settings.index = length.saturating_sub(1),
@@ -310,28 +267,11 @@ impl State {
                     let checked = !settings.selection.is_selected(settings.index);
                     use deadsync_editor::key_binding_preferences::scroll_modifiers::Kind as Held;
                     if self.owned_gesture_query(Held::SelectionExtend) {
-                        let event = settings.selection.events()[settings.index];
-                        let mut expanded =
-                            self.workspace.expand_event_selection(&settings.selection)?;
-                        expanded.finish_region(
-                            &self.workspace.file().session,
-                            &[event],
-                            deadsync_editor::event_clipboard::region::Modifiers {
-                                alt: self.owned_gesture_query(Held::SelectionMisc),
-                                control: self.owned_gesture_query(Held::SelectionToggle),
-                                shift: true,
-                            },
-                            self.selection_preferences.region,
-                        )?;
-                        settings.index = expanded
-                            .events()
-                            .iter()
-                            .position(|e| *e == event)
-                            .unwrap_or(0);
-                        settings.selection = expanded;
-                    } else {
-                        settings.selection.set_selected(settings.index, checked)?;
-                    }
+                        let event=settings.selection.events()[settings.index];
+                        let mut expanded=self.workspace.expand_event_selection(&settings.selection)?;
+                        expanded.finish_region(&self.workspace.file().session,&[event],deadsync_editor::event_clipboard::region::Modifiers{alt:self.owned_gesture_query(Held::SelectionMisc),control:self.owned_gesture_query(Held::SelectionToggle),shift:true},self.selection_preferences.region)?;
+                        settings.index=expanded.events().iter().position(|e|*e==event).unwrap_or(0);settings.selection=expanded;
+                    }else{settings.selection.set_selected(settings.index, checked)?;}
                 }
                 KeyCode::KeyA if self.control => settings.selection.select_all(!self.shift),
                 KeyCode::KeyC if self.control => {
@@ -360,20 +300,11 @@ impl State {
         match result {
             Ok(key) => self.status = i18n::tr("Edition", key),
             Err(error) => {
-                self.status = i18n::tr_fmt(
-                    "Edition",
-                    "Error",
-                    &[("message", &crate::i18n::editor_error(&error))],
-                )
+                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))])
             }
         }
         if close {
-            if settings
-                .selection
-                .is_current(&self.workspace.file().session)
-            {
-                self.event_selection = Some(settings);
-            }
+            if settings.selection.is_current(&self.workspace.file().session){self.event_selection=Some(settings);}
             self.panel = None;
             self.refresh();
         } else {
@@ -449,10 +380,7 @@ impl State {
         }
     }
     pub(super) fn event_selection_actors(&self, actors: &mut Vec<Actor>) {
-        if self.region_selection.is_some() {
-            self.region_selection_actors(actors);
-            return;
-        }
+        if self.region_selection.is_some(){self.region_selection_actors(actors);return;}
         let Some(settings) = &self.event_selection else {
             return;
         };
@@ -495,7 +423,7 @@ impl State {
             .take(page)
             .enumerate()
         {
-            let ui_row_start = actors.len();
+            let ui_row_start=actors.len();
             let index = start + offset;
             let y = FIRST_EVENT_Y + offset as f32 * EVENT_ROW_HEIGHT;
             let color = if index == settings.index {
@@ -557,7 +485,7 @@ impl State {
             );
             label(actors, &text, y, color);
 
-            self.ui_row(actors, ui_row_start, start + offset == settings.index, 25.);
+            self.ui_row(actors,ui_row_start,start+offset==settings.index,25.);
         }
         // Reserve separate wrapped footer blocks inside the modal. The full
         // keyboard help is several lines in both locales and must not extend
@@ -587,20 +515,15 @@ pub(super) fn timing_key(kind: TimingKind) -> &'static str {
 
 impl State {
     pub(super) fn toggle_source_row_selection(&mut self) {
-        let result = self
-            .capture_song_property_presentation()
-            .and_then(|position| {
-                self.workspace
-                    .toggle_source_row_selection_at(position.row())
-            });
+        let result = self.capture_song_property_presentation().and_then(|position| {
+            self.workspace.toggle_source_row_selection_at(position.row())
+        });
         match result {
             Ok(selection) => {
                 self.lane_entry_release_input();
                 self.region_selection = None;
                 self.event_selection = None;
-                if let Some(selection) = selection {
-                    self.replace_region_event_selection(selection);
-                }
+                if let Some(selection) = selection { self.replace_region_event_selection(selection); }
                 self.refresh();
             }
             Err(error) => self.status = i18n::editor_error(&error).into(),
@@ -616,7 +539,8 @@ mod source_row_range_tests {
         for height in [480.0, 540.0, 600.0, 720.0, 1080.0] {
             let page = page_size(height);
             assert!((1..=MAX_PAGE).contains(&page));
-            let final_row_bottom = FIRST_EVENT_Y + (page - 1) as f32 * EVENT_ROW_HEIGHT + 24.0;
+            let final_row_bottom = FIRST_EVENT_Y
+                + (page - 1) as f32 * EVENT_ROW_HEIGHT + 24.0;
             assert!(final_row_bottom <= height - HELP_BOTTOM_RESERVE);
             // Page navigation and rendering use this same capacity.
             for index in 0..32 {
@@ -630,20 +554,16 @@ mod source_row_range_tests {
 
     #[test]
     fn event_page_keys_and_rendered_rows_share_small_screen_capacity_en_fr() {
-        use deadlib_present::space::{Metrics, with_metrics};
+        use deadlib_present::space::{with_metrics, Metrics};
         for language in ["en", "fr"] {
             i18n::init(deadsync_assets::language::load_for_tests(language));
             i18n::set_locale(deadsync_assets::language::load_for_tests(language));
             let directory = tempfile::tempdir().unwrap();
             let path = directory.path().join("pages.ssc");
-            std::fs::write(
-                &path,
-                format!(
-                    "#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:{};",
-                    ["1000"; 16].join("\n")
-                ),
-            )
-            .unwrap();
+            std::fs::write(&path, format!(
+                "#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:{};",
+                ["1000"; 16].join("\n")
+            )).unwrap();
             let mut state = State::open(&path, 0).unwrap();
             for height in [480.0, 720.0] {
                 with_metrics(Metrics::centered(1280.0, height), || {
@@ -655,13 +575,7 @@ mod source_row_range_tests {
                     assert_eq!(state.event_selection.as_ref().unwrap().index, page);
                     let mut actors = Vec::new();
                     state.event_selection_actors(&mut actors);
-                    assert_eq!(
-                        actors
-                            .iter()
-                            .filter(|a| matches!(a, Actor::Text { .. }))
-                            .count(),
-                        page + 4
-                    );
+                    assert_eq!(actors.iter().filter(|a| matches!(a, Actor::Text { .. })).count(), page + 4);
                     state.event_selection_key(KeyCode::PageUp);
                     assert_eq!(state.event_selection.as_ref().unwrap().index, 0);
                 });
@@ -676,11 +590,7 @@ mod source_row_range_tests {
             i18n::set_locale(deadsync_assets::language::load_for_tests(language));
             let directory = tempfile::tempdir().unwrap();
             let path = directory.path().join("song.ssc");
-            std::fs::write(
-                &path,
-                "#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;",
-            )
-            .unwrap();
+            std::fs::write(&path, "#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;").unwrap();
             let mut state = State::open(&path, 0).unwrap();
             state.open_event_selection();
             assert_eq!(state.status, i18n::tr("Edition", "EventSelectionTitle"));
@@ -688,23 +598,15 @@ mod source_row_range_tests {
             assert_eq!(state.status, i18n::tr("Edition", "EventSelectionTitle"));
             let mut actors = Vec::new();
             state.event_selection_actors(&mut actors);
-            assert!(
-                actors
-                    .iter()
-                    .any(|actor| matches!(actor, Actor::Text { content, .. }
-                if content.as_str() == i18n::tr("Edition", "EventSelectionHelp").as_ref()))
-            );
+            assert!(actors.iter().any(|actor| matches!(actor, Actor::Text { content, .. }
+                if content.as_str() == i18n::tr("Edition", "EventSelectionHelp").as_ref())));
         }
     }
 
     fn press(state: &mut State, code: KeyCode) {
         for pressed in [true, false] {
             state.raw_key(&deadlib_platform::input::RawKeyboardEvent {
-                code,
-                pressed,
-                repeat: false,
-                timestamp: std::time::Instant::now(),
-                host_nanos: 0,
+                code, pressed, repeat: false, timestamp: std::time::Instant::now(), host_nanos: 0,
             });
         }
     }
@@ -716,36 +618,22 @@ mod source_row_range_tests {
             let directory = tempfile::tempdir().unwrap();
             let path = directory.path().join("song.ssc");
             std::fs::write(&path, "#VERSION:0.83;#BPMS:0=120;#LABELS:1=not selected;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000\n0100\n0010\n0001;").unwrap();
-            let mut state = State::open(&path, 0).unwrap();
+            let mut state = State::open(&path,0).unwrap();
             let before = state.workspace.file().session.serialize().unwrap();
-            state.navigate_exact_position(0.5, true);
+            state.navigate_exact_position(0.5,true);
             press(&mut state, KeyCode::Space);
             assert!(state.workspace.selection().is_some());
-            state.navigate_exact_position(47.6, true);
+            state.navigate_exact_position(47.6,true);
             let focus = state.capture_song_property_presentation().unwrap().row();
             press(&mut state, KeyCode::Space);
             assert!(state.workspace.selection().is_none());
             let selection = &state.event_selection.as_ref().unwrap().selection;
-            assert_eq!(selection.selected_count(), 2);
-            assert!(
-                selection
-                    .selected_events()
-                    .all(|event| matches!(event, Event::Note(_)))
-            );
-            assert_eq!(
-                state
-                    .capture_song_property_presentation()
-                    .unwrap()
-                    .row()
-                    .to_bits(),
-                focus.to_bits()
-            );
+            assert_eq!(selection.selected_count(),2);
+            assert!(selection.selected_events().all(|event|matches!(event, Event::Note(_))));
+            assert_eq!(state.capture_song_property_presentation().unwrap().row().to_bits(),focus.to_bits());
             state.command_selected_transform_review(deadsync_editor::transform::Transform::Mirror);
-            assert!(matches!(
-                state.panel,
-                Some(Panel::SelectedTransformReview(_))
-            ));
-            assert_eq!(state.workspace.file().session.serialize().unwrap(), before);
+            assert!(matches!(state.panel,Some(Panel::SelectedTransformReview(_))));
+            assert_eq!(state.workspace.file().session.serialize().unwrap(),before);
             assert!(state.workspace.file().session.undo_label().is_none());
         }
     }
@@ -761,15 +649,13 @@ mod note_render_selection_tests {
         let directory = tempfile::tempdir().unwrap();
         let path = directory.path().join("song.ssc");
         std::fs::write(&path,"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;").unwrap();
-        let mut state = State::open(&path, 0).unwrap();
+        let mut state = State::open(&path,0).unwrap();
         state.open_event_selection();
         let selection = &mut state.event_selection.as_mut().unwrap().selection;
-        for index in 0..selection.events().len() {
-            selection.set_selected(index, true).unwrap();
-        }
+        for index in 0..selection.events().len() { selection.set_selected(index,true).unwrap(); }
         let actual = state.selected_note_positions_for_render(0).unwrap();
-        assert_eq!(actual.len(), 1);
-        assert_eq!(actual.iter().next().unwrap().lane, 0);
+        assert_eq!(actual.len(),1);
+        assert_eq!(actual.iter().next().unwrap().lane,0);
         assert!(state.selected_note_positions_for_render(1).is_none());
     }
 }

@@ -522,9 +522,10 @@ mod tests {
             Actor::Frame { children, .. } | Actor::Camera { children, .. } => {
                 actor_tree_has_text(children, expected)
             }
-            Actor::SharedFrame { children, .. }
-            | Actor::SharedTransform { children, .. }
-            | Actor::SharedCamera { children, .. } => actor_tree_has_text(children, expected),
+            Actor::SharedFrame { children, .. } | Actor::SharedTransform { children, .. }
+            | Actor::SharedCamera { children, .. } => {
+                actor_tree_has_text(children, expected)
+            }
             Actor::RetainedFrame { frame, .. } => actor_tree_has_text(frame.children(), expected),
             Actor::Shadow { child, .. } => {
                 actor_tree_has_text(std::slice::from_ref(child.as_ref()), expected)
@@ -625,9 +626,7 @@ mod tests {
                     ..
                 } => max_render_target_sprite_z(frame.children(), base_z.saturating_add(*z)),
                 Actor::Camera { children, .. } => max_render_target_sprite_z(children, base_z),
-                Actor::SharedCamera { children, .. } => {
-                    max_render_target_sprite_z(children, base_z)
-                }
+                Actor::SharedCamera { children, .. } => max_render_target_sprite_z(children, base_z),
                 Actor::Shadow { child, .. } => {
                     max_render_target_sprite_z(std::slice::from_ref(child.as_ref()), base_z)
                 }
@@ -688,14 +687,8 @@ mod tests {
         session: GameplaySession,
         player_profiles: [profile_data::Profile; MAX_PLAYERS],
     ) -> screen_gameplay::State {
-        build_test_state_with_renderer_horizon(
-            simfile,
-            viewport,
-            session,
-            player_profiles,
-            &deadlib_render_core::BackendType::Software.to_string(),
-            Some(32.0),
-        )
+        build_test_state_with_renderer_horizon(simfile, viewport, session, player_profiles,
+            &deadlib_render_core::BackendType::Software.to_string(), Some(32.0))
     }
 
     fn build_test_state_with_renderer(
@@ -723,15 +716,8 @@ mod tests {
         renderer: &str,
         until_beat: Option<f32>,
     ) -> screen_gameplay::State {
-        build_test_state_with_lua_mode(
-            simfile,
-            viewport,
-            session,
-            player_profiles,
-            renderer,
-            until_beat,
-            false,
-        )
+        build_test_state_with_lua_mode(simfile, viewport, session, player_profiles,
+            renderer, until_beat, false)
     }
 
     fn build_test_state_with_lua_mode(
@@ -745,10 +731,7 @@ mod tests {
     ) -> screen_gameplay::State {
         // Fixture charts are loaded at zero global offset below. Compile and
         // play with that same clock rather than the cabinet default (-8 ms).
-        let config = GameplayConfig {
-            global_offset_seconds: 0.0,
-            ..Default::default()
-        };
+        let config = GameplayConfig { global_offset_seconds: 0.0, ..Default::default() };
         let song = Arc::new(
             deadsync_simfile::app_runtime::parse_song_for_test(simfile, 0.0)
                 .expect("generated gameplay fixture should parse"),
@@ -822,8 +805,7 @@ mod tests {
             )
             .expect("production Lua context");
             if let Some(beat) = until_beat {
-                context.music_length_seconds =
-                    gameplay_charts[0].timing.get_time_for_beat_exact(beat);
+                context.music_length_seconds = gameplay_charts[0].timing.get_time_for_beat_exact(beat);
             }
             deadsync_song_lua::playback::prepare_song_lua(
                 &song,
@@ -920,29 +902,15 @@ mod tests {
         if state.song_lua.is_some() {
             // Foreground::Update dispatches On at the authored starting beat;
             // changing the simulation clock alone does not activate actors.
-            screen_gameplay::update(
-                state,
-                0.0,
-                deadsync_gameplay::GameplayAudioSnapshot {
-                    stream_clock: deadsync_gameplay::GameplayStreamClockSnapshot {
-                        music_nanos: deadsync_core::song_time::song_time_ns_from_seconds(
-                            music_time,
-                        ),
-                        has_music_mapping: true,
-                        valid_at_host_nanos: 1_000_000,
-                        ..Default::default()
-                    },
+            screen_gameplay::update(state, 0.0, deadsync_gameplay::GameplayAudioSnapshot {
+                stream_clock: deadsync_gameplay::GameplayStreamClockSnapshot {
+                    music_nanos: deadsync_core::song_time::song_time_ns_from_seconds(music_time),
+                    has_music_mapping: true, valid_at_host_nanos: 1_000_000,
                     ..Default::default()
-                },
-                || 1_000_000,
-                &mut Vec::new(),
-            );
+                }, ..Default::default()
+            }, || 1_000_000, &mut Vec::new());
             let output = state.take_song_lua_output();
-            assert!(
-                output.errors.is_empty(),
-                "fixture Lua frame failed: {:?}",
-                output.errors
-            );
+            assert!(output.errors.is_empty(), "fixture Lua frame failed: {:?}", output.errors);
         }
     }
 
@@ -1130,10 +1098,7 @@ mod tests {
             compose_fixture_frame(state, assets, metrics, actors, text_cache, scratch)
         });
         if !state.song_frame().uses_song_lua_compositor() {
-            assert!(
-                state.song_lua.is_none(),
-                "ordinary charts must not own a Lua VM"
-            );
+            assert!(state.song_lua.is_none(), "ordinary charts must not own a Lua VM");
             assert!(state.song_frame().render_targets().is_empty());
             // The existing scripted compositor is the behavior oracle for the
             // same immutable simulation, native chart attacks and theme HUD.
@@ -1141,13 +1106,11 @@ mod tests {
             let mut scripted = deadsync_song_lua::playback::FrameScratch::new(&state.gameplay);
             scripted.enable_dynamic_scene();
             state.song_scratch = Some(Box::new(scripted));
-            let mut actual =
-                compose_fixture_frame(state, assets, metrics, actors, text_cache, compose_scratch);
-            assert_eq!(
-                compare_render_frames(&expected, &actual),
-                Ok(()),
-                "native no-Lua composition must preserve the existing frame"
+            let mut actual = compose_fixture_frame(
+                state, assets, metrics, actors, text_cache, compose_scratch,
             );
+            assert_eq!(compare_render_frames(&expected, &actual), Ok(()),
+                "native no-Lua composition must preserve the existing frame");
             compose_scratch.recycle_frame(&mut actual);
             state.song_scratch = Some(native);
         }
@@ -1288,15 +1251,9 @@ L000
 
     #[test]
     fn compiled_gameplay_keeps_reversal_splines_without_a_lua_vm() {
-        with_session(
-            profile_data::PlayStyle::Single,
-            profile_data::PlayerSide::P1,
-            true,
-            false,
-            || {
-                let simfile = write_fixture(
-                    "compiled-reversal",
-                    r#"
+        with_session(profile_data::PlayStyle::Single, profile_data::PlayerSide::P1,
+            true, false, || {
+            let simfile = write_fixture("compiled-reversal", r#"
 #TITLE:Compiled reversal;
 #MUSIC:;
 #BPMS:0=120;
@@ -1312,9 +1269,8 @@ L000
 0010
 0001
 ;
-"#,
-                );
-                fs::write(simfile.parent().unwrap().join("default.lua"), r#"
+"#);
+            fs::write(simfile.parent().unwrap().join("default.lua"), r#"
 return Def.ActorFrame { OnCommand=function(self)
     local column = SCREENMAN:GetTopScreen():GetChild('PlayerP1'):GetChild('NoteField'):GetColumnActors()[1]
     self:SetUpdateFunction(function()
@@ -1337,128 +1293,61 @@ return Def.ActorFrame { OnCommand=function(self)
     end)
 end }
 "#).unwrap();
-                space::set_current_metrics(space::Metrics::centered(854.0, 480.0));
-                space::set_current_window_px(1280, 720);
-                let state = build_test_state(
-                    &simfile,
-                    GameplayViewport::design(),
-                    GameplaySession::default(),
-                    std::array::from_fn(|_| profile_data::Profile::default()),
-                );
-                assert!(
-                    state.song_lua.is_none(),
-                    "production compilation releases its VM"
-                );
-                let track = state.song_lua_visuals().column_splines[0]
-                    .iter()
-                    .find(|track| track.column == 0)
-                    .expect("compiled position and zoom track");
-                for (second, direction, scale) in
-                    [(0.375, 1.0, 1.0), (0.875, -1.0, 0.5), (1.375, 1.0, 1.0)]
-                {
-                    let frame = track.at_second(second).expect("baked spline frame");
-                    let (position, derivative) = frame
-                        .position
-                        .as_ref()
-                        .unwrap()
-                        .view()
-                        .sample(second * 2.0, second * 2.0);
-                    assert_eq!(position[1], -135.0 * direction);
-                    assert_eq!(derivative[1], 128.0 * direction);
-                    assert_eq!(
-                        frame
-                            .zoom
-                            .as_ref()
-                            .unwrap()
-                            .view()
-                            .sample(second * 2.0, second * 2.0)
-                            .0,
-                        [scale; 3]
-                    );
-                }
-                let cleared = track.at_second(1.875).unwrap();
-                assert!(cleared.position.is_none() && cleared.zoom.is_none());
-            },
-        );
+            space::set_current_metrics(space::Metrics::centered(854.0, 480.0));
+            space::set_current_window_px(1280, 720);
+            let state = build_test_state(&simfile, GameplayViewport::design(),
+                GameplaySession::default(), std::array::from_fn(|_| profile_data::Profile::default()));
+            assert!(state.song_lua.is_none(), "production compilation releases its VM");
+            let track = state.song_lua_visuals().column_splines[0].iter()
+                .find(|track| track.column == 0).expect("compiled position and zoom track");
+            for (second, direction, scale) in [(0.375,1.0,1.0),(0.875,-1.0,0.5),(1.375,1.0,1.0)] {
+                let frame = track.at_second(second).expect("baked spline frame");
+                let (position, derivative) = frame.position.as_ref().unwrap().view().sample(second*2.0,second*2.0);
+                assert_eq!(position[1],-135.0*direction);
+                assert_eq!(derivative[1],128.0*direction);
+                assert_eq!(frame.zoom.as_ref().unwrap().view().sample(second*2.0,second*2.0).0,[scale;3]);
+            }
+            let cleared = track.at_second(1.875).unwrap();
+            assert!(cleared.position.is_none() && cleared.zoom.is_none());
+        });
     }
 
     #[test]
     fn sharkmode_compiled_draws_keep_notes_in_direct_and_texture_passes() {
         let fixture = song_fixture::from_source("280-MODS-[MASTER] Sharkmode/Sharkmode.ssc");
-        with_session(
-            profile_data::PlayStyle::Single,
-            profile_data::PlayerSide::P1,
-            true,
-            false,
-            || {
-                let metrics = space::Metrics::centered(854.0, 480.0);
-                space::set_current_metrics(metrics);
-                space::set_current_window_px(1280, 720);
-                let mut state = build_test_state(
-                    &fixture.simfile,
-                    GameplayViewport::design(),
-                    GameplaySession::default(),
-                    std::array::from_fn(|_| profile_data::Profile {
-                        noteskin: profile_data::NoteSkin::new("lambda"),
-                        ..Default::default()
-                    }),
-                );
-                assert!(
-                    state.song_lua.is_none(),
-                    "production must release the compiler VM"
-                );
-                let visuals = state.song_lua_visuals();
-                assert!(
-                    visuals
-                        .overlays
-                        .iter()
-                        .chain(
-                            visuals
-                                .background_visual_layers
-                                .iter()
-                                .chain(&visuals.foreground_visual_layers)
-                                .flat_map(|layer| &layer.overlays)
-                        )
-                        .any(|actor| matches!(
+        with_session(profile_data::PlayStyle::Single, profile_data::PlayerSide::P1,
+            true, false, || {
+            let metrics = space::Metrics::centered(854.0, 480.0);
+            space::set_current_metrics(metrics);
+            space::set_current_window_px(1280, 720);
+            let mut state = build_test_state(&fixture.simfile, GameplayViewport::design(),
+                GameplaySession::default(), std::array::from_fn(|_| profile_data::Profile {
+                    noteskin: profile_data::NoteSkin::new("lambda"), ..Default::default()
+                }));
+            assert!(state.song_lua.is_none(), "production must release the compiler VM");
+            let visuals = state.song_lua_visuals();
+            assert!(visuals.overlays.iter().chain(visuals.background_visual_layers.iter()
+                .chain(&visuals.foreground_visual_layers).flat_map(|layer| &layer.overlays)).any(|actor| matches!(
                 &actor.kind, deadsync_song_lua::SongLuaOverlayKind::UpdateTracks { draw_frames, .. }
-                if !draw_frames.is_empty())),
-                    "custom draws must be baked before gameplay"
-                );
-                let assets = fixture_assets();
-                let mut note_handles = Vec::new();
-                state.noteskin_assets.noteskin[0]
-                    .as_ref()
-                    .unwrap()
-                    .for_each_slot(|slot| {
-                        note_handles.push(FIXTURE_TEXTURES.texture_handle(slot.texture_key()));
-                    });
-                let mut actors = Vec::new();
-                let mut text = compose::TextLayoutCache::default();
-                let mut scratch = compose::ComposeScratch::default();
-                for beat in [16.0, 74.0, 122.0, 260.0, 290.0, 340.0] {
-                    let second = state.gameplay.timing_runtime.timing.get_time_for_beat(beat);
-                    set_fixture_time(&mut state, second);
-                    let frame = compose_fixture_frame_with_textures(
-                        &mut state,
-                        &assets,
-                        &metrics,
-                        &mut actors,
-                        &mut text,
-                        &mut scratch,
-                        &FIXTURE_TEXTURES,
-                    );
-                    assert!(
-                        frame
-                            .ops
-                            .iter()
-                            .chain(frame.render_targets.iter().flat_map(|target| &target.ops))
-                            .any(|op| matches!(op, DrawOp::Sprite(run)
-                    if note_handles.contains(&run.texture_handle))),
-                        "Sharkmode notes/receptors at beat {beat}"
-                    );
-                }
-            },
-        );
+                if !draw_frames.is_empty())), "custom draws must be baked before gameplay");
+            let assets = fixture_assets();
+            let mut note_handles = Vec::new();
+            state.noteskin_assets.noteskin[0].as_ref().unwrap().for_each_slot(|slot| {
+                note_handles.push(FIXTURE_TEXTURES.texture_handle(slot.texture_key()));
+            });
+            let mut actors = Vec::new();
+            let mut text = compose::TextLayoutCache::default();
+            let mut scratch = compose::ComposeScratch::default();
+            for beat in [16.0, 74.0, 122.0, 260.0, 290.0, 340.0] {
+                let second = state.gameplay.timing_runtime.timing.get_time_for_beat(beat);
+                set_fixture_time(&mut state, second);
+                let frame = compose_fixture_frame_with_textures(&mut state, &assets, &metrics,
+                    &mut actors, &mut text, &mut scratch, &FIXTURE_TEXTURES);
+                assert!(frame.ops.iter().chain(frame.render_targets.iter().flat_map(|target| &target.ops))
+                    .any(|op| matches!(op, DrawOp::Sprite(run)
+                    if note_handles.contains(&run.texture_handle))), "Sharkmode notes/receptors at beat {beat}");
+            }
+        });
     }
 
     #[cfg(target_os = "windows")]
@@ -1466,62 +1355,35 @@ end }
     #[ignore = "requires a local Vulkan device and screenshot readback"]
     fn sharkmode_compiled_notes_visible_vulkan_pixels() {
         let fixture = song_fixture::from_source("280-MODS-[MASTER] Sharkmode/Sharkmode.ssc");
-        with_session(
-            profile_data::PlayStyle::Single,
-            profile_data::PlayerSide::P1,
-            true,
-            false,
-            || {
-                let metrics = space::Metrics::centered(854.0, 480.0);
-                space::set_current_metrics(metrics);
-                space::set_current_window_px(1600, 900);
-                let mut state = build_test_state_with_renderer(
-                    &fixture.simfile,
-                    GameplayViewport::design(),
-                    GameplaySession::default(),
-                    std::array::from_fn(|_| profile_data::Profile {
-                        noteskin: profile_data::NoteSkin::new("cel"),
-                        ..Default::default()
-                    }),
-                    "Vulkan (wgpu)",
-                );
-                assert!(state.song_lua.is_none(), "Vulkan must render compiled Lua");
-                state.background_texture_key = deadlib_assets::media_path_key(
-                    state
-                        .song()
-                        .background_path
-                        .as_deref()
-                        .expect("Sharkmode background"),
-                );
-                set_fixture_time(&mut state, 0.0);
-                let mut gpu = SongLuaNotePixelCapture::new(
-                    &state,
-                    &metrics,
-                    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../target/sharkmode-pixels"),
-                );
-                for beat in [16.0, 74.0, 122.0, 290.0] {
-                    let second = state.gameplay.timing_runtime.timing.get_time_for_beat(beat);
-                    set_fixture_time(&mut state, second);
-                    assert!(
-                        gpu.capture_named(&mut state, &metrics, beat, "sharkmode") > 100,
-                        "Sharkmode tap notes must reach the framebuffer at beat {beat}"
-                    );
-                }
-            },
-        );
+        with_session(profile_data::PlayStyle::Single, profile_data::PlayerSide::P1,
+            true, false, || {
+            let metrics = space::Metrics::centered(854.0, 480.0);
+            space::set_current_metrics(metrics);
+            space::set_current_window_px(1600, 900);
+            let mut state = build_test_state_with_renderer(&fixture.simfile, GameplayViewport::design(),
+                GameplaySession::default(), std::array::from_fn(|_| profile_data::Profile {
+                    noteskin: profile_data::NoteSkin::new("cel"), ..Default::default()
+                }), "Vulkan (wgpu)");
+            assert!(state.song_lua.is_none(), "Vulkan must render compiled Lua");
+            state.background_texture_key = deadlib_assets::media_path_key(
+                state.song().background_path.as_deref().expect("Sharkmode background"));
+            set_fixture_time(&mut state, 0.0);
+            let mut gpu = SongLuaNotePixelCapture::new(&state, &metrics,
+                PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../target/sharkmode-pixels"));
+            for beat in [16.0, 74.0, 122.0, 290.0] {
+                let second = state.gameplay.timing_runtime.timing.get_time_for_beat(beat);
+                set_fixture_time(&mut state, second);
+                assert!(gpu.capture_named(&mut state, &metrics, beat, "sharkmode") > 100,
+                    "Sharkmode tap notes must reach the framebuffer at beat {beat}");
+            }
+        });
     }
 
     #[test]
     fn live_lua_screen_frames() {
-        with_session(
-            profile_data::PlayStyle::Single,
-            profile_data::PlayerSide::P1,
-            true,
-            false,
-            || {
-                let simfile = write_fixture(
-                    "live-screen",
-                    r#"
+        with_session(profile_data::PlayStyle::Single, profile_data::PlayerSide::P1,
+            true, false, || {
+            let simfile = write_fixture("live-screen", r#"
 #TITLE:Live screen bridge;
 #MUSIC:music.wav;
 #BPMS:0=120;
@@ -1538,15 +1400,12 @@ end }
 0010
 0000
 ;
-"#,
-                );
-                let metrics = space::Metrics::centered(640.0, 480.0);
-                space::set_current_metrics(metrics);
-                space::set_current_window_px(640, 480);
-                let dir = simfile.parent().expect("fixture directory");
-                fs::write(
-                    dir.join("background.lua"),
-                    r#"
+"#);
+            let metrics = space::Metrics::centered(640.0, 480.0);
+            space::set_current_metrics(metrics);
+            space::set_current_window_px(640, 480);
+            let dir = simfile.parent().expect("fixture directory");
+            fs::write(dir.join("background.lua"), r#"
 LIVE_TICKS = 0
 return Def.ActorFrame { Name = 'Background',
     OnCommand = function(self)
@@ -1559,12 +1418,8 @@ return Def.ActorFrame { Name = 'Background',
         self:xy(10, 100):zoomto(8, 8):diffuse({0.37, 0.19, 0.63, 1})
     end },
 }
-"#,
-                )
-                .expect("background script");
-                fs::write(
-                    dir.join("primary.lua"),
-                    r#"
+"#).expect("background script");
+            fs::write(dir.join("primary.lua"), r#"
 local stats = STATSMAN:GetCurStageStats():GetPlayerStageStats(PLAYER_1)
 local requested = false
 return Def.ActorFrame { Name = 'Primary',
@@ -1589,12 +1444,8 @@ return Def.ActorFrame { Name = 'Primary',
         self:xy(10, 120):zoomto(8, 8):diffuse({0.81, 0.17, 0.29, 1})
     end },
 }
-"#,
-                )
-                .expect("primary script");
-                fs::write(
-                    dir.join("foreground.lua"),
-                    r#"
+"#).expect("primary script");
+            fs::write(dir.join("foreground.lua"), r#"
 return Def.ActorFrame { Name = 'Foreground',
     OnCommand = function(self)
         self:SetUpdateFunction(function(self, delta)
@@ -1606,199 +1457,79 @@ return Def.ActorFrame { Name = 'Foreground',
         self:xy(10, 140):zoomto(8, 8):diffuse({0.23, 0.71, 0.41, 1})
     end },
 }
-"#,
-                )
-                .expect("foreground script");
-                let mut state = build_test_state_with_lua_mode(
-                    &simfile,
-                    GameplayViewport::new(640.0, 480.0),
-                    GameplaySession::default(),
-                    std::array::from_fn(|_| profile_data::Profile::default()),
-                    "Software",
-                    None,
-                    true,
-                );
-                assert!(
-                    state.song_lua.is_some(),
-                    "explicit diagnostic scene retains its VM"
-                );
-                let startup = state.take_song_lua_output();
-                assert!(startup.errors.is_empty(), "{:?}", startup.errors);
-                // Foreground::HandleMessage suppresses loading-time On. Its first
-                // Update at the authored start beat dispatches On instead.
-                assert_eq!(
-                    startup
-                        .broadcasts
-                        .iter()
-                        .filter(|event| event.1 == "LiveEntry")
-                        .count(),
-                    0
-                );
-                assert_eq!(
-                    startup
-                        .broadcasts
-                        .iter()
-                        .filter(|event| event.1 == "LiveInit")
-                        .count(),
-                    1
-                );
-                assert!(state.take_song_lua_output().broadcasts.is_empty());
-                state.boundary.total_elapsed_in_screen = 10.0;
-                screen_gameplay::update(
-                    &mut state,
-                    0.0,
-                    deadsync_gameplay::GameplayAudioSnapshot {
-                        stream_clock: deadsync_gameplay::GameplayStreamClockSnapshot {
-                            music_nanos: 0,
-                            has_music_mapping: true,
-                            valid_at_host_nanos: 1_000_000,
-                            ..Default::default()
-                        },
-                        ..Default::default()
-                    },
-                    || 1_000_000,
-                    &mut Vec::new(),
-                );
-                let activation = state.take_song_lua_output();
-                assert!(activation.errors.is_empty(), "{:?}", activation.errors);
-                assert_eq!(
-                    activation
-                        .broadcasts
-                        .iter()
-                        .filter(|event| event.1 == "LiveEntry")
-                        .count(),
-                    1,
-                    "foreground activation at music={}, beat={}, broadcasts={:?}",
-                    state.current_music_time_seconds(),
-                    state.clock.song_position.current_beat,
-                    activation.broadcasts
-                );
-                assert_eq!(
-                    activation
-                        .broadcasts
-                        .iter()
-                        .filter(|event| event.1 == "LiveFrame")
-                        .count(),
-                    0
-                );
+"#).expect("foreground script");
+            let mut state = build_test_state_with_lua_mode(&simfile, GameplayViewport::new(640.0, 480.0),
+                GameplaySession::default(), std::array::from_fn(|_| profile_data::Profile::default()),
+                "Software", None, true);
+            assert!(state.song_lua.is_some(), "explicit diagnostic scene retains its VM");
+            let startup = state.take_song_lua_output();
+            assert!(startup.errors.is_empty(), "{:?}", startup.errors);
+            // Foreground::HandleMessage suppresses loading-time On. Its first
+            // Update at the authored start beat dispatches On instead.
+            assert_eq!(startup.broadcasts.iter().filter(|event| event.1 == "LiveEntry").count(), 0);
+            assert_eq!(startup.broadcasts.iter().filter(|event| event.1 == "LiveInit").count(), 1);
+            assert!(state.take_song_lua_output().broadcasts.is_empty());
+            state.boundary.total_elapsed_in_screen = 10.0;
+            screen_gameplay::update(&mut state, 0.0, deadsync_gameplay::GameplayAudioSnapshot {
+                stream_clock: deadsync_gameplay::GameplayStreamClockSnapshot {
+                    music_nanos: 0, has_music_mapping: true,
+                    valid_at_host_nanos: 1_000_000, ..Default::default()
+                }, ..Default::default()
+            }, || 1_000_000, &mut Vec::new());
+            let activation = state.take_song_lua_output();
+            assert!(activation.errors.is_empty(), "{:?}", activation.errors);
+            assert_eq!(activation.broadcasts.iter().filter(|event| event.1 == "LiveEntry").count(), 1,
+                "foreground activation at music={}, beat={}, broadcasts={:?}",
+                state.current_music_time_seconds(), state.clock.song_position.current_beat, activation.broadcasts);
+            assert_eq!(activation.broadcasts.iter().filter(|event| event.1 == "LiveFrame").count(), 0);
 
-                let assets = fixture_assets();
-                let mut actors = Vec::new();
-                let mut text = compose::TextLayoutCache::default();
-                let mut compose_scratch = compose::ComposeScratch::default();
-                // Miss promotion follows judged-row processing. A subsequent real
-                // frame scores that row; Lua sees the resulting domain progress.
-                state.boundary.total_elapsed_in_screen = 10.0;
-                let late = deadsync_core::song_time::song_time_ns_to_seconds(
-                    state.timing_runtime.step_resolution_distance_ns,
-                ) + 0.05;
-                assert!(
-                    late < 0.9,
-                    "the first overdue row must precede the second note"
-                );
-                for (tick, now, progress) in
-                    [(1, late, 0), (2, late + 0.05, 5), (3, 1.05 + late, 10)]
-                {
-                    let nanos = deadsync_core::song_time::song_time_ns_from_seconds(now);
-                    let snapshot = deadsync_gameplay::GameplayAudioSnapshot {
-                        stream_clock: deadsync_gameplay::GameplayStreamClockSnapshot {
-                            music_nanos: nanos,
-                            has_music_mapping: true,
-                            valid_at_host_nanos: 1_000_000,
-                            ..Default::default()
-                        },
-                        ..Default::default()
-                    };
-                    let mut effects = Vec::new();
-                    screen_gameplay::update(&mut state, 0.1, snapshot, || 1_000_000, &mut effects);
-                    let output = state.take_song_lua_output();
-                    assert!(output.errors.is_empty(), "{:?}", output.errors);
-                    assert_eq!(
-                        output
-                            .broadcasts
-                            .iter()
-                            .filter(|event| event.1 == "LiveFrame")
-                            .count(),
-                        1
-                    );
-                    let transition = (tick == 2).then(|| {
-                        deadsync_song_lua::SongLuaLiveRequest::Transition("SM_DoNextScreen".into())
-                    });
-                    assert_eq!(
-                        output.request, transition,
-                        "tick={tick}, progress={}",
-                        state.players_runtime.players[0].current_possible_points
-                    );
-                    assert_eq!(
-                        output
-                            .broadcasts
-                            .iter()
-                            .filter(|event| event.1 == "LiveOff")
-                            .count(),
-                        usize::from(tick == 2)
-                    );
-                    assert!(state.take_song_lua_output().broadcasts.is_empty());
-                    assert_eq!(
-                        state.players_runtime.players[0].current_possible_points,
-                        progress,
-                        "clock={}, autoplay={}, notes={:?}, counts={:?}",
-                        state.current_music_time_seconds(),
-                        state.live_autoplay_enabled(),
-                        state
-                            .chart_runtime
-                            .notes
-                            .iter()
-                            .map(|note| note.beat)
-                            .collect::<Vec<_>>(),
-                        state.players_runtime.players[0].judgment_counts
-                    );
-                    assert_eq!(
-                        state.players_runtime.players[0].judgment_counts[5],
-                        (progress / 5) as u32
-                    );
-                    let root = state
-                        .mods
-                        .song_lua_visuals
-                        .overlays
-                        .iter()
-                        .find(|actor| actor.name.as_deref() == Some("primary.lua"))
-                        .expect("primary binding");
-                    assert_eq!(
-                        root.initial_state.aux,
-                        state.players_runtime.players[0].earned_grade_points as f32
-                    );
-                    let frame = compose_fixture_frame_with_textures(
-                        &mut state,
-                        &assets,
-                        &metrics,
-                        &mut actors,
-                        &mut text,
-                        &mut compose_scratch,
-                        &compose::NullTextureContext,
-                    );
-                    for (color, x) in [
-                        ([0.37, 0.19, 0.63, 1.0], 80.0 * tick as f32 + 10.0),
-                        ([0.81, 0.17, 0.29, 1.0], 10.0 * progress as f32 + 10.0),
-                        ([0.23, 0.71, 0.41, 1.0], 20.0 * tick as f32 + 10.0),
-                    ] {
-                        let markers: Vec<_> = frame
-                            .sprite_instances
-                            .iter()
-                            .filter(|instance| {
-                                (0..4).all(|axis| (instance.tint[axis] - color[axis]).abs() < 1e-5)
-                            })
-                            .collect();
-                        assert_eq!(markers.len(), 1, "live marker {color:?} at {now}");
-                        // Renderer instances use the centered world coordinate system.
-                        assert!(
-                            (markers[0].center[0] + 320.0 - x).abs() < 1e-4,
-                            "rendered parent pose at {now}: {:?}",
-                            markers[0].center
-                        );
-                    }
+            let assets = fixture_assets();
+            let mut actors = Vec::new();
+            let mut text = compose::TextLayoutCache::default();
+            let mut compose_scratch = compose::ComposeScratch::default();
+            // Miss promotion follows judged-row processing. A subsequent real
+            // frame scores that row; Lua sees the resulting domain progress.
+            state.boundary.total_elapsed_in_screen = 10.0;
+            let late = deadsync_core::song_time::song_time_ns_to_seconds(state.timing_runtime.step_resolution_distance_ns) + 0.05;
+            assert!(late < 0.9, "the first overdue row must precede the second note");
+            for (tick, now, progress) in [(1, late, 0), (2, late + 0.05, 5), (3, 1.05 + late, 10)] {
+                let nanos = deadsync_core::song_time::song_time_ns_from_seconds(now);
+                let snapshot = deadsync_gameplay::GameplayAudioSnapshot {
+                    stream_clock: deadsync_gameplay::GameplayStreamClockSnapshot {
+                        music_nanos: nanos, has_music_mapping: true,
+                        valid_at_host_nanos: 1_000_000, ..Default::default()
+                    }, ..Default::default()
+                };
+                let mut effects = Vec::new();
+                screen_gameplay::update(&mut state, 0.1, snapshot, || 1_000_000, &mut effects);
+                let output = state.take_song_lua_output();
+                assert!(output.errors.is_empty(), "{:?}", output.errors);
+                assert_eq!(output.broadcasts.iter().filter(|event| event.1 == "LiveFrame").count(), 1);
+                let transition = (tick == 2).then(|| deadsync_song_lua::SongLuaLiveRequest::Transition("SM_DoNextScreen".into()));
+                assert_eq!(output.request, transition, "tick={tick}, progress={}", state.players_runtime.players[0].current_possible_points);
+                assert_eq!(output.broadcasts.iter().filter(|event| event.1 == "LiveOff").count(), usize::from(tick == 2));
+                assert!(state.take_song_lua_output().broadcasts.is_empty());
+                assert_eq!(state.players_runtime.players[0].current_possible_points, progress,
+                    "clock={}, autoplay={}, notes={:?}, counts={:?}", state.current_music_time_seconds(),
+                    state.live_autoplay_enabled(), state.chart_runtime.notes.iter().map(|note| note.beat).collect::<Vec<_>>(),
+                    state.players_runtime.players[0].judgment_counts);
+                assert_eq!(state.players_runtime.players[0].judgment_counts[5], (progress / 5) as u32);
+                let root = state.mods.song_lua_visuals.overlays.iter().find(|actor|
+                    actor.name.as_deref() == Some("primary.lua")).expect("primary binding");
+                assert_eq!(root.initial_state.aux, state.players_runtime.players[0].earned_grade_points as f32);
+                let frame = compose_fixture_frame_with_textures(&mut state, &assets, &metrics,
+                    &mut actors, &mut text, &mut compose_scratch, &compose::NullTextureContext);
+                for (color, x) in [([0.37, 0.19, 0.63, 1.0], 80.0 * tick as f32 + 10.0),
+                    ([0.81, 0.17, 0.29, 1.0], 10.0 * progress as f32 + 10.0),
+                    ([0.23, 0.71, 0.41, 1.0], 20.0 * tick as f32 + 10.0)] {
+                    let markers: Vec<_> = frame.sprite_instances.iter().filter(|instance|
+                        (0..4).all(|axis| (instance.tint[axis] - color[axis]).abs() < 1e-5)).collect();
+                    assert_eq!(markers.len(), 1, "live marker {color:?} at {now}");
+                    // Renderer instances use the centered world coordinate system.
+                    assert!((markers[0].center[0] + 320.0 - x).abs() < 1e-4, "rendered parent pose at {now}: {:?}", markers[0].center);
                 }
-            },
-        );
+            }
+        });
     }
 
     #[test]
@@ -1885,10 +1616,8 @@ return Def.ActorFrame { Name = 'Foreground',
                             profiles,
                         );
                         set_fixture_time(&mut state, 1.0);
-                        assert!(
-                            state.song_media.refresh_foreground(&state.gameplay),
-                            "native foreground media must actually activate"
-                        );
+                        assert!(state.song_media.refresh_foreground(&state.gameplay),
+                            "native foreground media must actually activate");
                         assert!(!state.song_frame().uses_song_lua_compositor());
                         let assets = fixture_assets();
                         let mut actors = Vec::new();
@@ -4173,11 +3902,8 @@ return root
         fs::create_dir_all(&lua_dir).unwrap();
         let lua_entry = lua_dir.join("default.lua");
         fs::write(&lua_entry, generated_pipeline_song_lua()).unwrap();
-        fs::write(
-            simfile.parent().unwrap().join("easing.lua"),
-            include_str!("../../../tests/fixtures/song_lua/easing.lua"),
-        )
-        .unwrap();
+        fs::write(simfile.parent().unwrap().join("easing.lua"),
+            include_str!("../../../tests/fixtures/song_lua/easing.lua")).unwrap();
         simfile
     }
 
@@ -4235,10 +3961,7 @@ return root
                         .flat_map(|layer| &layer.overlays),
                 ) {
                     match &overlay.kind {
-                        deadsync_assets::song_lua::SongLuaOverlayKind::NoteskinActor {
-                            slots,
-                            ..
-                        } => {
+                        deadsync_assets::song_lua::SongLuaOverlayKind::NoteskinActor { slots, .. } => {
                             for slot in slots.iter() {
                                 assets.queue_texture_upload(
                                     slot.texture_key().to_owned(),
@@ -4636,13 +4359,13 @@ return Def.ActorFrame{
                     // An ordinary ActorFrame parent does not make this an AFT
                     // proxy. The direct-segment assertions below verify that.
                     matches!(
-                        overlay.kind,
-                        deadsync_assets::song_lua::SongLuaOverlayKind::ActorProxy {
-                            target: deadsync_assets::song_lua::SongLuaProxyTarget::NoteField {
-                                player_index: 0
+                            overlay.kind,
+                            deadsync_assets::song_lua::SongLuaOverlayKind::ActorProxy {
+                                target: deadsync_assets::song_lua::SongLuaProxyTarget::NoteField {
+                                    player_index: 0
+                                }
                             }
-                        }
-                    )
+                        )
                 }));
                 let assets = fixture_assets();
                 let mut actors = Vec::with_capacity(512);
@@ -4918,10 +4641,7 @@ return Def.ActorFrame{
                     );
                     // Simply Love's Event label belongs to In, a sibling of
                     // Overlay. The score proxy must not make Overlay own it.
-                    assert_eq!(
-                        top_screen_text_draw(&actors, "EVENT", 0, 1.0).unwrap().1,
-                        1.0
-                    );
+                    assert_eq!(top_screen_text_draw(&actors, "EVENT", 0, 1.0).unwrap().1, 1.0);
                 }
             },
         );
@@ -4931,8 +4651,7 @@ return Def.ActorFrame{
     #[test]
     #[ignore = "long song-fixture playback and GPU readback regression"]
     fn lake_hold_bodies_draw_under_lua_player_callback() {
-        let fixture =
-            song_fixture::from_source("Lake of Lost Nostalgia/Lake of Lost Nostalgia.ssc");
+        let fixture = song_fixture::from_source("Lake of Lost Nostalgia/Lake of Lost Nostalgia.ssc");
         let simfile = fixture.simfile.clone();
         use winit::platform::windows::EventLoopBuilderExtWindows;
         let event_loop = winit::event_loop::EventLoop::builder()
@@ -5270,8 +4989,7 @@ return Def.ActorFrame{
                 let metrics = space::Metrics::centered(854.0, 480.0);
                 space::set_current_metrics(metrics);
                 space::set_current_window_px(1600, 900);
-                let path =
-                    write_fixture("depth-mask-gameplay", generated_pipeline_song_lua_simfile());
+                let path = write_fixture("depth-mask-gameplay", generated_pipeline_song_lua_simfile());
                 let dir = path.parent().unwrap().join("lua");
                 fs::create_dir_all(&dir).unwrap();
                 fs::write(
@@ -5437,10 +5155,7 @@ return Def.ActorFrame{
                         if [70.0, 94.0, 116.0, 196.0, 308.0, 320.0, 338.0].contains(&beat) {
                             let visible_pixels = gpu.capture(&mut state, &metrics, beat);
                             if beat == 94.0 {
-                                assert!(
-                                    visible_pixels > 100,
-                                    "rhythm section has no visible notes"
-                                );
+                                assert!(visible_pixels > 100, "rhythm section has no visible notes");
                             }
                         }
                     }
@@ -5504,13 +5219,11 @@ return Def.ActorFrame{
                     ..
                 } = &overlay.kind
                 {
-                    for key in std::iter::once(texture_key)
-                        .chain(textures.iter().map(|texture| &texture.key))
+                    for key in
+                        std::iter::once(texture_key).chain(textures.iter().map(|texture| &texture.key))
                     {
-                        if !deadlib_assets::dynamic::is_dynamic_video_path(Path::new(key.as_ref()))
-                        {
-                            ensure_gpu_capture_texture(&mut assets, &mut backend, key, None)
-                                .unwrap();
+                        if !deadlib_assets::dynamic::is_dynamic_video_path(Path::new(key.as_ref())) {
+                            ensure_gpu_capture_texture(&mut assets, &mut backend, key, None).unwrap();
                         }
                     }
                 }
@@ -5557,8 +5270,7 @@ return Def.ActorFrame{
             drop(frame);
             drop(textures);
             for key in missing {
-                ensure_gpu_capture_texture(&mut self.assets, &mut self.backend, &key, None)
-                    .unwrap();
+                ensure_gpu_capture_texture(&mut self.assets, &mut self.backend, &key, None).unwrap();
             }
             let mut frame = compose_fixture_frame_with_textures(
                 state,
@@ -5713,10 +5425,7 @@ return Def.ActorFrame{
                 ).unwrap()).unwrap();
                 assert_eq!(native["oracle"], "itgmania_notefield_render_trace");
                 assert_eq!(native["input"]["window_visible"], false);
-                assert_eq!(
-                    native["input"]["native_source"]["revision"],
-                    "704cdd5624155f743b59b8b64fedeb0588dae067"
-                );
+                assert_eq!(native["input"]["native_source"]["revision"], "704cdd5624155f743b59b8b64fedeb0588dae067");
                 assert_eq!(native["input"]["native_source"]["modified_src"], false);
                 let native_project = |clip: &[f64]| {
                     [
@@ -5737,9 +5446,7 @@ return Def.ActorFrame{
                         continue;
                     }
                     let beat = context["draw_beat"].as_f64().unwrap() as f32;
-                    if beat < 130.2 {
-                        continue;
-                    }
+                    if beat < 130.2 { continue; }
                     if !seen_native_beats.insert(beat.to_bits()) {
                         continue;
                     }
@@ -5747,8 +5454,7 @@ return Def.ActorFrame{
                         serde_json::from_value(sample["state"]["anchors_clip"].clone()).unwrap();
                     let origin = native_project(&anchors[0]);
                     let axis = native_project(&anchors[1]);
-                    let scale =
-                        ((axis[0] - origin[0]).powi(2) + (axis[1] - origin[1]).powi(2)).sqrt();
+                    let scale = ((axis[0] - origin[0]).powi(2) + (axis[1] - origin[1]).powi(2)).sqrt();
                     let geometry = native["model_geometry_meshes"]
                         .as_array()
                         .unwrap()
@@ -5810,38 +5516,19 @@ return Def.ActorFrame{
                 for sample in native["drawable_samples"].as_array().unwrap() {
                     let context = &sample["state"]["note_context"];
                     let beat = context["draw_beat"].as_f64().unwrap() as f32;
-                    if context["part"] != 2
-                        || sample["state"]["render_target"] == 0
+                    if context["part"] != 2 || sample["state"]["render_target"] == 0
                         || !((121.91..121.99).contains(&beat) || (129.91..129.99).contains(&beat))
-                        || !seen_cap_beats.insert(beat.to_bits())
-                    {
+                        || !seen_cap_beats.insert(beat.to_bits()) {
                         continue;
                     }
                     let tail_beat = context["note_beat"].as_f64().unwrap() as f32;
                     let column = context["column"].as_u64().unwrap() as usize;
-                    let index = state
-                        .chart_runtime
-                        .notes
-                        .iter()
-                        .position(|note| {
-                            note.column == column
-                                && note
-                                    .hold
-                                    .as_ref()
-                                    .is_some_and(|hold| hold.end_beat == tail_beat)
-                        })
-                        .unwrap();
-                    let mut bounds = [
-                        f32::INFINITY,
-                        f32::INFINITY,
-                        f32::NEG_INFINITY,
-                        f32::NEG_INFINITY,
-                    ];
+                    let index = state.chart_runtime.notes.iter().position(|note|
+                        note.column == column && note.hold.as_ref().is_some_and(|hold| hold.end_beat == tail_beat)
+                    ).unwrap();
+                    let mut bounds = [f32::INFINITY, f32::INFINITY, f32::NEG_INFINITY, f32::NEG_INFINITY];
                     for vertex in sample["vertices"].as_array().unwrap() {
-                        let clip: Vec<f64> = vertex.as_array().unwrap()[3..7]
-                            .iter()
-                            .map(|v| v.as_f64().unwrap())
-                            .collect();
+                        let clip: Vec<f64> = vertex.as_array().unwrap()[3..7].iter().map(|v| v.as_f64().unwrap()).collect();
                         let point = native_project(&clip);
                         for axis in 0..2 {
                             bounds[axis] = bounds[axis].min(point[axis]);
@@ -5944,18 +5631,9 @@ return Def.ActorFrame{
                     .chain(ns.note_layers.iter().flat_map(|layers| layers.iter()))
                     .map(|slot| FIXTURE_TEXTURES.texture_handle(slot.texture_key()))
                     .collect();
-                let cap_handles: std::collections::HashSet<_> = ns
-                    .hold_columns
-                    .iter()
-                    .flat_map(|column| {
-                        [
-                            column.bottomcap_active.as_ref(),
-                            column.bottomcap_inactive.as_ref(),
-                        ]
-                    })
-                    .flatten()
-                    .map(|slot| FIXTURE_TEXTURES.texture_handle(slot.texture_key()))
-                    .collect();
+                let cap_handles: std::collections::HashSet<_> = ns.hold_columns.iter()
+                    .flat_map(|column| [column.bottomcap_active.as_ref(), column.bottomcap_inactive.as_ref()])
+                    .flatten().map(|slot| FIXTURE_TEXTURES.texture_handle(slot.texture_key())).collect();
                 #[cfg(target_os = "windows")]
                 let mut capture = std::env::var_os("DEADSYNC_SEVENTH_CAPTURE").map(|_| {
                     SongLuaNotePixelCapture::new(
@@ -5985,10 +5663,7 @@ return Def.ActorFrame{
                     let native_arrival = native_arrivals
                         .iter()
                         .find(|frame| frame["beat"].as_f64().unwrap() as f32 == beat);
-                    let native_cap = native_caps
-                        .iter()
-                        .find(|(at, _)| *at == beat)
-                        .map(|(_, bounds)| bounds);
+                    let native_cap = native_caps.iter().find(|(at, _)| *at == beat).map(|(_, bounds)| bounds);
                     let arrival_note = native_arrival.map(|frame| {
                         let note_beat = frame["note_beat"].as_f64().unwrap() as f32;
                         let column = frame["column"].as_u64().unwrap() as usize - 1;
@@ -6049,8 +5724,9 @@ return Def.ActorFrame{
                             let_go: false,
                             is_pressed: true,
                             life: 1.0,
-                            last_update_time_ns:
-                                deadsync_core::song_time::song_time_ns_from_seconds(seconds),
+                            last_update_time_ns: deadsync_core::song_time::song_time_ns_from_seconds(
+                                seconds,
+                            ),
                         };
                         state.set_active_hold(column, Some(hold));
                     }
@@ -6083,46 +5759,23 @@ return Def.ActorFrame{
                         for op in &pass.ops {
                             if let Some(expected) = native_cap
                                 && let DrawOp::TexturedMesh(run) = op
-                                && cap_handles.contains(&run.texture_handle)
-                            {
-                                let camera = pass
-                                    .cameras
-                                    .get(run.camera as usize)
-                                    .copied()
-                                    .unwrap_or_else(|| metrics.projection());
-                                for instance in &pass.tmesh_instances[run.instance_start as usize
-                                    ..(run.instance_start + run.instance_count) as usize]
-                                {
+                                && cap_handles.contains(&run.texture_handle) {
+                                let camera = pass.cameras.get(run.camera as usize).copied().unwrap_or_else(|| metrics.projection());
+                                for instance in &pass.tmesh_instances[run.instance_start as usize..(run.instance_start + run.instance_count) as usize] {
                                     let transform = camera * instance.transform();
-                                    let mut bounds = [
-                                        f32::INFINITY,
-                                        f32::INFINITY,
-                                        f32::NEG_INFINITY,
-                                        f32::NEG_INFINITY,
-                                    ];
-                                    for vertex in
-                                        pass.tmesh_geometries[run.geometry as usize].vertices.iter()
-                                    {
-                                        let clip = transform.mul_vec4(
-                                            [vertex.pos[0], vertex.pos[1], vertex.pos[2], 1.0]
-                                                .into(),
-                                        );
-                                        let point = [
-                                            427.0 + clip.x / clip.w * 427.0,
-                                            240.0
-                                                - clip.y / clip.w * pass.viewport[1] as f32 * 427.0
-                                                    / pass.viewport[0] as f32,
-                                        ];
+                                    let mut bounds = [f32::INFINITY, f32::INFINITY, f32::NEG_INFINITY, f32::NEG_INFINITY];
+                                    for vertex in pass.tmesh_geometries[run.geometry as usize].vertices.iter() {
+                                        let clip = transform.mul_vec4([vertex.pos[0], vertex.pos[1], vertex.pos[2], 1.0].into());
+                                        let point = [427.0 + clip.x / clip.w * 427.0,
+                                            240.0 - clip.y / clip.w * pass.viewport[1] as f32 * 427.0 / pass.viewport[0] as f32];
                                         for axis in 0..2 {
                                             bounds[axis] = bounds[axis].min(point[axis]);
                                             bounds[axis + 2] = bounds[axis + 2].max(point[axis]);
                                         }
                                     }
                                     for axis in 0..4 {
-                                        assert!(
-                                            (bounds[axis] - expected[axis]).abs() < 0.05,
-                                            "native cap at beat {beat}, bound {axis}: {bounds:?} vs {expected:?}"
-                                        );
+                                        assert!((bounds[axis] - expected[axis]).abs() < 0.05,
+                                            "native cap at beat {beat}, bound {axis}: {bounds:?} vs {expected:?}");
                                     }
                                     cap_meshes += 1;
                                 }
@@ -6156,23 +5809,17 @@ return Def.ActorFrame{
                                     .sqrt();
                                     let expected_scale = native["scale"].as_f64().unwrap() as f32;
                                     if arrival_meshes == 0 {
-                                        native_pose_errors.push((
-                                            beat,
-                                            [
-                                                origin[0]
-                                                    - native["origin"][0].as_f64().unwrap() as f32,
-                                                origin[1]
-                                                    - native["origin"][1].as_f64().unwrap() as f32,
-                                                scale - expected_scale,
-                                            ],
-                                        ));
+                                        native_pose_errors.push((beat, [
+                                            origin[0] - native["origin"][0].as_f64().unwrap() as f32,
+                                            origin[1] - native["origin"][1].as_f64().unwrap() as f32,
+                                            scale - expected_scale,
+                                        ]));
                                     }
                                     if (scale - expected_scale).abs() >= 0.021 {
                                         native_pose_failures.push(format!("native rendered first arrow size at {beat}: {scale} vs {expected_scale}"));
                                     }
                                     for axis in 0..2 {
-                                        let expected =
-                                            native["origin"][axis].as_f64().unwrap() as f32;
+                                        let expected = native["origin"][axis].as_f64().unwrap() as f32;
                                         if (origin[axis] - expected).abs() >= 4.0 {
                                             native_pose_failures.push(format!("native rendered first arrow position at {beat}: {origin:?}, axis {axis}={expected}"));
                                         }
@@ -6206,15 +5853,11 @@ return Def.ActorFrame{
                                             actual_points.push(point);
                                             for axis in 0..2 {
                                                 bounds[axis] = bounds[axis].min(point[axis]);
-                                                bounds[axis + 2] =
-                                                    bounds[axis + 2].max(point[axis]);
+                                                bounds[axis + 2] = bounds[axis + 2].max(point[axis]);
                                             }
                                         }
                                         let center: [f32; 2] = std::array::from_fn(|axis| {
-                                            actual_points
-                                                .iter()
-                                                .map(|point| point[axis])
-                                                .sum::<f32>()
+                                            actual_points.iter().map(|point| point[axis]).sum::<f32>()
                                                 / actual_points.len() as f32
                                         });
                                         for point in &mut actual_points {
@@ -6223,10 +5866,8 @@ return Def.ActorFrame{
                                             }
                                         }
                                         let expected_points: Vec<[f32; 2]> =
-                                            serde_json::from_value(
-                                                native["normalized_points"].clone(),
-                                            )
-                                            .unwrap();
+                                            serde_json::from_value(native["normalized_points"].clone())
+                                                .unwrap();
                                         let distance = |from: &[[f32; 2]], to: &[[f32; 2]]| {
                                             from.iter()
                                                 .map(|a| {
@@ -6300,8 +5941,7 @@ return Def.ActorFrame{
                                     ]
                                     .into(),
                                 );
-                                let pixel_y =
-                                    (1.0 - clip.y / clip.w) * pass.viewport[1] as f32 / 2.0;
+                                let pixel_y = (1.0 - clip.y / clip.w) * pass.viewport[1] as f32 / 2.0;
                                 // FrameProxyP1 uses dh/2; ProxyP1N uses dw/sw.
                                 let y = 240.0
                                     + (pixel_y - pass.viewport[1] as f32 / 2.0) * 854.0
@@ -6311,8 +5951,7 @@ return Def.ActorFrame{
                                     "beat {beat}: receptor swept between native anchors: Y={y}"
                                 );
                                 assert!(
-                                    expected_y
-                                        .is_none_or(|expected_y| (y - expected_y).abs() < 0.05),
+                                    expected_y.is_none_or(|expected_y| (y - expected_y).abs() < 0.05),
                                     "beat {beat}: rendered receptor Y={y}, native={expected_y:?}; raw={:?}, camera={camera:?}",
                                     instance.center,
                                 );
@@ -6334,10 +5973,7 @@ return Def.ActorFrame{
                         );
                     }
                     if native_cap.is_some() {
-                        assert!(
-                            cap_meshes >= 2,
-                            "native tail cap must reach both source AFT draws"
-                        );
+                        assert!(cap_meshes >= 2, "native tail cap must reach both source AFT draws");
                     }
                     eprintln!(
                         "7th Gear beat {beat}: {receptors} AFT receptor sprites, {wide_bodies} full-width hold bodies, Mini=60"
@@ -6355,26 +5991,14 @@ return Def.ActorFrame{
                     "{}",
                     native_pose_failures.join("\n")
                 );
-                let max_error: [f32; 3] = std::array::from_fn(|axis| {
-                    native_pose_errors
-                        .iter()
-                        .map(|(_, error)| error[axis].abs())
-                        .fold(0.0, f32::max)
-                });
-                let max_error_step: [f32; 3] = std::array::from_fn(|axis| {
-                    native_pose_errors
-                        .windows(2)
-                        .map(|pair| (pair[1].1[axis] - pair[0].1[axis]).abs())
-                        .fold(0.0, f32::max)
-                });
-                eprintln!(
-                    "native pose errors [x,y,scale]: max={max_error:?}, consecutive delta={max_error_step:?}"
-                );
+                let max_error: [f32; 3] = std::array::from_fn(|axis| native_pose_errors.iter()
+                    .map(|(_, error)| error[axis].abs()).fold(0.0, f32::max));
+                let max_error_step: [f32; 3] = std::array::from_fn(|axis| native_pose_errors.windows(2)
+                    .map(|pair| (pair[1].1[axis] - pair[0].1[axis]).abs()).fold(0.0, f32::max));
+                eprintln!("native pose errors [x,y,scale]: max={max_error:?}, consecutive delta={max_error_step:?}");
                 for (axis, error) in max_error_step[..2].iter().enumerate() {
-                    assert!(
-                        *error < 4.0,
-                        "first-arrow motion differs from native between consecutive frames, axis {axis}: {error}"
-                    );
+                    assert!(*error < 4.0,
+                        "first-arrow motion differs from native between consecutive frames, axis {axis}: {error}");
                 }
             },
         );
@@ -7060,13 +6684,13 @@ return Def.ActorFrame{
                     // An ordinary ActorFrame parent does not make this an AFT
                     // proxy. The direct-segment assertions below verify that.
                     matches!(
-                        overlay.kind,
-                        deadsync_assets::song_lua::SongLuaOverlayKind::ActorProxy {
-                            target: deadsync_assets::song_lua::SongLuaProxyTarget::Combo {
-                                player_index: 0
+                            overlay.kind,
+                            deadsync_assets::song_lua::SongLuaOverlayKind::ActorProxy {
+                                target: deadsync_assets::song_lua::SongLuaProxyTarget::Combo {
+                                    player_index: 0
+                                }
                             }
-                        }
-                    )
+                        )
                 }));
                 let assets = fixture_assets();
                 let mut actors = Vec::with_capacity(512);
@@ -7683,11 +7307,8 @@ return Def.ActorFrame{}
         let lua_dir = song_dir.join("lua");
         fs::create_dir_all(&lua_dir).unwrap();
         fs::write(lua_dir.join("default.lua"), generated_runtime_mod_lua()).unwrap();
-        fs::write(
-            song_dir.join("easing.lua"),
-            include_str!("../../../tests/fixtures/song_lua/easing.lua"),
-        )
-        .unwrap();
+        fs::write(song_dir.join("easing.lua"),
+            include_str!("../../../tests/fixtures/song_lua/easing.lua")).unwrap();
         let simfile = song_dir.join("generated_lua_regression.ssc");
         fs::write(&simfile, generated_lua_song_simfile()).unwrap();
         simfile

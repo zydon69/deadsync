@@ -10,7 +10,7 @@ fn source_defaults_and_all_eight_flags_roundtrip_preserving_unknown_controls() {
     let off = Preferences {
         hide_arrows: false,
         light_holds: false,
-        placement: Default::default(),
+        placement:Default::default(),
         animation: receptors::Preferences {
             autoplay_rim: false,
             autoplay_glow: false,

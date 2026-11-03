@@ -352,8 +352,7 @@ fn event_source_label(stream: EventStreamKey) -> String {
     match stream {
         EventStreamKey::Keyboard => "Keyboard".to_owned(),
         EventStreamKey::Pad { dev } => {
-            crate::i18n::tr_fmt("UiMessages", "GamepadDev", &[("dev", &(dev).to_string())])
-                .to_string()
+            crate::i18n::tr_fmt("UiMessages", "GamepadDev", &[("dev", &(dev).to_string())]).to_string()
         }
     }
 }
@@ -366,13 +365,7 @@ fn format_event_rate_summary(latest_hz: u32, max_hz: u32) -> String {
     let mut text = String::new();
     crate::i18n::tr_fmt_into(
         &mut text,
-        "UiMessages",
-        "HzLatestHzMax",
-        &[
-            ("arg0", if latest_hz > MAX_DISPLAY_HZ { ">" } else { "" }),
-            ("arg1", latest.as_str()),
-            ("arg2", if max_hz > MAX_DISPLAY_HZ { ">" } else { "" }),
-            ("arg3", maximum.as_str()),
+        "UiMessages", "HzLatestHzMax", &[("arg0", if latest_hz > MAX_DISPLAY_HZ { ">" } else { "" }), ("arg1", latest.as_str()), ("arg2", if max_hz > MAX_DISPLAY_HZ { ">" } else { "" }), ("arg3", maximum.as_str()),
         ],
     );
     text
@@ -408,52 +401,27 @@ impl UnmappedTracker {
                 continue;
             }
             let line = match *k {
-                UnmappedKey::Dir { dev, dir } => crate::i18n::tr_fmt(
-                    "UiMessages",
-                    "GamepadDevDirDir",
-                    &[("dev", &(dev).to_string()), ("dir", &format!("{:?}", dir))],
-                )
-                .to_string(),
+                UnmappedKey::Dir { dev, dir } => crate::i18n::tr_fmt("UiMessages", "GamepadDevDirDir", &[("dev", &(dev).to_string()), ("dir", &format!("{:?}", dir))],
+                ).to_string(),
                 UnmappedKey::RawButton { dev, code_u32 } => {
-                    deadsync_input::raw_button_label(dev, code_u32).unwrap_or_else(|| {
-                        crate::i18n::tr_fmt(
-                            "UiMessages",
-                            "GamepadDevRawButton0xCodeU3208X",
-                            &[
-                                ("dev", &(dev).to_string()),
-                                ("code_u32", &format!("{:08X}", code_u32)),
+                    deadsync_input::raw_button_label(dev, code_u32)
+                        .unwrap_or_else(|| {
+                        crate::i18n::tr_fmt("UiMessages", "GamepadDevRawButton0xCodeU3208X", &[("dev", &(dev).to_string()), ("code_u32", &format!("{:08X}", code_u32)),
                             ],
-                        )
-                        .to_string()
+                        ).to_string()
                     })
                 }
                 UnmappedKey::RawAxis { dev, code_u32 } => {
                     let value = self.axis_value.get(k).copied().unwrap_or(0.0);
-                    crate::i18n::tr_fmt(
-                        "UiMessages",
-                        "GamepadDevRawAxis0xCodeU3208XValue3",
-                        &[
-                            ("dev", &(dev).to_string()),
-                            ("code_u32", &format!("{:08X}", code_u32)),
-                            ("value", &format!("{:.3}", value)),
+                    crate::i18n::tr_fmt("UiMessages", "GamepadDevRawAxis0xCodeU3208XValue3", &[("dev", &(dev).to_string()), ("code_u32", &format!("{:08X}", code_u32)), ("value", &format!("{:.3}", value)),
                         ],
-                    )
-                    .to_string()
+                    ).to_string()
                 }
-                UnmappedKey::Keyboard { code } => crate::i18n::tr_fmt(
-                    "UiMessages",
-                    "KeyboardKeyCodeCode",
-                    &[("code", &format!("{:?}", code))],
-                )
-                .to_string(),
+                UnmappedKey::Keyboard { code } => crate::i18n::tr_fmt("UiMessages", "KeyboardKeyCodeCode", &[("code", &format!("{:?}", code))],
+                ).to_string(),
             };
-            out.push(
-                crate::i18n::tr_fmt(
-                    "UiMessages",
-                    "LineNotMapped",
-                    &[("line", &(line).to_string())],
-                )
-                .to_string(),
+            out.push(crate::i18n::tr_fmt("UiMessages", "LineNotMapped", &[("line", &(line).to_string())],
+                ).to_string(),
             );
         }
         out.sort();

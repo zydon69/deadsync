@@ -14,10 +14,7 @@ fn all_new_editor_profiles_start_valid_and_roundtrip_complete_editor_defaults() 
         assert_eq!(restored.config(), profile.config());
         assert!(!restored.restore_defaults().unwrap());
         if kind == Kind::Performed {
-            assert_eq!(
-                restored.travel_speed(),
-                Some(TravelSpeed::editor_defaults())
-            );
+            assert_eq!(restored.travel_speed(), Some(TravelSpeed::editor_defaults()));
         }
     }
 }

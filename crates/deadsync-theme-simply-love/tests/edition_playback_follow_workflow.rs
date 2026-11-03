@@ -32,7 +32,6 @@ fn mode(s: &mut State, mode: usize) {
 fn note_positions(s: &State) -> Vec<[f32; 2]> {
     transport_host::heads(s)
 }
-
 fn arrow(s: &State) -> f64 {
     note_positions(s).first().expect("visible note")[1] as f64
 }

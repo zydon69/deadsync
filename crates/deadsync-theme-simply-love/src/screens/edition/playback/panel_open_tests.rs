@@ -262,14 +262,8 @@ fn physical_readonly_actions_and_escape_preserve_main_and_dedicated_preview() {
                         _ => None,
                     };
                     if let Some(index) = parent {
-                        assert!(
-                            matches!(state.panel, Some(Panel::Transforms(actual)) if actual == index)
-                        );
-                        unchanged(
-                            &mut state,
-                            &before,
-                            &format!("{action:?} returned to tools"),
-                        );
+                        assert!(matches!(state.panel, Some(Panel::Transforms(actual)) if actual == index));
+                        unchanged(&mut state, &before, &format!("{action:?} returned to tools"));
                         press(&mut state, KeyCode::Escape);
                     }
                     assert!(state.panel.is_none(), "{action:?} Cancel: {}", state.status);

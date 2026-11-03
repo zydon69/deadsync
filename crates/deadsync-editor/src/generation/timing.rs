@@ -110,18 +110,9 @@ impl GenerationTiming {
 
     /// Source normalization retains separate file and editor event sets.
     pub fn from_simfile(bytes: &[u8], format: Format, chart: usize) -> Result<Self, Error> {
-        Self::from_simfile_with_context(bytes, format, Default::default(), chart)
+        Self::from_simfile_with_context(bytes,format,Default::default(),chart)
     }
-    pub fn from_simfile_with_context(
-        bytes: &[u8],
-        format: Format,
-        context: crate::document::LoadContext,
-        chart: usize,
-    ) -> Result<Self, Error> {
-        Self::from_document(
-            &Document::parse_with_context(Arc::<[u8]>::from(bytes), format, context)?,
-            chart,
-        )
+    pub fn from_simfile_with_context(bytes:&[u8],format:Format,context:crate::document::LoadContext,chart:usize)->Result<Self,Error>{Self::from_document(&Document::parse_with_context(Arc::<[u8]>::from(bytes),format,context)?,chart)
     }
     pub(crate) fn from_document(document: &Document, chart: usize) -> Result<Self, Error> {
         load::load(document, chart)

@@ -51,26 +51,18 @@ impl State {
         }
     }
     fn key_binding_error(&mut self, error: deadsync_editor::Error) {
-        self.status = i18n::tr_fmt(
-            "Edition",
-            "Error",
-            &[("message", &crate::i18n::editor_error(&error))],
-        );
+        self.status = i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))]);
     }
     pub(super) fn sync_key_binding_preferences_history(&mut self) {
         if let Some(update) = self.workspace.take_key_binding_preferences_update() {
             self.configure_key_binding_preferences(update.preferences);
-            if let Some(file) = update.file {
-                self.publish_application_preferences_owner(file);
-            }
+            if let Some(file) = update.file {self.publish_application_preferences_owner(file);}
         }
     }
     /// Full raw events reach this before modifier/modal early returns. Capture
     /// finishes when its chord is released; Enter/Escape then act in Review.
     pub(super) fn key_binding_capture_event(&mut self, event: &RawKeyboardEvent) -> bool {
-        if self.scroll_modifier_capture_event(event) {
-            return true;
-        }
+        if self.scroll_modifier_capture_event(event){return true;}
         let Some(settings) = self.key_binding_draft.as_mut() else {
             return false;
         };
@@ -142,7 +134,9 @@ impl State {
                 "Duplicate modifier/key after physical alias normalization" => {
                     "KeyProfileReasonDuplicate"
                 }
-                "Unsupported native key chord" => "KeyProfileReasonPrefix",
+                "Unsupported native key chord" => {
+                    "KeyProfileReasonPrefix"
+                }
                 _ => "KeyProfileReasonReserved",
             };
             let alternative = rejected
@@ -218,10 +212,7 @@ impl State {
             self.panel = None;
             return;
         }
-        if code == KeyCode::F10 {
-            self.open_scroll_modifiers();
-            return;
-        }
+        if code==KeyCode::F10 {self.open_scroll_modifiers();return;}
         if matches!(
             code,
             KeyCode::F5 | KeyCode::F6 | KeyCode::F7 | KeyCode::F8 | KeyCode::F9
@@ -349,7 +340,7 @@ impl State {
         let alternatives = settings.draft.alternatives();
         let chord = &alternatives[settings.draft.alternative];
         for (row, key) in ROWS.iter().enumerate() {
-            let ui_row_start = actors.len();
+            let ui_row_start=actors.len();
             let label = match row {
                 0 => i18n::tr_fmt(
                     "Edition",
@@ -382,12 +373,7 @@ impl State {
             };
             actors.push(act!(text:font("miso"):settext(label):xy(x,top+row as f32*30.):zoom(0.62):maxwidth(580.):diffuse(1.,if row==index{0.8}else{1.},if row==index{0.3}else{1.},1.):z(8051)));
 
-            self.ui_row(
-                actors,
-                ui_row_start,
-                row == index && settings.capture.is_none(),
-                30.,
-            );
+            self.ui_row(actors,ui_row_start,row==index&&settings.capture.is_none(),30.);
         }
         let conflicts = &settings.conflicts;
         if !conflicts.is_empty() {
@@ -414,7 +400,7 @@ impl State {
             actors.push(act!(text:font("miso"):settext(help):xy(x,top+285.):zoom(0.45):maxwidth(580.):maxheight(32.):z(8052)));
         }
         if let Some(capture) = &settings.capture {
-            let ui_row_start = actors.len();
+            let ui_row_start=actors.len();
             let help = i18n::tr_fmt(
                 "Edition",
                 if capture.phase() == CapturePhase::Review {
@@ -428,16 +414,12 @@ impl State {
                 )],
             );
             actors.push(act!(text:font("miso"):settext(help):xy(x,top+270.):zoom(0.55):maxwidth(580.):z(8052)));
-            self.ui_row(actors, ui_row_start, true, 32.);
+            self.ui_row(actors,ui_row_start,true,32.);
         }
     }
 }
 
-impl Settings {
-    pub(super) fn is_capturing(&self) -> bool {
-        self.capture.is_some()
-    }
-}
+impl Settings{pub(super) fn is_capturing(&self)->bool{self.capture.is_some()}}
 
 #[cfg(test)]
 mod source_reset_tests;

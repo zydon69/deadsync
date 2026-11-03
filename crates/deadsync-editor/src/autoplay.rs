@@ -182,11 +182,7 @@ impl Timeline {
     }
     /// Classify an immutable editor preview with the source chart's real timing.
     /// This does not install notes or grant a generated chart transport authority.
-    pub fn capture_preview_grid(
-        session: &Session,
-        chart: usize,
-        grid: &Grid,
-    ) -> Result<Self, Error> {
+    pub fn capture_preview_grid(session: &Session, chart: usize, grid: &Grid) -> Result<Self, Error> {
         let binding = Binding::capture(session, chart)?;
         let timing = GenerationTiming::from_document(session.document(), chart)?;
         let attacks = crate::attacks::placement::Timeline::capture(session, chart)?;
@@ -261,7 +257,8 @@ impl Timeline {
         for (seconds, order) in [
             (
                 song.sample_start(),
-                if song.text(crate::song_text::Field::PreviewMusic).is_empty() {
+                if song.text(crate::song_text::Field::PreviewMusic).is_empty()
+                {
                     Some(1)
                 } else {
                     None
@@ -396,10 +393,7 @@ impl Timeline {
         Ok(self.heads.get(&position).map(|head| {
             let consumed =
                 !head.fake && matches!(head.kind, Kind::Tap | Kind::Lift | Kind::Hold | Kind::Roll);
-            let raw_active_hold = playing
-                && consumed
-                && head.time < chart_time
-                && head.end_time.is_some_and(|end| end > chart_time);
+            let raw_active_hold=playing && consumed && head.time < chart_time && head.end_time.is_some_and(|end|end>chart_time);
             Presentation {
                 fake: head.fake,
                 raw_active_hold,
@@ -428,74 +422,34 @@ pub struct Presentation {
     pub hidden: bool,
     pub active_hold: bool,
     /// Raw active sustain state for source start fill; independent of LightHolds.
-    pub raw_active_hold: bool,
+    pub raw_active_hold:bool,
     pub clip_hold: bool,
 }
 
 #[cfg(test)]
 mod immutable_preview_classification_tests {
     use super::*;
-    use crate::{
-        document::{Document, Format},
-        history::Session,
-        notes::{Grid, Kind, Note, Position},
-    };
+    use crate::{document::{Document,Format},notes::{Grid,Note,Kind,Position},history::Session};
     #[test]
     fn preview_only_heads_lift_fake_and_hold_use_real_source_clock_without_consumption() {
         let source=b"#VERSION:0.83;#BPMS:0=120;#FAKES:2=1;#NOTEDATA:;#STEPSTYPE:dance-single;#DIFFICULTY:Edit;#METER:9;#NOTES:1000;";
-        let session = Session::new(Document::parse(source.as_slice(), Format::Ssc).unwrap());
-        let before = session.serialize().unwrap();
-        let mut grid = Grid::new(8, 1).unwrap();
-        let p = |row, lane| Position {
-            row,
-            lane,
-            player: 0,
-        };
-        grid.set(p(0, 6), Some(Note::tap())).unwrap();
-        grid.set(
-            p(48, 5),
-            Some(Note {
-                kind: Kind::Lift,
-                ..Note::tap()
-            }),
-        )
-        .unwrap();
-        grid.set(
-            p(72, 7),
-            Some(Note {
-                kind: Kind::Fake,
-                ..Note::tap()
-            }),
-        )
-        .unwrap();
-        grid.set(p(96, 6), Some(Note::tap())).unwrap();
-        grid.set(
-            p(192, 4),
-            Some(Note {
-                kind: Kind::Hold,
-                end: Some(288),
-                ..Note::tap()
-            }),
-        )
-        .unwrap();
-        assert_eq!(grid.head_count(), 5);
-        let timeline = Timeline::capture_preview_grid(&session, 0, &grid).unwrap();
-        for position in [p(0, 6), p(48, 5), p(72, 7), p(96, 6), p(192, 4)] {
-            let state = timeline
-                .presentation(&session, 0, position, 2.25, false, true, true)
-                .unwrap()
-                .unwrap();
-            assert_eq!(state.fake, position.row == 72 || position.row == 96);
-            assert!(
-                !state.hidden && !state.active_hold && !state.raw_active_hold && !state.clip_hold
-            );
+        let session=Session::new(Document::parse(source.as_slice(),Format::Ssc).unwrap());
+        let before=session.serialize().unwrap();let mut grid=Grid::new(8,1).unwrap();
+        let p=|row,lane|Position{row,lane,player:0};
+        grid.set(p(0,6),Some(Note::tap())).unwrap();
+        grid.set(p(48,5),Some(Note{kind:Kind::Lift,..Note::tap()})).unwrap();
+        grid.set(p(72,7),Some(Note{kind:Kind::Fake,..Note::tap()})).unwrap();
+        grid.set(p(96,6),Some(Note::tap())).unwrap();
+        grid.set(p(192,4),Some(Note{kind:Kind::Hold,end:Some(288),..Note::tap()})).unwrap();
+        assert_eq!(grid.head_count(),5);
+        let timeline=Timeline::capture_preview_grid(&session,0,&grid).unwrap();
+        for position in [p(0,6),p(48,5),p(72,7),p(96,6),p(192,4)] {
+            let state=timeline.presentation(&session,0,position,2.25,false,true,true).unwrap().unwrap();
+            assert_eq!(state.fake,position.row==72||position.row==96);
+            assert!(!state.hidden&&!state.active_hold&&!state.raw_active_hold&&!state.clip_hold);
         }
-        let playing = timeline
-            .presentation(&session, 0, p(192, 4), 2.25, true, true, true)
-            .unwrap()
-            .unwrap();
-        assert!(playing.raw_active_hold && playing.active_hold && playing.clip_hold);
-        assert_eq!(session.serialize().unwrap(), before);
-        assert!(session.undo_label().is_none());
+        let playing=timeline.presentation(&session,0,p(192,4),2.25,true,true,true).unwrap().unwrap();
+        assert!(playing.raw_active_hold&&playing.active_hold&&playing.clip_hold);
+        assert_eq!(session.serialize().unwrap(),before);assert!(session.undo_label().is_none());
     }
 }

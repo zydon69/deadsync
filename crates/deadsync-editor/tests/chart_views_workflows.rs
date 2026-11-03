@@ -236,7 +236,9 @@ fn empty_registry_still_belongs_to_exact_session_and_unknown_layouts_prune_by_id
     views.focus(&session, 0).unwrap();
     views.set_dedicated(&session, 1, true).unwrap();
     assert!(views.focus(&session, 3).is_err());
-    prepared_deletion(&session, 0).apply(&mut session).unwrap();
+    prepared_deletion(&session, 0)
+        .apply(&mut session)
+        .unwrap();
     views.reconcile(&session, None).unwrap();
     assert_eq!(views.entries().len(), 1);
     assert_eq!(views.focused().unwrap().source_index(), 0);
@@ -344,19 +346,4 @@ fn timing_and_undo_invalidate_clock_handles_and_another_session_is_rejected() {
     close(views.music_time(), 1.0);
 }
 
-fn prepared_deletion(
-    session: &deadsync_editor::history::Session,
-    chart: usize,
-) -> deadsync_editor::chart_deletion::Draft {
-    let mut draft = deadsync_editor::chart_deletion::Draft::capture(session, chart).unwrap();
-    let snapshot = session.song_timing_snapshot().unwrap();
-    let order = snapshot.indices_with(str::cmp).unwrap();
-    draft
-        .prepare_song_timing(
-            session,
-            &deadsync_editor::open_preferences::Preferences::default(),
-            &order,
-        )
-        .unwrap();
-    draft
-}
+fn prepared_deletion(session:&deadsync_editor::history::Session,chart:usize)->deadsync_editor::chart_deletion::Draft{let mut draft=deadsync_editor::chart_deletion::Draft::capture(session,chart).unwrap();let snapshot=session.song_timing_snapshot().unwrap();let order=snapshot.indices_with(str::cmp).unwrap();draft.prepare_song_timing(session,&deadsync_editor::open_preferences::Preferences::default(),&order).unwrap();draft}

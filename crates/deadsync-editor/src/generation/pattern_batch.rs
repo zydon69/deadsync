@@ -196,8 +196,7 @@ impl Task {
         let pad = Pad::builtin(&source.layout)?;
         let original = source.grid.clone();
         let mut grid = original.clone();
-        let timeline = source
-            .editor_timeline(cancelled)?
+        let timeline = source.editor_timeline(cancelled)?
             .with_markers(&source.pattern_regions(cancelled)?, cancelled)?;
         let mut report = Report {
             total: schedule.entries().len(),

@@ -57,7 +57,7 @@ mod tests {
 }
 struct Receipt {
     policy_revision: u64,
-    publication_revision: u64,
+    publication_revision:u64,
     token: RevisionToken,
     baseline: Option<Arc<[u8]>>,
 }
@@ -94,35 +94,27 @@ impl AutoRecovery {
 
     /// Request an immediate snapshot; at most one write can be in flight.
     pub fn request(&mut self, file: &FileSession, now: Instant) -> Result<(), Error> {
-        self.request_with_sync(file, now, super::sync_directory)
+        self.request_with_sync(file,now,super::sync_directory)
     }
-    pub(super) fn request_with_sync(
-        &mut self,
-        file: &FileSession,
-        now: Instant,
-        sync: impl FnMut(&std::path::Path) -> Result<(), Error> + Send + 'static,
-    ) -> Result<(), Error> {
+    pub(super) fn request_with_sync(&mut self,file:&FileSession,now:Instant,sync:impl FnMut(&std::path::Path)->Result<(),Error>+Send+'static)->Result<(),Error>{
         if self.worker.is_some() {
             return Ok(());
         }
         self.last_attempt = Some(now);
-        if !file.has_pending_recovery_durability()
-            && (!file.session.is_dirty()
-                || self.saved.as_ref().is_some_and(|receipt| {
-                    file.session.accepts_token(&receipt.token)
-                        && receipt.baseline == file.expected
-                        && receipt.policy_revision == file.output_policy_revision()
-                        && receipt.publication_revision == file.publication_revision
-                }))
+        if !file.has_pending_recovery_durability() && (!file.session.is_dirty()
+            || self.saved.as_ref().is_some_and(|receipt| {
+                file.session.accepts_token(&receipt.token)
+                    && receipt.baseline == file.expected
+                    && receipt.policy_revision == file.output_policy_revision()
+                    && receipt.publication_revision==file.publication_revision
+            }))
         {
             return Ok(());
         }
-        let Some(snapshot) = file.recovery_snapshot()? else {
-            return Ok(());
-        };
+        let Some(snapshot) = file.recovery_snapshot()? else { return Ok(()); };
         let receipt = Receipt {
             policy_revision: file.output_policy_revision(),
-            publication_revision: file.publication_revision,
+            publication_revision:file.publication_revision,
             token: file.session.revision_token(),
             baseline: file.expected.clone(),
         };
@@ -130,7 +122,7 @@ impl AutoRecovery {
         std::thread::Builder::new()
             .name("editor-recovery".into())
             .spawn(move || {
-                let result = snapshot.write_with_sync(true, sync).map(|_| receipt);
+                let result = snapshot.write_with_sync(true,sync).map(|_| receipt);
                 let _ = sender.send(result);
             })?;
         self.worker = Some(receiver);

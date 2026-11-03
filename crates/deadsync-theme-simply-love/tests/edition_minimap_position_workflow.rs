@@ -1,2 +1,2 @@
-const LANGUAGE: &str = "en";
+const LANGUAGE:&str="en";
 include!("support/minimap_position.rs");

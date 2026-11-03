@@ -936,9 +936,7 @@ fn push_card_info(
     let lines = fitted.map_or(1, |(_, lines)| lines);
     let title_h = lines as f32 * MISO_LINE * rip::TITLE_ZOOM;
     let credit: Option<TextContent> = if failed {
-        Some(TextContent::Shared(super::localization::text(
-            "could not be downloaded",
-        )))
+        Some(TextContent::Shared(super::localization::text("could not be downloaded")))
     } else {
         text.credit
             .as_ref()
@@ -1077,14 +1075,7 @@ fn push_picker(actors: &mut Vec<Actor>, state: &State, accent: [f32; 4], w: f32,
     let tally = match (chosen, pick) {
         (0, Pick::Eras) => TextContent::Shared(super::localization::text("any era")),
         (0, Pick::Authors) => TextContent::Shared(super::localization::text("anyone")),
-        (n, _) => TextContent::Owned(
-            crate::i18n::tr_fmt(
-                "ContentBrowser",
-                "MessageNChosen",
-                &[("n", &(n).to_string())],
-            )
-            .to_string(),
-        ),
+        (n, _) => TextContent::Owned(crate::i18n::tr_fmt("ContentBrowser", "MessageNChosen", &[("n", &(n).to_string())]).to_string()),
     };
     actors.push(act!(text:
         font("miso"): settext(tally):
@@ -1122,9 +1113,7 @@ fn push_picker(actors: &mut Vec<Actor>, state: &State, accent: [f32; 4], w: f32,
         }
         let (label, note) = match pick {
             Pick::Eras => (
-                TextContent::Shared(super::localization::text(
-                    Era::ALL.get(at).map_or("", |era| era.label()),
-                )),
+                TextContent::Shared(super::localization::text(Era::ALL.get(at).map_or("", |era| era.label()))),
                 None,
             ),
             Pick::Authors => match rip.author_rows.get(at) {

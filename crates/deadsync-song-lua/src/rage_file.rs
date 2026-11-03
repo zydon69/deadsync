@@ -228,51 +228,49 @@ fn create_rage_file_table(lua: &Lua, song_dir: &Path) -> mlua::Result<Table> {
     let song_dir = song_dir.to_path_buf();
     file.set(
         "Open",
-        lua.create_function(
-            move |lua, (_file, raw, mode): (Table, mlua::LuaString, i32)| {
-                let mut state = handle.borrow_mut::<RageFile>()?;
-                if state.destroyed {
-                    return state.check(0).map(|()| false);
-                }
-                note_song_lua_side_effect(lua)?;
-                state.close(lua);
-                set_file_path(
-                    &mut state.path,
-                    &song_dir,
-                    &String::from_utf8_lossy(c_string(&raw.as_bytes())),
-                );
-                state.mode = mode;
-                state.pos = 0;
-                state.eof = false;
-                state.bytes.clear();
-                if mode & 3 == 3 {
-                    state.error = "Reading and writing are mutually exclusive".into();
-                    return Ok(false);
-                }
-                if mode & 3 == 0 {
-                    state.error = "Neither reading nor writing specified".into();
-                    return Ok(false);
-                }
-                if mode & 1 != 0 {
-                    match state.load(lua) {
-                        Ok(()) => {}
-                        Err(error) => {
-                            state.error = match error.kind() {
-                                std::io::ErrorKind::NotFound => "No such file or directory".into(),
-                                std::io::ErrorKind::PermissionDenied => "Permission denied".into(),
-                                _ => error.to_string(),
-                            };
-                            return Ok(false);
-                        }
+        lua.create_function(move |lua, (_file, raw, mode): (Table, mlua::LuaString, i32)| {
+            let mut state = handle.borrow_mut::<RageFile>()?;
+            if state.destroyed {
+                return state.check(0).map(|()| false);
+            }
+            note_song_lua_side_effect(lua)?;
+            state.close(lua);
+            set_file_path(
+                &mut state.path,
+                &song_dir,
+                &String::from_utf8_lossy(c_string(&raw.as_bytes())),
+            );
+            state.mode = mode;
+            state.pos = 0;
+            state.eof = false;
+            state.bytes.clear();
+            if mode & 3 == 3 {
+                state.error = "Reading and writing are mutually exclusive".into();
+                return Ok(false);
+            }
+            if mode & 3 == 0 {
+                state.error = "Neither reading nor writing specified".into();
+                return Ok(false);
+            }
+            if mode & 1 != 0 {
+                match state.load(lua) {
+                    Ok(()) => {}
+                    Err(error) => {
+                        state.error = match error.kind() {
+                            std::io::ErrorKind::NotFound => "No such file or directory".into(),
+                            std::io::ErrorKind::PermissionDenied => "Permission denied".into(),
+                            _ => error.to_string(),
+                        };
+                        return Ok(false);
                     }
-                } else if state.path.is_dir() || state.path.ancestors().skip(1).any(Path::is_file) {
-                    state.error = "Not a writable file path".into();
-                    return Ok(false);
                 }
-                state.open = true;
-                Ok(true)
-            },
-        )?,
+            } else if state.path.is_dir() || state.path.ancestors().skip(1).any(Path::is_file) {
+                state.error = "Not a writable file path".into();
+                return Ok(false);
+            }
+            state.open = true;
+            Ok(true)
+        })?,
     )?;
     for name in ["Write", "PutLine"] {
         let handle = state.clone();

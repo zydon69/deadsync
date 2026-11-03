@@ -29,13 +29,13 @@ use crate::{
     create_style_table, create_theme_prefs_rows_table, create_theme_prefs_table,
     create_theme_table, create_top_screen_table, create_trail_table, create_unlockman_table,
     current_song_lua_style_name, display_bpms_for_args, display_bpms_text,
-    format_number_and_suffix, install_def_globals, install_default_stdlib_compat,
-    install_file_loader_globals, is_song_lua_audio_path, lua_values_equal, method_arg,
-    note_song_lua_side_effect, player_index_from_value, player_number_name, read_f32, read_string,
-    record_song_lua_broadcast, resolve_script_path, scale_value, seconds_to_hhmmss,
-    seconds_to_mmss, seconds_to_mmss_ms_ms, seconds_to_mss, seconds_to_mss_ms_ms, song_dir_string,
-    song_lua_human_player_count, song_lua_runtime_number, song_lua_style_column_x, song_music_rate,
-    theme_string, truthy,
+    format_number_and_suffix, install_def_globals,
+    install_default_stdlib_compat, install_file_loader_globals, is_song_lua_audio_path,
+    lua_values_equal, method_arg, note_song_lua_side_effect, player_index_from_value,
+    player_number_name, read_f32, read_string, record_song_lua_broadcast, resolve_script_path,
+    scale_value, seconds_to_hhmmss, seconds_to_mmss, seconds_to_mmss_ms_ms, seconds_to_mss,
+    seconds_to_mss_ms_ms, song_dir_string, song_lua_human_player_count,
+    song_lua_runtime_number, song_lua_style_column_x, song_music_rate, theme_string, truthy,
 };
 
 pub const SONG_LUA_STARTUP_MESSAGE: &str = "__songlua_startup";
@@ -51,8 +51,7 @@ fn initialize_gameplay_steps(lua: &Lua, context: &SongLuaCompileContext) -> mlua
     let Some(human) = context.players.iter().position(|player| player.enabled) else {
         return Ok(());
     };
-    let state = lua
-        .app_data_ref::<SongLuaGameStateGlobals>()
+    let state = lua.app_data_ref::<SongLuaGameStateGlobals>()
         .ok_or_else(|| mlua::Error::runtime("missing gameplay selection state"))?;
     let steps = state.current_steps.raw_get::<Option<Table>>(human + 1)?;
     // ScreenGameplay::Init seeds every nonhuman potential CPU player before
@@ -67,23 +66,16 @@ fn initialize_gameplay_steps(lua: &Lua, context: &SongLuaCompileContext) -> mlua
 }
 
 #[cfg(feature = "test-support")]
-pub(crate) fn selected_step_indices(
-    lua: &Lua,
-    step_count: usize,
+pub(crate) fn selected_step_indices(lua: &Lua, step_count: usize,
 ) -> mlua::Result<[Option<usize>; LUA_PLAYERS]> {
-    let state = lua
-        .app_data_ref::<SongLuaGameStateGlobals>()
+    let state = lua.app_data_ref::<SongLuaGameStateGlobals>()
         .ok_or_else(|| mlua::Error::runtime("missing gameplay selection state"))?;
     let mut indices = [None; LUA_PLAYERS];
     for (player, index) in indices.iter_mut().enumerate() {
         let steps = state.current_steps.raw_get::<Option<Table>>(player + 1)?;
-        *index = steps
-            .as_ref()
-            .and_then(|steps| {
-                state
-                    .step_objects
-                    .iter()
-                    .position(|(known, _)| known.to_pointer() == steps.to_pointer())
+        *index = steps.as_ref().and_then(|steps| {
+                state.step_objects.iter()
+            .position(|(known, _)| known.to_pointer() == steps.to_pointer())
             })
             .filter(|&index| index < step_count);
     }
@@ -94,20 +86,16 @@ pub(crate) fn selected_scene_context(
     lua: &Lua,
     context: &SongLuaCompileContext,
 ) -> mlua::Result<SongLuaCompileContext> {
-    let state = lua
-        .app_data_ref::<SongLuaGameStateGlobals>()
+    let state = lua.app_data_ref::<SongLuaGameStateGlobals>()
         .ok_or_else(|| mlua::Error::runtime("missing gameplay selection state"))?;
     let mut selected = context.clone();
     for player in 0..LUA_PLAYERS {
         let steps = state.current_steps.raw_get::<Option<Table>>(player + 1)?;
         let index = steps.as_ref().and_then(|steps| {
-            state
-                .step_objects
-                .iter()
-                .position(|(known, _)| known.to_pointer() == steps.to_pointer())
+            state.step_objects.iter()
+            .position(|(known, _)| known.to_pointer() == steps.to_pointer())
         });
-        selected.player_step_indices[player] =
-            index.filter(|&index| index < context.song_steps.len());
+        selected.player_step_indices[player] = index.filter(|&index| index < context.song_steps.len());
         if let Some(index) = index {
             selected.players[player].difficulty = state.step_objects[index].1.difficulty;
         }
@@ -129,23 +117,15 @@ pub(crate) fn replace_gameplay_screen(
     install_actor_methods: fn(&Lua, &Table) -> mlua::Result<()>,
 ) -> mlua::Result<()> {
     crate::song_tables::restart_stage_options(lua)?;
-    let state = lua
-        .app_data_ref::<SongLuaGameStateGlobals>()
-        .ok_or_else(|| mlua::Error::runtime("missing gameplay selection state"))?
-        .clone();
+    let state = lua.app_data_ref::<SongLuaGameStateGlobals>()
+        .ok_or_else(|| mlua::Error::runtime("missing gameplay selection state"))?.clone();
     // Native screen deletion unsubscribes its actors even when Lua kept a
     // reference. A fresh scene must not receive its predecessor's messages.
-    lua.globals()
-        .set("__songlua_actor_registry", lua.create_table()?)?;
+    lua.globals().set("__songlua_actor_registry", lua.create_table()?)?;
     initialize_gameplay_steps(lua, context)?;
     let context = selected_scene_context(lua, context)?;
-    let top = create_top_screen_table(
-        lua,
-        &context,
-        state.current_sort_order,
-        state.current_song,
-        create_dummy_actor,
-        create_named_child_actor,
+    let top = create_top_screen_table(lua, &context, state.current_sort_order,
+        state.current_song, create_dummy_actor, create_named_child_actor,
     )?;
     install_screen_manager_globals(lua, top.top_screen, top.players)?;
     crate::tables::reset_stage_stats(lua, &context)?;
@@ -253,7 +233,7 @@ pub fn clone_lua_value(lua: &Lua, value: Value) -> mlua::Result<Value> {
     match value {
         Value::UserData(data) => {
             Ok(crate::native_vector::snapshot(lua, &data)?
-                .map_or(Value::UserData(data), Value::Table))
+            .map_or(Value::UserData(data), Value::Table))
         }
         Value::Table(table) => {
             let cloned = lua.create_table()?;
@@ -345,16 +325,10 @@ pub fn create_chunk_env_proxy(lua: &Lua, target: Table) -> mlua::Result<Table> {
                             }
                         }
                     }
-                    if resolved {
-                        raw.pop::<Value>()
-                    } else {
-                        Ok(Value::Nil)
-                    }
+                    if resolved { raw.pop::<Value>() } else { Ok(Value::Nil) }
                 })?
             };
-            if resolved {
-                return Ok(value);
-            }
+            if resolved { return Ok(value); }
             let target: Table = proxy_for_index.get("__songlua_env_target")?;
             let value = target.get::<Value>(key.clone())?;
             if !matches!(value, Value::Nil) {
@@ -406,19 +380,13 @@ mod chunk_environment_tests {
         let owner = proxy.clone();
         let globals = lua.globals();
         let mt = lua.create_table().unwrap();
-        mt.set(
-            "__index",
-            lua.create_function(move |_, (_self, key): (Table, Value)| {
-                let target: Table = owner.get("__songlua_env_target")?;
-                let value = target.get::<Value>(key.clone())?;
-                if !value.is_nil() {
-                    return Ok(value);
-                }
-                globals.get::<Value>(key)
-            })
-            .unwrap(),
-        )
-        .unwrap();
+        mt.set("__index", lua.create_function(move |_, (_self, key): (Table, Value)| {
+            let target: Table = owner.get("__songlua_env_target")?;
+            let value = target.get::<Value>(key.clone())?;
+            if !value.is_nil() { return Ok(value); }
+            globals.get::<Value>(key)
+        }).unwrap(),
+        ).unwrap();
         proxy.set_metatable(Some(mt)).unwrap();
         proxy
     }
@@ -429,52 +397,33 @@ mod chunk_environment_tests {
         let target = lua.create_table().unwrap();
         target.raw_set("present", 42).unwrap();
         target.raw_set("disabled", false).unwrap();
-        target
-            .raw_set("object", lua.create_table().unwrap())
-            .unwrap();
-        target
-            .raw_set("function", lua.create_function(|_, ()| Ok(42)).unwrap())
-            .unwrap();
+        target.raw_set("object", lua.create_table().unwrap()).unwrap();
+        target.raw_set("function", lua.create_function(|_, ()| Ok(42)).unwrap()).unwrap();
         lua.globals().raw_set("fallback", 17).unwrap();
         let original = original_reader(&lua, target.clone());
         let current = create_chunk_env_proxy(&lua, target.clone()).unwrap();
-        for key in [
-            "present", "disabled", "fallback", "missing", "object", "function",
+        for key in ["present", "disabled", "fallback", "missing", "object", "function",
         ] {
-            assert_eq!(
-                original.get::<Value>(key).unwrap(),
-                current.get::<Value>(key).unwrap()
-            );
+            assert_eq!(original.get::<Value>(key).unwrap(), current.get::<Value>(key).unwrap());
         }
         let replacement = lua.create_table().unwrap();
         replacement.raw_set("present", 84).unwrap();
         for proxy in [&original, &current] {
-            proxy
-                .raw_set("__songlua_env_target", replacement.clone())
-                .unwrap();
+            proxy.raw_set("__songlua_env_target", replacement.clone()).unwrap();
         }
         assert_eq!(current.get::<i32>("present").unwrap(), 84);
         let mt = lua.create_table().unwrap();
-        mt.raw_set(
-            "__index",
-            lua.load(
-                r#"return function(_, key)
+        mt.raw_set("__index", lua.load(r#"return function(_, key)
             LOOKUPS = LOOKUPS + 1
             if key == 'disabled' then return false end
             if key == 'fault' then error('environment read fault') end
         end"#,
-            )
-            .set_name("environment metamethod")
-            .eval::<Function>()
-            .unwrap(),
-        )
-        .unwrap();
+            ).set_name("environment metamethod").eval::<Function>().unwrap(),
+        ).unwrap();
         replacement.set_metatable(Some(mt.clone())).unwrap();
         for key in ["disabled", "fallback", "missing", "fault"] {
             lua.globals().raw_set("LOOKUPS", 0).unwrap();
-            let expected = original
-                .get::<Value>(key)
-                .map_err(|error| error.to_string());
+            let expected = original.get::<Value>(key).map_err(|error| error.to_string());
             let lookups = lua.globals().get::<i32>("LOOKUPS").unwrap();
             lua.globals().raw_set("LOOKUPS", 0).unwrap();
             let actual = current.get::<Value>(key).map_err(|error| error.to_string());
@@ -485,18 +434,14 @@ mod chunk_environment_tests {
         // those calls, even when the global table is also the target.
         lua.globals().set_metatable(Some(mt)).unwrap();
         for proxy in [&original, &current] {
-            proxy
-                .raw_set("__songlua_env_target", lua.globals())
-                .unwrap();
+            proxy.raw_set("__songlua_env_target", lua.globals()).unwrap();
             lua.globals().raw_set("LOOKUPS", 0).unwrap();
             assert!(proxy.get::<Value>("missing").unwrap().is_nil());
             assert_eq!(lua.globals().get::<i32>("LOOKUPS").unwrap(), 2);
             proxy.raw_set("__songlua_env_target", false).unwrap();
         }
-        assert_eq!(
-            original.get::<Value>("present").unwrap_err().to_string(),
-            current.get::<Value>("present").unwrap_err().to_string()
-        );
+        assert_eq!(original.get::<Value>("present").unwrap_err().to_string(),
+            current.get::<Value>("present").unwrap_err().to_string());
     }
 }
 
@@ -761,8 +706,7 @@ pub fn install_basic_globals(
                 // independent of the rounded logical screen dimensions.
                 let prefs: Table = lua.globals().get("PREFSMAN")?;
                 let values: Table = prefs.raw_get("__songlua_preference_values")?;
-                Ok(values
-                    .raw_get::<Option<f32>>("DisplayAspectRatio")?
+                Ok(values.raw_get::<Option<f32>>("DisplayAspectRatio")?
                     .unwrap_or(display_aspect_ratio))
             }
         })?,
@@ -877,10 +821,8 @@ pub fn install_basic_globals(
                 let runtime = lua.globals().get::<Table>(SONG_LUA_RUNTIME_KEY)?;
                 // RageTimer exposes a double process clock, independent of
                 // the float SongPosition clock and paused music playback.
-                return Ok(Value::Number(
-                    runtime
-                        .get::<Option<f64>>("__songlua_uptime_seconds")?
-                        .unwrap_or(0.0),
+                return Ok(Value::Number(runtime.get::<Option<f64>>("__songlua_uptime_seconds")?
+                    .unwrap_or(0.0),
                 ));
             }
             let seconds = lua
@@ -980,8 +922,7 @@ pub fn install_date_globals(lua: &Lua, date: SongLuaDateGlobals) -> mlua::Result
         lua.create_function(move |_, _args: IgnoredArgs| Ok(day_of_month))?,
     )?;
     // DateTime.cpp exposes tm_yday: January 1 is zero, including leap years.
-    let day_of_year = month_of_year
-        .checked_add(1)
+    let day_of_year = month_of_year.checked_add(1)
         .and_then(|month| chrono::NaiveDate::from_ymd_opt(year, month as u32, day_of_month as u32))
         .map(|date| date.ordinal0() as i32);
     globals.set(
@@ -1107,8 +1048,7 @@ pub(crate) fn broadcast_queued_message(lua: &Lua, message: &str) -> mlua::Result
     // Message(string) creates an empty parameter table. Retain that table in
     // baked callback captures, just as for parameterized Lua broadcasts.
     record_song_lua_broadcast(lua, message, true)?;
-    let broadcast = *lua
-        .app_data_ref::<SongLuaBroadcastCallback>()
+    let broadcast = *lua.app_data_ref::<SongLuaBroadcastCallback>()
         .ok_or_else(|| mlua::Error::runtime("message manager is not installed"))?;
     broadcast(lua, message, Some(Value::Table(lua.create_table()?)))
 }
@@ -1147,11 +1087,7 @@ pub fn install_screen_manager_globals(
     screenman.set(
         "GetTopScreen",
         lua.create_function(move |lua, _args: IgnoredArgs| {
-            if lua
-                .globals()
-                .raw_get::<Option<bool>>("__songlua_screen_loading")?
-                .unwrap_or(false)
-            {
+            if lua.globals().raw_get::<Option<bool>>("__songlua_screen_loading")?.unwrap_or(false) {
                 Ok(Value::Nil)
             } else {
                 lua.globals().raw_get::<Value>("__songlua_top_screen")
@@ -1170,14 +1106,9 @@ pub fn install_screen_manager_globals(
         lua.create_function(|lua, args: MultiValue| {
             if let Some(_name) = method_arg(&args, 0).cloned().and_then(read_string) {
                 #[cfg(feature = "test-support")]
-                record_state_call(
-                    lua,
-                    "ScreenManager.SetNewScreen",
-                    vec![serde_json::json!(_name)],
+                record_state_call(lua, "ScreenManager.SetNewScreen", vec![serde_json::json!(_name)],
                 )?;
-                crate::live::capture_source_request(
-                    lua,
-                    crate::live::SongLuaLiveRequest::NewScreen(_name.clone()),
+                crate::live::capture_source_request(lua, crate::live::SongLuaLiveRequest::NewScreen(_name.clone()),
                 )?;
                 lua.set_app_data(SongLuaScreenRequest(_name));
                 // Native ScreenManager queues the request; the current
@@ -1245,10 +1176,7 @@ pub fn install_message_manager_globals(
                     broadcast(lua, &message, params)?;
                 }
                 #[cfg(feature = "test-support")]
-                record_state_call(
-                    lua,
-                    "MessageManager.Broadcast",
-                    vec![serde_json::json!(message)],
+                record_state_call(lua, "MessageManager.Broadcast", vec![serde_json::json!(message)],
                 )?;
             }
             Ok(messageman_for_broadcast.clone())
@@ -1350,17 +1278,12 @@ pub fn create_arrow_effects_table(
             // Pauses hold the beat while music time and seconds-based speed
             // ramps keep advancing. Use the shared SongPosition music clock.
             let seconds = crate::runtime::song_music_time(
-                lua,
-                runtime.get(SONG_LUA_RUNTIME_SECONDS_KEY)?,
-                rate,
+                lua, runtime.get(SONG_LUA_RUNTIME_SECONDS_KEY)?, rate,
             );
             if let Some(options) = arrow_effects_player_options(lua, &args)? {
                 if let Some(cmod) = arrow_effects_speedmod_value(&options, "CMod")? {
-                    return arrow_effects_wave_offset(
-                        lua,
-                        &args,
-                        (timing.get_time_for_beat(note) - seconds) * cmod / 60.0 / rate * 64.0,
-                        1.0,
+                    return arrow_effects_wave_offset(lua, &args,
+                        (timing.get_time_for_beat(note) - seconds) * cmod / 60.0 / rate * 64.0, 1.0,
                     );
                 }
                 let speed = if arrow_effects_speedmod_value(&options, "XMod")?.is_some() {
@@ -1368,53 +1291,35 @@ pub fn create_arrow_effects_table(
                 } else {
                     speed / rate
                 };
-                return arrow_effects_wave_offset(
-                    lua,
-                    &args,
+                return arrow_effects_wave_offset(lua, &args,
                     (timing.get_displayed_beat(note) - timing.get_displayed_beat(beat))
-                        * timing.get_speed_multiplier(beat, seconds)
-                        * 64.0,
-                    speed,
+                        * timing.get_speed_multiplier(beat, seconds) * 64.0, speed,
                 );
             }
-            arrow_effects_wave_offset(
-                lua,
-                &args,
+            arrow_effects_wave_offset(lua, &args,
                 (timing.get_displayed_beat(note) - timing.get_displayed_beat(beat))
-                    * timing.get_speed_multiplier(beat, seconds)
-                    * 64.0,
-                1.0,
+                    * timing.get_speed_multiplier(beat, seconds) * 64.0, 1.0,
             )
         })?,
     )?;
-    table.set(
-        "GetYPos",
-        lua.create_function(move |lua, args: MultiValue| {
+    table.set("GetYPos", lua.create_function(move |lua, args: MultiValue| {
             arrow_effects_y_pos(lua, &args, current_style_name)
         })?,
     )?;
     lua.set_app_data(NativeArrowEffects {
         enabled: std::array::from_fn(|player| context.players[player].enabled),
-        beat_x: [0.0; LUA_PLAYERS],
-        beat_y: [0.0; LUA_PLAYERS],
-        tipsy: [[0.0; 10]; LUA_PLAYERS],
-        tan_tipsy: [[0.0; 10]; LUA_PLAYERS],
-        bounds: [[[0.0; 2]; 10]; LUA_PLAYERS],
-        invert: [[0.0; 10]; LUA_PLAYERS],
-        style_name: current_style_name,
+        beat_x: [0.0; LUA_PLAYERS], beat_y: [0.0; LUA_PLAYERS],
+        tipsy: [[0.0; 10]; LUA_PLAYERS], tan_tipsy: [[0.0; 10]; LUA_PLAYERS], bounds: [[[0.0; 2]; 10]; LUA_PLAYERS],
+        invert: [[0.0; 10]; LUA_PLAYERS], style_name: current_style_name,
     });
-    table.set(
-        "GetXPos",
-        lua.create_function({
-            let screen_height = context.screen_height.max(1.0);
-            move |lua, args: MultiValue| {
+    table.set("GetXPos", lua.create_function({
+        let screen_height = context.screen_height.max(1.0);
+        move |lua, args: MultiValue| {
                 arrow_effects_x_pos(lua, &args, screen_height, current_style_name)
-            }
+    }
         })?,
     )?;
-    table.set(
-        "Update",
-        lua.create_function(|lua, _args: IgnoredArgs| update_native_arrow_effects(lua))?,
+    table.set("Update", lua.create_function(|lua, _args: IgnoredArgs| update_native_arrow_effects(lua))?,
     )?;
     table.set(
         "GetZPos",
@@ -1442,9 +1347,7 @@ pub fn create_arrow_effects_table(
         "GetRotationZ",
         lua.create_function(|lua, args: MultiValue| arrow_effects_rotation_z(lua, &args))?,
     )?;
-    table.set(
-        "GetZoom",
-        lua.create_function(move |lua, args: MultiValue| {
+    table.set("GetZoom", lua.create_function(move |lua, args: MultiValue| {
             arrow_effects_zoom(lua, &args, current_style_name)
         })?,
     )?;
@@ -1466,6 +1369,7 @@ pub fn create_arrow_effects_table(
     )?;
     Ok(table)
 }
+
 
 struct NativeArrowEffectsCurrentOptions(Table);
 
@@ -1489,102 +1393,61 @@ pub(crate) fn update_native_arrow_effects(lua: &Lua) -> mlua::Result<()> {
     };
     let runtime: Table = lua.globals().raw_get(SONG_LUA_RUNTIME_KEY)?;
     let positions = runtime.raw_get::<Option<Table>>(crate::runtime::PLAYER_SONG_POSITIONS_KEY)?;
-    let options = lua
-        .app_data_ref::<crate::song_tables::SongLuaOptionLevels>()
+    let options = lua.app_data_ref::<crate::song_tables::SongLuaOptionLevels>()
         .map(|levels| {
             std::array::from_fn::<_, LUA_PLAYERS, _>(|player| levels.players[player][3].clone())
         });
     let mut next = previous;
     let style = crate::song_lua_style_info(&(previous.style_name)(lua));
-    let two_sides = matches!(
-        style.style_type,
-        "StyleType_OnePlayerTwoSides" | "StyleType_TwoPlayersSharedSides"
-    );
+    let two_sides = matches!(style.style_type, "StyleType_OnePlayerTwoSides" | "StyleType_TwoPlayersSharedSides");
     let per_side = style.columns / if two_sides { 2 } else { 1 };
     let scale = |x: f32, low: f32, high: f32, to_low: f32, to_high: f32| {
         (x - low) * (to_high - to_low) / (high - low) + to_low
     };
     for player in 0..LUA_PLAYERS {
-        if !previous.enabled[player] {
-            continue;
-        }
-        let position = positions
-            .as_ref()
-            .map(|positions| positions.raw_get::<Table>(player + 1))
-            .transpose()?;
-        let beat = position
-            .as_ref()
-            .unwrap_or(&runtime)
-            .raw_get::<f32>(SONG_LUA_RUNTIME_BEAT_KEY)?;
-        let state = options
-            .as_ref()
-            .map(|options| {
-                options[player].raw_get::<Option<Table>>("__songlua_player_option_state")
-            })
-            .transpose()?
-            .flatten();
+        if !previous.enabled[player] { continue; }
+        let position = positions.as_ref().map(|positions| positions.raw_get::<Table>(player + 1)).transpose()?;
+        let beat = position.as_ref().unwrap_or(&runtime).raw_get::<f32>(SONG_LUA_RUNTIME_BEAT_KEY)?;
+        let state = options.as_ref().map(|options| {
+                options[player]
+            .raw_get::<Option<Table>>("__songlua_player_option_state")
+            }).transpose()?.flatten();
         let option = |name: &str| -> mlua::Result<f32> {
-            Ok(state
-                .as_ref()
-                .map(|state| state.raw_get::<Option<f32>>(name))
-                .transpose()?
-                .flatten()
-                .unwrap_or(0.0))
+            Ok(state.as_ref().map(|state| state.raw_get::<Option<f32>>(name)).transpose()?.flatten().unwrap_or(0.0))
         };
         let mut phase = (beat + 0.2 + option("beatoffset")?) * (option("beatmult")? + 1.0);
         let reverse = phase as i32 % 2 != 0;
         let mut factor = 0.0;
         if phase >= 0.0 {
-            phase -= phase.trunc();
-            phase += 1.0;
-            phase -= phase.trunc();
+            phase -= phase.trunc(); phase += 1.0; phase -= phase.trunc();
             if phase < 0.5 {
                 factor = if phase < 0.2 {
-                    let value = phase / 0.2;
-                    value * value
+                    let value = phase / 0.2; value * value
                 } else {
                     let value = (phase - 0.2) * -1.0 / (0.5 - 0.2) + 1.0;
                     1.0 - (1.0 - value) * (1.0 - value)
                 };
-                if reverse {
-                    factor *= -1.0;
-                }
+                if reverse { factor *= -1.0; }
                 factor *= 20.0;
             }
         }
         next.beat_x[player] = factor;
-        next.beat_y[player] =
-            arrow_effects_beat_factor(beat, option("beatyoffset")?, option("beatymult")?);
+        next.beat_y[player] = arrow_effects_beat_factor(beat, option("beatyoffset")?, option("beatymult")?);
         // Native UpdateTipsy reads timer/cosecant from the last SetCurrentOptions,
         // while offset/speed and activation come from this player's Current.
-        let selected = lua
-            .app_data_ref::<NativeArrowEffectsCurrentOptions>()
-            .map(|selected| selected.0.clone())
-            .or_else(|| options.as_ref().map(|players| players[player].clone()));
-        let selected_state = selected
-            .as_ref()
-            .map(|options| options.raw_get::<Option<Table>>("__songlua_player_option_state"))
-            .transpose()?
-            .flatten();
-        let cosecant = selected_state
-            .as_ref()
-            .map(|state| state.raw_get::<Option<bool>>("cosecant"))
-            .transpose()?
-            .flatten()
-            .unwrap_or(false);
+        let selected = lua.app_data_ref::<NativeArrowEffectsCurrentOptions>()
+            .map(|selected| selected.0.clone()).or_else(|| options.as_ref().map(|players| players[player].clone()));
+        let selected_state = selected.as_ref().map(|options|
+            options.raw_get::<Option<Table>>("__songlua_player_option_state")).transpose()?.flatten();
+        let cosecant = selected_state.as_ref().map(|state|
+            state.raw_get::<Option<bool>>("cosecant")).transpose()?.flatten().unwrap_or(false);
         let mut times = [0.0; 2];
         for (index, prefix) in ["tipsy", "tantipsy"].into_iter().enumerate() {
-            if option(prefix)? == 0.0 {
-                continue;
-            }
+            if option(prefix)? == 0.0 { continue; }
             #[cfg(feature = "test-support")]
-            let raw = lua
-                .app_data_ref::<crate::clock_inputs::ArrowFrameClocks>()
+            let raw = lua.app_data_ref::<crate::clock_inputs::ArrowFrameClocks>()
                 .and_then(|clocks| {
-                    if index == 0 {
-                        clocks.tipsy[player]
-                    } else {
-                        clocks.tan_tipsy[player]
+                    if index == 0 { clocks.tipsy[player] } else { clocks.tan_tipsy[player]
                     }
                 });
             #[cfg(not(feature = "test-support"))]
@@ -1593,57 +1456,29 @@ pub(crate) fn update_native_arrow_effects(lua: &Lua) -> mlua::Result<()> {
         }
         for column in 0..style.columns {
             for (prefix, tan) in [("tipsy", false), ("tantipsy", true)] {
-                let result = if option(prefix)? == 0.0 {
-                    0.0
-                } else {
+                let result = if option(prefix)? == 0.0 { 0.0 } else {
                     let time = times[usize::from(tan)];
                     let angle = time * (option(&format!("{prefix}speed"))? * 1.2 + 1.2)
                         + column as f32 * (option(&format!("{prefix}offset"))? * 1.8 + 1.8);
-                    let wave = if tan {
-                        if cosecant {
-                            1.0 / angle.sin()
-                        } else {
-                            angle.tan()
-                        }
-                    } else {
-                        angle.cos()
-                    };
+                    let wave = if tan { if cosecant { 1.0 / angle.sin() } else { angle.tan() } }
+                        else { angle.cos() };
                     wave * (64.0 * 0.4)
                 };
-                if tan {
-                    next.tan_tipsy[player][column] = result;
-                } else {
-                    next.tipsy[player][column] = result;
-                }
+                if tan { next.tan_tipsy[player][column] = result; }
+                else { next.tipsy[player][column] = result; }
             }
             let width = if style.columns > 4 { 2 } else { 3 };
-            let range = &style.x_offsets
-                [column.saturating_sub(width)..=(column + width).min(style.columns - 1)];
-            next.bounds[player][column] = [
-                range.iter().copied().fold(f32::MAX, f32::min),
+            let range = &style.x_offsets[column.saturating_sub(width)..=(column + width).min(style.columns - 1)];
+            next.bounds[player][column] = [range.iter().copied().fold(f32::MAX, f32::min),
                 range.iter().copied().fold(f32::MIN_POSITIVE, f32::max),
             ];
             let local = column % per_side;
-            let (first, last) = if local <= (per_side - 1) / 2 {
-                (0, (per_side - 1) / 2)
-            } else if local >= (per_side + 1) / 2 {
-                ((per_side + 1) / 2, per_side - 1)
-            } else {
-                (local / 2, local / 2)
-            };
-            let mirrored = if first == last {
-                0
-            } else {
-                scale(
-                    local as f32,
-                    first as f32,
-                    last as f32,
-                    last as f32,
-                    first as f32,
-                ) as usize
-            };
-            next.invert[player][column] =
-                style.x_offsets[column / per_side * per_side + mirrored] - style.x_offsets[column];
+            let (first, last) = if local <= (per_side - 1) / 2 { (0, (per_side - 1) / 2) }
+                else if local >= (per_side + 1) / 2 { ((per_side + 1) / 2, per_side - 1) }
+                else { (local / 2, local / 2) };
+            let mirrored = if first == last { 0 } else { scale(local as f32, first as f32, last as f32, last as f32, first as f32,
+                ) as usize };
+            next.invert[player][column] = style.x_offsets[column / per_side * per_side + mirrored] - style.x_offsets[column];
         }
     }
     lua.set_app_data(next);
@@ -1652,97 +1487,50 @@ pub(crate) fn update_native_arrow_effects(lua: &Lua) -> mlua::Result<()> {
     Ok(())
 }
 
-fn arrow_effects_time(
-    lua: &Lua,
-    state: Option<&Table>,
-    raw_uptime: Option<f64>,
+fn arrow_effects_time(lua: &Lua, state: Option<&Table>, raw_uptime: Option<f64>,
 ) -> mlua::Result<f32> {
     let value = |name| -> mlua::Result<f32> {
-        Ok(state
-            .map(|state| state.raw_get::<Option<f32>>(name))
-            .transpose()?
-            .flatten()
-            .unwrap_or(0.0))
+        Ok(state.map(|state| state.raw_get::<Option<f32>>(name)).transpose()?.flatten().unwrap_or(0.0))
     };
     let runtime: Table = lua.globals().raw_get(SONG_LUA_RUNTIME_KEY)?;
     let beat = runtime.raw_get::<f32>(SONG_LUA_RUNTIME_BEAT_KEY)?;
     let seconds = runtime.raw_get::<f32>(SONG_LUA_RUNTIME_SECONDS_KEY)?;
-    let uptime = raw_uptime
-        .or(runtime.raw_get::<Option<f64>>("__songlua_uptime_seconds")?)
-        .unwrap_or(f64::from(seconds));
-    let timer = state
-        .map(|state| state.raw_get::<Option<u8>>("modtimersetting"))
-        .transpose()?
-        .flatten()
-        .unwrap_or(3);
-    let clock = match timer {
-        1 => f64::from(beat),
-        2 => f64::from(seconds),
-        _ => uptime,
+    let uptime = raw_uptime.or(runtime.raw_get::<Option<f64>>("__songlua_uptime_seconds")?).unwrap_or(f64::from(seconds));
+    let timer = state.map(|state| state.raw_get::<Option<u8>>("modtimersetting")).transpose()?.flatten().unwrap_or(3);
+    let clock = match timer { 1 => f64::from(beat), 2 => f64::from(seconds), _ => uptime,
     };
-    Ok(
-        ((clock + f64::from(value("modtimeroffset")?)) * (1.0 + f64::from(value("modtimermult")?)))
-            as f32,
+    Ok(((clock + f64::from(value("modtimeroffset")?)) * (1.0 + f64::from(value("modtimermult")?))) as f32,
     )
 }
 
 fn arrow_effects_query_time(lua: &Lua, state: Option<&Table>, domain: &str) -> mlua::Result<f32> {
     #[cfg(feature = "test-support")]
-    let raw = if matches!(
-        state
-            .map(|state| state.raw_get::<Option<u8>>("modtimersetting"))
-            .transpose()?
-            .flatten(),
-        Some(1 | 2)
-    ) {
+    let raw = if matches!(state.map(|state| state.raw_get::<Option<u8>>("modtimersetting")).transpose()?.flatten(), Some(1 | 2)) {
         None
-    } else {
-        crate::clock_inputs::next(lua, domain)
-    };
+    } else { crate::clock_inputs::next(lua, domain) };
     #[cfg(not(feature = "test-support"))]
-    let raw = {
-        let _ = domain;
-        None
-    };
+    let raw = { let _ = domain; None };
     arrow_effects_time(lua, state, raw)
 }
 
 fn arrow_effects_beat_factor(beat: f32, offset: f32, multiplier: f32) -> f32 {
     let mut phase = (beat + 0.2 + offset) * (multiplier + 1.0);
     let reverse = phase as i32 % 2 != 0;
-    if phase < 0.0 {
-        return 0.0;
-    }
-    phase -= phase.trunc();
-    phase += 1.0;
-    phase -= phase.trunc();
-    if phase >= 0.5 {
-        return 0.0;
-    }
-    let mut factor = if phase < 0.2 {
-        let value = phase / 0.2;
-        value * value
-    } else {
-        let value = (phase - 0.2) * -1.0 / (0.5 - 0.2) + 1.0;
-        1.0 - (1.0 - value) * (1.0 - value)
-    };
-    if reverse {
-        factor *= -1.0;
-    }
+    if phase < 0.0 { return 0.0; }
+    phase -= phase.trunc(); phase += 1.0; phase -= phase.trunc();
+    if phase >= 0.5 { return 0.0; }
+    let mut factor = if phase < 0.2 { let value = phase / 0.2; value * value }
+        else { let value = (phase - 0.2) * -1.0 / (0.5 - 0.2) + 1.0;
+            1.0 - (1.0 - value) * (1.0 - value) };
+    if reverse { factor *= -1.0; }
     factor * 20.0
 }
 
-fn arrow_effects_wave_offset(
-    lua: &Lua,
-    args: &MultiValue,
-    mut y: f32,
-    speed: f32,
+fn arrow_effects_wave_offset(lua: &Lua, args: &MultiValue, mut y: f32, speed: f32,
 ) -> mlua::Result<f32> {
     if y >= 0.0 {
         if let Some(options) = arrow_effects_player_options(lua, args)? {
-            if let Some(state) =
-                options.raw_get::<Option<Table>>("__songlua_player_option_state")?
-            {
+            if let Some(state) = options.raw_get::<Option<Table>>("__songlua_player_option_state")? {
                 let wave = state.raw_get::<Option<f32>>("wave")?.unwrap_or(0.0);
                 if wave != 0.0 {
                     let period = state.raw_get::<Option<f32>>("waveperiod")?.unwrap_or(0.0);
@@ -1754,49 +1542,28 @@ fn arrow_effects_wave_offset(
     Ok(y * speed)
 }
 
-fn arrow_effects_y_pos(
-    lua: &Lua,
-    args: &MultiValue,
-    current_style_name: fn(&Lua) -> String,
+fn arrow_effects_y_pos(lua: &Lua, args: &MultiValue, current_style_name: fn(&Lua) -> String,
 ) -> mlua::Result<f32> {
     let y_offset = args.get(2).cloned().and_then(read_f32).unwrap_or(0.0_f32);
     let options = arrow_effects_player_options(lua, args)?;
-    let state = options
-        .as_ref()
-        .map(|options| options.raw_get::<Option<Table>>("__songlua_player_option_state"))
-        .transpose()?
-        .flatten();
+    let state = options.as_ref().map(|options|
+        options.raw_get::<Option<Table>>("__songlua_player_option_state")).transpose()?.flatten();
     let option = |name| -> mlua::Result<f32> {
-        Ok(state
-            .as_ref()
-            .map(|state| state.raw_get::<Option<f32>>(name))
-            .transpose()?
-            .flatten()
-            .unwrap_or(0.0))
+        Ok(state.as_ref().map(|state| state.raw_get::<Option<f32>>(name)).transpose()?.flatten().unwrap_or(0.0))
     };
     let style = crate::song_lua_style_info(&current_style_name(lua));
     let column = args.get(1).cloned().and_then(read_f32).unwrap_or(1.0) as i32 - 1;
-    let column = usize::try_from(column)
-        .ok()
-        .filter(|column| *column < style.columns)
+    let column = usize::try_from(column).ok().filter(|column| *column < style.columns)
         .ok_or_else(|| mlua::Error::runtime("ArrowEffects.GetYPos column out of range"))?;
-    let player = options
-        .as_ref()
-        .and_then(|options| {
+    let player = options.as_ref().and_then(|options| {
             lua.app_data_ref::<crate::song_tables::SongLuaOptionLevels>()
-                .and_then(|levels| {
-                    levels
-                        .players
-                        .iter()
-                        .position(|levels| levels[3].to_pointer() == options.to_pointer())
+        .and_then(|levels| {
+                    levels.players.iter().position(|levels| levels[3].to_pointer() == options.to_pointer())
                 })
         })
         .unwrap_or(0);
     let reverse = arrow_effects_reverse_percent(lua, args)?;
-    let reverse_offset = args
-        .get(3)
-        .cloned()
-        .and_then(read_f32)
+    let reverse_offset = args.get(3).cloned().and_then(read_f32)
         .unwrap_or(THEME_RECEPTOR_Y_REV - THEME_RECEPTOR_Y_STD);
     let zoom = 1.0 - option("mini")? * 0.5;
     let zoom = if zoom.abs() < 0.01 { 0.01 } else { zoom };
@@ -1808,16 +1575,12 @@ fn arrow_effects_y_pos(
     y += option("tipsy")? * cached.map_or(0.0, |state| state.tipsy[player][column]);
     y += option("tantipsy")? * cached.map_or(0.0, |state| state.tan_tipsy[player][column]);
     if option("attenuatey")? != 0.0 {
-        y += option("attenuatey")?
-            * (y_offset / 64.0)
-            * (y_offset / 64.0)
-            * (style.x_offsets[column] / 64.0);
+        y += option("attenuatey")? * (y_offset / 64.0) * (y_offset / 64.0) * (style.x_offsets[column] / 64.0);
     }
     if option("beaty")? != 0.0 {
         let factor = cached.map_or(0.0, |state| state.beat_y[player]);
-        let shift = factor
-            * (y_offset / (option("beatyperiod")? * 15.0 + 15.0) + std::f32::consts::PI / 2.0)
-                .sin();
+        let shift = factor * (y_offset / (option("beatyperiod")? * 15.0 + 15.0)
+            + std::f32::consts::PI / 2.0).sin();
         y += option("beaty")? * shift;
     }
     // Captured _fallback QuantizeArrowYPosition is false.
@@ -1825,43 +1588,26 @@ fn arrow_effects_y_pos(
 }
 
 fn arrow_effects_x_pos(
-    lua: &Lua,
-    args: &MultiValue,
-    screen_height: f32,
+    lua: &Lua, args: &MultiValue, screen_height: f32,
     current_style_name: fn(&Lua) -> String,
 ) -> mlua::Result<f32> {
     use std::f32::consts::PI;
     let options = arrow_effects_player_options(lua, args)?;
-    let state = options
-        .as_ref()
-        .map(|options| options.raw_get::<Option<Table>>("__songlua_player_option_state"))
-        .transpose()?
-        .flatten();
+    let state = options.as_ref().map(|options| options.raw_get::<Option<Table>>("__songlua_player_option_state"))
+        .transpose()?.flatten();
     let value = |name| -> mlua::Result<f32> {
-        Ok(state
-            .as_ref()
-            .map(|state| state.raw_get::<Option<f32>>(name))
-            .transpose()?
-            .flatten()
-            .unwrap_or(0.0))
+        Ok(state.as_ref().map(|state| state.raw_get::<Option<f32>>(name)).transpose()?.flatten().unwrap_or(0.0))
     };
-    let player = options
-        .as_ref()
-        .and_then(|options| {
+    let player = options.as_ref().and_then(|options| {
             lua.app_data_ref::<crate::song_tables::SongLuaOptionLevels>()
-                .and_then(|levels| {
-                    levels
-                        .players
-                        .iter()
-                        .position(|levels| levels[3].to_pointer() == options.to_pointer())
+        .and_then(|levels| {
+                    levels.players.iter().position(|levels| levels[3].to_pointer() == options.to_pointer())
                 })
         })
         .unwrap_or(0);
     let number = |index, default| -> mlua::Result<f32> {
         match args.get(index).filter(|value| !value.is_nil()) {
-            Some(value) => lua
-                .coerce_number(value.clone())?
-                .map(|value| value as f32)
+            Some(value) => lua.coerce_number(value.clone())?.map(|value| value as f32)
                 .ok_or_else(|| mlua::Error::runtime("expected numeric ArrowEffects argument")),
             None => Ok(default),
         }
@@ -1869,151 +1615,83 @@ fn arrow_effects_x_pos(
     let column = number(1, 1.0)? as i32 - 1;
     let y = number(2, 0.0)?;
     let style = crate::song_lua_style_info(&current_style_name(lua));
-    let column = usize::try_from(column)
-        .ok()
-        .filter(|column| *column < style.columns)
+    let column = usize::try_from(column).ok().filter(|column| *column < style.columns)
         .ok_or_else(|| mlua::Error::runtime("ArrowEffects.GetXPos column out of range"))?;
     let base_x = style.x_offsets[column];
-    let two_sides = matches!(
-        style.style_type,
-        "StyleType_OnePlayerTwoSides" | "StyleType_TwoPlayersSharedSides"
-    );
+    let two_sides = matches!(style.style_type, "StyleType_OnePlayerTwoSides" | "StyleType_TwoPlayersSharedSides");
     // _fallback GameplayMargins reserves 272px per side, 544px when centered.
     // ScreenGameplay clamps the resulting style fit zoom to one.
     let field_zoom = arrow_effects_field_zoom(&style);
-    let cosecant = state
-        .as_ref()
-        .map(|state| state.raw_get::<Option<bool>>("cosecant"))
-        .transpose()?
-        .flatten()
-        .unwrap_or(false);
+    let cosecant = state.as_ref().map(|state| state.raw_get::<Option<bool>>("cosecant")).transpose()?.flatten().unwrap_or(false);
     let tangent = |angle: f32| {
-        if cosecant {
-            1.0 / angle.sin()
-        } else {
-            angle.tan()
-        }
+        if cosecant { 1.0 / angle.sin() } else { angle.tan() }
     };
     let scale = |x: f32, low: f32, high: f32, to_low: f32, to_high: f32| {
         (x - low) * (to_high - to_low) / (high - low) + to_low
     };
     let mut x = 0.0;
-    for (amount, offset, period, tan) in [
-        ("tornado", "tornadooffset", "tornadoperiod", false),
-        ("tantornado", "tantornadooffset", "tantornadoperiod", true),
+    for (amount, offset, period, tan) in [("tornado", "tornadooffset", "tornadoperiod", false), ("tantornado", "tantornadooffset", "tantornadoperiod", true),
     ] {
         let amount = value(amount)?;
-        if amount == 0.0 {
-            continue;
-        }
-        let [low, high] = lua
-            .app_data_ref::<NativeArrowEffects>()
+        if amount == 0.0 { continue; }
+        let [low, high] = lua.app_data_ref::<NativeArrowEffects>()
             .map_or([0.0, 0.0], |state| state.bounds[player][column]);
         let low = low * field_zoom;
         let high = high * field_zoom;
         let position = scale(base_x * field_zoom, low, high, -1.0, 1.0);
-        let angle =
-            position.acos() + (y + value(offset)?) * (value(period)? * 6.0 + 6.0) / screen_height;
+        let angle = position.acos() + (y + value(offset)?) * (value(period)? * 6.0 + 6.0) / screen_height;
         let wave = if tan { tangent(angle) } else { angle.cos() };
         x += (scale(wave, -1.0, 1.0, low, high) - base_x * field_zoom) * amount;
     }
-    for (amount, offset, period, tan) in [
-        ("bumpyx", "bumpyxoffset", "bumpyxperiod", false),
-        ("tanbumpyx", "tanbumpyxoffset", "tanbumpyxperiod", true),
+    for (amount, offset, period, tan) in [("bumpyx", "bumpyxoffset", "bumpyxperiod", false), ("tanbumpyx", "tanbumpyxoffset", "tanbumpyxperiod", true),
     ] {
         let amount = value(amount)?;
-        if amount == 0.0 {
-            continue;
-        }
+        if amount == 0.0 { continue; }
         let angle = (y + 100.0 * value(offset)?) / (value(period)? * 16.0 + 16.0);
         x += amount * 40.0 * if tan { tangent(angle) } else { angle.sin() };
     }
-    for (amount, speed, offset, period, tan) in [
-        ("drunk", "drunkspeed", "drunkoffset", "drunkperiod", false),
-        (
-            "tandrunk",
-            "tandrunkspeed",
-            "tandrunkoffset",
-            "tandrunkperiod",
-            true,
+    for (amount, speed, offset, period, tan) in [("drunk", "drunkspeed", "drunkoffset", "drunkperiod", false), ("tandrunk", "tandrunkspeed", "tandrunkoffset", "tandrunkperiod", true,
         ),
     ] {
         let amount = value(amount)?;
-        if amount == 0.0 {
-            continue;
-        }
+        if amount == 0.0 { continue; }
         let time = arrow_effects_query_time(lua, state.as_ref(), "ArrowEffects.GetXPos")?;
-        let angle = time * (1.0 + value(speed)?)
-            + column as f32 * (value(offset)? * 0.2 + 0.2)
+        let angle = time * (1.0 + value(speed)?) + column as f32 * (value(offset)? * 0.2 + 0.2)
             + y * (value(period)? * 10.0 + 10.0) / screen_height;
         let wave = if tan { tangent(angle) } else { angle.cos() };
         x += amount * (wave * 64.0 * 0.5);
     }
     if value("flip")? != 0.0 {
-        x += (style.x_offsets[style.columns - 1 - column] * field_zoom - base_x * field_zoom)
-            * value("flip")?;
+        x += (style.x_offsets[style.columns - 1 - column] * field_zoom - base_x * field_zoom) * value("flip")?;
     }
     if value("invert")? != 0.0 {
-        let distance = lua
-            .app_data_ref::<NativeArrowEffects>()
-            .map_or(0.0, |state| state.invert[player][column]);
+        let distance = lua.app_data_ref::<NativeArrowEffects>().map_or(0.0, |state| state.invert[player][column]);
         x += distance * value("invert")?;
     }
     if value("beat")? != 0.0 {
-        let factor = lua
-            .app_data_ref::<NativeArrowEffects>()
-            .map_or(0.0, |state| state.beat_x[player]);
-        x +=
-            value("beat")? * (factor * (y / (value("beatperiod")? * 15.0 + 15.0) + PI / 2.0).sin());
+        let factor = lua.app_data_ref::<NativeArrowEffects>().map_or(0.0, |state| state.beat_x[player]);
+        x += value("beat")? * (factor * (y / (value("beatperiod")? * 15.0 + 15.0) + PI / 2.0).sin());
     }
     if value("zigzag")? != 0.0 {
-        let angle = PI
-            * (1.0 / (value("zigzagperiod")? + 1.0))
-            * ((y + 100.0 * value("zigzagoffset")?) / 64.0);
+        let angle = PI * (1.0 / (value("zigzagperiod")? + 1.0)) * ((y + 100.0 * value("zigzagoffset")?) / 64.0);
         let mut phase = angle % (PI * 2.0);
-        if phase < 0.0 {
-            phase += PI * 2.0;
-        }
+        if phase < 0.0 { phase += PI * 2.0; }
         let phase = f64::from(phase * (1.0 / PI));
-        let wave = if phase < 0.5 {
-            phase * 2.0
-        } else if phase < 1.5 {
-            1.0 - (phase - 0.5) * 2.0
-        } else {
-            -4.0 + phase * 2.0
-        } as f32;
+        let wave = if phase < 0.5 { phase * 2.0 } else if phase < 1.5 { 1.0 - (phase - 0.5) * 2.0 } else { -4.0 + phase * 2.0 } as f32;
         x += (value("zigzag")? * 64.0 / 2.0) * wave;
     }
     if value("sawtooth")? != 0.0 {
         let phase = (0.5 / (value("sawtoothperiod")? + 1.0) * y) / 64.0;
         x += (value("sawtooth")? * 64.0) * (phase - phase.floor());
     }
-    if value("parabolax")? != 0.0 {
-        x += value("parabolax")? * (y / 64.0) * (y / 64.0);
-    }
-    if value("attenuatex")? != 0.0 {
-        x += value("attenuatex")? * (y / 64.0) * (y / 64.0) * (base_x / 64.0);
-    }
-    for (amount, offset, period, steps, tan) in [
-        (
-            "digital",
-            "digitaloffset",
-            "digitalperiod",
-            "digitalsteps",
-            false,
-        ),
-        (
-            "tandigital",
-            "tandigitaloffset",
-            "tandigitalperiod",
-            "tandigitalsteps",
-            true,
+    if value("parabolax")? != 0.0 { x += value("parabolax")? * (y / 64.0) * (y / 64.0); }
+    if value("attenuatex")? != 0.0 { x += value("attenuatex")? * (y / 64.0) * (y / 64.0) * (base_x / 64.0); }
+    for (amount, offset, period, steps, tan) in [("digital", "digitaloffset", "digitalperiod", "digitalsteps", false,
+        ), ("tandigital", "tandigitaloffset", "tandigitalperiod", "tandigitalsteps", true,
         ),
     ] {
         let amount = value(amount)?;
-        if amount == 0.0 {
-            continue;
-        }
+        if amount == 0.0 { continue; }
         let angle = PI * (y + value(offset)?) / (64.0 + value(period)? * 64.0);
         let wave = if tan { tangent(angle) } else { angle.sin() };
         x += (amount * 64.0 * 0.5) * ((value(steps)? + 1.0) * wave).round() / (value(steps)? + 1.0);
@@ -2021,66 +1699,41 @@ fn arrow_effects_x_pos(
     if value("square")? != 0.0 {
         let angle = PI * (y + value("squareoffset")?) / (64.0 + value("squareperiod")? * 64.0);
         let mut phase = angle % (PI * 2.0);
-        if phase < 0.01 {
-            phase += PI * 2.0;
-        }
+        if phase < 0.01 { phase += PI * 2.0; }
         x += (value("square")? * 64.0 * 0.5) * if phase >= PI { -1.0 } else { 1.0 };
     }
     if value("bounce")? != 0.0 {
-        x += value("bounce")?
-            * 64.0
-            * 0.5
-            * ((y + value("bounceoffset")?) / (60.0 + value("bounceperiod")? * 60.0))
-                .sin()
-                .abs();
+        x += value("bounce")? * 64.0 * 0.5 * ((y + value("bounceoffset")?) / (60.0 + value("bounceperiod")? * 60.0)).sin().abs();
     }
     if value("xmode")? != 0.0 {
-        let negative = if two_sides {
-            column >= style.columns / 2
-        } else {
-            player == 1
-        };
+        let negative = if two_sides { column >= style.columns / 2 } else { player == 1 };
         x += value("xmode")? * if negative { -y } else { y };
     }
     x += base_x * field_zoom;
-    if value("tiny")? != 0.0 {
-        x *= 0.5f32.powf(value("tiny")?).min(1.0);
-    }
+    if value("tiny")? != 0.0 { x *= 0.5f32.powf(value("tiny")?).min(1.0); }
     Ok(x)
 }
 
 fn arrow_effects_field_zoom(style: &crate::SongLuaStyleInfo) -> f32 {
-    let two_sides = matches!(
-        style.style_type,
-        "StyleType_OnePlayerTwoSides" | "StyleType_TwoPlayersSharedSides"
-    );
+    let two_sides = matches!(style.style_type,
+        "StyleType_OnePlayerTwoSides" | "StyleType_TwoPlayersSharedSides");
     ((if two_sides { 544.0 } else { 272.0 }) / style.width).min(1.0)
 }
 
 fn arrow_effects_zoom(
-    lua: &Lua,
-    args: &MultiValue,
-    current_style_name: fn(&Lua) -> String,
+    lua: &Lua, args: &MultiValue, current_style_name: fn(&Lua) -> String,
 ) -> mlua::Result<f32> {
     let options = arrow_effects_player_options(lua, args)?;
-    let state = options
-        .as_ref()
-        .map(|options| options.raw_get::<Option<Table>>("__songlua_player_option_state"))
-        .transpose()?
-        .flatten();
+    let state = options.as_ref().map(|options|
+        options.raw_get::<Option<Table>>("__songlua_player_option_state"))
+        .transpose()?.flatten();
     let value = |name: &str| -> mlua::Result<f32> {
-        Ok(state
-            .as_ref()
-            .map(|state| state.raw_get::<Option<f32>>(name))
-            .transpose()?
-            .flatten()
-            .unwrap_or(0.0))
+        Ok(state.as_ref().map(|state| state.raw_get::<Option<f32>>(name))
+            .transpose()?.flatten().unwrap_or(0.0))
     };
     let number = |index, default| -> mlua::Result<f32> {
         match args.get(index).filter(|value| !value.is_nil()) {
-            Some(value) => lua
-                .coerce_number(value.clone())?
-                .map(|value| value as f32)
+            Some(value) => lua.coerce_number(value.clone())?.map(|value| value as f32)
                 .ok_or_else(|| mlua::Error::runtime("expected numeric ArrowEffects argument")),
             None => Ok(default),
         }
@@ -2088,21 +1741,16 @@ fn arrow_effects_zoom(
     let y = number(1, 0.0)?;
     let style = crate::song_lua_style_info(&current_style_name(lua));
     let column = number(2, 1.0)? as i32 - 1;
-    let column = usize::try_from(column)
-        .ok()
-        .filter(|column| *column < style.columns)
+    let column = usize::try_from(column).ok().filter(|column| *column < style.columns)
         .ok_or_else(|| mlua::Error::runtime("ArrowEffects.GetZoom column out of range"))?;
     let mut zoom = arrow_effects_field_zoom(&style);
     let inner = value("pulseinner")?;
     let outer = value("pulseouter")?;
     if inner != 0.0 || outer != 0.0 {
         let sine = ((y + 100.0 * value("pulseoffset")?)
-            / (0.4 * (64.0 + value("pulseperiod")? * 64.0)))
-            .sin();
+            / (0.4 * (64.0 + value("pulseperiod")? * 64.0))).sin();
         let mut inner = inner * 0.5 + 1.0;
-        if inner == 0.0 {
-            inner = 0.01;
-        }
+        if inner == 0.0 { inner = 0.01; }
         zoom *= sine * (outer * 0.5) + inner;
     }
     let shrink_mult = value("shrinkmult")?;
@@ -2114,48 +1762,33 @@ fn arrow_effects_zoom(
         zoom += y * (0.5 * shrink_linear / 64.0);
     }
     let tiny = value("tiny")?;
-    if tiny != 0.0 {
-        zoom *= 0.5f32.powf(tiny);
-    }
+    if tiny != 0.0 { zoom *= 0.5f32.powf(tiny); }
     let tiny = value(&format!("tiny{}", column + 1))?;
-    if tiny != 0.0 {
-        zoom *= 0.5f32.powf(tiny);
-    }
+    if tiny != 0.0 { zoom *= 0.5f32.powf(tiny); }
     Ok(zoom)
 }
 
 fn arrow_effects_alpha(
-    lua: &Lua,
-    args: &MultiValue,
-    default_draw_distance: f32,
+    lua: &Lua, args: &MultiValue, default_draw_distance: f32,
     current_style_name: fn(&Lua) -> String,
 ) -> mlua::Result<f32> {
     // ArrowEffects.cpp uses the owned Current options and the position without
     // reverse. Read option state directly so engine math creates no Lua queries.
     let options = arrow_effects_player_options(lua, args)?;
-    let state = options
-        .as_ref()
-        .map(|options| options.raw_get::<Option<Table>>("__songlua_player_option_state"))
-        .transpose()?
-        .flatten();
+    let state = options.as_ref().map(|options|
+        options.raw_get::<Option<Table>>("__songlua_player_option_state"))
+        .transpose()?.flatten();
     let value = |name: &str| -> mlua::Result<f32> {
-        state
-            .as_ref()
-            .map(|state| state.raw_get::<Option<f32>>(name))
-            .transpose()
-            .map(|value| value.flatten().unwrap_or(0.0))
+        state.as_ref().map(|state| state.raw_get::<Option<f32>>(name))
+            .transpose().map(|value| value.flatten().unwrap_or(0.0))
     };
     let flag = |name: &str| -> mlua::Result<bool> {
-        state
-            .as_ref()
-            .map(|state| state.raw_get::<Option<bool>>(name))
-            .transpose()
-            .map(|value| value.flatten().unwrap_or(false))
+        state.as_ref().map(|state| state.raw_get::<Option<bool>>(name))
+            .transpose().map(|value| value.flatten().unwrap_or(false))
     };
     let number = |index: usize, default: f32| -> mlua::Result<f32> {
         match args.get(index).filter(|value| !value.is_nil()) {
-            Some(value) => lua
-                .coerce_number(value.clone())?
+            Some(value) => lua.coerce_number(value.clone())?
                 .map(|value| value as f32)
                 .ok_or_else(|| mlua::Error::runtime("expected numeric ArrowEffects argument")),
             None => Ok(default),
@@ -2172,19 +1805,10 @@ fn arrow_effects_alpha(
     let runtime = lua.globals().get::<Table>(SONG_LUA_RUNTIME_KEY)?;
     let beat = runtime.get::<f32>(SONG_LUA_RUNTIME_BEAT_KEY)?;
     let seconds = runtime.get::<f32>(SONG_LUA_RUNTIME_SECONDS_KEY)?;
-    let uptime = runtime
-        .get::<Option<f64>>("__songlua_uptime_seconds")?
-        .unwrap_or(f64::from(seconds));
-    let timer = state
-        .as_ref()
-        .map(|state| state.raw_get::<Option<u8>>("modtimersetting"))
-        .transpose()?
-        .flatten()
-        .unwrap_or(3);
-    let base_time = match timer {
-        1 => f64::from(beat),
-        2 => f64::from(seconds),
-        _ => uptime,
+    let uptime = runtime.get::<Option<f64>>("__songlua_uptime_seconds")?.unwrap_or(f64::from(seconds));
+    let timer = state.as_ref().map(|state| state.raw_get::<Option<u8>>("modtimersetting"))
+        .transpose()?.flatten().unwrap_or(3);
+    let base_time = match timer { 1 => f64::from(beat), 2 => f64::from(seconds), _ => uptime,
     };
     let time = ((base_time + f64::from(value("modtimeroffset")?))
         * (1.0 + f64::from(value("modtimermult")?))) as f32;
@@ -2199,11 +1823,7 @@ fn arrow_effects_alpha(
     if tan_tipsy != 0.0 {
         let phase = time * (value("tantipsyspeed")? * 1.2 + 1.2)
             + column as f32 * (value("tantipsyoffset")? * 1.8 + 1.8);
-        let wave = if flag("cosecant")? {
-            1.0 / phase.sin()
-        } else {
-            phase.tan()
-        };
+        let wave = if flag("cosecant")? { 1.0 / phase.sin() } else { phase.tan() };
         y += tan_tipsy * (wave * (64.0 * 0.4));
     }
     let attenuate = value("attenuatey")?;
@@ -2217,27 +1837,20 @@ fn arrow_effects_alpha(
         let odd = (pulse as i32) % 2 != 0;
         let mut factor = 0.0;
         if pulse >= 0.0 {
-            pulse -= pulse.trunc();
-            pulse += 1.0;
-            pulse -= pulse.trunc();
+            pulse -= pulse.trunc(); pulse += 1.0; pulse -= pulse.trunc();
             if pulse < 0.5 {
                 factor = if pulse < 0.2 {
-                    let phase = pulse / 0.2;
-                    phase * phase
+                    let phase = pulse / 0.2; phase * phase
                 } else {
                     let phase = 1.0 - (pulse - 0.2) / (0.5 - 0.2);
                     1.0 - (1.0 - phase) * (1.0 - phase)
                 };
-                if odd {
-                    factor = -factor;
-                }
+                if odd { factor = -factor; }
                 factor *= 20.0;
             }
         }
-        y += beat_y
-            * (factor
-                * (offset / (value("beatyperiod")? * 15.0 + 15.0) + std::f32::consts::PI / 2.0)
-                    .sin());
+        y += beat_y * (factor * (offset / (value("beatyperiod")? * 15.0 + 15.0)
+            + std::f32::consts::PI / 2.0).sin());
     }
     let center = 160.0 / (1.0 - value("mini")? * 0.5);
     let appearance_y = if flag("stealthtype")? { offset } else { y };
@@ -2267,14 +1880,10 @@ fn arrow_effects_alpha(
             adjust += scale(wave, 0.0, 1.0, -1.0, 0.0);
         }
         let vanish = value("randomvanish")?;
-        if vanish != 0.0 {
-            adjust += scale((y - center).abs(), 80.0, 160.0, -1.0, 0.0) * vanish;
-        }
+        if vanish != 0.0 { adjust += scale((y - center).abs(), 80.0, 160.0, -1.0, 0.0) * vanish; }
         visible = (1.0 + adjust).clamp(0.0, 1.0);
     }
-    if fade_to_fail != -1.0 {
-        visible = 1.0 - fade_to_fail;
-    }
+    if fade_to_fail != -1.0 { visible = 1.0 - fade_to_fail; }
     let full_alpha_y = draw_distance * (1.0 - fade_in);
     if y > full_alpha_y {
         // Preserve the native raw float result: zero fade width divides by
@@ -2287,52 +1896,30 @@ fn arrow_effects_alpha(
 fn arrow_effects_rotation_z(lua: &Lua, args: &MultiValue) -> mlua::Result<f32> {
     use std::f32::consts::PI;
     let options = arrow_effects_player_options(lua, args)?;
-    let state = options
-        .as_ref()
-        .map(|options| options.raw_get::<Option<Table>>("__songlua_player_option_state"))
-        .transpose()?
-        .flatten();
+    let state = options.as_ref().map(|options|
+        options.raw_get::<Option<Table>>("__songlua_player_option_state")).transpose()?.flatten();
     let value = |name: &str| -> mlua::Result<f32> {
-        Ok(state
-            .as_ref()
-            .map(|state| state.raw_get::<Option<f32>>(name))
-            .transpose()?
-            .flatten()
-            .unwrap_or(0.0))
+        Ok(state.as_ref().map(|state| state.raw_get::<Option<f32>>(name))
+            .transpose()?.flatten().unwrap_or(0.0))
     };
-    let player = options
-        .as_ref()
-        .and_then(|options| {
+    let player = options.as_ref().and_then(|options| {
             lua.app_data_ref::<crate::song_tables::SongLuaOptionLevels>()
-                .and_then(|levels| {
-                    levels
-                        .players
-                        .iter()
-                        .position(|levels| levels[3].to_pointer() == options.to_pointer())
+        .and_then(|levels| {
+                    levels.players.iter().position(|levels| levels[3].to_pointer() == options.to_pointer())
                 })
         })
         .unwrap_or(0);
     let runtime: Table = lua.globals().raw_get(SONG_LUA_RUNTIME_KEY)?;
     let positions = runtime.raw_get::<Option<Table>>(crate::runtime::PLAYER_SONG_POSITIONS_KEY)?;
-    let position = positions
-        .as_ref()
-        .map(|positions| positions.raw_get::<Table>(player + 1))
-        .transpose()?;
-    let beat = position
-        .as_ref()
-        .unwrap_or(&runtime)
-        .raw_get::<f32>(SONG_LUA_RUNTIME_BEAT_KEY)?;
+    let position = positions.as_ref().map(|positions| positions.raw_get::<Table>(player + 1)).transpose()?;
+    let beat = position.as_ref().unwrap_or(&runtime).raw_get::<f32>(SONG_LUA_RUNTIME_BEAT_KEY)?;
     let column = args.get(3).cloned().and_then(read_f32).unwrap_or(1.0) as i32;
     let mut rotation = 0.0_f32;
     // ArrowEffects::ReceptorGetRotationZ uses radians for both offset levels.
     let column_offset = value(&format!("confusionoffset{column}"))?;
-    if column_offset != 0.0 {
-        rotation += column_offset * 180.0 / PI;
-    }
+    if column_offset != 0.0 { rotation += column_offset * 180.0 / PI; }
     let offset = value("confusionoffset")?;
-    if offset != 0.0 {
-        rotation += offset * 180.0 / PI;
-    }
+    if offset != 0.0 { rotation += offset * 180.0 / PI; }
     let confusion = value("confusion")?;
     if confusion != 0.0 {
         let mut phase = beat * confusion;
@@ -2341,12 +1928,8 @@ fn arrow_effects_rotation_z(lua: &Lua, args: &MultiValue) -> mlua::Result<f32> {
         rotation += phase;
     }
     let hold_head = !matches!(args.get(2), None | Some(Value::Nil | Value::Boolean(false)));
-    let dizzy_holds = state
-        .as_ref()
-        .map(|state| state.raw_get::<Option<bool>>("dizzyholds"))
-        .transpose()?
-        .flatten()
-        .unwrap_or(false);
+    let dizzy_holds = state.as_ref().map(|state| state.raw_get::<Option<bool>>("dizzyholds"))
+        .transpose()?.flatten().unwrap_or(false);
     let dizzy = value("dizzy")?;
     if dizzy != 0.0 && (dizzy_holds || !hold_head) {
         let note_beat = args.get(1).cloned().and_then(read_f32).unwrap_or(0.0);
@@ -2506,25 +2089,18 @@ pub fn install_core_globals(
 pub(crate) struct SongLuaStateCalls(pub Vec<crate::SongLuaStateCall>);
 
 #[cfg(feature = "test-support")]
-fn record_state_call(
-    lua: &Lua,
-    operation: &'static str,
-    args: Vec<serde_json::Value>,
+fn record_state_call(lua: &Lua, operation: &'static str, args: Vec<serde_json::Value>,
 ) -> mlua::Result<()> {
-    if lua.app_data_ref::<SongLuaStateCalls>().is_none() {
-        return Ok(());
+    if lua.app_data_ref::<SongLuaStateCalls>().is_none() { return Ok(());
     }
     let runtime = lua.globals().get::<Table>(SONG_LUA_RUNTIME_KEY)?;
-    let call = crate::SongLuaStateCall {
-        operation,
-        args,
+    let call = crate::SongLuaStateCall { operation, args,
         beat: runtime.get(SONG_LUA_RUNTIME_BEAT_KEY)?,
         second: runtime.get(SONG_LUA_RUNTIME_SECONDS_KEY)?,
     };
     if let Some(mut capture) = lua.app_data_mut::<SongLuaStateCalls>() {
         if capture.0.len() >= 2_000_000 {
-            return Err(mlua::Error::runtime(
-                "game state audit exceeded two million calls",
+            return Err(mlua::Error::runtime("game state audit exceeded two million calls",
             ));
         }
         capture.0.push(call);
@@ -2532,21 +2108,13 @@ fn record_state_call(
     Ok(())
 }
 
-fn write_current_steps(
-    lua: &Lua,
-    selected: &Table,
-    player: usize,
-    steps: Option<Table>,
+fn write_current_steps(lua: &Lua, selected: &Table, player: usize, steps: Option<Table>,
 ) -> mlua::Result<()> {
     selected.raw_set(player + 1, steps)?;
     let message = ["CurrentStepsP1Changed", "CurrentStepsP2Changed"][player];
     // BroadcastOnChange::Set broadcasts even if the pointer did not change.
     record_song_lua_broadcast(lua, message, false)?;
-    if !lua
-        .globals()
-        .raw_get::<Option<bool>>(SONG_LUA_SUPPRESS_BROADCAST_KEY)?
-        .unwrap_or(false)
-    {
+    if !lua.globals().raw_get::<Option<bool>>(SONG_LUA_SUPPRESS_BROADCAST_KEY)?.unwrap_or(false) {
         broadcast_song_lua_message(lua, message, None)?;
     }
     Ok(())
@@ -2572,26 +2140,14 @@ pub fn install_game_state_globals(
         step_objects.push((all_steps.raw_get::<Table>(index + 1)?, step.clone()));
     }
     for (index, table) in players.steps.iter().enumerate() {
-        if step_objects
-            .iter()
-            .any(|(known, _)| known.to_pointer() == table.to_pointer())
-        {
-            continue;
-        }
-        step_objects.push((
-            table.clone(),
-            crate::SongLuaStep {
-                steps_type: crate::song_lua_style_info(&context.style_name)
-                    .steps_type
-                    .into(),
-                difficulty: context.players[index].difficulty,
-                description: String::new(),
-                chart_name: String::new(),
-                credit: String::new(),
-                meter: context.players[index].difficulty.meter().max(0) as u32,
-                music_file: String::new(),
-                possible_grade_points: 0,
-            },
+        if step_objects.iter().any(|(known, _)| known.to_pointer() == table.to_pointer()) { continue; }
+        step_objects.push((table.clone(), crate::SongLuaStep {
+            steps_type: crate::song_lua_style_info(&context.style_name).steps_type.into(),
+            difficulty: context.players[index].difficulty, description: String::new(),
+            chart_name: String::new(), credit: String::new(),
+            meter: context.players[index].difficulty.meter().max(0) as u32, music_file: String::new(),
+            possible_grade_points: 0,
+        },
         ));
     }
     let step_objects = Arc::new(step_objects);
@@ -2872,8 +2428,7 @@ pub fn install_game_state_globals(
         lua.create_function({
             let current_steps = current_steps.clone();
             move |_, args: MultiValue| {
-                let player = method_arg(&args, 0)
-                    .and_then(player_index_from_value)
+                let player = method_arg(&args, 0).and_then(player_index_from_value)
                     .ok_or_else(|| mlua::Error::runtime("Expected PlayerNumber"))?;
                 Ok(current_steps
                     .raw_get::<Option<Table>>(player + 1)?
@@ -2907,24 +2462,15 @@ pub fn install_game_state_globals(
             move |lua, _args: IgnoredArgs| {
                 let mut easiest = None;
                 for (player, active) in enabled.iter().enumerate() {
-                    if !active.enabled {
-                        continue;
-                    }
+                    if !active.enabled { continue; }
                     let Some(table) = current_steps.raw_get::<Option<Table>>(player + 1)? else {
-                        crate::lua_util::report_script_error(
-                            lua,
-                            &format!(
-                                "GetEasiestStepsDifficulty called but p{} hasn't chosen notes",
-                                player + 1
-                            ),
+                        crate::lua_util::report_script_error(lua,
+                            &format!("GetEasiestStepsDifficulty called but p{} hasn't chosen notes", player + 1),
                         )?;
                         continue;
                     };
-                    let step = step_objects
-                        .iter()
-                        .find(|(known, _)| known.to_pointer() == table.to_pointer())
-                        .map(|(_, step)| step)
-                        .ok_or_else(|| mlua::Error::runtime("Unknown selected Steps"))?;
+                    let step = step_objects.iter().find(|(known, _)| known.to_pointer() == table.to_pointer())
+                        .map(|(_, step)| step).ok_or_else(|| mlua::Error::runtime("Unknown selected Steps"))?;
                     if easiest.is_none_or(|value: crate::SongLuaDifficulty| {
                         step.difficulty.sort_key() < value.sort_key()
                     }) {
@@ -2946,15 +2492,12 @@ pub fn install_game_state_globals(
             let enabled = context.players.clone();
             let owner = gamestate.clone();
             move |lua, args: MultiValue| {
-                let player = method_arg(&args, 0)
-                    .and_then(player_index_from_value)
+                let player = method_arg(&args, 0).and_then(player_index_from_value)
                     .ok_or_else(|| mlua::Error::runtime("Expected PlayerNumber"))?;
                 if matches!(method_arg(&args, 1), None | Some(Value::Nil)) {
                     write_current_steps(lua, &current_steps, player, None)?;
                     #[cfg(feature = "test-support")]
-                    record_state_call(
-                        lua,
-                        "GameState.SetCurrentSteps",
+                    record_state_call(lua, "GameState.SetCurrentSteps",
                         vec![serde_json::json!(player), serde_json::Value::Null],
                     )?;
                     note_song_lua_side_effect(lua)?;
@@ -2963,14 +2506,10 @@ pub fn install_game_state_globals(
                 let Some(Value::Table(steps)) = method_arg(&args, 1) else {
                     return Err(mlua::Error::runtime("Expected Steps"));
                 };
-                let data = step_objects
-                    .iter()
-                    .find(|(known, _)| known.to_pointer() == steps.to_pointer())
-                    .map(|(_, data)| data)
-                    .ok_or_else(|| mlua::Error::runtime("Expected Steps"))?;
+                let data = step_objects.iter().find(|(known, _)| known.to_pointer() == steps.to_pointer())
+                    .map(|(_, data)| data).ok_or_else(|| mlua::Error::runtime("Expected Steps"))?;
                 let style: Table = current_style.raw_get(1)?;
-                let style_type: String =
-                    style.get::<Function>("GetStepsType")?.call(style.clone())?;
+                let style_type: String = style.get::<Function>("GetStepsType")?.call(style.clone())?;
                 // Simply Love's default PreferredStyle is none, so native
                 // Common.AutoSetStyle is false. Incompatible charts error.
                 if data.steps_type != style_type {
@@ -2980,55 +2519,30 @@ pub fn install_game_state_globals(
                 // Native ForceOtherPlayers reads the main selection again after
                 // the synchronous broadcast, which may have changed it.
                 if let Some(main) = current_steps.raw_get::<Option<Table>>(player + 1)? {
-                    let main_data = step_objects
-                        .iter()
-                        .find(|(known, _)| known.to_pointer() == main.to_pointer())
-                        .map(|(_, data)| data)
-                        .ok_or_else(|| mlua::Error::runtime("Unknown selected Steps"))?;
+                    let main_data = step_objects.iter().find(|(known, _)| known.to_pointer() == main.to_pointer())
+                        .map(|(_, data)| data).ok_or_else(|| mlua::Error::runtime("Unknown selected Steps"))?;
                     for (other, active) in enabled.iter().enumerate() {
-                        if !active.enabled {
-                            continue;
-                        }
+                        if !active.enabled { continue; }
                         let selected = current_steps.raw_get::<Option<Table>>(other + 1)?;
-                        if selected
-                            .as_ref()
-                            .is_some_and(|table| table.to_pointer() == main.to_pointer())
-                        {
-                            continue;
-                        }
+                        if selected.as_ref().is_some_and(|table| table.to_pointer() == main.to_pointer()) { continue; }
                         let other_data = selected.as_ref().and_then(|table| {
-                            step_objects
-                                .iter()
-                                .find(|(known, _)| known.to_pointer() == table.to_pointer())
-                                .map(|(_, data)| data)
+                            step_objects.iter()
+                            .find(|(known, _)| known.to_pointer() == table.to_pointer()).map(|(_, data)| data)
                         });
                         let matches = other_data.is_some_and(|other| {
                             other.music_file == main_data.music_file
-                                && !matches!(
-                                    main_data.steps_type.as_str(),
-                                    "StepsType_Dance_Routine" | "StepsType_Pump_Routine"
-                                )
-                                && !matches!(
-                                    other.steps_type.as_str(),
-                                    "StepsType_Dance_Routine" | "StepsType_Pump_Routine"
-                                )
+                            && !matches!(main_data.steps_type.as_str(), "StepsType_Dance_Routine" | "StepsType_Pump_Routine")
+                            && !matches!(other.steps_type.as_str(), "StepsType_Dance_Routine" | "StepsType_Pump_Routine")
                         });
-                        if !matches {
-                            write_current_steps(lua, &current_steps, other, Some(main.clone()))?;
-                        }
+                        if !matches { write_current_steps(lua, &current_steps, other, Some(main.clone()))?; }
                     }
                 }
                 #[cfg(feature = "test-support")]
                 {
-                    record_state_call(
-                        lua,
-                        "GameState.SetCurrentSteps",
-                        vec![
-                            serde_json::json!(player),
-                            serde_json::json!(data.steps_type),
-                            serde_json::json!(data.difficulty.sm_name()),
-                            serde_json::json!(data.description),
-                        ],
+                    record_state_call(lua, "GameState.SetCurrentSteps", vec![
+                        serde_json::json!(player), serde_json::json!(data.steps_type),
+                        serde_json::json!(data.difficulty.sm_name()), serde_json::json!(data.description),
+                    ],
                     )?;
                 }
                 note_song_lua_side_effect(lua)?;
@@ -3158,9 +2672,7 @@ pub fn install_game_state_globals(
             let prefs: Table = lua.globals().get("PREFSMAN")?;
             // GameState reads the native preference directly. Calling its
             // public Lua getter here would create an extra observed API call.
-            prefs
-                .raw_get::<Table>("__songlua_preference_values")?
-                .raw_get::<bool>("EventMode")
+            prefs.raw_get::<Table>("__songlua_preference_values")?.raw_get::<bool>("EventMode")
         })?,
     )?;
     gamestate.set(
@@ -3320,20 +2832,16 @@ pub fn install_game_state_globals(
         lua.create_function({
             let state = gamestate.clone();
             move |lua, args: MultiValue| {
-                let text = method_arg(&args, 0)
-                    .cloned()
-                    .and_then(read_string)
+                let text = method_arg(&args, 0).cloned().and_then(read_string)
                     .ok_or_else(|| mlua::Error::runtime("Expected game command string"))?;
                 // GameState's legacy numeric player argument is one-based.
                 let player = match method_arg(&args, 1) {
                     None | Some(Value::Nil) => None,
-                    Some(value) => Some(
-                        match value {
-                            Value::Integer(value) => (*value - 1).try_into().ok(),
-                            Value::Number(value) => ((*value as i64) - 1).try_into().ok(),
-                            _ => player_index_from_value(value),
-                        }
-                        .filter(|&player| player < LUA_PLAYERS)
+                    Some(value) => Some(match value {
+                        Value::Integer(value) => (*value - 1).try_into().ok(),
+                        Value::Number(value) => ((*value as i64) - 1).try_into().ok(),
+                        _ => player_index_from_value(value),
+                    }.filter(|&player| player < LUA_PLAYERS)
                         .ok_or_else(|| mlua::Error::runtime("Expected PlayerNumber"))?,
                     ),
                 };
@@ -3354,9 +2862,7 @@ pub fn install_game_state_globals(
     // owned instance resolves methods through that table. Authored mod readers
     // can add or replace class methods without changing the instance identity.
     let class = lua.create_table()?;
-    let members = gamestate
-        .pairs::<Value, Value>()
-        .collect::<mlua::Result<Vec<_>>>()?;
+    let members = gamestate.pairs::<Value, Value>().collect::<mlua::Result<Vec<_>>>()?;
     for (name, value) in members {
         if let Value::Function(method) = value {
             class.raw_set(name.clone(), method)?;
@@ -3597,38 +3103,20 @@ mod tests {
     fn date_globals_expose_native_zero_based_day_of_year() {
         let lua = Lua::new();
         for (year, month, day, expected) in [
-            (2026, 0, 1, 0),
-            (2026, 0, 18, 17),
-            (2026, 0, 19, 18),
-            (2024, 1, 29, 59),
-            (2024, 2, 1, 60),
-            (2025, 2, 1, 59),
-            (1900, 2, 1, 59),
-            (2000, 2, 1, 60),
-            (2024, 11, 31, 365),
-            (2025, 11, 31, 364),
+            (2026, 0, 1, 0), (2026, 0, 18, 17), (2026, 0, 19, 18),
+            (2024, 1, 29, 59), (2024, 2, 1, 60), (2025, 2, 1, 59),
+            (1900, 2, 1, 59), (2000, 2, 1, 60),
+            (2024, 11, 31, 365), (2025, 11, 31, 364),
         ] {
-            install_date_globals(
-                &lua,
-                SongLuaDateGlobals {
-                    year,
-                    month_of_year: month,
-                    day_of_month: day,
-                    hour: 12,
-                    minute: 0,
-                    second: 0,
-                },
-            )
-            .expect("calendar globals");
-            let getter = lua
-                .globals()
-                .get::<Function>("DayOfYear")
+            install_date_globals(&lua, SongLuaDateGlobals {
+                year, month_of_year: month, day_of_month: day,
+                hour: 12, minute: 0, second: 0,
+            },
+            ).expect("calendar globals");
+            let getter = lua.globals().get::<Function>("DayOfYear")
                 .expect("native DayOfYear calendar getter");
-            assert_eq!(
-                getter.call::<i32>(()).expect("calendar day"),
-                expected,
-                "native zero-based day for {year}-{month}-{day}"
-            );
+            assert_eq!(getter.call::<i32>(()).expect("calendar day"), expected,
+                "native zero-based day for {year}-{month}-{day}");
         }
     }
 
@@ -3645,43 +3133,21 @@ mod tests {
         for map in native["maps"].as_array().expect("native timing maps") {
             let name = map["name"].as_str().expect("timing map name");
             let timing = TimingData::from_segments(
-                0.125,
-                0.0,
+                0.125, 0.0,
                 &TimingSegments {
                     bpms: vec![(0.0, 120.0)],
-                    stops: if name == "stop" {
-                        vec![StopSegment {
-                            beat: 4.0,
-                            duration: 1.0,
-                        }]
-                    } else {
-                        vec![]
-                    },
-                    delays: if name == "delay" {
-                        vec![DelaySegment {
-                            beat: 4.0,
-                            duration: 1.0,
-                        }]
-                    } else {
-                        vec![]
-                    },
+                    stops: if name == "stop" { vec![StopSegment { beat: 4.0, duration: 1.0,
+                        }] } else { vec![] },
+                    delays: if name == "delay" { vec![DelaySegment { beat: 4.0, duration: 1.0,
+                        }] } else { vec![] },
                     speeds: vec![
-                        SpeedSegment {
-                            beat: 0.0,
-                            ratio: 0.5,
-                            delay: 0.0,
-                            unit: SpeedUnit::Beats,
+                        SpeedSegment { beat: 0.0, ratio: 0.5, delay: 0.0, unit: SpeedUnit::Beats,
                         },
-                        SpeedSegment {
-                            beat: 4.0,
-                            ratio: 2.0,
-                            delay: 2.0,
-                            unit: SpeedUnit::Seconds,
+                        SpeedSegment { beat: 4.0, ratio: 2.0, delay: 2.0, unit: SpeedUnit::Seconds,
                         },
                     ],
                     ..Default::default()
-                },
-                &[],
+                }, &[],
             );
             for rate in [0.5, 0.75, 1.0, 1.25, 1.5, 2.0] {
                 let lua = Lua::new();
@@ -3692,34 +3158,19 @@ mod tests {
                 context.song_music_rate = rate;
                 let runtime = create_song_runtime_table(&lua, &context).expect("song runtime");
                 let song = create_song_table(&lua, &context).expect("native song metadata");
-                let players = create_player_tables(&lua, &context, &runtime, &song)
-                    .expect("native player states");
-                lua.globals()
-                    .set(SONG_LUA_RUNTIME_KEY, runtime.clone())
-                    .expect("install song clock");
-                let effects = create_arrow_effects_table(&lua, &context, |_| "single".into())
-                    .expect("ArrowEffects");
-                let offset = effects
-                    .get::<Function>("GetYOffset")
-                    .expect("native offset getter");
+                let players = create_player_tables(&lua, &context, &runtime, &song).expect("native player states");
+                lua.globals().set(SONG_LUA_RUNTIME_KEY, runtime.clone()).expect("install song clock");
+                let effects = create_arrow_effects_table(&lua, &context, |_| "single".into()).expect("ArrowEffects");
+                let offset = effects.get::<Function>("GetYOffset").expect("native offset getter");
                 for sample in map["samples"].as_array().expect("native samples") {
                     let elapsed = sample["elapsed"].as_f64().expect("elapsed timestamp") as f32;
                     let beat = sample["beat"].as_f64().expect("native beat") as f32;
                     let note = sample["note"].as_f64().expect("note beat") as f32;
                     let expected = sample["offset"].as_f64().expect("native offset") as f32;
-                    runtime
-                        .set(SONG_LUA_RUNTIME_BEAT_KEY, beat)
-                        .expect("native update beat");
-                    runtime
-                        .set(
-                            SONG_LUA_RUNTIME_SECONDS_KEY,
-                            f64::from(elapsed) / f64::from(rate),
-                        )
-                        .expect("replay wall clock");
-                    for state in [
-                        Value::Nil,
-                        Value::Table(players.player_states[0].clone()),
-                        Value::Table(players.player_states[1].clone()),
+                    runtime.set(SONG_LUA_RUNTIME_BEAT_KEY, beat).expect("native update beat");
+                    runtime.set(SONG_LUA_RUNTIME_SECONDS_KEY, f64::from(elapsed) / f64::from(rate),
+                        ).expect("replay wall clock");
+                    for state in [Value::Nil, Value::Table(players.player_states[0].clone()), Value::Table(players.player_states[1].clone()),
                     ] {
                         let actual = offset.call::<f32>((state, 1, note)).expect("arrow offset");
                         if actual.to_bits() != expected.to_bits() {

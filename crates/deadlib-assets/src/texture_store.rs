@@ -125,9 +125,7 @@ impl<T> TextureStore<T> {
         Some(BoundTexture {
             handle,
             dimensions: self
-                .source_texture_dims
-                .get(&handle)
-                .copied()
+                .source_texture_dims.get(&handle).copied()
                 .or_else(|| self.dimensions(handle))
                 .or_else(|| texture_dims(key))
                 .map(|meta| {
@@ -313,15 +311,9 @@ impl<T> TextureStore<T> {
     }
 
     pub(crate) fn set_source_dims(&mut self, handle: TextureHandle, size: [u32; 2]) {
-        let meta = TexMeta {
-            w: size[0],
-            h: size[1],
-        };
-        if !self
-            .source_texture_dims
-            .insert(handle, meta)
-            .is_some_and(|old| old.w == meta.w && old.h == meta.h)
-        {
+        let meta = TexMeta { w: size[0], h: size[1] };
+        if !self.source_texture_dims.insert(handle, meta)
+            .is_some_and(|old| old.w == meta.w && old.h == meta.h) {
             self.revision.set(next_texture_revision());
         }
     }
@@ -456,27 +448,19 @@ impl<T> TextureStore<T> {
     }
 
     pub fn queue_pending_generated_textures(&mut self) {
-        drain_pending_generated_textures(
-            |key,
-             GeneratedTexture {
-                 image,
-                 source_size,
-                 sampler,
-             }| {
-                let (width, height) = (image.width(), image.height());
-                let handle = if let Some(&handle) = self.texture_handles.get(key.as_ref()) {
-                    if !self.upload_dims_match(handle, width, height) {
-                        self.revision.set(next_texture_revision());
-                    }
-                    handle
-                } else {
-                    self.reserve_new_texture_handle(key)
-                };
-                self.set_source_dims(handle, source_size);
-                self.pending_texture_uploads
-                    .push_prepared(handle, image, sampler, source_size);
-            },
-        );
+        drain_pending_generated_textures(|key, GeneratedTexture { image, source_size, sampler }| {
+            let (width, height) = (image.width(), image.height());
+            let handle = if let Some(&handle) = self.texture_handles.get(key.as_ref()) {
+                if !self.upload_dims_match(handle, width, height) {
+                    self.revision.set(next_texture_revision());
+                }
+                handle
+            } else {
+                self.reserve_new_texture_handle(key)
+            };
+            self.set_source_dims(handle, source_size);
+            self.pending_texture_uploads.push_prepared(handle, image, sampler, source_size);
+        });
     }
 
     pub fn pop_next_upload(
@@ -546,9 +530,7 @@ impl<T> TextureContext for TextureStore<T> {
 
     fn texture_dims(&self, key: &str) -> Option<TextureMeta> {
         let handle = self.texture_handle(key);
-        self.source_texture_dims
-            .get(&handle)
-            .copied()
+        self.source_texture_dims.get(&handle).copied()
             .or_else(|| self.dimensions(handle))
             .or_else(|| {
                 texture_dims(if handle == INVALID_TEXTURE_HANDLE {
@@ -661,29 +643,15 @@ mod tests {
             let key = format!("prepared-source-{mode}.png");
             let (handle, _) = store.set_texture_for_key(key.clone(), (), 8, 8);
             store.set_source_dims(handle, [3, 2]);
-            let source = store
-                .bind_texture(&key)
-                .expect("source binding")
-                .dimensions
-                .expect("dimensions");
+            let source = store.bind_texture(&key).expect("source binding").dimensions.expect("dimensions");
             assert_eq!((source.w, source.h), (3, 2));
             assert!(store.uploaded_texture_dims_match(&key, 8, 8));
             match mode {
-                0 => {
-                    store.set_texture_for_handle(handle, (), 8, 8);
-                }
-                1 => {
-                    store.insert_texture(key.clone(), (), 8, 8);
-                }
-                _ => {
-                    store.queue_texture_upload(key.clone(), RgbaImage::new(8, 8));
-                }
+                0 => { store.set_texture_for_handle(handle, (), 8, 8); }
+                1 => { store.insert_texture(key.clone(), (), 8, 8); }
+                _ => { store.queue_texture_upload(key.clone(), RgbaImage::new(8, 8)); }
             }
-            let source = store
-                .bind_texture(&key)
-                .expect("replacement binding")
-                .dimensions
-                .expect("replacement dimensions");
+            let source = store.bind_texture(&key).expect("replacement binding").dimensions.expect("replacement dimensions");
             assert_eq!((source.w, source.h), (8, 8));
             store.set_source_dims(handle, [3, 2]);
             store.remove_texture(&key);
@@ -753,11 +721,7 @@ mod tests {
         assert_eq!(store.texture_key(handle), key);
         let revision = store.revision.get();
         assert!(store.unload_texture_keep_handle(key).is_none());
-        assert_eq!(
-            store.revision.get(),
-            revision,
-            "repeated unload is idempotent"
-        );
+        assert_eq!(store.revision.get(), revision, "repeated unload is idempotent");
     }
 
     #[test]
@@ -769,18 +733,11 @@ mod tests {
         for iteration in 0..256 {
             for (index, key) in keys.iter().enumerate() {
                 let handle = handles[index];
-                assert!(
-                    store
-                        .insert_texture((*key).into(), iteration, 8, 4)
-                        .is_none()
-                );
+                assert!(store.insert_texture((*key).into(), iteration, 8, 4).is_none());
                 store.set_source_dims(handle, [80, 40]);
                 store.queue_texture_upload((*key).into(), blank_rgba(4, 2));
                 let revision = store.revision.get();
-                assert_eq!(
-                    store.unload_texture_keep_handle(key),
-                    Some((handle, iteration))
-                );
+                assert_eq!(store.unload_texture_keep_handle(key), Some((handle, iteration)));
                 assert_ne!(store.revision.get(), revision);
                 assert!(!store.has_pending_texture_upload(key));
                 assert!(!store.has_uploaded_texture_key(key));

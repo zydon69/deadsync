@@ -4,8 +4,8 @@ use crate::bgchanges::{
     parse_bgchange_rate, parse_bgchange_transition,
 };
 use crate::cache::{
-    SerializableSongBackgroundLuaActivation, SerializableSongBackgroundLuaChange,
-    SerializableSongForegroundChange, SerializableSongForegroundLuaChange,
+    SerializableSongBackgroundLuaActivation, SerializableSongBackgroundLuaChange, SerializableSongForegroundChange,
+    SerializableSongForegroundLuaChange,
 };
 use crate::media::{
     foreground_media_ext_rank, is_bgchange_movie_path, is_mac_resource_fork,
@@ -144,7 +144,10 @@ fn extract_foreground_change_sets_with(
             }
         }
     }
-    sort_foreground_changes(&mut media, |change| change.start_beat);
+    sort_foreground_changes(
+        &mut media,
+        |change| change.start_beat,
+    );
     sort_foreground_changes(&mut lua, |change| change.start_beat);
     ForegroundChangeSets {
         media,
@@ -189,27 +192,14 @@ pub fn extract_background_lua_change_set(
     let mut uses_lua = false;
     let mut push_change = |start_beat: f32, path: PathBuf| {
         let path = song_lua_entry_path_like_itg(path);
-        layer_1.push((
-            [
-                String::new(),
-                "-songbackground-".to_owned(),
-                String::new(),
-                String::new(),
-                String::new(),
-            ],
-            SerializableSongBackgroundLuaChange {
-                start_beat,
-                path: path.to_string_lossy().into_owned(),
-                effect: String::new(),
-                color1: None,
-                layer: 0,
-                activations: vec![SerializableSongBackgroundLuaActivation {
-                    start_beat,
-                    rate: 1.0,
-                    transition: String::new(),
-                }],
-            },
-        ));
+        layer_1.push(([String::new(), "-songbackground-".to_owned(), String::new(), String::new(), String::new()], SerializableSongBackgroundLuaChange {
+            start_beat,
+            path: path.to_string_lossy().into_owned(),
+            effect: String::new(),
+            color1: None,
+            layer: 0,
+            activations: vec![SerializableSongBackgroundLuaActivation { start_beat, rate: 1.0, transition: String::new() }],
+        }));
     };
 
     if let Some(path) = resolve_song_path_like_itg(song_dir, background_tag)
@@ -267,63 +257,41 @@ fn append_background_lua_changes<'a>(
             };
             let path = song_lua_entry_path_like_itg(path);
             let key = [
-                parse_bgchange_effect(
-                    fields.get(4).map(AsRef::as_ref),
-                    fields.get(5).map(AsRef::as_ref),
-                    fields.get(6).map(AsRef::as_ref),
-                ),
-                target.to_string(),
-                fields.get(7).map_or_else(String::new, ToString::to_string),
+                parse_bgchange_effect(fields.get(4).map(AsRef::as_ref), fields.get(5).map(AsRef::as_ref), fields.get(6).map(AsRef::as_ref)),
+                target.to_string(), fields.get(7).map_or_else(String::new, ToString::to_string),
                 normalized_background_lua_color(fields.get(9).map(AsRef::as_ref)),
                 normalized_background_lua_color(fields.get(10).map(AsRef::as_ref)),
             ];
             let effect = key[0].clone();
-            let color1 = fields
-                .get(9)
-                .and_then(|field| parse_bgchange_color(&field.replace('^', ",")));
-            out.push((
-                key,
-                SerializableSongBackgroundLuaChange {
-                    start_beat,
-                    path: path.to_string_lossy().into_owned(),
-                    effect,
-                    color1,
-                    layer: 0,
-                    activations: vec![SerializableSongBackgroundLuaActivation {
-                        start_beat,
-                        rate: parse_bgchange_rate(fields.get(2).map(AsRef::as_ref)),
-                        transition: parse_bgchange_transition(
-                            fields.get(3).map(AsRef::as_ref),
-                            fields.get(8).map(AsRef::as_ref),
-                        ),
-                    }],
-                },
-            ));
+            let color1 = fields.get(9).and_then(|field| parse_bgchange_color(&field.replace('^', ",")));
+            out.push((key, SerializableSongBackgroundLuaChange {
+                start_beat,
+                path: path.to_string_lossy().into_owned(),
+                effect,
+                color1,
+                layer: 0,
+                activations: vec![SerializableSongBackgroundLuaActivation {
+                    start_beat, rate: parse_bgchange_rate(fields.get(2).map(AsRef::as_ref)),
+                    transition: parse_bgchange_transition(fields.get(3).map(AsRef::as_ref), fields.get(8).map(AsRef::as_ref)),
+                }],
+            }));
         }
     }
     uses_lua
 }
 
 fn normalized_background_lua_color(field: Option<&str>) -> String {
-    let Some(color) = field.and_then(|field| parse_bgchange_color(&field.replace('^', ","))) else {
-        return String::new();
-    };
-    let [r, g, b, a] =
-        color.map(|component| (component * 255.0).round_ties_even().clamp(0.0, 255.0) as u8);
-    if a == 255 {
-        format!("#{r:02X}{g:02X}{b:02X}")
-    } else {
-        format!("#{r:02X}{g:02X}{b:02X}{a:02X}")
-    }
+    let Some(color) = field.and_then(|field| parse_bgchange_color(&field.replace('^', ","))) else { return String::new(); };
+    let [r,g,b,a] = color.map(|component| (component * 255.0).round_ties_even().clamp(0.0,255.0) as u8);
+    if a == 255 { format!("#{r:02X}{g:02X}{b:02X}") } else { format!("#{r:02X}{g:02X}{b:02X}{a:02X}") }
 }
 
 fn cache_background_lua_owners(
-    mut changes: Vec<([String; 5], SerializableSongBackgroundLuaChange)>,
-    layer: u8,
+    mut changes: Vec<([String; 5], SerializableSongBackgroundLuaChange)>, layer: u8,
 ) -> Vec<SerializableSongBackgroundLuaChange> {
     // Native BackgroundImpl caches the full BackgroundDef per layer. Beats,
     // rates and transitions belong to activations, never to the cache key.
-    changes.sort_by(|a, b| a.1.start_beat.total_cmp(&b.1.start_beat));
+    changes.sort_by(|a,b| a.1.start_beat.total_cmp(&b.1.start_beat));
     let mut owners: Vec<([String; 5], SerializableSongBackgroundLuaChange)> = Vec::new();
     for (key, mut change) in changes {
         if let Some((_, owner)) = owners.iter_mut().find(|(known, _)| *known == key) {
@@ -687,15 +655,15 @@ fn parse_start_beat(fields: &[Cow<'_, str>]) -> Option<f32> {
         .filter(|value| value.is_finite())
 }
 
-fn sort_foreground_changes<T>(out: &mut Vec<T>, start_beat: impl Fn(&T) -> f32) {
+fn sort_foreground_changes<T>(
+    out: &mut Vec<T>,
+    start_beat: impl Fn(&T) -> f32,
+) {
     // Song::AddForegroundChange inserts at upper_bound by beat. Equal beats
     // keep authored order, including duplicate paths and either signed zero.
     // parse_start_beat rejects nonfinite values before they enter this list.
-    out.sort_by(|left, right| {
-        start_beat(left)
-            .partial_cmp(&start_beat(right))
-            .expect("foreground beats are finite")
-    });
+    out.sort_by(|left, right| start_beat(left).partial_cmp(&start_beat(right))
+        .expect("foreground beats are finite"));
 }
 
 #[cfg(test)]
@@ -831,10 +799,7 @@ mod tests {
         let changes = extract_foreground_lua_changes(&root,
             b"#FGCHANGES:0=z.lua=1=0=0=0,-0=a.lua=1=0=0=0,0=z.lua=1=0=0=0,8=later.lua=1=0=0=0,4=middle.lua=1=0=0=0;");
         let names: Vec<_> = changes.iter().map(|change| change.name.as_str()).collect();
-        assert_eq!(
-            names,
-            ["z.lua", "a.lua", "z.lua", "middle.lua", "later.lua"]
-        );
+        assert_eq!(names, ["z.lua", "a.lua", "z.lua", "middle.lua", "later.lua"]);
         fs::remove_dir_all(root).unwrap();
     }
 
@@ -864,8 +829,7 @@ mod tests {
         assert_eq!(lua[0].name, "scripts");
 
         let alias = extract_foreground_lua_changes(
-            &song_dir,
-            b"#FGCHANGES:0=./scripts/Default.lua=1=0=0=0=0;",
+            &song_dir, b"#FGCHANGES:0=./scripts/Default.lua=1=0=0=0=0;",
         );
         assert_eq!(alias[0].name, "./scripts/Default.lua");
         assert_eq!(PathBuf::from(&alias[0].path), default_lua);
@@ -971,10 +935,7 @@ mod tests {
         assert_eq!(changes[1].color1, Some([0.5, 0.25, 1.0, 1.0]));
         let encoded = bincode::encode_to_vec(&changes[1], bincode::config::standard()).unwrap();
         let (cached, _) = bincode::decode_from_slice::<SerializableSongBackgroundLuaChange, _>(
-            &encoded,
-            bincode::config::standard(),
-        )
-        .unwrap();
+            &encoded, bincode::config::standard()).unwrap();
         let owned = deadsync_chart::song::SongBackgroundLuaChange::from(cached);
         assert_eq!(owned.effect, "UpperLeft");
         assert_eq!(owned.color1, Some([0.5, 0.25, 1.0, 1.0]));

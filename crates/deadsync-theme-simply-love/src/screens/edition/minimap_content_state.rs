@@ -46,7 +46,7 @@ impl Content {
 impl Default for Content {
     fn default() -> Self {
         Self {
-            preview_owner: None,
+            preview_owner:None,
             options: ContentPreferences::default(),
             palette: Palette::new(&NotePreferences::default().colors)
                 .expect("valid source default palette"),
@@ -60,9 +60,7 @@ impl Default for Content {
 impl Metadata {
     fn capture(state: &State, clock: &Clock) -> Result<Self, deadsync_editor::Error> {
         let session = &state.workspace.file().session;
-        let chart = state
-            .preview_source_chart()
-            .unwrap_or(state.workspace.chart());
+        let chart = state.preview_source_chart().unwrap_or(state.workspace.chart());
         let document = session.document();
         let signatures = Signatures::from_document(document, chart)?;
         let patterns = ChartData::read(document, chart)?
@@ -86,23 +84,16 @@ impl Metadata {
         let song = Draft::capture(session)?;
         let start = song.sample_start();
         let end = song.sample_end()?;
-        let preview = if song
-            .text(deadsync_editor::song_text::Field::PreviewMusic)
-            .is_empty()
-        {
-            Some((
-                Point {
-                    row: clock.position(start)?,
-                    chart_time: clock.music_to_chart_time(start)?,
-                },
-                Point {
-                    row: clock.position(end)?,
-                    chart_time: clock.music_to_chart_time(end)?,
-                },
-            ))
-        } else {
-            None
-        };
+        let preview = if song.text(deadsync_editor::song_text::Field::PreviewMusic).is_empty(){Some((
+            Point {
+                row: clock.position(start)?,
+                chart_time: clock.music_to_chart_time(start)?,
+            },
+            Point {
+                row: clock.position(end)?,
+                chart_time: clock.music_to_chart_time(end)?,
+            },
+        ))}else{None};
         Ok(Self {
             signatures,
             patterns,
@@ -112,21 +103,11 @@ impl Metadata {
     }
 }
 impl State {
-    pub(super) fn refresh_minimap_preview(&mut self) {
-        let owner = self
-            .preview
-            .as_ref()
-            .map(|_| self.receptor_views.preview_owner());
-        let same = match (&owner, &self.minimap.content.preview_owner) {
-            (None, None) => true,
-            (Some(a), Some(b)) => Arc::ptr_eq(a, b),
-            _ => false,
+    pub(super) fn refresh_minimap_preview(&mut self){
+        let owner=self.preview.as_ref().map(|_|self.receptor_views.preview_owner());
+        let same=match (&owner,&self.minimap.content.preview_owner){(None,None)=>true,(Some(a),Some(b))=>Arc::ptr_eq(a,b),_=>false,
         };
-        if !same {
-            self.minimap.content.preview_owner = owner;
-            self.minimap.content.frames.clear();
-            self.minimap.content.metadata.get_mut().take();
-        }
+        if !same{self.minimap.content.preview_owner=owner;self.minimap.content.frames.clear();self.minimap.content.metadata.get_mut().take();}
     }
 
     pub fn note_color_preferences(&self) -> &NotePreferences {
@@ -168,7 +149,7 @@ impl State {
     }
     /// Only certify a retained frame matching all current inputs and visibility.
     pub fn minimap_content_progress(&self) -> Option<(usize, bool, bool, bool)> {
-        if (self.panel.is_some() && !matches!(self.panel, Some(Panel::GenerationPreview(_))))
+        if (self.panel.is_some() && !matches!(self.panel,Some(Panel::GenerationPreview(_))))
             || !self.workspace.has_chart()
             || !self.minimap.content.options.visible
         {
@@ -180,11 +161,7 @@ impl State {
             .minimap
             .content
             .frames
-            .current(
-                &self.workspace.file().session,
-                self.preview_source_chart()
-                    .unwrap_or(self.workspace.chart()),
-                &key,
+            .current(&self.workspace.file().session, self.preview_source_chart().unwrap_or(self.workspace.chart()), &key,
             )?
             .ok()?;
         Some((
@@ -241,9 +218,7 @@ impl State {
             }
         };
         let session = &self.workspace.file().session;
-        let chart = self
-            .preview_source_chart()
-            .unwrap_or(self.workspace.chart());
+        let chart = self.preview_source_chart().unwrap_or(self.workspace.chart());
         let mut metadata = self.minimap.content.metadata.borrow_mut();
         if metadata
             .as_ref()
@@ -272,11 +247,7 @@ impl State {
                 return;
             }
         };
-        let selection = if self.preview.is_some() {
-            None
-        } else {
-            self.workspace.selection()
-        };
+        let selection = if self.preview.is_some(){None}else{self.workspace.selection()};
         let key = self.minimap_content_key(geometry);
         let frame = self.minimap.content.frames.frame(session, chart, key, || {
             let grid = self
@@ -297,11 +268,12 @@ impl State {
                 self.minimap_capture_active(),
                 self.minimap_focused(),
             )?;
-            let layout = self.preview.as_ref().map_or(
-                session.document().charts()[chart].steps_type.as_str(),
-                |preview| preview.layout(),
+            let layout = self.preview.as_ref().map_or(session.document().charts()[chart].steps_type.as_str(),|preview|preview.layout(),
             );
-            let routine = matches!(layout, "dance-routine" | "smx-team" | "pump-routine");
+            let routine = matches!(
+                layout,
+                "dance-routine" | "smx-team" | "pump-routine"
+            );
             let family = if layout.starts_with("pump-") && !self.note_colors.piu_row_based {
                 Family::PumpLane {
                     start_index: if layout == "pump-halfdouble" { 2 } else { 0 },
@@ -397,135 +369,39 @@ impl State {
     }
 }
 
-#[cfg(test)]
-mod source_raw_palette_consumer_workflows {
-    use super::*;
-    #[test]
-    fn all_original_raw_cases_install_into_both_real_native_palette_caches() {
-        i18n::init_for_tests();
-        let fixture: serde_json::Value = serde_json::from_str(include_str!(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/../deadsync-editor/tests/fixtures/note-color-raw-source.json"
-        )))
-        .unwrap();
-        for case in fixture["cases"].as_array().unwrap() {
-            let dir = tempfile::tempdir().unwrap();
-            let mut state = State::without_song(dir.path()).unwrap();
-            let file = state.capture_application_preferences_file().unwrap();
-            let draft = state
-                .workspace
-                .prepare_source_preferences(
-                    &file,
-                    case["raw"].as_str().unwrap().as_bytes(),
-                    deadsync_editor::key_binding_preferences::source_profile::Platform::Mac,
-                )
-                .unwrap();
-            state
-                .workspace
-                .import_source_preferences(draft, &file, true)
-                .unwrap();
-            state.sync_source_preferences_history().unwrap();
-            assert!(state.hold_colors.is_current(&state.note_colors));
-            for r in case["lookups"]
-                .as_array()
-                .unwrap()
-                .iter()
-                .filter(|r| !r["held"].as_bool().unwrap())
-            {
-                let player = r["player"].as_i64().unwrap();
-                let ordinary = player < 0;
-                let player = player.max(0) as u32;
-                let selected = r["selected"].as_bool().unwrap();
-                let row = r["row"].as_u64().unwrap() as u8;
-                let actual = state
-                    .hold_colors
-                    .tap(
-                        if ordinary {
-                            "dance-single"
-                        } else {
-                            "dance-routine"
-                        },
-                        row,
-                        0,
-                        player,
-                        selected,
-                    )
-                    .unwrap();
-                assert_eq!(
-                    actual,
-                    (r["color"].as_u64().unwrap() as u32).to_le_bytes(),
-                    "{}",
-                    case["name"]
-                );
-                assert_eq!(
-                    state
-                        .minimap
-                        .content
-                        .palette
-                        .colors(
-                            if ordinary {
-                                Family::Row
-                            } else {
-                                Family::RoutineRow
-                            },
-                            row,
-                            0,
-                            player,
-                            selected
-                        )
-                        .unwrap()
-                        .head,
-                    r["ui"].as_u64().unwrap() as u32,
-                    "{}",
-                    case["name"]
-                );
-            }
-            assert!(state.audio_preferences_file.is_none());
-            assert!(!state.application_preferences_owner().unwrap().has_changes());
-        }
-    }
+#[cfg(test)]mod source_raw_palette_consumer_workflows{
+ use super::*;
+ #[test]fn all_original_raw_cases_install_into_both_real_native_palette_caches(){
+  i18n::init_for_tests();let fixture:serde_json::Value=serde_json::from_str(include_str!(concat!(env!("CARGO_MANIFEST_DIR"),"/../deadsync-editor/tests/fixtures/note-color-raw-source.json"))).unwrap();
+  for case in fixture["cases"].as_array().unwrap(){
+   let dir=tempfile::tempdir().unwrap();let mut state=State::without_song(dir.path()).unwrap();let file=state.capture_application_preferences_file().unwrap();let draft=state.workspace.prepare_source_preferences(&file,case["raw"].as_str().unwrap().as_bytes(),deadsync_editor::key_binding_preferences::source_profile::Platform::Mac,
+                ).unwrap();state.workspace.import_source_preferences(draft,&file,true).unwrap();state.sync_source_preferences_history().unwrap();assert!(state.hold_colors.is_current(&state.note_colors));
+   for r in case["lookups"].as_array().unwrap().iter().filter(|r|!r["held"].as_bool().unwrap()){
+    let player=r["player"].as_i64().unwrap();let ordinary=player<0;let player=player.max(0)as u32;let selected=r["selected"].as_bool().unwrap();let row=r["row"].as_u64().unwrap()as u8;
+    let actual=state.hold_colors.tap(if ordinary{"dance-single"}else{"dance-routine"},row,0,player,selected,
+                    ).unwrap();assert_eq!(actual,(r["color"].as_u64().unwrap()as u32).to_le_bytes(),"{}",case["name"]);
+    assert_eq!(state.minimap.content.palette.colors(if ordinary{Family::Row}else{Family::RoutineRow},row,0,player,selected).unwrap().head,r["ui"].as_u64().unwrap()as u32,"{}",case["name"]);
+   }
+   assert!(state.audio_preferences_file.is_none());assert!(!state.application_preferences_owner().unwrap().has_changes());
+  }
+ }
 }
 
 #[cfg(test)]
 mod resident_preview_marker_tests {
     use super::*;
     #[test]
-    fn minimap_marker_metadata_uses_effective_resident_preview_across_apply_undo_redo_en_fr() {
-        for language in ["en", "fr"] {
-            i18n::init(deadsync_assets::language::load_for_tests(language));
-            let root = tempfile::tempdir().unwrap();
-            let path = root.path().join("raw.sm");
-            std::fs::write(&path,"#MUSIC:main.wav;#PREVIEW:opaque.wav;#SAMPLESTART:0.375;#SAMPLELENGTH:1.25;#BPMS:0=120;#NOTES:dance-single::Edit:9:0,0,0,0,0:1000;").unwrap();
-            let mut state = State::open(&path, 0).unwrap();
-            let marker = |state: &State| {
-                let clock = Clock::capture(&state.workspace.file().session, 0).unwrap();
-                Metadata::capture(state, &clock).unwrap().preview
-            };
-            assert!(
-                marker(&state).is_some(),
-                "ignored opaque raw SM PREVIEW uses main sample marker"
-            );
-            let mut draft = state.workspace.song_properties().unwrap();
-            draft
-                .set_text(
-                    deadsync_editor::song_text::Field::PreviewMusic,
-                    "authored.wav",
-                )
-                .unwrap();
-            state.workspace.apply_song_properties(&draft).unwrap();
-            state.refresh();
-            assert!(marker(&state).is_none());
-            state.command(deadsync_editor::workspace::Command::Undo);
-            assert!(marker(&state).is_some());
-            state.command(deadsync_editor::workspace::Command::Redo);
-            assert!(marker(&state).is_none());
-            let mut draft = state.workspace.song_properties().unwrap();
-            draft
-                .set_text(deadsync_editor::song_text::Field::PreviewMusic, "")
-                .unwrap();
-            state.workspace.apply_song_properties(&draft).unwrap();
-            state.refresh();
-            assert!(marker(&state).is_some());
+    fn minimap_marker_metadata_uses_effective_resident_preview_across_apply_undo_redo_en_fr(){
+        for language in ["en","fr"]{
+            i18n::init(deadsync_assets::language::load_for_tests(language));let root=tempfile::tempdir().unwrap();let path=root.path().join("raw.sm");
+            std::fs::write(&path,"#MUSIC:main.wav;#PREVIEW:opaque.wav;#SAMPLESTART:0.375;#SAMPLELENGTH:1.25;#BPMS:0=120;#NOTES:dance-single::Edit:9:0,0,0,0,0:1000;").unwrap();let mut state=State::open(&path,0).unwrap();
+            let marker=|state:&State|{let clock=Clock::capture(&state.workspace.file().session,0).unwrap();Metadata::capture(state,&clock).unwrap().preview};
+            assert!(marker(&state).is_some(),"ignored opaque raw SM PREVIEW uses main sample marker");
+            let mut draft=state.workspace.song_properties().unwrap();draft.set_text(deadsync_editor::song_text::Field::PreviewMusic,"authored.wav",
+                ).unwrap();state.workspace.apply_song_properties(&draft).unwrap();state.refresh();assert!(marker(&state).is_none());
+            state.command(deadsync_editor::workspace::Command::Undo);assert!(marker(&state).is_some());
+            state.command(deadsync_editor::workspace::Command::Redo);assert!(marker(&state).is_none());
+            let mut draft=state.workspace.song_properties().unwrap();draft.set_text(deadsync_editor::song_text::Field::PreviewMusic,"").unwrap();state.workspace.apply_song_properties(&draft).unwrap();state.refresh();assert!(marker(&state).is_some());
         }
     }
 }

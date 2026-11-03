@@ -26,9 +26,7 @@ impl SourceVisualClock {
     /// Existing presentation origin of this Play/Resume or explicit time/rate
     /// reanchor. Decoder acknowledgements and clock observations never replace
     /// it; this is not a generated revision or an audio-ready proof.
-    pub fn intent_origin(&self) -> Instant {
-        self.started
-    }
+    pub fn intent_origin(&self) -> Instant { self.started }
     pub fn advance(
         &mut self,
         now: Instant,
@@ -197,29 +195,15 @@ mod tests {
 
 #[cfg(test)]
 mod intent_origin_tests {
-    use super::*;
-    use std::time::Duration;
-    #[test]
-    fn observations_and_drift_keep_origin_while_seek_rate_and_new_play_replace_it() {
-        let start = Instant::now();
-        let mut clock = SourceVisualClock::start(1.0, 1.0, start).unwrap();
-        assert_eq!(clock.intent_origin(), start);
-        clock
-            .advance(start + Duration::from_millis(20), true, Some(0.0))
-            .unwrap();
-        assert_eq!(clock.intent_origin(), start);
-        clock
-            .advance(start + Duration::from_millis(40), false, None)
-            .unwrap();
-        assert_eq!(clock.intent_origin(), start);
-        let seek = start + Duration::from_millis(50);
-        assert!(clock.seek(1.0, seek));
-        assert_eq!(clock.intent_origin(), seek);
-        let rate = start + Duration::from_millis(60);
-        assert!(clock.set_rate(2.0, rate, Some(1.0)));
-        assert_eq!(clock.intent_origin(), rate);
-        let restart = start + Duration::from_millis(70);
-        let clock = SourceVisualClock::start(1.0, 2.0, restart).unwrap();
-        assert_eq!(clock.intent_origin(), restart);
-    }
+ use super::*;
+ use std::time::Duration;
+ #[test]
+ fn observations_and_drift_keep_origin_while_seek_rate_and_new_play_replace_it(){
+  let start=Instant::now();let mut clock=SourceVisualClock::start(1.0,1.0,start).unwrap();assert_eq!(clock.intent_origin(),start);
+  clock.advance(start+Duration::from_millis(20),true,Some(0.0)).unwrap();assert_eq!(clock.intent_origin(),start);
+  clock.advance(start+Duration::from_millis(40),false,None).unwrap();assert_eq!(clock.intent_origin(),start);
+  let seek=start+Duration::from_millis(50);assert!(clock.seek(1.0,seek));assert_eq!(clock.intent_origin(),seek);
+  let rate=start+Duration::from_millis(60);assert!(clock.set_rate(2.0,rate,Some(1.0)));assert_eq!(clock.intent_origin(),rate);
+  let restart=start+Duration::from_millis(70);let clock=SourceVisualClock::start(1.0,2.0,restart).unwrap();assert_eq!(clock.intent_origin(),restart);
+ }
 }

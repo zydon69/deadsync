@@ -849,10 +849,7 @@ pub fn fetch_combined_player_leaderboards(
     let mut arrowcloud_error = None;
 
     if let Some(arrowcloud_api_key) = arrowcloud_api_key {
-        match crate::arrowcloud::fetch_leaderboard_panes(
-            chart_hash,
-            arrowcloud_api_key,
-            max_entries,
+        match crate::arrowcloud::fetch_leaderboard_panes(chart_hash, arrowcloud_api_key, max_entries,
         ) {
             Ok(arrowcloud_panes) => insert_arrowcloud_panes(&mut fetched, arrowcloud_panes),
             Err(error) => arrowcloud_error = Some(error),
@@ -3665,6 +3662,7 @@ fn de_u32_from_string_or_number<'de, D: Deserializer<'de>>(
         )),
     }
 }
+
 fn de_i32_from_string_or_number<'de, D: Deserializer<'de>>(
     deserializer: D,
 ) -> Result<i32, D::Error> {
@@ -3681,6 +3679,7 @@ fn de_i32_from_string_or_number<'de, D: Deserializer<'de>>(
         )),
     }
 }
+
 fn de_string_from_string_or_number<'de, D: Deserializer<'de>>(
     deserializer: D,
 ) -> Result<String, D::Error> {

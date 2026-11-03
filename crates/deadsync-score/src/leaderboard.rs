@@ -2393,16 +2393,10 @@ mod request_perf;
 /// Refresh cached and in-flight boards when the optional golf pane changes.
 pub fn runtime_invalidate_golf_leaderboards() {
     let mut cache = RUNTIME_PLAYER_LEADERBOARD_CACHE.lock().unwrap();
-    let keys: HashSet<_> = cache
-        .by_key
-        .keys()
-        .chain(cache.in_flight.keys())
-        .map(|key| (key.api_key.clone(), key.chart_hash.clone()))
-        .collect();
+    let keys: HashSet<_> = cache.by_key.keys().chain(cache.in_flight.keys())
+        .map(|key| (key.api_key.clone(), key.chart_hash.clone())).collect();
     let now = Instant::now();
-    for (api_key, chart_hash) in keys {
-        cache.invalidate_chart_for_api(&api_key, &chart_hash, now);
-    }
+    for (api_key, chart_hash) in keys { cache.invalidate_chart_for_api(&api_key, &chart_hash, now); }
     mark_runtime_player_leaderboards_changed();
 }
 
@@ -2411,14 +2405,7 @@ mod golf_tests {
     use super::*;
     #[test]
     fn golf_board_requires_explicit_filter_selection() {
-        let panes = [LeaderboardPane {
-            name: "Golf (ArrowCloud)".into(),
-            entries: Vec::new(),
-            is_ex: false,
-            disabled: false,
-            personalized: false,
-            arrowcloud_kind: None,
-        }];
+        let panes = [LeaderboardPane { name: "Golf (ArrowCloud)".into(), entries: Vec::new(), is_ex: false, disabled: false, personalized: false, arrowcloud_kind: None }];
         let mut filter = SelectMusicScoreboxFilter::default();
         assert!(select_music_scorebox_pane_refs(&panes, filter).is_empty());
         filter.golf = true;

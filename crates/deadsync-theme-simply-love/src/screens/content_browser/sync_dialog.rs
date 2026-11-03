@@ -251,17 +251,7 @@ pub fn begin_pack_measure(
     if request.is_some() {
         state.pack_sync_group = Some(group_name.to_owned());
     } else {
-        state.remove_result = Some(
-            crate::i18n::tr_fmt(
-                "ContentBrowser",
-                "MessageNothingInGroupNameToMeasureNoChartType",
-                &[
-                    ("group_name", &(group_name).to_string()),
-                    ("chart_type", &(chart_type).to_string()),
-                ],
-            )
-            .to_string(),
-        );
+        state.remove_result = Some(crate::i18n::tr_fmt("ContentBrowser", "MessageNothingInGroupNameToMeasureNoChartType", &[("group_name", &(group_name).to_string()), ("chart_type", &(chart_type).to_string())]).to_string());
     }
     request
 }
@@ -301,11 +291,6 @@ pub fn finish_pack_sync(
     }
     state.remove_result = Some(match result {
         Ok(note) => note,
-        Err(error) => crate::i18n::tr_fmt(
-            "ContentBrowser",
-            "MessageCouldNotChangeSyncError",
-            &[("error", &(error).to_string())],
-        )
-        .to_string(),
+        Err(error) => crate::i18n::tr_fmt("ContentBrowser", "MessageCouldNotChangeSyncError", &[("error", &(error).to_string())]).to_string(),
     });
 }

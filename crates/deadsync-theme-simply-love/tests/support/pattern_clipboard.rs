@@ -136,11 +136,9 @@ fn select(s: &mut State, mixed: bool) {
     control(s, KeyCode::KeyA, true);
     press(s, KeyCode::End);
     press(s, KeyCode::Space);
-    assert!(
-        texts(s).contains(&tr("Pattern marker", "Marqueur de pattern")),
+    assert!(texts(s).contains(&tr("Pattern marker", "Marqueur de pattern")),
         "{}",
-        texts(s)
-    );
+        texts(s));
     if mixed {
         press(s, KeyCode::ArrowUp);
         press(s, KeyCode::Space);

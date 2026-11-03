@@ -281,14 +281,7 @@ fn credit_text(state: &State) -> Arc<str> {
     {
         return Arc::clone(text);
     }
-    let text: Arc<str> = Arc::from(
-        crate::i18n::tr_fmt(
-            "UiMessages",
-            "CREDITS",
-            &[("arg0", &(state.runtime_view.credits).to_string())],
-        )
-        .to_string(),
-    );
+    let text: Arc<str> = Arc::from(crate::i18n::tr_fmt("UiMessages", "CREDITS", &[("arg0", &(state.runtime_view.credits).to_string())]).to_string());
     *state.credit_text_cache.borrow_mut() = Some((state.runtime_view.credits, Arc::clone(&text)));
     text
 }
@@ -1760,19 +1753,17 @@ mod tests {
 
 #[cfg(test)]
 mod standalone_entry_tests {
-    use super::*;
-    #[test]
-    fn editor_row_routes_to_editor_without_gameplay_in_both_languages() {
-        crate::i18n::init_for_tests();
-        for language in ["en", "fr"] {
-            crate::i18n::set_locale(deadsync_assets::language::load_for_tests(language));
-            let mut state = init();
-            state.selected_index = 3;
-            let ThemeEffect::Batch(effects) = start_selected(&mut state, false) else {
-                panic!("expected sound and route");
-            };
-            assert!(matches!(effects[1], ThemeEffect::Navigate(Screen::Edition)));
-            assert!(!crate::i18n::tr("Menu", "Editor").is_empty());
-        }
-    }
+ use super::*;
+ #[test]
+ fn editor_row_routes_to_editor_without_gameplay_in_both_languages() {
+  crate::i18n::init_for_tests();
+  for language in ["en","fr"] {
+   crate::i18n::set_locale(deadsync_assets::language::load_for_tests(language));
+   let mut state=init();
+   state.selected_index=3;
+   let ThemeEffect::Batch(effects)=start_selected(&mut state,false) else {panic!("expected sound and route");};
+   assert!(matches!(effects[1],ThemeEffect::Navigate(Screen::Edition)));
+   assert!(!crate::i18n::tr("Menu","Editor").is_empty());
+  }
+ }
 }

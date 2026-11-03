@@ -579,9 +579,7 @@ fn apply_accel_y_general(
         adjust += accel.wave * WAVE_MOD_MAGNITUDE * (raw_y / cache.wave_divisor).sin();
     }
     if accel.parabola_y != 0.0 {
-        adjust += accel.parabola_y
-            * (raw_y / ARROW_EFFECT_PIXEL_SIZE)
-            * (raw_y / ARROW_EFFECT_PIXEL_SIZE);
+        adjust += accel.parabola_y * (raw_y / ARROW_EFFECT_PIXEL_SIZE) * (raw_y / ARROW_EFFECT_PIXEL_SIZE);
     }
     y += adjust;
     let mut before_boomerang_peak = true;
@@ -1556,7 +1554,9 @@ pub(crate) fn note_x_extra(
     if params.beat.is_finite() && params.beat != 0.0 {
         out += beat_wave_offset(y, beat_factor_value, params.beat, params.beat_period);
     }
-    out += triangle_wave_offset(y, params.zigzag, params.zigzag_offset, params.zigzag_period);
+    out += triangle_wave_offset(
+        y, params.zigzag, params.zigzag_offset, params.zigzag_period,
+    );
     // ArrowEffects::GetXPos adds the squared travel offset before Tiny spacing.
     out += sawtooth_wave_offset(y, params.sawtooth, params.sawtooth_period);
     if params.parabola_x.is_finite() && params.parabola_x != 0.0 {
@@ -1689,7 +1689,9 @@ pub(crate) fn note_x_offset_cached(
     if params.beat.is_finite() && params.beat != 0.0 {
         extra += beat_wave_offset(y, beat_factor_value, params.beat, params.beat_period);
     }
-    extra += triangle_wave_offset(y, params.zigzag, params.zigzag_offset, params.zigzag_period);
+    extra += triangle_wave_offset(
+        y, params.zigzag, params.zigzag_offset, params.zigzag_period,
+    );
     // ArrowEffects::GetXPos adds the squared travel offset before Tiny spacing.
     extra += sawtooth_wave_offset(y, params.sawtooth, params.sawtooth_period);
     if params.parabola_x.is_finite() && params.parabola_x != 0.0 {
@@ -2722,35 +2724,24 @@ mod tests {
     fn parabola_y_and_accels_match_native_travel() {
         let native: serde_json::Value = serde_json::from_str(include_str!(
             "../../../tests/fixtures/itgmania-song-lua-micro/parabola-y-motion.json"
-        ))
-        .expect("independently compiled native additive acceleration vectors");
+        )).expect("independently compiled native additive acceleration vectors");
         let vectors = native["vectors"].as_array().expect("native vectors");
         assert_eq!(vectors.len(), 78);
         for vector in vectors {
             let value = |key: &str| vector[key].as_f64().expect("native float") as f32;
             let accel = AccelYParams {
-                parabola_y: value("amount"),
-                boost: value("boost"),
-                brake: value("brake"),
-                wave: value("wave"),
-                wave_period: value("period"),
-                boomerang: value("boomerang"),
+                parabola_y: value("amount"), boost: value("boost"), brake: value("brake"),
+                wave: value("wave"), wave_period: value("period"), boomerang: value("boomerang"),
                 ..AccelYParams::default()
             };
             let cache = accel_y_cache(0.0, 480.0, accel);
             let raw = value("travel");
             let expected = value("y");
             let actual = apply_accel_y_cached(raw, 480.0, 480.0, accel, cache);
-            assert!(
-                (actual - expected).abs() < 0.0005,
-                "{vector}: actual={actual}"
-            );
+            assert!((actual - expected).abs() < 0.0005, "{vector}: actual={actual}");
             if raw >= 0.0 {
                 let general = apply_accel_y_general(raw, 480.0, 480.0, accel, cache).0;
-                assert!(
-                    (general - expected).abs() < 0.0005,
-                    "{vector}: general={general}"
-                );
+                assert!((general - expected).abs() < 0.0005, "{vector}: general={general}");
             }
         }
     }
@@ -2759,15 +2750,13 @@ mod tests {
     fn wave_period_matches_native_travel() {
         let native: serde_json::Value = serde_json::from_str(include_str!(
             "../../../tests/fixtures/itgmania-song-lua-micro/wave-period-motion.json"
-        ))
-        .expect("independently compiled native Wave vectors");
+        )).expect("independently compiled native Wave vectors");
         let vectors = native["vectors"].as_array().expect("native vectors");
         assert_eq!(vectors.len(), 80);
         for vector in vectors {
             let value = |key: &str| vector[key].as_f64().expect("native float") as f32;
             let accel = AccelYParams {
-                wave: value("amount"),
-                wave_period: value("period"),
+                wave: value("amount"), wave_period: value("period"),
                 ..AccelYParams::default()
             };
             let cache = accel_y_cache(0.0, 480.0, accel);
@@ -2775,14 +2764,8 @@ mod tests {
             let expected = value("y");
             let optimized = apply_accel_y_cached(raw, 480.0, 480.0, accel, cache);
             let general = apply_accel_y_general(raw, 480.0, 480.0, accel, cache).0;
-            assert!(
-                (optimized - expected).abs() < 0.00005,
-                "{vector}: optimized={optimized}"
-            );
-            assert!(
-                (general - expected).abs() < 0.00005,
-                "{vector}: general={general}"
-            );
+            assert!((optimized - expected).abs() < 0.00005, "{vector}: optimized={optimized}");
+            assert!((general - expected).abs() < 0.00005, "{vector}: general={general}");
             assert_eq!(accel_y_is_identity(accel), accel.wave == 0.0);
         }
     }

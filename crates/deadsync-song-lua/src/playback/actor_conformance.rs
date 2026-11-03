@@ -423,97 +423,46 @@ impl WholeSongComposer {
     /// Compose a recorded command/update submission through gameplay's draw
     /// program. Native observations are never used to construct these actors.
     pub fn render_recorded_frame<S: NoteskinSlot + Clone>(
-        &mut self,
-        overlays: &[SongLuaOverlayActor<S>],
-        states: &[SongLuaOverlayState],
-        frame: &SongLuaDrawFrame,
-        screen: [f32; 2],
-        seconds: f32,
-        beat: f32,
+        &mut self, overlays: &[SongLuaOverlayActor<S>], states: &[SongLuaOverlayState],
+        frame: &SongLuaDrawFrame, screen: [f32; 2], seconds: f32, beat: f32,
     ) -> Vec<(usize, deadlib_render_core::RenderFrame)> {
-        deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
-            screen[0], screen[1],
-        ));
+        deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(screen[0], screen[1]));
         self.manual = SongLuaManualScratch::with_frames(overlays, Arc::from([frame.clone()]));
         self.render_recorded_index(overlays, states, screen, seconds, beat, 0, true)
-            .into_iter()
-            .map(|(actor, frame, _)| (actor, frame))
-            .collect()
+            .into_iter().map(|(actor, frame, _)| (actor, frame)).collect()
     }
 
     /// Exercise the complete production layer path, retaining each target pass
     /// separately so an early Draw and the later automatic draw stay observable.
     pub fn render_layer_capture_frames<S: NoteskinSlot + Clone>(
-        &mut self,
-        overlays: &[SongLuaOverlayActor<S>],
-        local: &[SongLuaOverlayState],
-        screen: [f32; 2],
-        seconds: f32,
-        beat: f32,
+        &mut self, overlays: &[SongLuaOverlayActor<S>], local: &[SongLuaOverlayState],
+        screen: [f32; 2], seconds: f32, beat: f32,
     ) -> Vec<deadlib_render_core::RenderFrame> {
-        deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
-            screen[0], screen[1],
-        ));
+        deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(screen[0], screen[1]));
         let states = compose_overlay_states(overlays, local, screen, [seconds, beat]);
         let mut order = song_lua_overlay_order_cache_from(overlays, &[]);
         let mut aft = SongLuaAftCaptureScratch::new(overlays, &self.topology);
         std::mem::swap(&mut aft.manual, &mut self.manual);
         let mut actors = Vec::new();
         let mut targets = Vec::new();
-        push_song_lua_layer_actors(
-            &mut actors,
-            &mut targets,
-            overlays,
-            &mut order,
-            &self.topology,
-            local,
-            &states,
-            SongLuaOverlayState::default(),
-            None,
-            &SongLuaScreenProxySources::default(),
-            None,
-            None,
-            &self.assets,
-            screen[0],
-            screen[1],
-            seconds,
-            beat,
-            seconds,
-            &mut Vec::new(),
-            &mut Vec::new(),
-            &mut Vec::new(),
-            &mut aft,
-            &mut self.mesh_scratch,
-            SONG_LUA_FOREGROUND_DEPTH,
-        );
+        push_song_lua_layer_actors(&mut actors, &mut targets, overlays, &mut order,
+            &self.topology, local, &states, SongLuaOverlayState::default(), None,
+            &SongLuaScreenProxySources::default(), None, None, &self.assets,
+            screen[0], screen[1], seconds, beat, seconds, &mut Vec::new(),
+            &mut Vec::new(), &mut Vec::new(), &mut aft, &mut self.mesh_scratch,
+            SONG_LUA_FOREGROUND_DEPTH);
         std::mem::swap(&mut aft.manual, &mut self.manual);
-        targets
-            .into_iter()
-            .map(|target| {
-                deadlib_present::compose::build_screen_with_texture_context(
-                    &target.children,
-                    [0.0; 4],
-                    &deadlib_present::space::Metrics::centered(
-                        target.logical_size[0],
-                        target.logical_size[1],
-                    ),
-                    &font::FontMap::default(),
-                    seconds,
-                    self.assets.texture_context(),
-                )
-            })
-            .collect()
+        targets.into_iter().map(|target| {
+            deadlib_present::compose::build_screen_with_texture_context(
+                &target.children, [0.0; 4],
+                &deadlib_present::space::Metrics::centered(target.logical_size[0], target.logical_size[1]),
+                &font::FontMap::default(), seconds, self.assets.texture_context())
+        }).collect()
     }
 
     fn render_recorded_index<S: NoteskinSlot + Clone>(
-        &mut self,
-        overlays: &[SongLuaOverlayActor<S>],
-        states: &[SongLuaOverlayState],
-        screen: [f32; 2],
-        seconds: f32,
-        beat: f32,
-        index: usize,
-        simple: bool,
+        &mut self, overlays: &[SongLuaOverlayActor<S>], states: &[SongLuaOverlayState],
+        screen: [f32; 2], seconds: f32, beat: f32, index: usize, simple: bool,
     ) -> Vec<(usize, deadlib_render_core::RenderFrame, [[[f32; 4]; 4]; 2])> {
         self.manual.begin_frame();
         let mut actors = Vec::new();
@@ -550,14 +499,12 @@ impl WholeSongComposer {
                 else {
                     return None;
                 };
-                if !simple
-                    && !matches!(
-                        overlays[*overlay].kind,
-                        SongLuaOverlayKind::ActorMultiVertex { .. }
-                            | SongLuaOverlayKind::Model { .. }
-                            | SongLuaOverlayKind::NoteskinActor { .. }
-                    )
-                {
+                if !simple && !matches!(
+                    overlays[*overlay].kind,
+                    SongLuaOverlayKind::ActorMultiVertex { .. }
+                        | SongLuaOverlayKind::Model { .. }
+                        | SongLuaOverlayKind::NoteskinActor { .. }
+                ) {
                     return None;
                 }
                 let [_, view, space] = song_lua_model_camera(
@@ -745,8 +692,7 @@ fn queue_texture(assets: &mut AssetManager, key: &str) {
     // a 1px placeholder would overwrite the registry and shrink live sprites.
     let source_key = key.strip_suffix("#itg-model").unwrap_or(key);
     let source_dims = image::image_dimensions(source_key).ok();
-    let dims = source_dims
-        .map(|(w, h)| deadlib_assets::TexMeta { w, h })
+    let dims = source_dims.map(|(w,h)| deadlib_assets::TexMeta { w,h })
         .or_else(|| deadlib_assets::texture_dims(key));
     let width = dims.map_or(1, |dims| dims.w.max(1));
     let height = dims.map_or(1, |dims| dims.h.max(1));

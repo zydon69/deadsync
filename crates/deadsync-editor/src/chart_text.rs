@@ -42,16 +42,14 @@ impl Text {
         if chart >= document.charts().len() {
             return Err(Error::InvalidEdit("Chart text chart does not exist".into()));
         }
-        let data = crate::generation::metadata::ChartData::read(document, chart)?;
-        let authored = data.as_ref().and_then(|data| data.extra.get(EXTENSION));
+        let data=crate::generation::metadata::ChartData::read(document,chart)?;
+        let authored=data.as_ref().and_then(|data|data.extra.get(EXTENSION));
         let mut values = std::array::from_fn(|_| String::new());
         for field in Field::ALL {
             let value = local_with_extension(document, chart, field, authored)?.unwrap_or_default();
             values[field.index()] = if field == Field::Credit
                 && value.is_empty()
-                && authored
-                    .and_then(|extension| extension["Fields"].get(field.tag()))
-                    .is_none()
+                && authored.and_then(|extension|extension["Fields"].get(field.tag())).is_none()
             {
                 document.text(None, field.tag()).unwrap_or_default()
             } else {
@@ -66,9 +64,7 @@ impl Text {
     pub fn supports(&self, _field: Field) -> bool {
         true
     }
-    pub(crate) fn original(&self, field: Field) -> &str {
-        &self.original[field.index()]
-    }
+    pub(crate) fn original(&self, field: Field) -> &str { &self.original[field.index()] }
     pub fn get(&self, field: Field) -> &str {
         &self.values[field.index()]
     }
@@ -160,27 +156,12 @@ pub fn local_value(
     if chart >= document.charts().len() {
         return Err(invalid("Chart text chart does not exist"));
     }
-    let data = crate::generation::metadata::ChartData::read(document, chart)?;
-    local_with_extension(
-        document,
-        chart,
-        field,
-        data.as_ref().and_then(|data| data.extra.get(EXTENSION)),
-    )
+    let data=crate::generation::metadata::ChartData::read(document,chart)?;
+    local_with_extension(document,chart,field,data.as_ref().and_then(|data|data.extra.get(EXTENSION)))
 }
-fn local_with_extension(
-    document: &Document,
-    chart: usize,
-    field: Field,
-    extension: Option<&serde_json::Value>,
-) -> Result<Option<String>, Error> {
-    if let Some(value) = extension.and_then(|value| value["Fields"].get(field.tag())) {
-        return Ok(Some(
-            value
-                .as_str()
-                .ok_or_else(|| invalid("Chart text field must be a string"))?
-                .into(),
-        ));
+fn local_with_extension(document:&Document,chart:usize,field:Field,extension:Option<&serde_json::Value>)->Result<Option<String>,Error>{
+    if let Some(value)=extension.and_then(|value|value["Fields"].get(field.tag())) {
+        return Ok(Some(value.as_str().ok_or_else(||invalid("Chart text field must be a string"))?.into()));
     }
     if document.format == Format::Sm {
         return if field == Field::Description {

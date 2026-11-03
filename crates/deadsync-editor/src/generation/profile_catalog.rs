@@ -40,14 +40,11 @@ pub struct Entry {
     pub guid: Guid,
     pub name: Option<String>,
     pub builtin: Option<BuiltinLabel>,
-    pub config: super::profiles::Config,
-    pub display: Option<String>,
+    pub config:super::profiles::Config,
+    pub display:Option<String>,
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum Context {
-    Application,
-    Chart(usize),
-}
+pub enum Context { Application, Chart(usize) }
 pub struct Task {
     token: RevisionToken,
     context: Context,
@@ -69,7 +66,7 @@ pub struct Selection {
     pattern: Guid,
     performed: Guid,
     expressed: Option<Guid>,
-    dependencies: Vec<(Kind, (PathBuf, Arc<[u8]>))>,
+    dependencies: Vec<(Kind,(PathBuf, Arc<[u8]>))>,
 }
 impl Task {
     pub fn capture(
@@ -85,11 +82,7 @@ impl Task {
     pub fn capture_application(session: &Session, directory: Option<&Path>) -> Result<Self, Error> {
         Self::capture_context(session, Context::Application, directory)
     }
-    fn capture_context(
-        session: &Session,
-        context: Context,
-        directory: Option<&Path>,
-    ) -> Result<Self, Error> {
+    fn capture_context(session: &Session, context: Context, directory: Option<&Path>) -> Result<Self, Error> {
         let directory = directory
             .map(|path| {
                 if path.is_absolute() {
@@ -154,23 +147,11 @@ impl Task {
                         ),
                     )
                 };
-                let config = match kind {
-                    Kind::Pattern => {
-                        super::profiles::Config::Pattern(loaded.registry.patterns[id].clone())
-                    }
-                    Kind::Performed => {
-                        super::profiles::Config::Performed(loaded.registry.performed[id].clone())
-                    }
-                    Kind::Expressed => {
-                        super::profiles::Config::Expressed(loaded.registry.expressed[id].clone())
-                    }
-                };
+                let config=match kind {Kind::Pattern=>super::profiles::Config::Pattern(loaded.registry.patterns[id].clone()),Kind::Performed=>super::profiles::Config::Performed(loaded.registry.performed[id].clone()),Kind::Expressed=>super::profiles::Config::Expressed(loaded.registry.expressed[id].clone())};
                 choices.push(Entry {
                     guid: id.clone(),
                     name,
-                    builtin,
-                    config,
-                    display: None,
+                    builtin,config,display:None,
                 });
             }
             // Built-ins first, then custom names; GUID breaks duplicate-name ties.
@@ -194,43 +175,23 @@ impl Task {
         })
     }
 }
-pub const KINDS: [Kind; 3] = [Kind::Pattern, Kind::Performed, Kind::Expressed];
+pub const KINDS:[Kind;3]=[Kind::Pattern,Kind::Performed,Kind::Expressed];
 /// Host resolves source CurrentCulture text/ordering without changing the catalog's dependencies.
-pub trait Orderer {
-    fn order(&mut self, catalog: &Catalog) -> Result<Vec<(Kind, Vec<(Guid, String)>)>, Error>;
-}
+pub trait Orderer {fn order(&mut self,catalog:&Catalog)->Result<Vec<(Kind,Vec<(Guid,String)>)>,Error>;}
 impl Catalog {
-    pub fn install_order(
-        &mut self,
-        presentation: Vec<(Kind, Vec<(Guid, String)>)>,
-    ) -> Result<(), Error> {
-        let mut next = BTreeMap::new();
-        for (kind, rows) in presentation {
-            if next.contains_key(&kind) || rows.len() != self.entries(kind).len() {
-                return Err(invalid("Invalid profile presentation shape"));
+    pub fn install_order(&mut self,presentation:Vec<(Kind,Vec<(Guid,String)>)>)->Result<(),Error>{
+        let mut next=BTreeMap::new();
+        for (kind,rows) in presentation {
+            if next.contains_key(&kind)||rows.len()!=self.entries(kind).len(){return Err(invalid("Invalid profile presentation shape"));}
+            let mut seen=std::collections::BTreeSet::new();let mut entries=Vec::new();
+            for (id,text) in rows {if !seen.insert(id.clone()){return Err(invalid("Duplicate profile presentation identity"));}
+                let mut entry=self.entries(kind).iter().find(|entry|entry.guid==id).cloned().ok_or_else(||invalid("Unknown profile presentation identity"))?;
+                entry.display=Some(text);entries.push(entry);
             }
-            let mut seen = std::collections::BTreeSet::new();
-            let mut entries = Vec::new();
-            for (id, text) in rows {
-                if !seen.insert(id.clone()) {
-                    return Err(invalid("Duplicate profile presentation identity"));
-                }
-                let mut entry = self
-                    .entries(kind)
-                    .iter()
-                    .find(|entry| entry.guid == id)
-                    .cloned()
-                    .ok_or_else(|| invalid("Unknown profile presentation identity"))?;
-                entry.display = Some(text);
-                entries.push(entry);
-            }
-            next.insert(kind, entries);
+            next.insert(kind,entries);
         }
-        if next.len() != KINDS.len() {
-            return Err(invalid("Incomplete profile presentation"));
-        }
-        self.entries = next;
-        Ok(())
+        if next.len()!=KINDS.len(){return Err(invalid("Incomplete profile presentation"));}
+        self.entries=next;Ok(())
     }
 
     pub fn entries(&self, kind: Kind) -> &[Entry] {
@@ -256,18 +217,8 @@ impl Catalog {
     ) -> Result<super::profiles::Profile, Error> {
         self.profile_in(session, Context::Chart(chart), kind, id)
     }
-    pub fn profile_in(
-        &self,
-        session: &Session,
-        context: Context,
-        kind: Kind,
-        id: &Guid,
-    ) -> Result<super::profiles::Profile, Error> {
-        if !self.is_current_in(session, context) {
-            return Err(invalid(
-                "Profile catalog belongs to another context or revision",
-            ));
-        }
+    pub fn profile_in(&self, session: &Session, context: Context, kind: Kind, id: &Guid) -> Result<super::profiles::Profile, Error> {
+        if !self.is_current_in(session, context) { return Err(invalid("Profile catalog belongs to another context or revision")); }
         if !self.entries(kind).iter().any(|entry| &entry.guid == id) {
             return Err(invalid("Selected profile is missing from the catalog"));
         }
@@ -317,13 +268,7 @@ impl Catalog {
     ) -> Result<super::profiles::ProfileFile, Error> {
         self.profile_file_in(session, Context::Chart(chart), kind, id)
     }
-    pub fn profile_file_in(
-        &self,
-        session: &Session,
-        context: Context,
-        kind: Kind,
-        id: &Guid,
-    ) -> Result<super::profiles::ProfileFile, Error> {
+    pub fn profile_file_in(&self, session: &Session, context: Context, kind: Kind, id: &Guid) -> Result<super::profiles::ProfileFile, Error> {
         let profile = self.profile_in(session, context, kind, id)?;
         let (path, expected) = self
             .dependencies
@@ -349,7 +294,7 @@ impl Catalog {
                 return Err(invalid("Selected profile is missing from the catalog"));
             }
             if let Some(dependency) = self.dependencies.get(&(kind, id.clone())) {
-                dependencies.push((kind, dependency.clone()));
+                dependencies.push((kind,dependency.clone()));
             }
         }
         Ok(Selection {
@@ -434,28 +379,18 @@ impl Catalog {
             ));
         }
         if let Some(dependency) = self.dependencies.get(&(Kind::Expressed, expressed.clone())) {
-            selection
-                .dependencies
-                .push((Kind::Expressed, dependency.clone()));
+            selection.dependencies.push((Kind::Expressed,dependency.clone()));
         }
         selection.expressed = Some(expressed.clone());
         Ok(selection)
     }
 }
 impl Selection {
-    pub(crate) fn after_inline_creation(
-        &mut self,
-        receipt: &crate::history::profile_creation::Committed,
-    ) {
-        let kind = receipt.kind();
-        let guid = receipt.guid().clone();
-        match kind {
-            Kind::Pattern => self.pattern = guid,
-            Kind::Performed => self.performed = guid,
-            Kind::Expressed => self.expressed = Some(guid),
-        }
-        self.dependencies.retain(|(existing, _)| *existing != kind);
-        self.dependencies.push((kind, receipt.dependency().clone()));
+    pub(crate) fn after_inline_creation(&mut self,receipt:&crate::history::profile_creation::Committed){
+        let kind=receipt.kind();let guid=receipt.guid().clone();
+        match kind{Kind::Pattern=>self.pattern=guid,Kind::Performed=>self.performed=guid,Kind::Expressed=>self.expressed=Some(guid)}
+        self.dependencies.retain(|(existing,_)|*existing!=kind);
+        self.dependencies.push((kind,receipt.dependency().clone()));
     }
     pub(crate) fn check(
         &self,
@@ -474,22 +409,12 @@ impl Selection {
                 "Profile identities changed after catalog selection",
             ));
         }
-        check_dependencies(
-            &self
-                .dependencies
-                .iter()
-                .map(|(_, dependency)| dependency.clone())
-                .collect::<Vec<_>>(),
-        )
+        check_dependencies(&self.dependencies.iter().map(|(_,dependency)|dependency.clone()).collect::<Vec<_>>())
     }
 }
 impl ExpressionSelection {
-    pub(crate) fn after_inline_creation(
-        &mut self,
-        receipt: &crate::history::profile_creation::Committed,
-    ) {
-        self.expressed = receipt.guid().clone();
-        self.dependencies = vec![receipt.dependency().clone()];
+    pub(crate) fn after_inline_creation(&mut self,receipt:&crate::history::profile_creation::Committed){
+        self.expressed=receipt.guid().clone();self.dependencies=vec![receipt.dependency().clone()];
     }
     pub(crate) fn check(&self, expressed: &Guid) -> Result<(), Error> {
         if &self.expressed != expressed {
@@ -549,27 +474,10 @@ fn invalid(message: &str) -> Error {
 }
 
 impl Entry {
-    pub fn source_name(&self) -> &str {
-        self.name.as_deref().unwrap_or_else(|| match self.builtin {
-            Some(BuiltinLabel::Sixteenths) => "Default 16ths",
-            Some(BuiltinLabel::Eighths) => "Default 8ths",
-            Some(BuiltinLabel::Balanced) => "Default Chart: Balanced",
-            Some(BuiltinLabel::StaminaSingle) => "Default Chart: Stamina (SP)",
-            Some(BuiltinLabel::StaminaDouble) => "Default Chart: Stamina (DP)",
-            Some(BuiltinLabel::PatternBalanced) => "Default Pattern: Balanced",
-            Some(BuiltinLabel::NoCandles) => "Default Pattern: No Candles",
-            Some(BuiltinLabel::NoInward) => "Default Pattern: No Inward",
-            Some(BuiltinLabel::NoTransitionLimit) => "Default Pattern: No Transition Limit",
-            Some(BuiltinLabel::Dynamic) => "Dynamic",
-            Some(BuiltinLabel::AggressiveBrackets) => "Aggressive Brackets",
-            Some(BuiltinLabel::NoBrackets) => "No Brackets",
-            None => "",
-        })
-    }
-    pub fn source_text(
-        &self,
-        fixed2: &mut impl FnMut(f64) -> Result<String, Error>,
-    ) -> Result<String, Error> {
-        description::describe(self.source_name(), &self.config, fixed2)
-    }
+ pub fn source_name(&self)->&str{self.name.as_deref().unwrap_or_else(||match self.builtin {
+ Some(BuiltinLabel::Sixteenths)=>"Default 16ths",Some(BuiltinLabel::Eighths)=>"Default 8ths",
+ Some(BuiltinLabel::Balanced)=>"Default Chart: Balanced",Some(BuiltinLabel::StaminaSingle)=>"Default Chart: Stamina (SP)",Some(BuiltinLabel::StaminaDouble)=>"Default Chart: Stamina (DP)",
+ Some(BuiltinLabel::PatternBalanced)=>"Default Pattern: Balanced",Some(BuiltinLabel::NoCandles)=>"Default Pattern: No Candles",Some(BuiltinLabel::NoInward)=>"Default Pattern: No Inward",Some(BuiltinLabel::NoTransitionLimit)=>"Default Pattern: No Transition Limit",
+ Some(BuiltinLabel::Dynamic)=>"Dynamic",Some(BuiltinLabel::AggressiveBrackets)=>"Aggressive Brackets",Some(BuiltinLabel::NoBrackets)=>"No Brackets",None=>""})}
+ pub fn source_text(&self,fixed2:&mut impl FnMut(f64)->Result<String,Error>)->Result<String,Error>{description::describe(self.source_name(),&self.config,fixed2)}
 }

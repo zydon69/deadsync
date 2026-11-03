@@ -40,9 +40,7 @@ impl<S> PreparedGameplaySongLua<S> {
     /// Inspect compiled data without preparation timings or transferring a VM.
     #[cfg(any(feature = "test-support", feature = "performance"))]
     pub fn compiled_layers(&self) -> impl Iterator<Item = &CompiledSongLua<S>> {
-        self.background_layers
-            .iter()
-            .map(|layer| &layer.compiled)
+        self.background_layers.iter().map(|layer| &layer.compiled)
             .chain(self.foreground_layers.iter().map(|layer| &layer.compiled))
             .chain(self.primary.iter().map(|primary| &primary.compiled))
     }
@@ -52,17 +50,11 @@ impl<S> PreparedGameplaySongLua<S> {
     /// root/background/foreground slots without cloning the VM.
     pub fn take_live_scene(&mut self) -> Result<Option<crate::SongLuaLiveScene>, String> {
         use crate::SongLuaLiveTarget as LiveTarget;
-        let count = self
-            .primary
-            .iter()
-            .map(|p| &p.compiled)
+        let count = self.primary.iter().map(|p| &p.compiled)
             .chain(self.background_layers.iter().map(|p| &p.compiled))
             .chain(self.foreground_layers.iter().map(|p| &p.compiled))
-            .filter(|compiled| compiled.live_scene.is_some())
-            .count();
-        if count == 0 {
-            return Ok(None);
-        }
+            .filter(|compiled| compiled.live_scene.is_some()).count();
+        if count == 0 { return Ok(None); }
         if count != 1 {
             self.compile_succeeded = false;
             return Err("live gameplay requires one shared Lua session".into());
@@ -71,38 +63,18 @@ impl<S> PreparedGameplaySongLua<S> {
         let mut targets = Vec::new();
         if let Some(primary) = &mut self.primary {
             scene = primary.compiled.live_scene.take();
-            targets.extend(
-                primary
-                    .compiled
-                    .live_actor_indices()
-                    .iter()
-                    .enumerate()
-                    .map(|(local, &global)| (global, LiveTarget::Root(local))),
-            );
+            targets.extend(primary.compiled.live_actor_indices().iter().enumerate()
+                .map(|(local, &global)| (global, LiveTarget::Root(local))));
         }
         for (layer, data) in self.background_layers.iter_mut().enumerate() {
-            if let Some(owned) = data.compiled.live_scene.take() {
-                scene = Some(owned);
-            }
-            targets.extend(
-                data.compiled
-                    .live_actor_indices()
-                    .iter()
-                    .enumerate()
-                    .map(|(local, &global)| (global, LiveTarget::Background(layer, local))),
-            );
+            if let Some(owned) = data.compiled.live_scene.take() { scene = Some(owned); }
+            targets.extend(data.compiled.live_actor_indices().iter().enumerate()
+                .map(|(local, &global)| (global, LiveTarget::Background(layer, local))));
         }
         for (layer, data) in self.foreground_layers.iter_mut().enumerate() {
-            if let Some(owned) = data.compiled.live_scene.take() {
-                scene = Some(owned);
-            }
-            targets.extend(
-                data.compiled
-                    .live_actor_indices()
-                    .iter()
-                    .enumerate()
-                    .map(|(local, &global)| (global, LiveTarget::Foreground(layer, local))),
-            );
+            if let Some(owned) = data.compiled.live_scene.take() { scene = Some(owned); }
+            targets.extend(data.compiled.live_actor_indices().iter().enumerate()
+                .map(|(local, &global)| (global, LiveTarget::Foreground(layer, local))));
         }
         let mut scene = scene.expect("one scene counted before transferring ownership");
         if let Err(error) = scene.bind_targets(targets) {
@@ -114,9 +86,7 @@ impl<S> PreparedGameplaySongLua<S> {
 
     /// A shared session reports the note fields constructed by its final scene.
     pub fn loaded_steps(&self) -> Option<[Option<usize>; crate::LUA_PLAYERS]> {
-        self.primary
-            .iter()
-            .map(|primary| &primary.compiled)
+        self.primary.iter().map(|primary| &primary.compiled)
             .chain(self.background_layers.iter().map(|layer| &layer.compiled))
             .chain(self.foreground_layers.iter().map(|layer| &layer.compiled))
             .find_map(|compiled| compiled.loaded_steps)
@@ -124,9 +94,7 @@ impl<S> PreparedGameplaySongLua<S> {
 
     /// Style that owns the constructed note fields, including a Lua reload.
     pub fn loaded_style(&self) -> Option<&str> {
-        self.primary
-            .iter()
-            .map(|primary| &primary.compiled)
+        self.primary.iter().map(|primary| &primary.compiled)
             .chain(self.background_layers.iter().map(|layer| &layer.compiled))
             .chain(self.foreground_layers.iter().map(|layer| &layer.compiled))
             .find_map(|compiled| compiled.loaded_style.as_deref())
@@ -159,6 +127,7 @@ impl<S> PreparedGameplaySongLua<S> {
         startup
     }
 }
+
 
 #[derive(Clone, Debug, PartialEq)]
 pub(crate) struct SongLuaSoundEvent {
@@ -231,11 +200,7 @@ fn compile_song_lua_layer<S: Clone + std::fmt::Debug>(
     let mut context = context.clone();
     context.background_layer_count = usize::from(background);
     context.layer_start_beats = vec![start_beat];
-    context.foreground_names = if background {
-        Vec::new()
-    } else {
-        vec![entry_name.to_owned()]
-    };
+    context.foreground_names = if background { Vec::new() } else { vec![entry_name.to_owned()] };
     match compile_song_lua(path, &context) {
         Ok(compiled) => Some(GameplaySongLuaLayer {
             start_beat,
@@ -281,19 +246,11 @@ fn compile_song_lua_session<S: Clone + std::fmt::Debug>(
     }
     let mut context = context.clone();
     context.background_layer_count = paths.len();
-    context.background_activations = song
-        .background_lua_changes
-        .iter()
-        .map(|change| (change.layer, change.activations.clone()))
-        .collect();
-    context.background_upper_left_colors = song
-        .background_lua_changes
-        .iter()
-        .map(|owner| {
-            (owner.effect.is_empty() || owner.effect.eq_ignore_ascii_case("UpperLeft"))
-                .then_some(owner.color1.unwrap_or([1.0; 4]))
-        })
-        .collect();
+    context.background_activations = song.background_lua_changes.iter()
+        .map(|change| (change.layer, change.activations.clone())).collect();
+    context.background_upper_left_colors = song.background_lua_changes.iter().map(|owner|
+        (owner.effect.is_empty() || owner.effect.eq_ignore_ascii_case("UpperLeft"))
+            .then_some(owner.color1.unwrap_or([1.0; 4]))).collect();
     context.foreground_names.clear();
     for (index, change) in song.foreground_lua_changes.iter().enumerate() {
         if !change.path.is_file() {
@@ -567,9 +524,7 @@ pub fn reload_song_lua<S: Clone + std::fmt::Debug>(
     scene: crate::SongLuaLiveScene,
     reload: impl FnOnce(crate::SongLuaLiveScene) -> Result<Vec<CompiledSongLua<S>>, String>,
 ) -> Result<PreparedGameplaySongLua<S>, String> {
-    let primary_ix = song
-        .foreground_lua_changes
-        .iter()
+    let primary_ix = song.foreground_lua_changes.iter()
         .position(|change| change.start_beat <= 0.0 && change.path.is_file());
     let context = scene.context().clone();
     compile_song_lua_session(song, primary_ix, &context, move |paths, primary, _| {

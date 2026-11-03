@@ -94,11 +94,9 @@ pub struct Draft {
 impl Draft {
     pub fn capture(session: &Session, chart: usize, scope: Scope) -> Result<Self, Error> {
         let target = Target::capture(session, chart, scope)?;
-        let current = TickCounts::parse(&super::resident::text(
-            session.document(),
-            target.origin(),
-            "TICKCOUNTS",
-        )?)?;
+        let current = TickCounts::parse(
+            &super::resident::text(session.document(),target.origin(),"TICKCOUNTS")?,
+        )?;
         Ok(Self {
             target,
             original: current.clone(),

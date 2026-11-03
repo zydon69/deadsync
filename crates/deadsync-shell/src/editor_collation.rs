@@ -4,9 +4,9 @@
 //! differential diagnostics rather than promising a platform-independent order.
 #[path = "editor_collation/log_clock.rs"]
 mod log_clock;
+pub(crate) use log_clock::LogClock;
 use deadsync_editor::chart_order::Snapshot;
 use libloading::Library;
-pub(crate) use log_clock::LogClock;
 use std::{
     cmp::Ordering,
     collections::HashMap,
@@ -49,10 +49,7 @@ struct Functions {
     compare: Compare,
     sort_key: SortKey,
     version: Version,
-    number_open: NumberOpen,
-    number_close: NumberClose,
-    number_attribute: NumberAttribute,
-    number_format: NumberFormat,
+    number_open:NumberOpen,number_close:NumberClose,number_attribute:NumberAttribute,number_format:NumberFormat,
 }
 impl Functions {
     /// ICU's stable C ABI uses these exact prototypes. Resolve every function
@@ -74,10 +71,7 @@ impl Functions {
                 compare: get(library, "ucol_strcoll", suffix)?,
                 sort_key: get(library, "ucol_getSortKey", suffix)?,
                 version: get(library, "ucol_getVersion", suffix)?,
-                number_open: get(library, "unum_open", suffix)?,
-                number_close: get(library, "unum_close", suffix)?,
-                number_attribute: get(library, "unum_setAttribute", suffix)?,
-                number_format: get(library, "unum_formatDouble", suffix)?,
+                number_open:get(library,"unum_open",suffix)?,number_close:get(library,"unum_close",suffix)?,number_attribute:get(library,"unum_setAttribute",suffix)?,number_format:get(library,"unum_formatDouble",suffix)?,
             })
         }
     }
@@ -90,7 +84,7 @@ pub(crate) struct Collator {
     functions: Functions,
     _library: Library,
     culture: String,
-    symbol_suffix: String,
+    symbol_suffix:String,
     collation_version: [u8; 4],
 }
 impl Collator {
@@ -141,7 +135,7 @@ impl Collator {
                     functions,
                     _library: library,
                     culture,
-                    symbol_suffix: suffix,
+                    symbol_suffix:suffix,
                     collation_version,
                 });
             }
@@ -411,148 +405,54 @@ mod tests {
 /// Profile ordering uses source names+abbreviations and the host's real ICU.
 pub(crate) struct NativeProfileOrder;
 impl deadsync_editor::generation::profile_catalog::Orderer for NativeProfileOrder {
-    fn order(
-        &mut self,
-        catalog: &deadsync_editor::generation::profile_catalog::Catalog,
-    ) -> Result<
-        Vec<(
-            deadsync_editor::generation::profiles::Kind,
-            Vec<(deadsync_editor::generation::metadata::Guid, String)>,
-        )>,
-        deadsync_editor::Error,
-    > {
-        let locale = deadsync_theme_simply_love::i18n::current_locale();
-        let collator = Collator::for_language(&locale).map_err(profile_error)?;
-        let mut result = Vec::new();
-        for kind in deadsync_editor::generation::profile_catalog::KINDS {
-            let mut rows = catalog
-                .entries(kind)
-                .iter()
-                .map(|entry| {
-                    let text = entry.source_text(&mut |number| {
-                        collator.fixed2(number).map_err(profile_error)
-                    })?;
-                    let key = collator.sort_key(&text).map_err(profile_error)?;
-                    Ok((entry.builtin.is_none(), key, entry.guid.clone(), text))
-                })
-                .collect::<Result<Vec<_>, deadsync_editor::Error>>()?;
-            rows.sort_by(|a, b| (&a.0, &a.1, &a.2).cmp(&(&b.0, &b.1, &b.2)));
-            result.push((
-                kind,
-                rows.into_iter()
-                    .map(|(_, _, id, text)| (id, text))
-                    .collect(),
-            ));
-        }
-        Ok(result)
-    }
+ fn order(&mut self,catalog:&deadsync_editor::generation::profile_catalog::Catalog)->Result<Vec<(deadsync_editor::generation::profiles::Kind,Vec<(deadsync_editor::generation::metadata::Guid,String)>)>,deadsync_editor::Error>{
+  let locale=deadsync_theme_simply_love::i18n::current_locale();
+  let collator=Collator::for_language(&locale).map_err(profile_error)?;
+  let mut result=Vec::new();
+  for kind in deadsync_editor::generation::profile_catalog::KINDS {
+   let mut rows=catalog.entries(kind).iter().map(|entry|{
+    let text=entry.source_text(&mut |number|collator.fixed2(number).map_err(profile_error))?;
+    let key=collator.sort_key(&text).map_err(profile_error)?;
+    Ok((entry.builtin.is_none(),key,entry.guid.clone(),text))
+   }).collect::<Result<Vec<_>,deadsync_editor::Error>>()?;
+   rows.sort_by(|a,b|(&a.0,&a.1,&a.2).cmp(&(&b.0,&b.1,&b.2)));
+   result.push((kind,rows.into_iter().map(|(_,_,id,text)|(id,text)).collect()));
+  }
+  Ok(result)
+ }
 }
-fn profile_error(error: Error) -> deadsync_editor::Error {
-    deadsync_editor::Error::Unsupported(error.to_string())
-}
-type NumberOpen =
-    unsafe extern "C" fn(i32, *const u16, i32, *const c_char, *mut c_void, *mut i32) -> *mut c_void;
-type NumberClose = unsafe extern "C" fn(*mut c_void);
-type NumberAttribute = unsafe extern "C" fn(*mut c_void, i32, i32);
-type NumberFormat =
-    unsafe extern "C" fn(*const c_void, f64, *mut u16, i32, *mut c_void, *mut i32) -> i32;
+fn profile_error(error:Error)->deadsync_editor::Error{deadsync_editor::Error::Unsupported(error.to_string())}
+type NumberOpen=unsafe extern "C" fn(i32,*const u16,i32,*const c_char,*mut c_void,*mut i32)->*mut c_void;
+type NumberClose=unsafe extern "C" fn(*mut c_void);
+type NumberAttribute=unsafe extern "C" fn(*mut c_void,i32,i32);
+type NumberFormat=unsafe extern "C" fn(*const c_void,f64,*mut u16,i32,*mut c_void,*mut i32)->i32;
 impl Collator {
-    fn fixed2(&self, number: f64) -> Result<String, Error> {
-        if !number.is_finite() {
-            return Err(Error("Nonfinite profile summary value".into()));
-        }
-        let locale = CString::new(self.culture.as_str())
-            .map_err(|_| Error("Invalid summary culture".into()))?;
-        let mut status = 0;
-        // SAFETY: exact ICU C ABI; formatter is confined to this call and closed on every path.
-        let handle = unsafe {
-            (self.functions.number_open)(
-                1,
-                std::ptr::null(),
-                0,
-                locale.as_ptr(),
-                std::ptr::null_mut(),
-                &mut status,
-            )
-        };
-        if handle.is_null() || status > 0 {
-            if !handle.is_null() {
-                unsafe {
-                    (self.functions.number_close)(handle);
-                }
-            }
-            return Err(Error(format!("ICU number formatter open failed: {status}")));
-        }
-        struct OwnedNumber {
-            handle: *mut c_void,
-            close: NumberClose,
-        }
-        impl Drop for OwnedNumber {
-            fn drop(&mut self) {
-                unsafe {
-                    (self.close)(self.handle);
-                }
-            }
-        }
-        let handle = OwnedNumber {
-            handle,
-            close: self.functions.number_close,
-        };
-        unsafe {
-            (self.functions.number_attribute)(handle.handle, 1, 0);
-            (self.functions.number_attribute)(handle.handle, 6, 2);
-            (self.functions.number_attribute)(handle.handle, 7, 2);
-            (self.functions.number_attribute)(handle.handle, 11, 4);
-        }
-        let mut buffer = vec![0u16; 512];
-        status = 0;
-        let length = unsafe {
-            (self.functions.number_format)(
-                handle.handle,
-                number,
-                buffer.as_mut_ptr(),
-                buffer.len() as i32,
-                std::ptr::null_mut(),
-                &mut status,
-            )
-        };
-        if status > 0 || length < 0 || length as usize > buffer.len() {
-            return Err(Error(format!(
-                "ICU profile summary formatting failed: {status}"
-            )));
-        }
-        String::from_utf16(&buffer[..length as usize])
-            .map_err(|_| Error("ICU returned invalid UTF16 summary".into()))
-    }
+ fn fixed2(&self,number:f64)->Result<String,Error>{
+  if !number.is_finite(){return Err(Error("Nonfinite profile summary value".into()));}
+  let locale=CString::new(self.culture.as_str()).map_err(|_|Error("Invalid summary culture".into()))?;
+  let mut status=0;
+  // SAFETY: exact ICU C ABI; formatter is confined to this call and closed on every path.
+  let handle=unsafe{(self.functions.number_open)(1,std::ptr::null(),0,locale.as_ptr(),std::ptr::null_mut(),&mut status)};
+  if handle.is_null()||status>0{if !handle.is_null(){unsafe{(self.functions.number_close)(handle);}}return Err(Error(format!("ICU number formatter open failed: {status}")));}
+  struct OwnedNumber{handle:*mut c_void,close:NumberClose}
+  impl Drop for OwnedNumber{fn drop(&mut self){unsafe{(self.close)(self.handle);}}}
+  let handle=OwnedNumber{handle,close:self.functions.number_close};
+  unsafe{(self.functions.number_attribute)(handle.handle,1,0);(self.functions.number_attribute)(handle.handle,6,2);(self.functions.number_attribute)(handle.handle,7,2);(self.functions.number_attribute)(handle.handle,11,4);}
+  let mut buffer=vec![0u16;512];status=0;
+  let length=unsafe{(self.functions.number_format)(handle.handle,number,buffer.as_mut_ptr(),buffer.len() as i32,std::ptr::null_mut(),&mut status)};
+  if status>0||length<0||length as usize>buffer.len(){return Err(Error(format!("ICU profile summary formatting failed: {status}")));}
+  String::from_utf16(&buffer[..length as usize]).map_err(|_|Error("ICU returned invalid UTF16 summary".into()))
+ }
 }
 #[cfg(test)]
 mod profile_tests {
-    use super::*;
-    #[test]
-    fn profile_fixed2_uses_real_host_number_formats_and_current_culture_order() {
-        for (culture, number) in [("en-US", "1.25"), ("fr-FR", "1,25"), ("sv-SE", "1,25")] {
-            let collator = Collator::open(culture).unwrap();
-            assert_eq!(collator.fixed2(1.25).unwrap(), number);
-            assert_eq!(
-                collator.fixed2(1234.5).unwrap(),
-                if culture != "en-US" {
-                    "1234,50"
-                } else {
-                    "1234.50"
-                }
-            );
-            let strings = ["zebra", "éclair", "Éclair", "eclair", " Ångström "];
-            let mut keys = strings
-                .iter()
-                .map(|text| (*text, collator.sort_key(text).unwrap()))
-                .collect::<Vec<_>>();
-            keys.sort_by(|a, b| a.1.cmp(&b.1));
-            for adjacent in keys.windows(2) {
-                assert_ne!(
-                    collator.compare(adjacent[0].0, adjacent[1].0).unwrap(),
-                    std::cmp::Ordering::Greater
-                );
-            }
-        }
-    }
+ use super::*;
+ #[test] fn profile_fixed2_uses_real_host_number_formats_and_current_culture_order(){
+  for (culture,number) in [("en-US","1.25"),("fr-FR","1,25"),("sv-SE","1,25")]{
+   let collator=Collator::open(culture).unwrap();assert_eq!(collator.fixed2(1.25).unwrap(),number);assert_eq!(collator.fixed2(1234.5).unwrap(),if culture!="en-US"{"1234,50"}else{"1234.50"});
+   let strings=["zebra","éclair","Éclair","eclair"," Ångström "];
+   let mut keys=strings.iter().map(|text|(*text,collator.sort_key(text).unwrap())).collect::<Vec<_>>();keys.sort_by(|a,b|a.1.cmp(&b.1));
+   for adjacent in keys.windows(2){assert_ne!(collator.compare(adjacent[0].0,adjacent[1].0).unwrap(),std::cmp::Ordering::Greater);}
+  }
+ }
 }

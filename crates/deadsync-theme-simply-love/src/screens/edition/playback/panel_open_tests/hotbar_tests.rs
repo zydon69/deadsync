@@ -4,14 +4,11 @@ fn open(state: &mut State) {
     bind(state, Action::OpenMenu);
     press(state, KeyCode::F12);
     let index = if !state.has_song() {
-        assert!(matches!(state.panel, Some(Panel::FileMenu(0))));
-        15
+        assert!(matches!(state.panel,Some(Panel::FileMenu(0))));15
     } else if state.workspace.has_chart() {
-        assert!(matches!(state.panel, Some(Panel::Menu(0))));
-        32
+        assert!(matches!(state.panel,Some(Panel::Menu(0))));32
     } else {
-        assert!(matches!(state.panel, Some(Panel::EmptyMenu(0))));
-        18
+        assert!(matches!(state.panel,Some(Panel::EmptyMenu(0))));18
     };
     for _ in 0..index {
         press(state, KeyCode::ArrowDown);
@@ -143,11 +140,8 @@ fn physical_hotbar_chartless_has_no_invented_chart_position_and_zoom_entry_keeps
         // while NoSong above uses FileMenu. Both must reach the real panel.
         let (_closed_root, _closed_path, mut closed) = fixture(false, false);
         closed.chart_views_apply(crate::screens::edition::chart_views::ViewAction::Close);
-        assert!(closed.has_song());
-        assert!(!closed.workspace.has_chart());
-        open(&mut closed);
-        closed.capture_hotbar_frame();
-        assert!(closed.hotbar_readout().is_none());
+        assert!(closed.has_song());assert!(!closed.workspace.has_chart());
+        open(&mut closed);closed.capture_hotbar_frame();assert!(closed.hotbar_readout().is_none());
         let (_root, _path, mut state) = fixture(false, false);
         start(&mut state, false);
         let owner = state.editor_asset_owner();

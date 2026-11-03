@@ -10,15 +10,9 @@ pub struct WorkspaceSaveAsReview {
     focus: BTreeMap<u64, StructuralFocus>,
 }
 impl WorkspaceSaveAsReview {
-    pub fn is_current(&self, workspace: &Workspace) -> bool {
-        self.file.is_current(&workspace.file)
-    }
-    pub fn issues(&self) -> &[crate::advanced_export::Issue] {
-        self.file.issues()
-    }
-    pub fn output_policy(&self) -> &crate::output_policy::OutputPolicy {
-        self.file.output_policy()
-    }
+    pub fn is_current(&self,workspace:&Workspace)->bool{self.file.is_current(&workspace.file)}
+    pub fn issues(&self)->&[crate::advanced_export::Issue]{self.file.issues()}
+    pub fn output_policy(&self)->&crate::output_policy::OutputPolicy{self.file.output_policy()}
 
     pub fn destination(&self) -> &Path {
         self.file.destination()
@@ -34,30 +28,8 @@ impl WorkspaceSaveAsReview {
     }
 }
 impl Workspace {
-    pub fn capture_unambiguous_source_output_order(
-        &mut self,
-        culture: std::sync::Arc<dyn crate::source_output_order::CultureRevision>,
-        cancelled: &std::sync::atomic::AtomicBool,
-    ) -> Result<Option<crate::source_output_order::SourceOutputOrder>, Error> {
-        crate::source_output_order::SourceOutputOrder::capture_unambiguous(
-            &mut self.file.session,
-            culture,
-            cancelled,
-        )
-    }
-    pub fn capture_source_output_order(
-        &mut self,
-        orderer: &mut impl crate::chart_order::Orderer,
-        culture: std::sync::Arc<dyn crate::source_output_order::CultureRevision>,
-        cancelled: &std::sync::atomic::AtomicBool,
-    ) -> Result<crate::source_output_order::SourceOutputOrder, Error> {
-        crate::source_output_order::SourceOutputOrder::capture(
-            &mut self.file.session,
-            orderer,
-            culture,
-            cancelled,
-        )
-    }
+    pub fn capture_unambiguous_source_output_order(&mut self,culture:std::sync::Arc<dyn crate::source_output_order::CultureRevision>,cancelled:&std::sync::atomic::AtomicBool)->Result<Option<crate::source_output_order::SourceOutputOrder>,Error>{crate::source_output_order::SourceOutputOrder::capture_unambiguous(&mut self.file.session,culture,cancelled)}
+    pub fn capture_source_output_order(&mut self,orderer:&mut impl crate::chart_order::Orderer,culture:std::sync::Arc<dyn crate::source_output_order::CultureRevision>,cancelled:&std::sync::atomic::AtomicBool)->Result<crate::source_output_order::SourceOutputOrder,Error>{crate::source_output_order::SourceOutputOrder::capture(&mut self.file.session,orderer,culture,cancelled)}
     pub fn prepare_save_as(&self, destination: &Path) -> Result<WorkspaceSaveAsReview, Error> {
         self.prepare_save_as_with_revisions(destination, &[])
     }
@@ -66,61 +38,17 @@ impl Workspace {
         destination: &Path,
         extra: &[u64],
     ) -> Result<WorkspaceSaveAsReview, Error> {
-        self.prepare_save_as_with_policy_and_revisions(
-            destination,
-            self.file.output_policy().clone(),
-            extra,
-        )
+        self.prepare_save_as_with_policy_and_revisions(destination,self.file.output_policy().clone(),extra)
     }
-    pub fn prepare_save_as_with_policy(
-        &self,
-        destination: &Path,
-        policy: crate::output_policy::OutputPolicy,
-    ) -> Result<WorkspaceSaveAsReview, Error> {
-        self.prepare_save_as_with_policy_and_revisions(destination, policy, &[])
-    }
-    pub fn prepare_save_as_with_policy_and_revisions(
-        &self,
-        destination: &Path,
-        policy: crate::output_policy::OutputPolicy,
-        extra: &[u64],
-    ) -> Result<WorkspaceSaveAsReview, Error> {
-        self.prepare_save_as_order(destination, policy, extra, None)
-    }
-    pub fn prepare_save_as_with_policy_and_revisions_ordered(
-        &self,
-        destination: &Path,
-        policy: crate::output_policy::OutputPolicy,
-        extra: &[u64],
-        order: &crate::source_output_order::SourceOutputOrder,
-    ) -> Result<WorkspaceSaveAsReview, Error> {
-        self.prepare_save_as_order(destination, policy, extra, Some(order))
-    }
-    fn prepare_save_as_order(
-        &self,
-        destination: &Path,
-        policy: crate::output_policy::OutputPolicy,
-        extra: &[u64],
-        order: Option<&crate::source_output_order::SourceOutputOrder>,
-    ) -> Result<WorkspaceSaveAsReview, Error> {
+    pub fn prepare_save_as_with_policy(&self,destination:&Path,policy:crate::output_policy::OutputPolicy)->Result<WorkspaceSaveAsReview,Error>{self.prepare_save_as_with_policy_and_revisions(destination,policy,&[])}
+    pub fn prepare_save_as_with_policy_and_revisions(&self,destination:&Path,policy:crate::output_policy::OutputPolicy,extra:&[u64])->Result<WorkspaceSaveAsReview,Error>{self.prepare_save_as_order(destination,policy,extra,None)}
+    pub fn prepare_save_as_with_policy_and_revisions_ordered(&self,destination:&Path,policy:crate::output_policy::OutputPolicy,extra:&[u64],order:&crate::source_output_order::SourceOutputOrder)->Result<WorkspaceSaveAsReview,Error>{self.prepare_save_as_order(destination,policy,extra,Some(order))}
+    fn prepare_save_as_order(&self,destination:&Path,policy:crate::output_policy::OutputPolicy,extra:&[u64],order:Option<&crate::source_output_order::SourceOutputOrder>)->Result<WorkspaceSaveAsReview,Error>{
         let mut stamps = extra.to_vec();
         for (stamp, value) in &self.structural_focus {
             stamps.extend([*stamp, value.before_revision]);
         }
-        let file = match order {
-            Some(order) => self
-                .file
-                .prepare_save_as_with_policy_and_revisions_ordered(
-                    destination,
-                    policy,
-                    &stamps,
-                    order,
-                )?,
-            None => {
-                self.file
-                    .prepare_save_as_with_policy_and_revisions(destination, policy, &stamps)?
-            }
-        };
+        let file=match order{Some(order)=>self.file.prepare_save_as_with_policy_and_revisions_ordered(destination,policy,&stamps,order)?,None=>self.file.prepare_save_as_with_policy_and_revisions(destination,policy,&stamps)?};
         let mut focus = BTreeMap::new();
         for (stamp, value) in &self.structural_focus {
             let after = file.relocation().remap_revision(*stamp).ok_or_else(|| {
@@ -148,41 +76,14 @@ impl Workspace {
         self.structural_focus = review.focus;
         Ok(result)
     }
-    pub fn save_as_reviewed(
-        &mut self,
-        review: WorkspaceSaveAsReview,
-        acknowledged: &std::collections::BTreeSet<usize>,
-    ) -> Result<SaveAsOutcome, Error> {
-        let result = self.file.save_as_reviewed(review.file, acknowledged)?;
-        self.structural_focus = review.focus;
-        Ok(result)
+    pub fn save_as_reviewed(&mut self,review:WorkspaceSaveAsReview,acknowledged:&std::collections::BTreeSet<usize>)->Result<SaveAsOutcome,Error>{
+        let result=self.file.save_as_reviewed(review.file,acknowledged)?;self.structural_focus=review.focus;Ok(result)
     }
-    pub fn prepare_save_with_policy_ordered(
-        &mut self,
-        policy: crate::output_policy::OutputPolicy,
-        order: &crate::source_output_order::SourceOutputOrder,
-    ) -> Result<crate::storage::SaveReview, Error> {
-        self.file.prepare_save_with_policy_ordered(policy, order)
-    }
-    pub fn prepare_save(&mut self) -> Result<crate::storage::SaveReview, Error> {
-        self.file.prepare_save()
-    }
-    pub fn prepare_save_with_policy(
-        &mut self,
-        policy: crate::output_policy::OutputPolicy,
-    ) -> Result<crate::storage::SaveReview, Error> {
-        self.file.prepare_save_with_policy(policy)
-    }
-    pub fn save_or_review(&mut self) -> Result<crate::storage::SaveAttempt, Error> {
-        self.file.save_or_review()
-    }
-    pub fn save_reviewed(
-        &mut self,
-        review: crate::storage::SaveReview,
-        acknowledged: &std::collections::BTreeSet<usize>,
-    ) -> Result<crate::storage::SaveAttempt, Error> {
-        self.file.save_reviewed(review, acknowledged)
-    }
+    pub fn prepare_save_with_policy_ordered(&mut self,policy:crate::output_policy::OutputPolicy,order:&crate::source_output_order::SourceOutputOrder)->Result<crate::storage::SaveReview,Error>{self.file.prepare_save_with_policy_ordered(policy,order)}
+    pub fn prepare_save(&mut self)->Result<crate::storage::SaveReview,Error>{self.file.prepare_save()}
+    pub fn prepare_save_with_policy(&mut self,policy:crate::output_policy::OutputPolicy)->Result<crate::storage::SaveReview,Error>{self.file.prepare_save_with_policy(policy)}
+    pub fn save_or_review(&mut self)->Result<crate::storage::SaveAttempt,Error>{self.file.save_or_review()}
+    pub fn save_reviewed(&mut self,review:crate::storage::SaveReview,acknowledged:&std::collections::BTreeSet<usize>)->Result<crate::storage::SaveAttempt,Error>{self.file.save_reviewed(review,acknowledged)}
     pub fn retry_save_as_durability(&mut self, receipt: &PendingDurability) -> Result<(), Error> {
         receipt.retry(&mut self.file)
     }

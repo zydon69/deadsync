@@ -139,9 +139,6 @@ fn source_minimum_width_and_zero_note_spacing_save_and_reopen() {
     content.note_spacing = 0;
     file.set_minimap_content(content).unwrap();
     assert!(file.save().unwrap());
-    assert_eq!(
-        File::open(&path).unwrap().minimap_content().unwrap(),
-        content
-    );
+    assert_eq!(File::open(&path).unwrap().minimap_content().unwrap(), content);
     assert!(!file.has_changes());
 }

@@ -48,8 +48,7 @@ pub(crate) fn init_asset_paths() {
             noteskin_cache: data.join("cache/noteskins"),
             banner_cache: data.join("cache/banners"),
             cdtitle_cache: data.join("cache/cdtitles"),
-        })
-        .expect("initialize fixture asset paths");
+        }).expect("initialize fixture asset paths");
     });
 }
 

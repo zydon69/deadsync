@@ -10,8 +10,7 @@ pub mod rendered_cursor;
 pub use preview_envelope::{
     editor_preview_envelope, editor_preview_envelope_enabled, set_editor_preview_envelope,
 };
-pub use rendered_cursor::{
-    RenderedMusicCursor, freeze_rendered_music_cursor, rendered_music_cursor,
+pub use rendered_cursor::{RenderedMusicCursor, freeze_rendered_music_cursor, rendered_music_cursor,
 };
 pub mod ring;
 pub mod sfx_ring;
@@ -19,8 +18,9 @@ pub mod telemetry;
 
 pub use mixer::{
     ActiveSfx, MAX_ACTIVE_SFX, MAX_MIX_BUSES, MAX_SCHEDULE_AHEAD_FRAMES, MixBus, MixControls,
-    QueuedSfx, ScheduledOnset, SfxOnset, SfxPan, SfxVoiceControl, exact_onset_decision, f32_to_i16,
-    i16_to_f32, mix_active_sfx, push_queued_sfx, scheduled_onset_decision,
+    QueuedSfx, ScheduledOnset, SfxOnset, SfxPan, SfxVoiceControl, exact_onset_decision, f32_to_i16, i16_to_f32, mix_active_sfx,
+    push_queued_sfx,
+    scheduled_onset_decision,
 };
 pub use output::{AudioOutputMode, OutputBackendReady, OutputDeviceInfo, OutputTimingSnapshot};
 pub use position::{
@@ -35,9 +35,9 @@ pub use position::{
     music_track_start_frame, next_music_track_id, normalized_music_rate,
     note_timing_diag_callback_gap, pause_music_track, publish_callback_window_end,
     publish_callback_window_start_nanos, reset_music_stream_clock_state, reset_music_target_gain,
-    resume_music_track, seed_music_asset_clock, seed_music_stream_clock, seeded_music_position,
-    set_music_clock_rate, set_music_target_gain, snap_music_gain_generation, stop_music_track,
-    stream_position_frames_from_window, timing_diag_last_callback_gap_ns,
+    resume_music_track, seed_music_asset_clock, seed_music_stream_clock,
+    seeded_music_position, set_music_clock_rate, set_music_target_gain, snap_music_gain_generation,
+    stop_music_track, stream_position_frames_from_window, timing_diag_last_callback_gap_ns,
 };
 pub use render::{CallbackInfo, OutputBufferMut, RenderReport, RenderState};
 pub use ring::{
@@ -68,25 +68,23 @@ pub use scheduled_sfx::{ScheduledTrigger, SfxSchedule};
 pub mod scheduled_voice;
 pub use scheduled_voice::SfxScheduleVoice;
 
-pub use output_buffer::{
-    BufferCapabilities, BufferControl, BufferNegotiation, BufferRequest, OutputBufferState,
-    ReconfigureError, ReconfigureFailure, ReconfigureOutcome,
+pub use output_buffer::{BufferCapabilities, BufferControl, BufferNegotiation, BufferRequest, OutputBufferState, ReconfigureError, ReconfigureFailure, ReconfigureOutcome,
 };
 
 mod preview_source;
+
 mod preview_transport;
 pub use preview_envelope::{initialize_editor_preview_clock, set_editor_preview_region};
 pub use preview_source::{PreviewCallbackCursor, preview_callback_cursor};
 pub use preview_transport::PreviewSource;
-
 pub use preview_envelope::{editor_preview_initial_clock, editor_preview_initial_frame};
 
 mod editor_main;
 pub mod editor_time_stretch;
+
 mod hermite;
-pub use editor_main::{
-    Configuration as EditorMainConfiguration, EditorMainCursor, configure_editor_main,
-    editor_main_can_configure, editor_main_configuration, editor_main_cursor, thaw_editor_main,
+pub use editor_main::{Configuration as EditorMainConfiguration, EditorMainCursor, configure_editor_main,
+    editor_main_can_configure, editor_main_configuration,editor_main_cursor, thaw_editor_main,
 };
 
 mod source_tick;

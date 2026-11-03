@@ -69,14 +69,11 @@ impl Field {
         }
     }
     /// Export advice only, never an authoring/editability restriction.
-    pub fn requires_ssc(self) -> bool {
-        self.omitted_by_source_sm()
-    }
+    pub fn requires_ssc(self) -> bool { self.omitted_by_source_sm() }
     pub fn omitted_by_source_sm(self) -> bool {
         matches!(
             self,
-            Self::Origin
-                | Self::PreviewMusic
+            Self::Origin | Self::PreviewMusic
                 | Self::Jacket
                 | Self::CdImage
                 | Self::DiscImage
@@ -116,19 +113,12 @@ impl Text {
         Ok(Self::from_preview(document, resident::effective(document)?))
     }
     fn from_preview(document: &Document, preview: String) -> Self {
-        let mut values = Field::ALL.map(|f| document.text(None, f.tag()).unwrap_or_default());
+        let mut values = Field::ALL.map(|f|document.text(None,f.tag()).unwrap_or_default());
         values[Field::PreviewMusic.index()] = preview;
         let preview_clear_needed = document.format == crate::document::Format::Sm
             && document.raw_property(None, resident::TAG).is_none()
-            && document
-                .text(None, "PREVIEW")
-                .is_some_and(|value| !value.is_empty());
-        Self {
-            original: values.clone(),
-            values,
-            preview_clear_needed,
-            preview_explicit: false,
-        }
+            && document.text(None, "PREVIEW").is_some_and(|value| !value.is_empty());
+        Self { original: values.clone(), values, preview_clear_needed, preview_explicit: false }
     }
     pub fn get(&self, field: Field) -> &str {
         &self.values[field.index()]
@@ -136,18 +126,14 @@ impl Text {
     pub(crate) fn original(&self, field: Field) -> &str {
         &self.original[field.index()]
     }
-    pub fn supports(&self, _field: Field) -> bool {
-        true
-    }
+    pub fn supports(&self, _field: Field) -> bool { true }
     pub fn set(&mut self, field: Field, value: &str) -> Result<(), Error> {
         if value != self.original[field.index()] && value.chars().any(char::is_control) {
             return Err(Error::InvalidEdit(
                 "Song text must be a single line without control characters".into(),
             ));
         }
-        if field == Field::PreviewMusic {
-            self.preview_explicit = true;
-        }
+        if field == Field::PreviewMusic { self.preview_explicit = true; }
         self.values[field.index()] = value.to_owned();
         Ok(())
     }
@@ -157,12 +143,8 @@ impl Text {
     pub(crate) fn changes(&self) -> Vec<(&'static str, String)> {
         Field::ALL
             .into_iter()
-            .filter(|f| {
-                self.values[f.index()] != self.original[f.index()]
-                    || *f == Field::PreviewMusic
-                        && self.preview_explicit
-                        && self.preview_clear_needed
-            })
+            .filter(|f| self.values[f.index()] != self.original[f.index()]
+                || *f == Field::PreviewMusic && self.preview_explicit && self.preview_clear_needed)
             .map(|f| (f.tag(), self.get(f).to_owned()))
             .collect()
     }

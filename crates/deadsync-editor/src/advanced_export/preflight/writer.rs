@@ -12,7 +12,7 @@ pub struct Output {
     format: Format,
     token: ContentToken,
     ids: Vec<Guid>,
-    culture: Option<crate::source_output_order::CultureGuard>,
+    culture:Option<crate::source_output_order::CultureGuard>,
 }
 impl Output {
     pub fn bytes(&self) -> &[u8] {
@@ -22,12 +22,7 @@ impl Output {
         self.format
     }
     pub fn is_current(&self, session: &Session) -> bool {
-        session.accepts_content_token(&self.token)
-            && session.chart_ids() == self.ids.as_slice()
-            && self
-                .culture
-                .as_ref()
-                .is_none_or(|culture| culture.is_current())
+        session.accepts_content_token(&self.token) && session.chart_ids() == self.ids.as_slice() && self.culture.as_ref().is_none_or(|culture|culture.is_current())
     }
 }
 impl Plan {
@@ -42,25 +37,16 @@ impl Plan {
     ) -> Result<Output, Error> {
         self.validate_review(session, acknowledged)?;
         check(cancelled)?;
-        let document = Document::parse_with_context(
-            self.source.clone(),
-            self.source_format,
-            self.load_context,
-        )?;
+        let document = Document::parse_with_context(self.source.clone(), self.source_format,self.load_context)?;
         require_scope_mappings(&document, self.target, self.options.anonymize)?;
         let expected_preview = if self.target == Format::Ssc {
             crate::song_text::resident::effective(&document)?
-        } else {
-            String::new()
-        };
-        let document = if self.target == Format::Ssc
-            && (document.format == Format::Sm
-                || crate::song_text::resident::read(&document)?.is_some())
+        } else { String::new() };
+        let document = if self.target == Format::Ssc && (document.format == Format::Sm
+            || crate::song_text::resident::read(&document)?.is_some())
         {
             crate::song_text::resident::materialize_for_output(&document, self.target)?
-        } else {
-            document
-        };
+        } else { document };
         let mut source = Session::new(document);
         let mut output = Buffer {
             bytes: Vec::new(),
@@ -81,23 +67,19 @@ impl Plan {
                 output.tag(name, value)?;
             }
         }
-        let base = match self.timing_chart {
-            Some(chart) => inspect_timing(&source, chart)?,
-            None => chartless_timing(source.document())?,
-        };
+        let base = match self.timing_chart{Some(chart)=>inspect_timing(&source,chart)?,None=>chartless_timing(source.document())?};
         write_timing(&mut output, &base, self.target, true)?;
         if !self.options.omit_custom_data {
             write_custom(
                 &mut output,
                 source.document(),
-                None,
-                None,
+                None,None,
                 self.source_format,
                 self.target,
             )?;
         }
         let mut expected = Vec::new();
-        for (output_index, &chart) in self.output_order.iter().enumerate() {
+        for (output_index,&chart) in self.output_order.iter().enumerate() {
             check(cancelled)?;
             let descriptor = &source.document().charts()[chart];
             let layout = descriptor.steps_type.clone();
@@ -114,9 +96,7 @@ impl Plan {
             let description = if self.options.anonymize {
                 String::new()
             } else {
-                crate::chart_text::Text::read(source.document(), chart)?
-                    .get(crate::chart_text::Field::Description)
-                    .to_owned()
+                crate::chart_text::Text::read(source.document(),chart)?.get(crate::chart_text::Field::Description).to_owned()
             };
             let difficulty = descriptor.difficulty.clone();
             let meter = descriptor.meter.clone();
@@ -138,14 +118,9 @@ impl Plan {
                     {
                         continue;
                     }
-                    if let Some(field) = crate::chart_text::Field::ALL
-                        .into_iter()
-                        .find(|field| field.tag() == *name)
-                    {
-                        if let Some(value) =
-                            crate::chart_text::local_value(source.document(), chart, field)?
-                        {
-                            output.tag(name, &escape_text(&value))?;
+                    if let Some(field)=crate::chart_text::Field::ALL.into_iter().find(|field|field.tag()==*name) {
+                        if let Some(value)=crate::chart_text::local_value(source.document(),chart,field)? {
+                            output.tag(name,&escape_text(&value))?;
                         }
                     } else if let Some(value) = source.document().raw_property(Some(chart), name) {
                         output.tag(name, value)?;
@@ -159,19 +134,15 @@ impl Plan {
                     // SSCWriter emits attacks and display BPM independently of
                     // ForceOnlySongLevelTiming. The source precheck still
                     // refuses unequal display values when timing is omitted.
-                    for (name, value) in timing
-                        .iter()
-                        .filter(|(name, _)| matches!(*name, "ATTACKS" | "DISPLAYBPM"))
-                    {
-                        output.tag(name, value.as_bytes())?;
+                    for (name,value) in timing.iter().filter(|(name,_)|matches!(*name,"ATTACKS"|"DISPLAYBPM")) {
+                        output.tag(name,value.as_bytes())?;
                     }
                 }
                 if !self.options.omit_custom_data {
                     write_custom(
                         &mut output,
                         source.document(),
-                        Some(chart),
-                        Some(output_index),
+                        Some(chart),Some(output_index),
                         self.source_format,
                         self.target,
                     )?;
@@ -184,8 +155,7 @@ impl Plan {
                     write_custom(
                         &mut output,
                         source.document(),
-                        Some(chart),
-                        Some(output_index),
+                        Some(chart),Some(output_index),
                         self.source_format,
                         self.target,
                     )?;
@@ -253,15 +223,9 @@ impl Plan {
         let bytes: Arc<[u8]> = output.bytes.into();
         // Reuse the strict target reader and effective timing loaders. No file
         // escapes if the generated target fails any preservation postcondition.
-        let mut reopened = Session::new(Document::parse_with_context(
-            bytes.clone(),
-            self.target,
-            self.load_context,
-        )?);
+        let mut reopened = Session::new(Document::parse_with_context(bytes.clone(), self.target,self.load_context)?);
         if crate::song_text::resident::effective(reopened.document())? != expected_preview {
-            return Err(invalid(
-                "Target reader changed the effective song preview path",
-            ));
+            return Err(invalid("Target reader changed the effective song preview path"));
         }
         if !self.options.omit_custom_data
             && crate::song_properties::sync_offset(source.document())?
@@ -274,14 +238,7 @@ impl Plan {
         if reopened.document().charts().len() != expected.len() {
             return Err(invalid("Export changed the chart count"));
         }
-        let expected_reader = expected_timing_projection(
-            self.target,
-            self.options.omit_chart_timing,
-            &base,
-            &expected,
-            self.load_context,
-            maximum_bytes,
-        )?;
+        let expected_reader=expected_timing_projection(self.target,self.options.omit_chart_timing,&base,&expected,self.load_context,maximum_bytes)?;
         for (chart, (layout, grid, step, _timing)) in expected.iter().enumerate() {
             check(cancelled)?;
             if reopened.document().charts()[chart].steps_type != *layout {
@@ -297,27 +254,23 @@ impl Plan {
                 ));
             }
             let actual = inspect_timing(&reopened, chart)?;
-            let normalized_expected = inspect_timing(&expected_reader, chart)?;
+            let normalized_expected=inspect_timing(&expected_reader,chart)?;
             for (field, value) in &actual {
                 if self.target == Format::Sm
                     && matches!(*field, "FAKES" | "LABELS" | "COMBOS" | "SPEEDS" | "SCROLLS")
                 {
                     continue;
                 }
-                let expected = &normalized_expected;
+                let expected=&normalized_expected;
                 if expected
                     .iter()
                     .find(|(name, _)| name == field)
                     .map(|(_, v)| v)
                     != Some(value)
                 {
-                    return Err(invalid(&format!(
-                        "Target reader changed effective timing beyond the reviewed output policy: chart {chart}, {field}, expected {:?}, actual {value:?}",
-                        expected
-                            .iter()
-                            .find(|(name, _)| name == field)
-                            .map(|(_, value)| value)
-                    )));
+                    return Err(invalid(
+                        &format!("Target reader changed effective timing beyond the reviewed output policy: chart {chart}, {field}, expected {:?}, actual {value:?}",expected.iter().find(|(name,_)|name==field).map(|(_,value)|value)),
+                    ));
                 }
             }
         }
@@ -329,7 +282,7 @@ impl Plan {
             format: self.target,
             token: self.token.clone(),
             ids: self.ids.clone(),
-            culture: self.order.as_ref().map(|order| order.culture()),
+            culture:self.order.as_ref().map(|order|order.culture()),
         })
     }
 }
@@ -339,54 +292,24 @@ impl Plan {
 /// notably a null fallback still writes an empty BPMS tag. A reader may insert
 /// an initial tempo from earlier-chart histograms or DISPLAYBPM; comparing raw
 /// empty strings with its effective clock would reject a faithful export.
-fn expected_timing_projection(
-    target: Format,
-    omit_chart_timing: bool,
-    base: &[(&'static str, String)],
-    charts: &[(String, Grid, bool, Vec<(&'static str, String)>)],
-    context: crate::document::LoadContext,
-    maximum: usize,
-) -> Result<Session, Error> {
-    let mut projection = Buffer {
-        bytes: Vec::new(),
-        maximum,
-    };
-    if target == Format::Ssc {
-        projection.tag("VERSION", b"0.83")?;
-    }
-    write_timing(&mut projection, base, target, true)?;
-    for (layout, grid, _, timing) in charts {
+fn expected_timing_projection(target:Format,omit_chart_timing:bool,base:&[(&'static str,String)],charts:&[(String,Grid,bool,Vec<(&'static str,String)>)],context:crate::document::LoadContext,maximum:usize)->Result<Session,Error>{
+    let mut projection=Buffer{bytes:Vec::new(),maximum};
+    if target==Format::Ssc{projection.tag("VERSION",b"0.83")?;}
+    write_timing(&mut projection,base,target,true)?;
+    for(layout,grid,_,timing)in charts{
         // Keep the projection loadable without copying source notes.
-        let notes = Grid::new(grid.columns(), grid.players())?.serialize_standard()?;
-        if target == Format::Ssc {
-            projection.tag("NOTEDATA", b"")?;
-            projection.tag("STEPSTYPE", layout.as_bytes())?;
-            projection.tag("DIFFICULTY", b"Easy")?;
-            projection.tag("METER", b"1")?;
-            if !omit_chart_timing {
-                write_timing(&mut projection, timing, target, false)?;
-            } else {
-                for (name, value) in timing
-                    .iter()
-                    .filter(|(name, _)| matches!(*name, "ATTACKS" | "DISPLAYBPM"))
-                {
-                    projection.tag(name, value.as_bytes())?;
-                }
-            }
-            projection.tag("NOTES", &notes)?;
-        } else {
-            projection.push(b"#NOTES:")?;
-            projection.push(layout.as_bytes())?;
-            projection.push(b"::Easy:1:0:")?;
-            projection.push(&notes)?;
-            projection.push(b";\n")?;
+        let notes=Grid::new(grid.columns(),grid.players())?.serialize_standard()?;
+        if target==Format::Ssc{
+            projection.tag("NOTEDATA",b"")?;projection.tag("STEPSTYPE",layout.as_bytes())?;
+            projection.tag("DIFFICULTY",b"Easy")?;projection.tag("METER",b"1")?;
+            if !omit_chart_timing{write_timing(&mut projection,timing,target,false)?;}
+            else {for (name,value) in timing.iter().filter(|(name,_)|matches!(*name,"ATTACKS"|"DISPLAYBPM")){projection.tag(name,value.as_bytes())?;}}
+            projection.tag("NOTES",&notes)?;
+        }else{
+            projection.push(b"#NOTES:")?;projection.push(layout.as_bytes())?;projection.push(b"::Easy:1:0:")?;projection.push(&notes)?;projection.push(b";\n")?;
         }
     }
-    Ok(Session::new(Document::parse_with_context(
-        projection.bytes,
-        target,
-        context,
-    )?))
+    Ok(Session::new(Document::parse_with_context(projection.bytes,target,context)?))
 }
 
 struct Buffer {
@@ -414,34 +337,9 @@ impl Buffer {
         self.push(b";\n")
     }
 }
-pub(super) fn chartless_timing(document: &Document) -> Result<Vec<(&'static str, String)>, Error> {
-    let offset = document
-        .text(None, "OFFSET")
-        .map(|value| {
-            value
-                .trim()
-                .parse::<f64>()
-                .ok()
-                .filter(|value| value.is_finite())
-                .ok_or_else(|| invalid("Invalid song music offset"))
-        })
-        .transpose()?
-        .unwrap_or(0.0);
-    Ok(vec![
-        ("BPMS", String::new()),
-        ("STOPS", String::new()),
-        ("DELAYS", String::new()),
-        ("WARPS", String::new()),
-        ("SCROLLS", String::new()),
-        ("SPEEDS", String::new()),
-        ("TIMESIGNATURES", "0=4=4".into()),
-        ("TICKCOUNTS", String::new()),
-        ("COMBOS", String::new()),
-        ("FAKES", String::new()),
-        ("LABELS", String::new()),
-        ("ATTACKS", String::new()),
-        ("OFFSET", offset.to_string()),
-    ])
+pub(super) fn chartless_timing(document:&Document)->Result<Vec<(&'static str,String)>,Error>{
+    let offset=document.text(None,"OFFSET").map(|value|value.trim().parse::<f64>().ok().filter(|value|value.is_finite()).ok_or_else(||invalid("Invalid song music offset"))).transpose()?.unwrap_or(0.0);
+    Ok(vec![("BPMS",String::new()),("STOPS",String::new()),("DELAYS",String::new()),("WARPS",String::new()),("SCROLLS",String::new()),("SPEEDS",String::new()),("TIMESIGNATURES","0=4=4".into()),("TICKCOUNTS",String::new()),("COMBOS",String::new()),("FAKES",String::new()),("LABELS",String::new()),("ATTACKS",String::new()),("OFFSET",offset.to_string())])
 }
 fn write_timing(
     output: &mut Buffer,
@@ -460,7 +358,7 @@ fn write_timing(
         }
         // EditorSong removes source song DISPLAYBPM for SSC and delegates
         // every display value to the chart writer, including explicit Actual.
-        if format == Format::Ssc && song && matches!(*name, "ATTACKS" | "DISPLAYBPM") {
+        if format == Format::Ssc && song && matches!(*name,"ATTACKS"|"DISPLAYBPM") {
             continue;
         }
         output.tag(name, value.as_bytes())?;
@@ -506,7 +404,7 @@ fn write_custom(
     output: &mut Buffer,
     document: &Document,
     chart: Option<usize>,
-    output_index: Option<usize>,
+    output_index:Option<usize>,
     source: Format,
     target: Format,
 ) -> Result<(), Error> {
@@ -530,19 +428,17 @@ fn write_custom(
                 (Format::Sm, None) => "SONG".into(),
                 _ => String::new(),
             };
-            if chart.is_some() && name == "GAChartData" {
+            if chart.is_some() && name=="GAChartData" {
                 // This native envelope is not a source-compatible field. Its
                 // supported text is emitted above; target SM omissions have
                 // already required explicit review.
-                let mut data =
-                    crate::generation::metadata::ChartData::read(document, chart.unwrap())?
-                        .ok_or_else(|| invalid("Missing chart metadata during export"))?;
+                let mut data=crate::generation::metadata::ChartData::read(document,chart.unwrap())?
+                    .ok_or_else(||invalid("Missing chart metadata during export"))?;
                 if data.extra.remove(crate::chart_text::EXTENSION).is_some() {
-                    let json = serde_json::to_string(&data)
-                        .map_err(|error| invalid(&error.to_string()))?;
-                    output.tag(&format!("{name}{target_suffix}"), &escape_text(&json))?;
+                    let json=serde_json::to_string(&data).map_err(|error|invalid(&error.to_string()))?;
+                    output.tag(&format!("{name}{target_suffix}"),&escape_text(&json))?;
                 } else {
-                    output.tag(&format!("{name}{target_suffix}"), value)?;
+                    output.tag(&format!("{name}{target_suffix}"),value)?;
                 }
             } else {
                 output.tag(&format!("{name}{target_suffix}"), value)?;
@@ -598,8 +494,7 @@ fn require_scope_mappings(
             crate::song_text::resident::read(document)?;
             continue;
         }
-        if is_native_timing_metadata(document, name)
-            || is_custom(name)
+        if is_native_timing_metadata(document,name) || is_custom(name)
             || timing_edit::TIMING_TAGS.contains(&name)
             || matches!(name, "ATTACKS" | "DISPLAYBPM")
         {

@@ -14,9 +14,7 @@ pub struct Choice {
 }
 
 impl Choice {
-    pub(crate) fn restored(identity: Option<Guid>) -> Self {
-        Self { identity }
-    }
+    pub(crate) fn restored(identity:Option<Guid>)->Self{Self{identity}}
     /// `snapshot` contains only the charts successfully loaded by the editor,
     /// in their original file order. Invalid custom data follows source fallback.
     pub fn load(

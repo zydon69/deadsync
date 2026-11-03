@@ -163,14 +163,9 @@ impl InsertionFakes {
                             .take_while(|rate| rate.time <= entry.time)
                         {
                             check(cancelled)?;
-                            end = crate::rate_mapping::rate_position(
-                                rate.row as f64,
-                                rate.time,
-                                rate.warp as f64,
-                                rate.stop,
-                                1.0 / rate.seconds_per_row,
-                                entry.time,
-                            );
+                            end = crate::rate_mapping::rate_position(rate.row as f64,
+                                rate.time, rate.warp as f64, rate.stop,
+                                1.0 / rate.seconds_per_row, entry.time);
                         }
                         finite(end)?;
                     }

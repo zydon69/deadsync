@@ -796,15 +796,15 @@ fn init(
                 depth: depth_format.map(|format_depth| {
                     writes.map(|write| {
                         deadlib_render_core::DepthMode::ALL.map(|depth_mode| {
-                            build_tmesh_pipelines(
-                                &device,
-                                &pipeline_layout,
-                                format,
-                                &tmesh_shader,
+                        build_tmesh_pipelines(
+                            &device,
+                            &pipeline_layout,
+                            format,
+                            &tmesh_shader,
                                 depth_mode,
-                                write,
-                                Some(format_depth),
-                            )
+                            write,
+                            Some(format_depth),
+                        )
                         })
                     })
                 }),
@@ -1446,12 +1446,7 @@ fn create_offscreen_target(
 }
 
 fn ensure_offscreen_targets(state: &mut State, frame: &RenderFrame) {
-    if state.fxaa.is_none()
-        && frame
-            .render_targets
-            .iter()
-            .any(|pass| pass.postprocess.is_some())
-    {
+    if state.fxaa.is_none() && frame.render_targets.iter().any(|pass| pass.postprocess.is_some()) {
         state.fxaa = Some(fxaa::Resources::new(&state.device));
     }
     for (index, pass) in frame.render_targets.iter().enumerate() {
@@ -1480,29 +1475,10 @@ fn ensure_offscreen_targets(state: &mut State, frame: &RenderFrame) {
         }
     }
     for (index, pass) in frame.render_targets.iter().enumerate() {
-        if pass.postprocess.is_none() || state.offscreen_targets[index].fxaa.is_some() {
-            continue;
-        }
-        let texture = create_offscreen_target(
-            state,
-            pass.texture_handle,
-            pass.width,
-            pass.height,
-            pass.float_color,
-            false,
-        )
-        .texture;
-        let uniform = state.device.create_buffer(&wgpu::BufferDescriptor {
-            label: Some("source FXAA controls"),
-            size: 16,
-            usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
-            mapped_at_creation: false,
-        });
-        state.offscreen_targets[index].fxaa = Some(fxaa::Target {
-            texture,
-            uniform,
-            source_group: None,
-        });
+        if pass.postprocess.is_none() || state.offscreen_targets[index].fxaa.is_some() {continue;}
+        let texture=create_offscreen_target(state, pass.texture_handle, pass.width, pass.height, pass.float_color, false).texture;
+        let uniform=state.device.create_buffer(&wgpu::BufferDescriptor {label: Some("source FXAA controls"), size: 16, usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST, mapped_at_creation: false});
+        state.offscreen_targets[index].fxaa=Some(fxaa::Target {texture, uniform, source_group: None});
     }
 }
 
@@ -1517,16 +1493,7 @@ fn resolved_texture<'a, T: TextureLookup + ?Sized>(
             .offscreen_targets
             .iter()
             .find(|target| target.handle == handle)
-            .map(|target| {
-                if target.postprocessed {
-                    target
-                        .fxaa
-                        .as_ref()
-                        .map_or(&target.texture, |target| &target.texture)
-                } else {
-                    &target.texture
-                }
-            });
+            .map(|target| if target.postprocessed {target.fxaa.as_ref().map_or(&target.texture, |target| &target.texture)} else {&target.texture});
     }
     textures.wgpu_texture(handle)
 }
@@ -1610,7 +1577,10 @@ fn record_draw_ops<'pass, T: TextureLookup + ?Sized>(
         &state.tmesh_pipelines
     };
     let tmesh_depth_pipelines = if let Some(capture) = capture {
-        capture.depth.as_ref().map(|p| &p[write_alpha as usize])
+        capture
+            .depth
+            .as_ref()
+            .map(|p| &p[write_alpha as usize])
     } else {
         Some(&state.tmesh_depth_pipelines)
     };
@@ -1769,7 +1739,9 @@ fn record_draw_ops<'pass, T: TextureLookup + ?Sized>(
                 } else {
                     deadlib_render_core::DepthMode::Off
                 };
-                if last_blend != Some(run.blend) || last_tmesh_depth != Some(depth_mode) {
+                if last_blend != Some(run.blend)
+                    || last_tmesh_depth != Some(depth_mode)
+                {
                     pass.set_pipeline(if let Some(pipelines) = tmesh_depth_pipelines {
                         pipelines[depth_mode as usize].get(run.blend)
                     } else {
@@ -2452,9 +2424,7 @@ fn draw_offscreen_targets(
     let mut tmesh_instance_start = 0usize;
     let mut camera_start = 0usize;
     let mut geometry_start = 0usize;
-    for target in &mut state.offscreen_targets {
-        target.postprocessed = false;
-    }
+    for target in &mut state.offscreen_targets {target.postprocessed=false;}
     for (index, target_frame) in frame.render_targets.iter().enumerate() {
         let target = &state.offscreen_targets[index];
         let color_view = target
@@ -2543,63 +2513,25 @@ fn draw_offscreen_targets(
         state.offscreen_targets[index].initialized = true;
         if let Some(effect) = target_frame.postprocess {
             if let Some(resources) = &state.fxaa {
-                let target = &state.offscreen_targets[index];
-                let source = effect.source.map_or(Some(&target.texture), |handle| {
-                    resolved_texture(state, textures, handle)
-                });
-                if let (Some(source), Some(output)) = (source, target.fxaa.as_ref()) {
-                    if let Some(view) = source.rgba_view() {
-                        let group = if output
-                            .source_group
-                            .as_ref()
-                            .is_none_or(|(id, _)| *id != source.id)
-                        {
-                            Some((
-                                source.id,
-                                resources.source_group(&state.device, view, &output.uniform),
-                            ))
-                        } else {
-                            None
-                        };
-                        if let Some(group) = group {
-                            state.offscreen_targets[index]
-                                .fxaa
-                                .as_mut()
-                                .unwrap()
-                                .source_group = Some(group);
-                        }
-                        let target = &state.offscreen_targets[index];
-                        let output = target.fxaa.as_ref().unwrap();
-                        let values = [
-                            effect.quality.subpix,
-                            effect.quality.edge_threshold,
-                            effect.quality.edge_threshold_min,
-                            if target_frame.alpha { 0.0 } else { 1.0 },
-                        ];
-                        state
-                            .queue
-                            .write_buffer(&output.uniform, 0, bytemuck::cast_slice(&values));
-                        let mut pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+                let target=&state.offscreen_targets[index];
+                let source=effect.source.map_or(Some(&target.texture), |handle| resolved_texture(state,textures,handle));
+                if let (Some(source),Some(output))=(source,target.fxaa.as_ref()) {
+                    if let Some(view)=source.rgba_view() {
+                        let group=if output.source_group.as_ref().is_none_or(|(id,_)| *id!=source.id) {
+                            Some((source.id,resources.source_group(&state.device,view,&output.uniform)))
+                        } else {None};
+                        if let Some(group)=group {state.offscreen_targets[index].fxaa.as_mut().unwrap().source_group=Some(group);}
+                        let target=&state.offscreen_targets[index];let output=target.fxaa.as_ref().unwrap();
+                        let values=[effect.quality.subpix,effect.quality.edge_threshold,effect.quality.edge_threshold_min,if target_frame.alpha {0.0} else {1.0}];
+                        state.queue.write_buffer(&output.uniform,0,bytemuck::cast_slice(&values));
+                        let mut pass=encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
                             label: Some("source FXAA quality39 pass"),
-                            color_attachments: &[Some(wgpu::RenderPassColorAttachment {
-                                view: output.texture.rgba_view().unwrap(),
-                                depth_slice: None,
-                                resolve_target: None,
-                                ops: wgpu::Operations {
-                                    load: wgpu::LoadOp::Clear(wgpu::Color::TRANSPARENT),
-                                    store: wgpu::StoreOp::Store,
-                                },
-                            })],
-                            depth_stencil_attachment: None,
-                            occlusion_query_set: None,
-                            timestamp_writes: None,
-                            multiview_mask: None,
+                            color_attachments: &[Some(wgpu::RenderPassColorAttachment {view:output.texture.rgba_view().unwrap(),depth_slice:None,resolve_target:None,ops:wgpu::Operations {load:wgpu::LoadOp::Clear(wgpu::Color::TRANSPARENT),store:wgpu::StoreOp::Store}})],
+                            depth_stencil_attachment:None,occlusion_query_set:None,timestamp_writes:None,multiview_mask:None,
                         });
                         pass.set_pipeline(&resources.pipelines[target.float_color as usize]);
-                        pass.set_bind_group(0, &output.source_group.as_ref().unwrap().1, &[]);
-                        pass.draw(0..3, 0..1);
-                        drop(pass);
-                        state.offscreen_targets[index].postprocessed = true;
+                        pass.set_bind_group(0,&output.source_group.as_ref().unwrap().1,&[]);pass.draw(0..3,0..1);drop(pass);
+                        state.offscreen_targets[index].postprocessed=true;
                     }
                 }
             }
@@ -3122,30 +3054,8 @@ fn blend_state(mode: BlendMode) -> Option<wgpu::BlendState> {
         operation: op,
     };
     match mode {
-        BlendMode::Replace => Some(wgpu::BlendState {
-            color: comp(
-                wgpu::BlendFactor::One,
-                wgpu::BlendFactor::Zero,
-                wgpu::BlendOperation::Add,
-            ),
-            alpha: comp(
-                wgpu::BlendFactor::One,
-                wgpu::BlendFactor::Zero,
-                wgpu::BlendOperation::Add,
-            ),
-        }),
-        BlendMode::PremultipliedAlpha => Some(wgpu::BlendState {
-            color: comp(
-                wgpu::BlendFactor::One,
-                wgpu::BlendFactor::OneMinusSrcAlpha,
-                wgpu::BlendOperation::Add,
-            ),
-            alpha: comp(
-                wgpu::BlendFactor::One,
-                wgpu::BlendFactor::OneMinusSrcAlpha,
-                wgpu::BlendOperation::Add,
-            ),
-        }),
+        BlendMode::Replace => Some(wgpu::BlendState{color:comp(wgpu::BlendFactor::One,wgpu::BlendFactor::Zero,wgpu::BlendOperation::Add),alpha:comp(wgpu::BlendFactor::One,wgpu::BlendFactor::Zero,wgpu::BlendOperation::Add)}),
+        BlendMode::PremultipliedAlpha => Some(wgpu::BlendState{color:comp(wgpu::BlendFactor::One,wgpu::BlendFactor::OneMinusSrcAlpha,wgpu::BlendOperation::Add),alpha:comp(wgpu::BlendFactor::One,wgpu::BlendFactor::OneMinusSrcAlpha,wgpu::BlendOperation::Add)}),
         BlendMode::NoEffect => Some(wgpu::BlendState {
             color: comp(
                 wgpu::BlendFactor::Zero,
@@ -3484,13 +3394,13 @@ fn build_textured_mesh_pipeline_set(
     );
     let depth_pipelines = deadlib_render_core::DepthMode::ALL.map(|depth_mode| {
         build_tmesh_pipelines(
-            device,
-            pipeline_layout,
-            format,
-            &shader,
+        device,
+        pipeline_layout,
+        format,
+        &shader,
             depth_mode,
-            surface_write_mask(),
-            Some(DEPTH_FORMAT),
+        surface_write_mask(),
+        Some(DEPTH_FORMAT),
         )
     });
 

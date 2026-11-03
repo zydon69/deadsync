@@ -1,3 +1,4 @@
+
 use super::super::RawKeyboardEvent;
 use super::*;
 fn open(kind: Kind) -> (tempfile::TempDir, State) {

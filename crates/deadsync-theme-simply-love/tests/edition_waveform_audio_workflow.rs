@@ -85,8 +85,9 @@ fn cancellation_errors_and_budget_refusal_allow_next_load_without_stale_result()
     assert!(matches!(wait(&mut job), Err(LoadError::Cancelled)));
     let mut job = loader.start(path.clone()).unwrap();
     let result = wait(&mut job);
-    assert!(matches!(result, Err(LoadError::Decode(ref message))
-        if message == "Editor WAV PCM memory limit exceeded"));
+    assert!(
+        matches!(result, Err(LoadError::Decode(ref message)) if message == "Editor WAV PCM memory limit exceeded")
+    );
     let mut job = loader.start(dir.path().join("absent.wav")).unwrap();
     assert!(matches!(wait(&mut job), Err(LoadError::Decode(_))));
     // The slot is released before publication, even following an error.
@@ -206,17 +207,14 @@ fn quads(state: &State) -> Vec<([f32; 2], f32, f32)> {
                 tint,
                 ..
             } if *tint == palette.resolved_sparse().rgba().map(|v| v.clamp(0.0, 1.0))
-                || *tint == palette.dense().rgba().map(|v| v.clamp(0.0, 1.0)) =>
-            {
+                || *tint == palette.dense().rgba().map(|v| v.clamp(0.0, 1.0)) => {
                 Some((
                     [
                         center + (offset[0] - source.logical_size[0] * 0.5) * ratio,
                         offset[1],
                     ],
-                    if *w == 0.0 {
-                        scale[0] * ratio
-                    } else {
-                        w * scale[0] * ratio
+                    if *w == 0.0 { scale[0] * ratio
+                    } else { w * scale[0] * ratio
                     },
                     if *h == 0.0 { scale[1] } else { h * scale[1] },
                 ))
@@ -225,7 +223,6 @@ fn quads(state: &State) -> Vec<([f32; 2], f32, f32)> {
         })
         .collect()
 }
-
 #[test]
 fn keyboard_waveform_uses_chart_audio_clips_geometry_and_hides_without_editing_song() {
     init();

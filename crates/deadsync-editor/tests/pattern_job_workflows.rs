@@ -103,16 +103,7 @@ fn preview_applies_once_undoes_and_saves_through_real_session() {
     let mut reopened = FileSession::open(&path).unwrap();
     let resident = Document::parse(after.as_slice(), Format::Ssc).unwrap();
     for tag in resident.tags() {
-        assert_eq!(
-            reopened
-                .session
-                .document()
-                .raw_property(tag.chart, &tag.name),
-            resident.raw_property(tag.chart, &tag.name),
-            "Resident field changed: {:?}/{}",
-            tag.chart,
-            tag.name
-        );
+        assert_eq!(reopened.session.document().raw_property(tag.chart, &tag.name), resident.raw_property(tag.chart, &tag.name), "Resident field changed: {:?}/{}", tag.chart, tag.name);
     }
     assert_eq!(reopened.session.grid(0).unwrap(), &expected);
     assert_eq!(reopened.session.grid(1).unwrap(), &other_chart);

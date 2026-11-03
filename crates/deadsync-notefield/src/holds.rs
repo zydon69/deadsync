@@ -2601,9 +2601,7 @@ mod tests {
                 request.use_legacy_sprites = false;
                 let mut draws = Vec::new();
                 compose_hold_body_caps(
-                    &mut draws,
-                    &mut HoldMeshScratch::with_columns(1),
-                    request,
+                    &mut draws, &mut HoldMeshScratch::with_columns(1), request,
                     &|y, spline_y| {
                         let base = straight_path(y);
                         HoldPathSample {
@@ -2621,40 +2619,26 @@ mod tests {
                     },
                     &test_source,
                 );
-                for (key, endpoint, width) in [
-                    ("top", 400.0, 52.0),
-                    ("bottom", 400.0 + direction * 200.0 * zoom, 92.0),
-                ] {
-                    let vertices = draws
-                        .iter()
-                        .find_map(|draw| match draw {
-                            FlatDraw::TexturedMesh(mesh)
-                                if mesh.texture.texture_key() == Some(key) =>
-                            {
-                                Some(match &mesh.vertices {
-                                    FlatMeshVertices::Shared(v) => v.as_ref(),
-                                    FlatMeshVertices::Reusable(v) => v.as_slice(),
-                                })
-                            }
-                            _ => None,
-                        })
-                        .expect("absolute spline cap");
+                for (key, endpoint, width) in [("top", 400.0, 52.0), ("bottom", 400.0 + direction * 200.0 * zoom, 92.0)] {
+                    let vertices = draws.iter().find_map(|draw| match draw {
+                        FlatDraw::TexturedMesh(mesh) if mesh.texture.texture_key() == Some(key) => {
+                            Some(match &mesh.vertices {
+                                FlatMeshVertices::Shared(v) => v.as_ref(),
+                                FlatMeshVertices::Reusable(v) => v.as_slice(),
+                            })
+                        }
+                        _ => None,
+                    }).expect("absolute spline cap");
                     // Native DrawHoldPart fixes cur_beat for a cap, clears
                     // ae_pos.y in Position mode, then advances later rows by
                     // one local unit along the spline tangent.
                     for vertex in vertices {
                         assert!((vertex.pos[2] - 12.0).abs() < 0.001);
-                        assert!(
-                            ((vertex.pos[0] - 300.0).abs() - width * 0.5).abs() < 0.001,
-                            "{key}: cap width must use its endpoint beat: {:?}",
-                            vertex.pos
-                        );
-                        assert!(
-                            (vertex.pos[1] - endpoint).abs() < 0.001
-                                || (vertex.pos[1] - endpoint - direction * zoom).abs() < 0.001,
-                            "{key} dir={direction}, zoom={zoom}: {:?}",
-                            vertex.pos
-                        );
+                        assert!(((vertex.pos[0] - 300.0).abs() - width * 0.5).abs() < 0.001,
+                            "{key}: cap width must use its endpoint beat: {:?}", vertex.pos);
+                        assert!((vertex.pos[1] - endpoint).abs() < 0.001
+                            || (vertex.pos[1] - endpoint - direction * zoom).abs() < 0.001,
+                            "{key} dir={direction}, zoom={zoom}: {:?}", vertex.pos);
                     }
                 }
             }
@@ -2671,8 +2655,7 @@ mod tests {
             for part in ["top", "bottom"] {
                 let vertices: Vec<Vec<f32>> = serde_json::from_value(caps[part].clone()).unwrap();
                 let center: [f32; 3] = std::array::from_fn(|axis| vertices[1][axis]);
-                let forward: [f32; 3] =
-                    std::array::from_fn(|axis| vertices[4][axis] - center[axis]);
+                let forward: [f32; 3] = std::array::from_fn(|axis| vertices[4][axis] - center[axis]);
                 let half_width = (0..3)
                     .map(|axis| (vertices[0][axis] - center[axis]).powi(2))
                     .sum::<f32>()
@@ -2734,22 +2717,12 @@ mod tests {
                 for cap_step in [0.0, zoom] {
                     let row = hold_path_row(
                         HoldPathSample { cap_step, ..sample },
-                        100.0,
-                        32.0 * zoom,
-                        0.0,
-                        0.0,
-                        1.0,
-                        0.5,
-                        [1.0; 4],
+                        100.0, 32.0 * zoom, 0.0, 0.0, 1.0, 0.5, [1.0; 4],
                     );
                     for axis in 0..3 {
                         let center = [32.0, 100.0, 10.0][axis] + forward[axis] * cap_step;
-                        assert!(
-                            (row[0].pos[axis] - center - left[axis] * 32.0 * zoom).abs() < 0.001
-                        );
-                        assert!(
-                            (row[1].pos[axis] - center + left[axis] * 32.0 * zoom).abs() < 0.001
-                        );
+                        assert!((row[0].pos[axis] - center - left[axis] * 32.0 * zoom).abs() < 0.001);
+                        assert!((row[1].pos[axis] - center + left[axis] * 32.0 * zoom).abs() < 0.001);
                     }
                 }
             }
@@ -3069,13 +3042,7 @@ mod tests {
                 };
                 let mut draws = Vec::new();
                 let mut scratch = HoldMeshScratch::with_columns(1);
-                compose_hold_body_caps(
-                    &mut draws,
-                    &mut scratch,
-                    request,
-                    &|y, _| sample(y),
-                    &test_source,
-                );
+                compose_hold_body_caps(&mut draws, &mut scratch, request, &|y, _| sample(y), &test_source);
                 let mut parts = Vec::new();
                 for draw in &draws {
                     let FlatDraw::TexturedMesh(mesh) = draw else {
@@ -3110,13 +3077,7 @@ mod tests {
                     .collect();
                 draws.clear();
                 scratch.begin_frame();
-                compose_hold_body_caps(
-                    &mut draws,
-                    &mut scratch,
-                    request,
-                    &|y, _| sample(y),
-                    &test_source,
-                );
+                compose_hold_body_caps(&mut draws, &mut scratch, request, &|y, _| sample(y), &test_source);
                 assert_eq!(
                     draws
                         .iter()
@@ -3403,13 +3364,7 @@ mod tests {
                 };
                 let mut scratch = HoldMeshScratch::with_columns(1);
                 let mut draws = Vec::new();
-                compose_hold_body_caps(
-                    &mut draws,
-                    &mut scratch,
-                    request,
-                    &|y, _| sample(y),
-                    &test_source,
-                );
+                compose_hold_body_caps(&mut draws, &mut scratch, request, &|y, _| sample(y), &test_source);
                 let mut parts = Vec::new();
                 for draw in &draws {
                     let FlatDraw::TexturedMesh(mesh) = draw else {
@@ -3476,13 +3431,7 @@ mod tests {
             arrow_px: 64.0,
         };
         let mut draws = Vec::new();
-        compose_hold_body_caps(
-            &mut draws,
-            &mut scratch,
-            request,
-            &|y, _| sample(y),
-            &test_source,
-        );
+        compose_hold_body_caps(&mut draws, &mut scratch, request, &|y, _| sample(y), &test_source);
         let mut triangles = 0;
         for draw in draws {
             let FlatDraw::TexturedMesh(mesh) = draw else {

@@ -780,10 +780,8 @@ impl InputState {
 
     /// Clears held and pending input, retaining preallocated debounce storage.
     pub fn clear(&mut self) {
-        self.physical_keys
-            .resize(self.compiled.key_slot_count, None);
-        self.physical_pads
-            .resize(self.compiled.pad_slot_capacity, None);
+        self.physical_keys.resize(self.compiled.key_slot_count, None);
+        self.physical_pads.resize(self.compiled.pad_slot_capacity, None);
         self.keyboard.prepare_slots(self.compiled.key_slot_count);
         self.pad.prepare_slots(self.compiled.pad_slot_capacity);
         log::debug!(
@@ -803,10 +801,8 @@ impl InputState {
 
     /// Identity of the physical source that produced a normalized edge.
     pub fn physical_input(&self, event: &InputEvent) -> Option<PhysicalInput> {
-        let slots = match event.source {
-            InputSource::Keyboard => &self.physical_keys,
-            InputSource::Gamepad => &self.physical_pads,
-        };
+        let slots = match event.source { InputSource::Keyboard => &self.physical_keys,
+            InputSource::Gamepad => &self.physical_pads };
         slots.get(event.input_slot as usize).copied().flatten()
     }
 
@@ -840,9 +836,7 @@ impl InputState {
     ) -> impl Iterator<Item = InputEvent> + use<F> {
         let ev = key.raw;
         let binding = key.binding;
-        if binding.mapped() {
-            self.physical_keys[binding.slot as usize] = Some(PhysicalInput::Key(ev.code));
-        }
+        if binding.mapped() { self.physical_keys[binding.slot as usize] = Some(PhysicalInput::Key(ev.code)); }
         let edges = if (ev.pressed && ev.repeat) || !binding.mapped() {
             DebounceEdges::default()
         } else {
@@ -911,9 +905,7 @@ impl InputState {
             PadEvent::RawAxis { .. } => None,
         };
         if let Some((slot, ..)) = binding {
-            if slot >= self.physical_pads.len() {
-                self.physical_pads.resize(slot + 1, None);
-            }
+            if slot >= self.physical_pads.len() { self.physical_pads.resize(slot+1, None); }
             self.physical_pads[slot] = match *ev {
                 PadEvent::Dir { id, dir, .. } => Some(PhysicalInput::PadDirection(id, dir)),
                 PadEvent::RawButton { id, code, .. } => Some(PhysicalInput::PadButton(id, code)),

@@ -190,13 +190,9 @@ pub fn player_index_from_value(value: &Value) -> Option<usize> {
             let text = text.to_str().ok()?;
             if text.eq_ignore_ascii_case("P1") || text.eq_ignore_ascii_case("PlayerNumber_P1") {
                 Some(0)
-            } else if text.eq_ignore_ascii_case("P2")
-                || text.eq_ignore_ascii_case("PlayerNumber_P2")
-            {
+            } else if text.eq_ignore_ascii_case("P2") || text.eq_ignore_ascii_case("PlayerNumber_P2") {
                 Some(1)
-            } else {
-                None
-            }
+            } else { None }
         }
         _ => None,
     }

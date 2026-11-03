@@ -173,25 +173,13 @@ fn dsp_save_undo_redo_persist_immediately_and_wait_for_next_context_without_reop
         s.audio_preferences().value(Field::DspBufferSize),
         FieldValue::Int(512)
     );
-    assert_eq!(
-        File::open(&d.path().join("prefs.json"))
-            .unwrap()
-            .audio()
-            .value(Field::DspBufferSize),
-        FieldValue::Int(512)
-    );
+    assert_eq!(File::open(&d.path().join("prefs.json")).unwrap().audio().value(Field::DspBufferSize), FieldValue::Int(512));
     ctrl(&mut s, KeyCode::KeyY);
     assert_eq!(
         s.audio_preferences().value(Field::DspBufferSize),
         FieldValue::Int(513)
     );
-    assert_eq!(
-        File::open(&d.path().join("prefs.json"))
-            .unwrap()
-            .audio()
-            .value(Field::DspBufferSize),
-        FieldValue::Int(513)
-    );
+    assert_eq!(File::open(&d.path().join("prefs.json")).unwrap().audio().value(Field::DspBufferSize), FieldValue::Int(513));
     assert!(!s.take_audio_commands().iter().any(|c| matches!(
         c,
         Command::EditorInitializeOutput { .. } | Command::EditorRestoreOutputLease { .. }
@@ -221,12 +209,14 @@ fn initialization_waits_for_ack_filters_unsupported_fields_and_both_couple_playe
             _ => None,
         })
         .unwrap();
-    assert!(!commands.iter().any(|c| matches!(
-        c,
-        Command::EditorPlayMusic { .. }
+    assert!(
+        !commands
+            .iter()
+            .any(|c| matches!(c, Command::EditorPlayMusic { .. }
             | Command::EditorStartMusic { .. }
             | Command::EditorResumeMusic { .. }
-    )));
+    ))
+    );
     let mut snapshot = host(&s, owner);
     snapshot.editor.output.requested_period = Some(768);
     snapshot.editor.output.negotiated_period = Some(768);
@@ -355,51 +345,25 @@ fn new_document_and_no_song_reuse_the_lazy_published_audio_session() {
 }
 #[test]
 fn failed_unavailable_restore_requires_explicit_second_close_and_never_claims_restoration() {
-    let (_d, mut s, owner) = setup(512, false);
-    ready(&mut s, owner);
-    press(&mut s, KeyCode::F16);
-    let id = s
-        .take_audio_commands()
-        .into_iter()
-        .find_map(|c| match c {
-            Command::EditorRestoreOutputLease { owner: actual, id } => {
-                assert_eq!(actual, owner);
-                Some(id)
-            }
-            _ => None,
-        })
-        .unwrap();
-    let mut unavailable = host(&s, owner);
-    unavailable.editor.output.available = false;
-    unavailable.editor.output.ack = Some(EditorOutputAck {
-        owner,
-        id,
-        outcome: Outcome::FailedUnavailable,
+    let (_d,mut s,owner)=setup(512,false);
+    ready(&mut s,owner);
+    press(&mut s,KeyCode::F16);
+    let id=s.take_audio_commands().into_iter().find_map(|c|match c{Command::EditorRestoreOutputLease{owner:actual,id}=>{assert_eq!(actual,owner);Some(id)}
+            _=>None,
+        }).unwrap();
+    let mut unavailable=host(&s, owner);
+    unavailable.editor.output.available=false;
+    unavailable.editor.output.ack=Some(EditorOutputAck{owner,id,outcome:Outcome::FailedUnavailable,
     });
     s.update_audio(unavailable);
-    assert!(text(
-        &s,
-        &i18n::tr("Edition", "AudioOutputCloseWithoutAudio")
-    ));
-    assert!(!s.take_audio_commands().iter().any(|c| matches!(
-        c,
-        Command::EditorEndAudio { .. } | Command::EditorAbandonOutputLease { .. }
-    )));
-    press(&mut s, KeyCode::F16);
-    let commands = s.take_audio_commands();
-    let abandoned = commands
-        .iter()
-        .position(|c| matches!(c,Command::EditorAbandonOutputLease{owner:actual} if *actual==owner))
-        .unwrap();
-    let ended = commands
-        .iter()
-        .position(|c| matches!(c,Command::EditorEndAudio{owner:actual} if *actual==owner))
-        .unwrap();
-    assert!(abandoned < ended);
-    assert!(!commands.iter().any(|c| matches!(
-        c,
-        Command::EditorRestoreOutputLease { .. } | Command::EditorInitializeOutput { .. }
-    )));
+    assert!(text(&s,&i18n::tr("Edition","AudioOutputCloseWithoutAudio")));
+    assert!(!s.take_audio_commands().iter().any(|c|matches!(c,Command::EditorEndAudio{..}|Command::EditorAbandonOutputLease{..})));
+    press(&mut s,KeyCode::F16);
+    let commands=s.take_audio_commands();
+    let abandoned=commands.iter().position(|c|matches!(c,Command::EditorAbandonOutputLease{owner:actual} if *actual==owner)).unwrap();
+    let ended=commands.iter().position(|c|matches!(c,Command::EditorEndAudio{owner:actual} if *actual==owner)).unwrap();
+    assert!(abandoned<ended);
+    assert!(!commands.iter().any(|c|matches!(c,Command::EditorRestoreOutputLease{..}|Command::EditorInitializeOutput{..})));
 }
 
 #[test]
@@ -407,14 +371,11 @@ fn conflicting_audio_save_preserves_external_preferences_and_reports_localized_r
     let (directory, mut state, owner) = setup(512, false);
     ready(&mut state, owner);
     settings(&mut state);
-    for _ in 0..15 {
-        press(&mut state, KeyCode::ArrowRight);
-    }
+    for _ in 0..15 { press(&mut state, KeyCode::ArrowRight); }
     press(&mut state, KeyCode::ArrowDown);
     press(&mut state, KeyCode::ArrowRight);
     let path = directory.path().join("prefs.json");
-    let mut external: serde_json::Value =
-        serde_json::from_slice(&fs::read(&path).unwrap()).unwrap();
+    let mut external: serde_json::Value = serde_json::from_slice(&fs::read(&path).unwrap()).unwrap();
     external["Audio"]["DspBufferSize"] = 1024.into();
     external["Vendor"] = serde_json::json!({"preserve":"external value"});
     let bytes = serde_json::to_vec(&external).unwrap();
@@ -423,19 +384,12 @@ fn conflicting_audio_save_preserves_external_preferences_and_reports_localized_r
     for code in [KeyCode::ArrowDown, KeyCode::ArrowDown, KeyCode::Enter] {
         press(&mut state, code);
     }
-    assert!(text(
-        &state,
-        &i18n::tr("Edition", "DiagnosticExternalChange")
-    ));
-    assert_eq!(
-        state.audio_preferences().value(Field::DspBufferSize),
-        FieldValue::Int(512)
-    );
+    assert!(text(&state, &i18n::tr("Edition", "DiagnosticExternalChange")));
+    assert_eq!(state.audio_preferences().value(Field::DspBufferSize), FieldValue::Int(512));
     assert_eq!(fs::read(&path).unwrap(), bytes);
     assert_eq!(fs::read(directory.path().join("song.ssc")).unwrap(), song);
     assert!(!state.workspace().file().session.is_dirty());
-    assert!(!state.take_audio_commands().iter().any(|command| matches!(
-        command,
+    assert!(!state.take_audio_commands().iter().any(|command|matches!(command,
         Command::EditorInitializeOutput { .. } | Command::EditorRestoreOutputLease { .. }
     )));
 }

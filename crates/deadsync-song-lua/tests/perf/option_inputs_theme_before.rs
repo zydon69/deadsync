@@ -1,6 +1,6 @@
 // Frozen availability registrations from af4d42368 create_theme_table.
-use crate::{SONG_LUA_THEME_NAME, method_arg, read_string};
 use mlua::{Lua, MultiValue, Table};
+use crate::{SONG_LUA_THEME_NAME, method_arg, read_string};
 pub(super) fn create_availability_table(lua: &Lua) -> mlua::Result<Table> {
     let theme = lua.create_table()?;
     for method in ["DoesThemeExist", "IsThemeSelectable"] {

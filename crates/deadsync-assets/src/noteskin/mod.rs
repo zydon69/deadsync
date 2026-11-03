@@ -5,10 +5,9 @@ pub use self::texture::{
     SpriteSlot, SpriteSource, build_model_geometry, load_itg_model_slots, test_model_slot,
 };
 use self::texture::{
-    apply_model_slot_plan, itg_apply_actor_frame_override,
-    itg_apply_state_properties_from_commands, itg_note_animation_source, itg_slot_from_path,
-    itg_slot_from_path_all_frames, itg_slot_from_path_animated, itg_slot_from_path_with_frame,
-    mine_fill_slots,
+    apply_model_slot_plan, itg_apply_actor_frame_override, itg_apply_state_properties_from_commands,
+    itg_note_animation_source, itg_slot_from_path, itg_slot_from_path_all_frames,
+    itg_slot_from_path_animated, itg_slot_from_path_with_frame, mine_fill_slots,
 };
 #[cfg(test)]
 use self::texture::{itg_apply_state_properties_from_script, itg_register_texture_dims_for_path};
@@ -770,9 +769,8 @@ mod tests {
                         let native_rect = &native["cases"][0]["frame_rects"][quant * 2 + frame];
                         for edge in [1, 3] {
                             let inset = if edge == 1 { 0.5 } else { -0.5 };
-                            let expected = (native_rect[edge].as_f64().unwrap() as f32 * 256.0
-                                + inset)
-                                / 144.0;
+                            let expected =
+                                (native_rect[edge].as_f64().unwrap() as f32 * 256.0 + inset) / 144.0;
                             assert!(
                                 (uv[edge] - expected).abs() < 1e-6,
                                 "col {col} quant {quant} time {time}: {uv:?}"
@@ -1567,8 +1565,7 @@ return Def.Model {
                     for layers in [&skin.note_layers[index], &skin.lift_note_layers[index]] {
                         assert_eq!(layers.len(), 2);
                         assert!(
-                            crate::textures::texture_source_key(layers[0].texture_key())
-                                .ends_with("border.png"),
+                            crate::textures::texture_source_key(layers[0].texture_key()).ends_with("border.png"),
                             "keep authored material order"
                         );
                         assert!(
@@ -1695,10 +1692,11 @@ return Def.Model {
                 assert_eq!(layers.len(), 5);
                 for (index, slot) in layers.iter().enumerate() {
                     let moving = matches!(index, 2 | 4);
-                    assert!(
-                        crate::textures::texture_source_key(slot.texture_key())
-                            .ends_with(if moving { "moving.png" } else { "plain.png" })
-                    );
+                    assert!(crate::textures::texture_source_key(slot.texture_key()).ends_with(if moving {
+                        "moving.png"
+                    } else {
+                        "plain.png"
+                    }));
                     assert_eq!(slot.uv_velocity, [0.0, if moving { -1.0 } else { 0.0 }]);
                     assert_eq!(slot.logical_size(), [64.0; 2]);
                     assert_eq!(slot.model_draw.zoom, [0.8 * 0.75, 0.6 * 0.75, 0.75]);
@@ -1869,26 +1867,17 @@ Bones: 0
                     assert_eq!(frame, expected);
                     let uv = mine.uv_for_frame_at(frame, phase);
                     assert_eq!(uv, [0.0, 0.0, 1.0, 1.0]);
-                    let job =
-                        crate::textures::texture_decode_job(&mine.model_texture_keys[frame], true);
-                    let image =
-                        deadlib_assets::decode_texture_image(&job.path, &job.hints).unwrap();
-                    assert_eq!(
-                        image.get_pixel(image.width() / 2, image.height() / 2).0,
-                        color
-                    );
+                    let job = crate::textures::texture_decode_job(&mine.model_texture_keys[frame], true);
+                    let image = deadlib_assets::decode_texture_image(&job.path, &job.hints).unwrap();
+                    assert_eq!(image.get_pixel(image.width() / 2, image.height() / 2).0, color);
                 }
                 let mut warmed = HashSet::new();
                 skin.for_each_slot(|slot| {
                     warmed.insert(slot.texture_key().to_owned());
                     warmed.extend(slot.model_texture_keys.iter().map(ToString::to_string));
                 });
-                assert!(
-                    mine.model_texture_keys
-                        .iter()
-                        .all(|key| warmed.contains(key.as_ref())),
-                    "all material images reach texture prewarming after cache reload"
-                );
+                assert!(mine.model_texture_keys.iter().all(|key| warmed.contains(key.as_ref())),
+                    "all material images reach texture prewarming after cache reload");
                 for grade in 1..=5 {
                     for bright in [false, true] {
                         let explosion = skin
@@ -3035,8 +3024,7 @@ Bones: 0
             .collect::<HashSet<_>>();
         assert!(
             textures.contains(&crate::textures::model_texture_key(
-                "noteskins/dance/cel/textures/Tap Note parts (mipmaps).png"
-            )),
+                "noteskins/dance/cel/textures/Tap Note parts (mipmaps).png")),
             "expected cel model tap note layers to resolve Tap Note parts texture; got {textures:?}"
         );
     }

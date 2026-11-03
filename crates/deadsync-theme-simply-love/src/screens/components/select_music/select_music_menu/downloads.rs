@@ -361,12 +361,7 @@ fn push_downloads_overlay_unreserved(
             horizalign(left)
         ));
         let bar_text = match snapshot.error_message.as_deref() {
-            Some(message) if snapshot.complete => crate::i18n::tr_fmt(
-                "UiMessages",
-                "ErrorMessage",
-                &[("message", &(message).to_string())],
-            )
-            .to_string(),
+            Some(message) if snapshot.complete => crate::i18n::tr_fmt("UiMessages", "ErrorMessage", &[("message", &(message).to_string())]).to_string(),
             None if snapshot.complete => crate::i18n::tr("Init", "DoneText").to_string(),
             _ => format!("{percent}%"),
         };

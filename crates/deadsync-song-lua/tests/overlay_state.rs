@@ -4,11 +4,8 @@ use deadsync_song_lua::{
 
 #[test]
 fn compiled_depth_testing_and_writing_are_independent() {
-    use deadsync_song_lua::{
-        SongLuaCompileContext, SongLuaNoteskinResolver, compile_song_lua_with_default_host,
-    };
-    let directory =
-        std::env::temp_dir().join(format!("deadsync-depth-settings-{}", std::process::id()));
+    use deadsync_song_lua::{SongLuaCompileContext, SongLuaNoteskinResolver, compile_song_lua_with_default_host};
+    let directory = std::env::temp_dir().join(format!("deadsync-depth-settings-{}", std::process::id()));
     std::fs::create_dir_all(&directory).unwrap();
     let entry = directory.join("default.lua");
     std::fs::write(&entry, r#"
@@ -29,14 +26,9 @@ return Def.ActorFrame{
     let mut context = SongLuaCompileContext::new(&directory, "Independent Depth");
     context.music_length_seconds = 4.0;
     let compiled = compile_song_lua_with_default_host::<(), (), _>(
-        &entry,
-        &context,
-        SongLuaNoteskinResolver::default(),
-        |_, _, _| Ok(std::sync::Arc::from([])),
-        |_| None,
-        |_, _| None,
-    )
-    .unwrap();
+        &entry, &context, SongLuaNoteskinResolver::default(),
+        |_, _, _| Ok(std::sync::Arc::from([])), |_| None, |_, _| None,
+    ).unwrap();
     for (name, expected) in [
         ("Sky", (true, false, false)),
         ("Mask", (true, true, false)),
@@ -46,21 +38,9 @@ return Def.ActorFrame{
         ("OverrideTest", (false, true, false)),
         ("OverrideFail", (true, true, false)),
     ] {
-        let state = compiled
-            .overlays
-            .iter()
-            .find(|actor| actor.name.as_deref() == Some(name))
-            .unwrap()
-            .initial_state;
-        assert_eq!(
-            (
-                state.depth_test,
-                state.depth_write,
-                state.depth_test_on_fail
-            ),
-            expected,
-            "{name}"
-        );
+        let state = compiled.overlays.iter().find(|actor| actor.name.as_deref() == Some(name))
+            .unwrap().initial_state;
+        assert_eq!((state.depth_test, state.depth_write, state.depth_test_on_fail), expected, "{name}");
     }
 }
 

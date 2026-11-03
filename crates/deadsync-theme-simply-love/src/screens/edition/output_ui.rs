@@ -17,7 +17,7 @@ pub(super) struct Ui {
     save: Option<SaveReview>,
     save_as: bool,
     preferences: Option<super::file_menu::PublishedPreferences>,
-    pack_guard: Option<Option<super::pack_properties::CouplingGuard>>,
+    pack_guard:Option<Option<super::pack_properties::CouplingGuard>>,
 }
 struct Draft {
     guard: IntentGuard,
@@ -26,8 +26,8 @@ struct Draft {
     format: Format,
     options: Options,
     chart: Option<Guid>,
-    timing_override: bool,
-    timing_unresolved: bool,
+    timing_override:bool,
+    timing_unresolved:bool,
 }
 impl State {
     pub(super) fn open_output_settings(&mut self) {
@@ -37,10 +37,8 @@ impl State {
         self.minimap_release_input();
         self.lane_entry_reconcile();
         let file = self.workspace.file();
-        let timing_override = matches!(file.output_policy(), OutputPolicy::Advanced { .. });
-        let timing_unresolved =
-            matches!(file.output_policy(), OutputPolicy::AdvancedChartless { .. })
-                && file.output_policy().timing_chart(&file.session).is_err();
+        let timing_override=matches!(file.output_policy(),OutputPolicy::Advanced{..});
+        let timing_unresolved=matches!(file.output_policy(),OutputPolicy::AdvancedChartless{..})&&file.output_policy().timing_chart(&file.session).is_err();
         let (advanced, format, options, chart) = match file.output_policy() {
             OutputPolicy::NativeLossless => (
                 false,
@@ -53,23 +51,12 @@ impl State {
                     .and_then(|i| file.session.chart_ids().get(i))
                     .cloned(),
             ),
-            OutputPolicy::AdvancedSongTiming { format, options }
-            | OutputPolicy::AdvancedChartless { format, options } => {
-                (true, *format, *options, None)
-            }
+            OutputPolicy::AdvancedSongTiming{format,options}|OutputPolicy::AdvancedChartless{format,options}=>(true,*format,*options,None),
             OutputPolicy::Advanced {
                 format,
                 options,
                 timing_chart,
-            } => (
-                true,
-                *format,
-                *options,
-                file.session
-                    .chart_ids()
-                    .contains(timing_chart)
-                    .then(|| timing_chart.clone()),
-            ),
+            } => (true, *format, *options, file.session.chart_ids().contains(timing_chart).then(||timing_chart.clone())),
         };
         self.output_ui = Ui {
             draft: Some(Draft {
@@ -78,9 +65,7 @@ impl State {
                 advanced,
                 format,
                 options,
-                chart,
-                timing_override,
-                timing_unresolved,
+                chart,timing_override,timing_unresolved,
             }),
             ..Default::default()
         };
@@ -103,17 +88,8 @@ impl State {
         if !draft.advanced {
             return Ok(OutputPolicy::NativeLossless);
         }
-        if draft.timing_unresolved {
-            return Err(deadsync_editor::Error::InvalidEdit(
-                i18n::tr("Edition", "OutputTimingSelectionRequired").to_string(),
-            ));
-        }
-        if !draft.timing_override {
-            return Ok(OutputPolicy::AdvancedSongTiming {
-                format: draft.format,
-                options: draft.options,
-            });
-        }
+        if draft.timing_unresolved{return Err(deadsync_editor::Error::InvalidEdit(i18n::tr("Edition","OutputTimingSelectionRequired").to_string()));}
+        if !draft.timing_override{return Ok(OutputPolicy::AdvancedSongTiming{format:draft.format,options:draft.options});}
         let chart = draft
             .chart
             .as_ref()
@@ -142,21 +118,12 @@ impl State {
         self.invalidate_source_output_request();
     }
     pub(super) fn output_save_current(&mut self, use_draft: bool) {
-        if !self.deactivate_pack_before_file_intent() {
-            return;
-        }
+        if !self.deactivate_pack_before_file_intent(){return;}
         self.warn_save_opus();
         if !self.save_as_guard() {
             return;
         }
-        if !use_draft
-            && self
-                .workspace
-                .file()
-                .output_policy()
-                .timing_chart(&self.workspace.file().session)
-                .is_err()
-        {
+        if !use_draft && self.workspace.file().output_policy().timing_chart(&self.workspace.file().session).is_err() {
             self.open_output_settings();
             self.status = i18n::tr("Edition", "OutputTimingReviewRequired");
             return;
@@ -172,10 +139,8 @@ impl State {
             }
             return;
         }
-        if !self.require_source_output_order(super::source_output_order::Purpose::Save(use_draft)) {
-            return;
-        }
-        self.output_ui.pack_guard = Some(self.capture_pack_coupling());
+        if !self.require_source_output_order(super::source_output_order::Purpose::Save(use_draft)){return;}
+        self.output_ui.pack_guard=Some(self.capture_pack_coupling());
         let path = self
             .workspace
             .file()
@@ -199,19 +164,11 @@ impl State {
             }
         }
         if !use_draft {
-            let attempt = self
-                .prepare_ordered_current_output(self.workspace.file().output_policy().clone())
-                .and_then(|review| {
-                    if !review.issues().is_empty() {
-                        return Ok(SaveAttempt::NeedsReview(review));
-                    }
-                    if !self.save_coupled_pack() {
-                        return Err(deadsync_editor::Error::InvalidEdit(
-                            "Pack save must complete before saving the song".into(),
-                        ));
-                    }
-                    self.workspace.save_reviewed(review, &BTreeSet::new())
-                });
+            let attempt=self.prepare_ordered_current_output(self.workspace.file().output_policy().clone()).and_then(|review|{
+                if !review.issues().is_empty(){return Ok(SaveAttempt::NeedsReview(review));}
+                if !self.save_coupled_pack(){return Err(deadsync_editor::Error::InvalidEdit("Pack save must complete before saving the song".into()));}
+                self.workspace.save_reviewed(review,&BTreeSet::new())
+            });
             match attempt {
                 Ok(attempt) => self.output_save_attempt(attempt),
                 Err(error) => {
@@ -318,25 +275,9 @@ impl State {
                     }
                     2 => {
                         draft.advanced = true;
-                        let old = if draft.timing_override {
-                            draft
-                                .chart
-                                .as_ref()
-                                .and_then(|id| ids.iter().position(|x| x == id))
-                                .map(|i| i + 1)
-                                .unwrap_or(0)
-                        } else {
-                            0
-                        };
-                        let next =
-                            (old + if code == KeyCode::ArrowLeft {
-                                ids.len()
-                            } else {
-                                1
-                            }) % (ids.len() + 1);
-                        draft.timing_unresolved = false;
-                        draft.timing_override = next != 0;
-                        draft.chart = next.checked_sub(1).map(|i| ids[i].clone());
+                        let old=if draft.timing_override{draft.chart.as_ref().and_then(|id|ids.iter().position(|x|x==id)).map(|i|i+1).unwrap_or(0)}else{0};
+                        let next=(old+if code==KeyCode::ArrowLeft{ids.len()}else{1})%(ids.len()+1);
+                        draft.timing_unresolved=false;draft.timing_override=next!=0;draft.chart=next.checked_sub(1).map(|i|ids[i].clone());
                     }
                     3 => {
                         draft.options.require_identical_timing_in_sm =
@@ -393,27 +334,11 @@ impl State {
                 self.panel = Some(Panel::SaveAsReview(1));
                 self.status = i18n::tr("Edition", "OutputSaveAsConfirm");
             } else if let Some(review) = self.output_ui.save.take() {
-                if !review.is_current(self.workspace.file()) {
-                    self.panel = None;
-                    self.file_save_cancelled();
-                    self.output_clear();
-                    self.status = i18n::tr("Edition", "OutputOrderStale");
-                    return;
+                if !review.is_current(self.workspace.file()){self.panel=None;self.file_save_cancelled();self.output_clear();self.status=i18n::tr("Edition","OutputOrderStale");return;}
+                if !self.output_ui.pack_guard.as_ref().is_some_and(|g|self.pack_coupling_current(g)){
+                    self.output_ui.save=Some(review);self.status=i18n::tr("Edition","PackCoupledStale");return;
                 }
-                if !self
-                    .output_ui
-                    .pack_guard
-                    .as_ref()
-                    .is_some_and(|g| self.pack_coupling_current(g))
-                {
-                    self.output_ui.save = Some(review);
-                    self.status = i18n::tr("Edition", "PackCoupledStale");
-                    return;
-                }
-                if !self.save_coupled_pack() {
-                    self.output_ui.save = Some(review);
-                    return;
-                }
+                if !self.save_coupled_pack(){self.output_ui.save=Some(review);return;}
                 match self
                     .workspace
                     .save_reviewed(review, &self.output_ui.acknowledged)
@@ -477,12 +402,8 @@ impl State {
                         )
                         .to_string(),
                         1 => d.format.extension().to_uppercase(),
-                        2 if d.timing_unresolved => {
-                            i18n::tr("Edition", "OutputChooseChart").to_string()
-                        }
-                        2 if !d.timing_override => {
-                            i18n::tr("Edition", "OutputFollowSongTiming").to_string()
-                        }
+                        2 if d.timing_unresolved=>i18n::tr("Edition","OutputChooseChart").to_string(),
+                        2 if !d.timing_override=>i18n::tr("Edition","OutputFollowSongTiming").to_string(),
                         2 => d
                             .chart
                             .as_ref()
@@ -500,17 +421,7 @@ impl State {
                                     id
                                 )
                             })
-                            .unwrap_or_else(|| {
-                                i18n::tr(
-                                    "Edition",
-                                    if self.workspace.file().session.chart_ids().is_empty() {
-                                        "OutputNoChart"
-                                    } else {
-                                        "OutputChooseChart"
-                                    },
-                                )
-                                .to_string()
-                            }),
+                            .unwrap_or_else(|| i18n::tr("Edition", if self.workspace.file().session.chart_ids().is_empty(){"OutputNoChart"}else{"OutputChooseChart"}).to_string()),
                         3..=8 => {
                             let enabled = [
                                 d.options.require_identical_timing_in_sm,
@@ -593,9 +504,7 @@ impl State {
             let format = format
                 .map(|policy| match policy {
                     OutputPolicy::NativeLossless => self.workspace.file().session.document().format,
-                    OutputPolicy::Advanced { format, .. }
-                    | OutputPolicy::AdvancedChartless { format, .. }
-                    | OutputPolicy::AdvancedSongTiming { format, .. } => *format,
+                    OutputPolicy::Advanced { format, .. }|OutputPolicy::AdvancedChartless{format,..}|OutputPolicy::AdvancedSongTiming{format,..} => *format,
                 })
                 .map(|format| format.extension().to_uppercase())
                 .unwrap_or_default();
@@ -606,10 +515,10 @@ impl State {
         }
         let start = index.saturating_sub(3);
         for (i, label) in rows.iter().enumerate().skip(start).take(7) {
-            let ui_row_start = actors.len();
+            let ui_row_start=actors.len();
             actors.push(act!(text: font("miso"): settext(label.clone()): align(0.0,0.5): xy(x-350.0,y+20.0+(i-start)as f32*31.0): zoom(0.55): maxwidth(700.0): diffuse(1.0,if i==index{0.8}else{1.0},if i==index{0.3}else{1.0},1.0): z(8051)));
 
-            self.ui_row(actors, ui_row_start, i == index, 31.);
+            self.ui_row(actors,ui_row_start,i==index,31.);
         }
         actors.push(act!(text: font("miso"): settext(format!("{} / {}",index+1,rows.len())): xy(x,y+270.0): zoom(0.5): z(8051)));
     }
@@ -746,14 +655,7 @@ mod tests {
             state.workspace.execute(Command::DuplicateChart).unwrap();
             state.command(Command::Save);
             struct EqualFixtureText;
-            impl deadsync_editor::chart_order::Orderer for EqualFixtureText {
-                fn order(
-                    &mut self,
-                    snapshot: &deadsync_editor::chart_order::Snapshot,
-                ) -> Result<Vec<usize>, deadsync_editor::Error> {
-                    snapshot.indices_with(|a,b|{assert_eq!(a,b,"this fixture has identical names/descriptions; no text collation is substituted");std::cmp::Ordering::Equal})
-                }
-            }
+            impl deadsync_editor::chart_order::Orderer for EqualFixtureText{fn order(&mut self,snapshot:&deadsync_editor::chart_order::Snapshot)->Result<Vec<usize>,deadsync_editor::Error>{snapshot.indices_with(|a,b|{assert_eq!(a,b,"this fixture has identical names/descriptions; no text collation is substituted");std::cmp::Ordering::Equal})}}
             state.process_chart_order(&mut EqualFixtureText);
             assert!(
                 matches!(state.panel, Some(Panel::OutputLoss(_))),
@@ -789,8 +691,7 @@ mod tests {
             assert!(!destination.exists());
             state.save_as_key(1, KeyCode::ArrowUp);
             state.save_as_key(0, KeyCode::Enter);
-            assert!(destination.exists());
-            let destination = destination.canonicalize().unwrap();
+            assert!(destination.exists());let destination=destination.canonicalize().unwrap();
             assert_eq!(
                 state.workspace.file().existing_path(),
                 Some(destination.as_path())
@@ -901,10 +802,7 @@ mod tests {
                 .unwrap()
                 .advanced_save();
             assert!(expected.omit_custom_data && expected.anonymize);
-            assert!(
-                state.request_host_close(),
-                "real close persists output preferences"
-            );
+            assert!(state.request_host_close(), "real close persists output preferences");
             let reopened = deadsync_editor::audio_preferences::File::open(&path).unwrap();
             assert_eq!(reopened.advanced_save(), expected);
             let raw: serde_json::Value =
@@ -925,187 +823,42 @@ mod tests {
         }
     }
     #[test]
-    fn empty_untitled_can_explicitly_save_as_sm_without_fabricating_chart_or_guid_en_fr() {
-        for language in ["en", "fr"] {
-            i18n::init(deadsync_assets::language::load_for_tests(language));
-            let root = tempfile::tempdir().unwrap();
-            let mut state =
-                State::from_workspace(Workspace::new_song(root.path(), 0.009).unwrap()).unwrap();
-            state.open_output_settings();
-            state.output_key(0, KeyCode::Enter);
-            state.output_key(1, KeyCode::Enter);
-            assert!(matches!(
-                state.output_policy_draft().unwrap(),
-                OutputPolicy::AdvancedSongTiming {
-                    format: Format::Sm,
-                    ..
-                }
-            ));
-            let destination = root.path().join("empty.sm");
-            state.output_key(10, KeyCode::Enter);
-            state.save_as.destination = destination.to_string_lossy().into_owned();
-            state.text_buffer = None;
-            state.save_as_prepare_review();
-            assert!(matches!(state.panel, Some(Panel::SaveAsReview(1))));
-            assert!(!destination.exists());
-            state.save_as_key(1, KeyCode::ArrowUp);
-            state.save_as_key(0, KeyCode::Enter);
-            assert!(destination.exists());
-            assert!(state.workspace.file().session.chart_ids().is_empty());
-            assert!(
-                state
-                    .workspace
-                    .file()
-                    .session
-                    .document()
-                    .charts()
-                    .is_empty()
-            );
-            assert_eq!(
-                state.workspace.file().session.document().format,
-                Format::Ssc
-            );
-            assert!(matches!(
-                state.workspace.file().output_policy(),
-                OutputPolicy::AdvancedSongTiming {
-                    format: Format::Sm,
-                    ..
-                }
-            ));
-            assert!(
-                deadsync_editor::document::Document::parse(
-                    std::fs::read(destination).unwrap(),
-                    Format::Sm
-                )
-                .unwrap()
-                .charts()
-                .is_empty()
-            );
-        }
+    fn empty_untitled_can_explicitly_save_as_sm_without_fabricating_chart_or_guid_en_fr(){
+        for language in ["en","fr"]{i18n::init(deadsync_assets::language::load_for_tests(language));let root=tempfile::tempdir().unwrap();let mut state=State::from_workspace(Workspace::new_song(root.path(),0.009).unwrap()).unwrap();state.open_output_settings();state.output_key(0,KeyCode::Enter);state.output_key(1,KeyCode::Enter);assert!(matches!(state.output_policy_draft().unwrap(),OutputPolicy::AdvancedSongTiming{format:Format::Sm,..}));let destination=root.path().join("empty.sm");state.output_key(10,KeyCode::Enter);state.save_as.destination=destination.to_string_lossy().into_owned();state.text_buffer=None;state.save_as_prepare_review();assert!(matches!(state.panel,Some(Panel::SaveAsReview(1))));assert!(!destination.exists());state.save_as_key(1,KeyCode::ArrowUp);state.save_as_key(0,KeyCode::Enter);assert!(destination.exists());assert!(state.workspace.file().session.chart_ids().is_empty());assert!(state.workspace.file().session.document().charts().is_empty());assert_eq!(state.workspace.file().session.document().format,Format::Ssc);assert!(matches!(state.workspace.file().output_policy(),OutputPolicy::AdvancedSongTiming{format:Format::Sm,..}));assert!(deadsync_editor::document::Document::parse(std::fs::read(destination).unwrap(),Format::Sm).unwrap().charts().is_empty());}
     }
     #[test]
-    fn adding_chart_to_song_following_policy_adopts_first_typed_creation_and_keeps_override_explicit_en_fr()
-     {
-        for language in ["en", "fr"] {
-            i18n::init(deadsync_assets::language::load_for_tests(language));
-            let root = tempfile::tempdir().unwrap();
-            let mut state =
-                State::from_workspace(Workspace::new_song(root.path(), 0.009).unwrap()).unwrap();
-            state.open_output_settings();
-            state.output_key(0, KeyCode::Enter);
-            let destination = root.path().join("empty.ssc");
-            state.output_key(10, KeyCode::Enter);
-            state.save_as.destination = destination.to_string_lossy().into_owned();
-            state.text_buffer = None;
-            state.save_as_prepare_review();
-            state.save_as_key(1, KeyCode::ArrowUp);
-            state.save_as_key(0, KeyCode::Enter);
-            assert!(matches!(
-                state.workspace.file().output_policy(),
-                OutputPolicy::AdvancedSongTiming { .. }
-            ));
-            let draft = state.workspace.new_chart_draft().unwrap();
-            state
-                .workspace
-                .create_chart(&draft, "dance-single")
-                .unwrap();
-            state.refresh();
-            state.open_output_settings();
-            assert!(matches!(
-                state.output_policy_draft().unwrap(),
-                OutputPolicy::AdvancedSongTiming { .. }
-            ));
-            assert_eq!(
-                state.workspace.file().session.song_timing_chart().unwrap(),
-                Some(0)
-            );
-            let id = state.workspace.file().session.chart_ids()[0].clone();
-            state.output_key(2, KeyCode::Enter);
-            assert!(
-                matches!(state.output_policy_draft().unwrap(),OutputPolicy::Advanced{timing_chart,..}if timing_chart==id)
-            );
-            assert!(
-                matches!(
-                    state.workspace.file().output_policy(),
-                    OutputPolicy::AdvancedSongTiming { .. }
-                ),
-                "choosing a draft must not install policy"
-            );
-        }
+    fn adding_chart_to_song_following_policy_adopts_first_typed_creation_and_keeps_override_explicit_en_fr(){
+        for language in ["en","fr"]{i18n::init(deadsync_assets::language::load_for_tests(language));let root=tempfile::tempdir().unwrap();let mut state=State::from_workspace(Workspace::new_song(root.path(),0.009).unwrap()).unwrap();state.open_output_settings();state.output_key(0,KeyCode::Enter);let destination=root.path().join("empty.ssc");state.output_key(10,KeyCode::Enter);state.save_as.destination=destination.to_string_lossy().into_owned();state.text_buffer=None;state.save_as_prepare_review();state.save_as_key(1,KeyCode::ArrowUp);state.save_as_key(0,KeyCode::Enter);assert!(matches!(state.workspace.file().output_policy(),OutputPolicy::AdvancedSongTiming{..}));let draft=state.workspace.new_chart_draft().unwrap();state.workspace.create_chart(&draft,"dance-single").unwrap();state.refresh();state.open_output_settings();assert!(matches!(state.output_policy_draft().unwrap(),OutputPolicy::AdvancedSongTiming{..}));assert_eq!(state.workspace.file().session.song_timing_chart().unwrap(),Some(0));let id=state.workspace.file().session.chart_ids()[0].clone();state.output_key(2,KeyCode::Enter);assert!(matches!(state.output_policy_draft().unwrap(),OutputPolicy::Advanced{timing_chart,..}if timing_chart==id));assert!(matches!(state.workspace.file().output_policy(),OutputPolicy::AdvancedSongTiming{..}),"choosing a draft must not install policy");}
     }
 
     #[test]
-    fn saving_unresolved_chartless_policy_opens_explicit_timing_settings_en_fr() {
-        for language in ["en", "fr"] {
-            let (root, mut state) = state(language);
-            state.workspace = Workspace::new_song(root.path(), 0.009).unwrap();
-            state.refresh();
-            let destination = root.path().join("needs-chart.ssc");
-            let review = state
-                .workspace
-                .prepare_save_as_with_policy(
-                    &destination,
-                    OutputPolicy::AdvancedChartless {
-                        format: Format::Ssc,
-                        options: Default::default(),
-                    },
-                )
-                .unwrap();
-            let accepted = review.issues().iter().enumerate().map(|(i, _)| i).collect();
-            state.workspace.save_as_reviewed(review, &accepted).unwrap();
-            let draft = state.workspace.new_chart_draft().unwrap();
-            state
-                .workspace
-                .create_chart(&draft, "dance-single")
-                .unwrap();
-            state.refresh();
+    fn saving_unresolved_chartless_policy_opens_explicit_timing_settings_en_fr(){
+        for language in ["en","fr"]{
+            let(root,mut state)=state(language);state.workspace=Workspace::new_song(root.path(),0.009).unwrap();state.refresh();
+            let destination=root.path().join("needs-chart.ssc");
+            let review=state.workspace.prepare_save_as_with_policy(&destination,OutputPolicy::AdvancedChartless{format:Format::Ssc,options:Default::default()}).unwrap();
+            let accepted=review.issues().iter().enumerate().map(|(i,_)|i).collect();
+            state.workspace.save_as_reviewed(review,&accepted).unwrap();
+            let draft=state.workspace.new_chart_draft().unwrap();state.workspace.create_chart(&draft,"dance-single").unwrap();state.refresh();
             state.output_save_current(false);
-            assert!(matches!(state.panel, Some(Panel::OutputSettings(0))));
+            assert!(matches!(state.panel,Some(Panel::OutputSettings(0))));
             assert!(state.output_ui.draft.as_ref().unwrap().chart.is_none());
-            assert_eq!(
-                state.status.as_ref(),
-                i18n::tr("Edition", "OutputTimingReviewRequired").as_ref()
-            );
+            assert_eq!(state.status.as_ref(),i18n::tr("Edition","OutputTimingReviewRequired").as_ref());
             assert!(state.output_policy_draft().is_err());
-            state.output_key(2, KeyCode::Enter);
-            assert!(state.output_policy_draft().is_ok());
-            state.output_key(11, KeyCode::Enter);
-            assert!(matches!(
-                state.workspace.file().output_policy(),
-                OutputPolicy::AdvancedChartless { .. }
-            ));
+            state.output_key(2,KeyCode::Enter);assert!(state.output_policy_draft().is_ok());
+            state.output_key(11,KeyCode::Enter);
+            assert!(matches!(state.workspace.file().output_policy(),OutputPolicy::AdvancedChartless{..}));
         }
     }
+
 }
 
 #[cfg(test)]
-mod source_memory_output_tests {
-    use super::*;
-    #[test]
-    fn output_inspector_consumes_pathless_source_advanced_save_defaults() {
-        crate::i18n::init_for_tests();
-        let root = tempfile::tempdir().unwrap();
-        let path = root.path().join("song.ssc");
-        std::fs::write(
-            &path,
-            b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;",
-        )
-        .unwrap();
-        let mut state = State::open(&path, 0).unwrap();
-        state.audio_preferences_file = None;
-        state.audio_preferences_path = None;
-        let file = state.capture_application_preferences_file().unwrap();
-        let draft=state.workspace.prepare_source_preferences(&file,br#"{"AnonymizeSaveData":true,"OmitCustomSaveData":true,"UseOutfoxFormatForSmx":false}"#,deadsync_editor::key_binding_preferences::source_profile::Platform::Mac).unwrap();
-        state
-            .workspace
-            .import_source_preferences(draft, &file, true)
-            .unwrap();
-        state.sync_source_preferences_history().unwrap();
-        state.open_output_settings();
-        let options = state.output_ui.draft.as_ref().unwrap().options;
-        assert!(options.anonymize);
-        assert!(options.omit_custom_data);
-        assert!(!options.outfox_smx);
-        assert!(state.audio_preferences_file.is_none());
-    }
+mod source_memory_output_tests{
+ use super::*;
+ #[test]fn output_inspector_consumes_pathless_source_advanced_save_defaults(){
+  crate::i18n::init_for_tests();let root=tempfile::tempdir().unwrap();let path=root.path().join("song.ssc");std::fs::write(&path,b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;").unwrap();let mut state=State::open(&path,0).unwrap();state.audio_preferences_file=None;state.audio_preferences_path=None;
+  let file=state.capture_application_preferences_file().unwrap();let draft=state.workspace.prepare_source_preferences(&file,br#"{"AnonymizeSaveData":true,"OmitCustomSaveData":true,"UseOutfoxFormatForSmx":false}"#,deadsync_editor::key_binding_preferences::source_profile::Platform::Mac).unwrap();state.workspace.import_source_preferences(draft,&file,true).unwrap();state.sync_source_preferences_history().unwrap();state.open_output_settings();
+  let options=state.output_ui.draft.as_ref().unwrap().options;assert!(options.anonymize);assert!(options.omit_custom_data);assert!(!options.outfox_smx);assert!(state.audio_preferences_file.is_none());
+ }
 }

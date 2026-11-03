@@ -19,7 +19,7 @@ impl State {
         })
     }
     pub(super) fn open_analysis(&mut self) {
-        self.chart_details.active = false;
+        self.chart_details.active=false;
         self.panel = Some(Panel::Analysis);
         if let Some(report) = self.analysis_report() {
             let length = report.summary().measure_densities.len();
@@ -97,18 +97,9 @@ impl State {
         }
     }
     pub(super) fn analysis_key(&mut self, code: KeyCode) -> bool {
-        if self.chart_details.active {
-            self.chart_details_key(code);
-            return false;
-        }
-        if code == KeyCode::F2 {
-            self.open_chart_details(None);
-            return false;
-        }
-        if code == KeyCode::F6 {
-            self.open_density_settings();
-            return false;
-        }
+        if self.chart_details.active {self.chart_details_key(code);return false;}
+        if code==KeyCode::F2 {self.open_chart_details(None);return false;}
+        if code==KeyCode::F6{self.open_density_settings();return false;}
         if code == KeyCode::Escape {
             if let Some(job) = &self.analysis_job {
                 job.cancel();
@@ -153,18 +144,11 @@ impl State {
                 .steps_type;
             i18n::tr_fmt("Edition", "AnalysisUnsupported", &[("layout", layout)])
         } else {
-            i18n::tr_fmt(
-                "Edition",
-                "AnalysisError",
-                &[("error", &crate::i18n::editor_error(&error))],
-            )
+            i18n::tr_fmt("Edition", "AnalysisError", &[("error", &crate::i18n::editor_error(&error))])
         }
     }
     pub(super) fn analysis_actors(&self, actors: &mut Vec<Actor>) {
-        if self.chart_details.active {
-            self.chart_details_actors(actors);
-            return;
-        }
+        if self.chart_details.active {self.chart_details_actors(actors);return;}
         let width = (screen_width() - 30.0).min(760.0).max(1.0);
         let height = (screen_height() - 30.0).min(420.0).max(1.0);
         let x = screen_width() * 0.5;
@@ -314,5 +298,4 @@ fn short_breakdown(value: &str) -> String {
     text
 }
 
-#[cfg(test)]
-mod status_owner_tests;
+#[cfg(test)] mod status_owner_tests;

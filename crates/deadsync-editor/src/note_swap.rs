@@ -42,33 +42,12 @@ impl Pair {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum Refusal {
-    ZeroDurationSustain,
-    Invalid,
-}
+pub enum Refusal { ZeroDurationSustain, Invalid }
 #[derive(Debug)]
-pub struct Failure {
-    kind: Refusal,
-    error: Error,
-}
-impl Failure {
-    pub fn kind(&self) -> Refusal {
-        self.kind
-    }
-}
-impl From<Error> for Failure {
-    fn from(error: Error) -> Self {
-        Self {
-            kind: Refusal::Invalid,
-            error,
-        }
-    }
-}
-impl From<Failure> for Error {
-    fn from(failure: Failure) -> Self {
-        failure.error
-    }
-}
+pub struct Failure { kind: Refusal, error: Error }
+impl Failure { pub fn kind(&self) -> Refusal { self.kind } }
+impl From<Error> for Failure { fn from(error: Error) -> Self { Self { kind: Refusal::Invalid, error } } }
+impl From<Failure> for Error { fn from(failure: Failure) -> Self { failure.error } }
 /// Swaps only selected heads, preserving the existing native decoration policy.
 /// No force-insertion, invented duration, or intermediate converted state.
 pub fn apply(
@@ -79,12 +58,7 @@ pub fn apply(
 ) -> Result<bool, Error> {
     apply_detailed(session, chart, selected, pair).map_err(Into::into)
 }
-pub fn apply_detailed(
-    session: &mut Session,
-    chart: usize,
-    selected: &BTreeSet<Position>,
-    pair: Pair,
-) -> Result<bool, Failure> {
+pub fn apply_detailed(session: &mut Session, chart: usize, selected: &BTreeSet<Position>, pair: Pair) -> Result<bool, Failure> {
     let failure = |error: crate::note_operation::Failure| Failure {
         kind: match error.kind() {
             crate::note_operation::Refusal::ZeroDurationSustain => Refusal::ZeroDurationSustain,
@@ -93,14 +67,8 @@ pub fn apply_detailed(
         error: error.into(),
     };
     let plan = crate::note_operation::Plan::prepare_bounded(
-        session,
-        chart,
-        crate::note_operation::Scope::Heads(selected.clone()),
-        crate::note_operation::Operation::Swap(pair),
-        usize::MAX,
-        &AtomicBool::new(false),
-    )
-    .map_err(failure)?;
-    plan.apply_named(session, chart, &format!("Swap note types: {pair:?}"))
-        .map_err(failure)
+        session, chart, crate::note_operation::Scope::Heads(selected.clone()),
+        crate::note_operation::Operation::Swap(pair), usize::MAX, &AtomicBool::new(false),
+    ).map_err(failure)?;
+    plan.apply_named(session, chart, &format!("Swap note types: {pair:?}")).map_err(failure)
 }

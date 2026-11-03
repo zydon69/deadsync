@@ -251,9 +251,7 @@ impl App {
                 self.begin_play_session();
             }
         }
-        if current_screen == CurrentScreen::Edition {
-            return Ok(());
-        }
+        if current_screen==CurrentScreen::Edition {return Ok(());}
         let input_policy = self.input_route_policy(current_screen);
         let mut ev = ev;
         if !matches!(
@@ -314,14 +312,11 @@ impl App {
                 );
             } else if self.pending_gameplay_init.is_some() {
                 // Native InputFilter retains edges while ScreenGameplay loads.
-                self.pending_gameplay_lua_inputs
-                    .push((ev, self.input.physical_input(&ev)));
+                self.pending_gameplay_lua_inputs.push((ev, self.input.physical_input(&ev)));
             }
             return self.drain_theme_effects(event_loop);
         }
-        if current_screen == CurrentScreen::Edition {
-            return Ok(());
-        }
+        if current_screen==CurrentScreen::Edition {return Ok(());}
         if current_screen == CurrentScreen::Practice {
             debug_assert!(self.theme_effect_scratch.is_empty());
             if let Some(state) = self.state.screens.practice_state.as_mut() {
@@ -537,9 +532,7 @@ impl App {
     #[inline(always)]
     pub(super) fn clear_gameplay_input_events(&mut self) {
         self.pending_gameplay_lua_inputs.clear();
-        if let Some(state) = self.state.screens.gameplay_state.as_mut() {
-            state.clear_song_lua_inputs();
-        }
+        if let Some(state) = self.state.screens.gameplay_state.as_mut() { state.clear_song_lua_inputs(); }
         deadlib_input_native::set_raw_keyboard_capture_enabled(false);
     }
 }

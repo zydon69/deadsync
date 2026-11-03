@@ -14,30 +14,20 @@ use std::collections::HashMap;
 pub struct Preferences {
     steps: i32,
     difficulty: i32,
-    load_context: crate::document::LoadContext,
+    load_context:crate::document::LoadContext,
 }
 impl Default for Preferences {
     fn default() -> Self {
         Self {
             steps: 0,
             difficulty: 4,
-            load_context: Default::default(),
+            load_context:Default::default(),
         }
     }
 }
 impl Preferences {
-    pub fn load_context(&self) -> crate::document::LoadContext {
-        self.load_context
-            .with_timing_preferences(self.steps, self.difficulty)
-    }
-    pub(crate) fn from_load_context(context: crate::document::LoadContext) -> Self {
-        let (steps, difficulty) = context.timing_preferences();
-        Self {
-            steps,
-            difficulty,
-            load_context: context,
-        }
-    }
+    pub fn load_context(&self)->crate::document::LoadContext{self.load_context.with_timing_preferences(self.steps,self.difficulty)}
+    pub(crate) fn from_load_context(context:crate::document::LoadContext)->Self{let(steps,difficulty)=context.timing_preferences();Self{steps,difficulty,load_context:context}}
     pub fn steps_type(&self) -> Option<&'static str> {
         usize::try_from(self.steps)
             .ok()
@@ -78,19 +68,8 @@ impl Preferences {
             .map(|value| value.as_str().to_owned())
             .collect();
         let difficulty = enum_value(fields.get("DefaultDifficultyType"), &difficulties, 4)?;
-        let load_context = match fields.get("OpenSongSyncOffset") {
-            None => Default::default(),
-            Some(value) => crate::document::LoadContext::new(
-                value
-                    .as_f64()
-                    .ok_or_else(|| Error::InvalidFormat("Invalid open-song sync offset".into()))?,
-            )?,
-        };
-        Ok(Self {
-            steps,
-            difficulty,
-            load_context,
-        })
+        let load_context=match fields.get("OpenSongSyncOffset"){None=>Default::default(),Some(value)=>crate::document::LoadContext::new(value.as_f64().ok_or_else(||Error::InvalidFormat("Invalid open-song sync offset".into()))?)?};
+        Ok(Self { steps, difficulty,load_context })
     }
     /// Select using an exhaustive existing ChartComparer permutation. Neither
     /// chart order, current selection nor source bytes are changed.
@@ -155,11 +134,7 @@ impl Preferences {
         None
     }
 }
-pub(crate) fn enum_value(
-    value: Option<&Value>,
-    names: &[String],
-    missing: i32,
-) -> Result<i32, Error> {
+pub(crate) fn enum_value(value: Option<&Value>, names: &[String], missing: i32) -> Result<i32, Error> {
     let Some(value) = value else {
         return Ok(missing);
     };

@@ -7,8 +7,8 @@ mod audio_requests;
 mod browser_skin;
 mod commands;
 mod config_requests;
-mod editor_host;
 mod evaluation_views;
+mod editor_host;
 mod graphics;
 mod input_routing;
 mod live_case;
@@ -1331,52 +1331,28 @@ impl ScreensState {
                         effects,
                     );
                 }
-                if let Some(target) = self.editor_departure_target {
-                    if self
-                        .practice_state
-                        .as_ref()
-                        .is_none_or(|state| practice::editor(state).is_none())
-                    {
-                        self.editor_departure_target = None;
-                        self.editor_departure_authority = Some(target);
-                        (Some(ThemeEffect::Navigate(target)), false)
+                if let Some(target)=self.editor_departure_target {
+                    if self.practice_state.as_ref().is_none_or(|state|practice::editor(state).is_none()) {
+                        self.editor_departure_target=None;self.editor_departure_authority=Some(target);
+                        (Some(ThemeEffect::Navigate(target)),false)
                     } else {
-                        if self
-                            .active_editor()
-                            .is_some_and(|editor| !editor.host_close_pending())
-                        {
-                            self.editor_departure_target = None;
-                        }
-                        (None, false)
+                        if self.active_editor().is_some_and(|editor|!editor.host_close_pending()) {self.editor_departure_target=None;}
+                        (None,false)
                     }
-                } else {
-                    (None, false)
-                }
+                } else {(None,false)}
             }
             CurrentScreen::Edition => {
-                if let Some(editor) = self.edition_state.as_mut() {
-                    let closed = crate::gameplay_runtime::update_standalone_editor(
-                        editor,
-                        audio,
-                        gameplay_sfx,
-                        music_clock,
-                    );
+                if let Some(editor)=self.edition_state.as_mut() {
+                    let closed=crate::gameplay_runtime::update_standalone_editor(editor,audio,gameplay_sfx,music_clock);
                     if closed {
-                        let target = self
-                            .editor_departure_target
-                            .take()
-                            .unwrap_or(CurrentScreen::Menu);
-                        self.editor_departure_authority = Some(target);
-                        (Some(ThemeEffect::Navigate(target)), false)
+                        let target=self.editor_departure_target.take().unwrap_or(CurrentScreen::Menu);
+                        self.editor_departure_authority=Some(target);
+                        (Some(ThemeEffect::Navigate(target)),false)
                     } else {
-                        if !editor.host_close_pending() {
-                            self.editor_departure_target = None;
-                        }
-                        (None, false)
+                        if !editor.host_close_pending() {self.editor_departure_target=None;}
+                        (None,false)
                     }
-                } else {
-                    (None, false)
-                }
+                } else {(None,false)}
             }
             CurrentScreen::Init => (Some(init::update(&mut self.init_state, delta_time)), false),
             CurrentScreen::Options => {
@@ -1692,10 +1668,7 @@ pub struct App {
     pending_gameplay_init: Option<PendingGameplayInit>,
     /// Sole-owner handoff at a queued Lua screen boundary. The existing CPU
     /// load worker consumes it; replacement actors retain the same Lua VM.
-    pending_song_lua_reload: Option<(
-        deadsync_song_lua::SongLuaLiveScene,
-        gameplay::SongLuaHeldInputs,
-    )>,
+    pending_song_lua_reload: Option<(deadsync_song_lua::SongLuaLiveScene, gameplay::SongLuaHeldInputs)>,
     pending_gameplay_lua_inputs: Vec<(InputEvent, Option<deadsync_input::PhysicalInput>)>,
     /// One speculative, CPU-only load owned by the Select Music confirmation
     /// transition. It preloads the selected gameplay chart payload and compiled
@@ -2807,8 +2780,7 @@ impl App {
             return None;
         };
         let (steps, preferred) = match profile::get_session_play_style() {
-            profile_data::PlayStyle::Versus
-            | profile_data::PlayStyle::PumpVersus
+            profile_data::PlayStyle::Versus | profile_data::PlayStyle::PumpVersus
             | profile_data::PlayStyle::Couple
             | profile_data::PlayStyle::PumpCouple => (
                 [state.selected_steps_index, state.p2_selected_steps_index],
@@ -3101,16 +3073,14 @@ impl App {
         // Reconcile chart timing and any video fallback once after the deferred
         // command installs the initial media.
         gs.background_path_dirty = true;
-        let song_start_sfx = if finish.lua_reload {
-            None
-        } else {
+        let song_start_sfx = if finish.lua_reload { None } else {
             gameplay::start_sfx(self.state.session.gameplay_restart_count)
         }
-        .and_then(|path| {
-            self.audio.prepare_sfx(&deadsync_assets::resolve_asset_path(
-                path.to_string_lossy().as_ref(),
-            ))
-        });
+            .and_then(|path| {
+                self.audio.prepare_sfx(&deadsync_assets::resolve_asset_path(
+                    path.to_string_lossy().as_ref(),
+                ))
+            });
         self.state.screens.gameplay_state = Some(gs);
         if let Some(gs) = self.state.screens.gameplay_state.as_mut() {
             crate::gameplay_runtime::enter(
@@ -3124,9 +3094,7 @@ impl App {
         if let Some(sound) = song_start_sfx {
             self.audio.play_sfx(&sound);
         }
-        if !finish.lua_reload
-            && let Some(course) = self.state.session.course_run.as_mut()
-        {
+        if !finish.lua_reload && let Some(course) = self.state.session.course_run.as_mut() {
             course.next_stage_index = course.next_stage_index.saturating_add(1);
         }
         commands
@@ -3164,9 +3132,7 @@ impl App {
             Ok(Err(error)) => self.fail_gameplay_init(error),
             Err(std::sync::mpsc::TryRecvError::Empty) => {}
             Err(std::sync::mpsc::TryRecvError::Disconnected) => {
-                self.fail_gameplay_init(
-                    "Gameplay preparation worker stopped without returning a state".into(),
-                );
+                self.fail_gameplay_init("Gameplay preparation worker stopped without returning a state".into());
             }
         }
     }
@@ -3174,10 +3140,9 @@ impl App {
     fn fail_gameplay_init(&mut self, error: String) {
         self.pending_gameplay_init = None;
         error!("Unable to prepare gameplay: {error}");
-        self.state
-            .shell
-            .interaction
-            .show_message("Unable to prepare gameplay".to_string(), Instant::now());
+        self.state.shell.interaction.show_message(
+            "Unable to prepare gameplay".to_string(), Instant::now(),
+        );
         self.handle_navigation_action(CurrentScreen::SelectMusic);
     }
 
@@ -4455,9 +4420,7 @@ impl App {
     ) {
         self.sync_editor_window_layout(event_loop);
         self.sync_editor_ime(&window);
-        if let Some(editor) = self.state.screens.active_editor() {
-            editor.begin_performance_frame(redraw_started);
-        }
+        if let Some(editor)=self.state.screens.active_editor(){editor.begin_performance_frame(redraw_started);}
         let prev_frame_end = self.state.shell.last_frame_end_time;
         let pre_redraw_gap_us = elapsed_us_between(redraw_started, prev_frame_end);
         let delta_time = redraw_started
@@ -4969,22 +4932,13 @@ impl App {
         } else {
             self.option_previews.idle();
         }
-        let image_request = self
-            .state
-            .screens
-            .active_editor()
-            .and_then(|editor| editor.image_preview_request());
-        if image_request.is_some()
-            && self.editor_image_previews.is_none()
-            && self
-                .editor_image_preview_retry
-                .is_none_or(|retry| redraw_started >= retry)
-        {
+        let image_request=self.state.screens.active_editor().and_then(|editor|editor.image_preview_request());
+        if image_request.is_some() && self.editor_image_previews.is_none()
+            && self.editor_image_preview_retry.is_none_or(|retry| redraw_started >= retry) {
             match crate::editor_image_previews::Service::new() {
                 Ok(service) => self.editor_image_previews = Some(service),
                 Err(error) => {
-                    self.editor_image_preview_retry =
-                        Some(redraw_started + std::time::Duration::from_secs(5));
+                    self.editor_image_preview_retry = Some(redraw_started + std::time::Duration::from_secs(5));
                     log::warn!("Cannot start editor image previews: {error}");
                 }
             }
@@ -4992,17 +4946,11 @@ impl App {
         if let Some(service) = self.editor_image_previews.as_mut() {
             service.set_request(image_request);
             if let Some(backend) = self.backend.as_mut() {
-                if let Err(error) = service.update(
-                    std::time::Duration::from_secs_f32(total_elapsed),
-                    &mut self.asset_manager,
-                    backend,
-                ) {
+                if let Err(error) = service.update(std::time::Duration::from_secs_f32(total_elapsed), &mut self.asset_manager, backend) {
                     log::warn!("Editor image preview upload failed: {error}");
                 }
             }
-            if let Some(editor) = self.state.screens.active_editor_mut() {
-                editor.set_image_preview_views(service.views());
-            }
+            if let Some(editor)=self.state.screens.active_editor_mut() {editor.set_image_preview_views(service.views());}
         }
         let fonts = self.asset_manager.fonts();
         let build_screen_started = Instant::now();
@@ -5028,20 +4976,8 @@ impl App {
             _ => None,
         };
         let actor_resources = gameplay_state.map(gameplay::State::actor_resources);
-        let editor_render_targets = if self.state.screens.current_screen == CurrentScreen::Edition {
-            self.state
-                .screens
-                .edition_state
-                .as_ref()
-                .map_or_else(Vec::new, |editor| editor.take_waveform_render_targets())
-        } else {
-            Vec::new()
-        };
-        let render_targets = if gameplay_state.is_some() {
-            gameplay_state.map_or(&[][..], gameplay::State::render_targets)
-        } else {
-            &editor_render_targets
-        };
+        let editor_render_targets=if self.state.screens.current_screen==CurrentScreen::Edition{self.state.screens.edition_state.as_ref().map_or_else(Vec::new,|editor|editor.take_waveform_render_targets())}else{Vec::new()};
+        let render_targets = if gameplay_state.is_some(){gameplay_state.map_or(&[][..], gameplay::State::render_targets)}else{&editor_render_targets};
         let segmented_actors = gameplay_segments.as_ref().map(|segments| {
             segments.segments(
                 gameplay_state
@@ -5105,19 +5041,8 @@ impl App {
             let compose_scratch = &mut self.ui_compose_scratch;
             text_layout_cache.begin_frame_stats(collect_text_layout_stats);
             compose_scratch.begin_frame_stats(false);
-            let screen = if !render_targets.is_empty() {
-                compose::build_passes(
-                    std::iter::once(compose::ActorSegment::new(&actors)),
-                    render_targets,
-                    clear_color,
-                    &self.state.shell.metrics,
-                    fonts,
-                    total_elapsed,
-                    text_layout_cache,
-                    compose_scratch,
-                    self.asset_manager.texture_context(),
-                    actor_resources,
-                )
+            let screen = if !render_targets.is_empty(){
+                compose::build_passes(std::iter::once(compose::ActorSegment::new(&actors)),render_targets,clear_color,&self.state.shell.metrics,fonts,total_elapsed,text_layout_cache,compose_scratch,self.asset_manager.texture_context(),actor_resources)
             } else if let Some(actor_resources) = actor_resources {
                 compose::build_screen_cached_with_scratch_and_texture_context_and_actor_resources(
                     &actors,
@@ -5209,25 +5134,16 @@ impl App {
             self.capture_pending_screenshot(redraw_started);
         }
         let frame_finished = Instant::now();
-        if let Some(editor) = self.state.screens.active_editor() {
+        if let Some(editor)=self.state.screens.active_editor(){
             use deadsync_editor::performance::monitor::Timing;
-            let micros = |value: u64| std::time::Duration::from_micros(value);
-            let present = micros(u64::from(draw_stats.present_us));
-            let wait = micros(u64::from(draw_stats.gpu_wait_us) + u64::from(draw_stats.acquire_us));
-            editor.record_performance_stage(
-                Timing::EditorCpu,
-                frame_finished
-                    .saturating_duration_since(redraw_started)
-                    .saturating_sub(present)
-                    .saturating_sub(wait),
-            );
-            editor.record_performance_stage(
-                Timing::Update,
-                micros(u64::from(input_us) + u64::from(update_us)),
-            );
-            editor.record_performance_stage(Timing::Draw, micros(u64::from(compose_us)));
-            editor.record_performance_stage(Timing::Present, present);
-            editor.record_performance_stage(Timing::PresentWait, wait);
+            let micros=|value:u64|std::time::Duration::from_micros(value);
+            let present=micros(u64::from(draw_stats.present_us));
+            let wait=micros(u64::from(draw_stats.gpu_wait_us)+u64::from(draw_stats.acquire_us));
+            editor.record_performance_stage(Timing::EditorCpu,frame_finished.saturating_duration_since(redraw_started).saturating_sub(present).saturating_sub(wait));
+            editor.record_performance_stage(Timing::Update,micros(u64::from(input_us)+u64::from(update_us)));
+            editor.record_performance_stage(Timing::Draw,micros(u64::from(compose_us)));
+            editor.record_performance_stage(Timing::Present,present);
+            editor.record_performance_stage(Timing::PresentWait,wait);
         }
         let frame_seconds = frame_finished.duration_since(prev_frame_end).as_secs_f32();
         self.state.shell.last_frame_end_time = frame_finished;
@@ -5709,27 +5625,13 @@ impl App {
                 SimplyLoveRuntimeRequest::ReloadSongLua => {
                     if self.state.screens.current_screen != CurrentScreen::Gameplay
                         || self.pending_gameplay_init.is_some()
-                        || !self
-                            .state
-                            .screens
-                            .gameplay_state
-                            .as_ref()
-                            .is_some_and(|state| state.song_lua.is_some())
+                        || !self.state.screens.gameplay_state.as_ref().is_some_and(|state| state.song_lua.is_some())
                         || !self.prepare_player_options_for_gameplay_restart()
                     {
                         warn!("Cannot reload song Lua without an active gameplay screen");
                     } else {
-                        self.pending_song_lua_reload = self
-                            .state
-                            .screens
-                            .gameplay_state
-                            .as_mut()
-                            .and_then(|state| {
-                                state
-                                    .song_lua
-                                    .take()
-                                    .map(|scene| (scene, state.take_song_lua_held_inputs()))
-                            });
+                        self.pending_song_lua_reload = self.state.screens.gameplay_state.as_mut()
+                            .and_then(|state| state.song_lua.take().map(|scene| (scene, state.take_song_lua_held_inputs())));
                         self.state.shell.transition = TransitionState::Idle;
                         self.state.session.restart_pending = false;
                         self.state.gameplay_offset_save_prompt = None;
@@ -7722,9 +7624,8 @@ impl App {
             OperatorMenuButtonRoute::NavigateOptions => {}
         }
 
-        if self.state.screens.current_screen == CurrentScreen::Edition {
-            self.handle_navigation_action_after_prompt(CurrentScreen::Options);
-            return true;
+        if self.state.screens.current_screen==CurrentScreen::Edition {
+            self.handle_navigation_action_after_prompt(CurrentScreen::Options);return true;
         }
         info!("{SERVICE_SWITCH_PRESSED}");
         self.state
@@ -8159,16 +8060,8 @@ impl App {
             }
             CurrentScreen::Practice => {
                 if let Some(ps) = &mut self.state.screens.practice_state {
-                    screens::practice::process_editor_profile_order(
-                        ps,
-                        &deadsync_theme_simply_love::i18n::current_locale(),
-                        &mut crate::editor_collation::NativeProfileOrder,
-                    );
-                    screens::practice::process_editor_pack_songs(
-                        ps,
-                        &mut crate::editor_pack_collation::NativePackSongOrder,
-                        &mut crate::editor_collation::NativeChartOrder,
-                    );
+                    screens::practice::process_editor_profile_order(ps,&deadsync_theme_simply_love::i18n::current_locale(),&mut crate::editor_collation::NativeProfileOrder);
+                    screens::practice::process_editor_pack_songs(ps, &mut crate::editor_pack_collation::NativePackSongOrder, &mut crate::editor_collation::NativeChartOrder);
                     screens::practice::flush_editor_audio_commands(ps);
                     screens::components::gameplay::gameplay_stats::refresh_density_graph_meshes(
                         &mut ps.gameplay,
@@ -8183,31 +8076,14 @@ impl App {
                 }
             }
             CurrentScreen::Edition => {
-                if let Some(editor) = self.state.screens.edition_state.as_mut() {
-                    if editor.log_formatting_needed() {
-                        let mut formatter = crate::editor_log_formatter::NativeLogFormatter::new(
-                            &deadsync_theme_simply_love::i18n::current_locale(),
-                            editor.log_preferences().date,
-                        );
-                        editor.process_log_formatting(&mut formatter);
-                    }
+                if let Some(editor)=self.state.screens.edition_state.as_mut() {
+                    if editor.log_formatting_needed(){let mut formatter=crate::editor_log_formatter::NativeLogFormatter::new(&deadsync_theme_simply_love::i18n::current_locale(),editor.log_preferences().date);editor.process_log_formatting(&mut formatter);}
                     editor.process_text_clipboard(&mut self.editor_clipboard);
                     editor.process_music_picker(&mut crate::editor_music_picker::NativeMusicPicker);
                     editor.process_chart_order(&mut crate::editor_collation::NativeChartOrder);
-                    editor.process_profile_order(
-                        &deadsync_theme_simply_love::i18n::current_locale(),
-                        &mut crate::editor_collation::NativeProfileOrder,
-                    );
-                    editor.process_pack_song_list(
-                        &mut crate::editor_pack_collation::NativePackSongOrder,
-                        &mut crate::editor_collation::NativeChartOrder,
-                    );
-                    crate::gameplay_runtime::flush_standalone_editor(
-                        editor,
-                        &mut self.audio,
-                        &self.gameplay_sfx,
-                        &mut self.music_clock,
-                    );
+                    editor.process_profile_order(&deadsync_theme_simply_love::i18n::current_locale(),&mut crate::editor_collation::NativeProfileOrder);
+                    editor.process_pack_song_list(&mut crate::editor_pack_collation::NativePackSongOrder,&mut crate::editor_collation::NativeChartOrder);
+                    crate::gameplay_runtime::flush_standalone_editor(editor,&mut self.audio,&self.gameplay_sfx,&mut self.music_clock);
                     editor.actors(&mut actors);
                 }
             }
@@ -8705,11 +8581,7 @@ impl App {
 
     fn sync_editor_ime(&mut self, window: &Window) {
         let wanted = self.accepts_live_input()
-            && self
-                .state
-                .screens
-                .active_editor()
-                .is_some_and(|editor| editor.wants_text_input());
+            && self.state.screens.active_editor().is_some_and(|editor|editor.wants_text_input());
         if self.editor_ime_state != Some((window.id(), wanted)) {
             window.set_ime_allowed(wanted);
             self.editor_ime_state = Some((window.id(), wanted));
@@ -8736,13 +8608,8 @@ impl App {
         let action = match raw_key_text_route(self.state.screens.current_screen) {
             RawKeyTextRoute::Practice => {
                 let controls = self.state.shell.interaction.controls();
-                let changed = !controls.ctrl()
-                    && !controls.logo()
-                    && self
-                        .state
-                        .screens
-                        .active_editor_mut()
-                        .is_some_and(|editor| editor.text_input(text));
+                let changed = !controls.ctrl() && !controls.logo()
+                    && self.state.screens.active_editor_mut().is_some_and(|editor|editor.text_input(text));
                 if changed {
                     if let Some(window) = self.window.clone() {
                         self.request_redraw(&window, "editor_text");
@@ -8855,8 +8722,8 @@ impl App {
         let logo_held = self.state.shell.interaction.controls().logo();
 
         if raw_key_alt_f4_quit(raw_key.pressed, raw_key.code, alt_held) {
-            let commands = self.handle_process_exit(ProcessExitRequest::Exit);
-            self.run_commands(commands, event_loop);
+            let commands=self.handle_process_exit(ProcessExitRequest::Exit);
+            self.run_commands(commands,event_loop);
             return true;
         }
 
@@ -9067,26 +8934,13 @@ impl App {
                     false
                 };
                 if let Some(state) = self.state.screens.practice_state.as_mut() {
-                    if let Some(editor) = screens::practice::editor_mut(state) {
-                        if editor.log_formatting_needed() {
-                            let mut formatter =
-                                crate::editor_log_formatter::NativeLogFormatter::new(
-                                    &deadsync_theme_simply_love::i18n::current_locale(),
-                                    editor.log_preferences().date,
-                                );
-                            editor.process_log_formatting(&mut formatter);
-                        }
-                    }
+                    if let Some(editor)=screens::practice::editor_mut(state){if editor.log_formatting_needed(){let mut formatter=crate::editor_log_formatter::NativeLogFormatter::new(&deadsync_theme_simply_love::i18n::current_locale(),editor.log_preferences().date);editor.process_log_formatting(&mut formatter);}}
                     screens::practice::process_editor_clipboard(state, &mut self.editor_clipboard);
                     screens::practice::process_editor_music_picker(
                         state,
                         &mut crate::editor_music_picker::NativeMusicPicker,
                     );
-                    screens::practice::process_editor_profile_order(
-                        state,
-                        &deadsync_theme_simply_love::i18n::current_locale(),
-                        &mut crate::editor_collation::NativeProfileOrder,
-                    );
+                    screens::practice::process_editor_profile_order(state,&deadsync_theme_simply_love::i18n::current_locale(),&mut crate::editor_collation::NativeProfileOrder);
                     screens::practice::process_editor_chart_order(
                         state,
                         &mut crate::editor_collation::NativeChartOrder,
@@ -9506,9 +9360,7 @@ impl App {
             self.sync_screen_color_index(idx);
         }
 
-        if prev == CurrentScreen::Edition && target != CurrentScreen::Edition {
-            self.state.screens.edition_state = None;
-        }
+        if prev==CurrentScreen::Edition && target!=CurrentScreen::Edition {self.state.screens.edition_state=None;}
         if target == CurrentScreen::Menu {
             self.state.session.reset_for_menu(profile::combo_carry());
             menu::reset_for_entry(&mut self.state.screens.menu_state);
@@ -9669,8 +9521,7 @@ impl App {
                     };
                     let play_style = profile::get_session_play_style();
                     let (steps, pref) = match play_style {
-                        profile_data::PlayStyle::Versus
-                        | profile_data::PlayStyle::PumpVersus
+                        profile_data::PlayStyle::Versus | profile_data::PlayStyle::PumpVersus
                         | profile_data::PlayStyle::Couple
                         | profile_data::PlayStyle::PumpCouple => (
                             [
@@ -9751,8 +9602,7 @@ impl App {
                     };
                     let play_style = profile::get_session_play_style();
                     let (steps, pref) = match play_style {
-                        profile_data::PlayStyle::Versus
-                        | profile_data::PlayStyle::PumpVersus
+                        profile_data::PlayStyle::Versus | profile_data::PlayStyle::PumpVersus
                         | profile_data::PlayStyle::Couple
                         | profile_data::PlayStyle::PumpCouple => (
                             [
@@ -10024,23 +9874,14 @@ impl App {
                     song_lua_seed(),
                 );
                 match crate::gameplay_entry::apply_song_lua_reload(
-                    &song_arc,
-                    &mut charts,
-                    &mut gameplay_charts,
-                    &prepared_song_lua,
-                    &mut gameplay_session,
-                    cfg.global_offset_seconds,
+                    &song_arc, &mut charts, &mut gameplay_charts, &prepared_song_lua,
+                    &mut gameplay_session, cfg.global_offset_seconds,
                 ) {
                     Ok(true) => crate::gameplay_runtime::refresh_chart_view(
-                        &mut gameplay_init_view,
-                        &cfg,
-                        &song_arc,
-                        &charts,
-                        &gameplay_charts,
-                        &player_profiles,
-                        &gameplay_session,
+                        &mut gameplay_init_view, &cfg, &song_arc, &charts,
+                        &gameplay_charts, &player_profiles, &gameplay_session,
                     ),
-                    Ok(false) => {}
+                    Ok(false) => {},
                     Err(error) => {
                         self.fail_gameplay_init(error);
                         return commands;
@@ -10169,9 +10010,7 @@ impl App {
             let retained_scene = self.pending_song_lua_reload.take();
             let lua_reload = retained_scene.is_some();
             let (retained_scene, held_inputs) = retained_scene.map_or_else(
-                || (None, gameplay::SongLuaHeldInputs::default()),
-                |(scene, held)| (Some(scene), held),
-            );
+                || (None, gameplay::SongLuaHeldInputs::default()), |(scene, held)| (Some(scene), held));
 
             self.audio.stop_music();
             if prev != CurrentScreen::Gameplay {
@@ -10472,7 +10311,8 @@ impl App {
                             course.banner_path.clone(),
                         )
                     });
-                let stage_intro_text: Arc<str> = if let Some(course) = entry_course {
+                let stage_intro_text: Arc<str> = if let Some(course) = entry_course
+                {
                     let stage_num = course.next_stage_index.saturating_add(1);
                     if course.course_type == deadsync_theme::views::CourseTypeView::Endless {
                         Arc::from(format!("STAGE {stage_num}"))
@@ -10539,46 +10379,35 @@ impl App {
                     space::set_current_window_px(pixel_width, pixel_height);
                     let prepared_song_lua = if let Some(scene) = retained_scene {
                         deadsync_song_lua::playback::reload_song_lua(
-                            &song_arc,
-                            scene,
-                            deadsync_assets::song_lua::reload_song_lua,
+                            &song_arc, scene, deadsync_assets::song_lua::reload_song_lua,
                         )?
                     } else {
                         prepared_song_lua.unwrap_or_else(|| {
-                            crate::gameplay_entry::prepare_song_lua(
-                                &song_arc,
-                                &charts,
-                                std::array::from_fn(|p| &gameplay_charts[p].timing),
-                                &player_profiles,
-                                &scroll_speeds,
-                                music_rate,
-                                viewport,
-                                (pixel_width, pixel_height),
-                                display_aspect_ratio,
-                                0.0,
-                                &gameplay_session,
-                                &gameplay_config,
-                                &video_renderer.to_string(),
-                                song_lua_seed(),
-                            )
+                        crate::gameplay_entry::prepare_song_lua(
+                            &song_arc,
+                            &charts,
+                            std::array::from_fn(|p| &gameplay_charts[p].timing),
+                            &player_profiles,
+                            &scroll_speeds,
+                            music_rate,
+                            viewport,
+                            (pixel_width, pixel_height),
+                            display_aspect_ratio,
+                            0.0,
+                            &gameplay_session,
+                            &gameplay_config,
+                            &video_renderer.to_string(),
+                            song_lua_seed(),
+                        )
                         })
                     };
                     if crate::gameplay_entry::apply_song_lua_reload(
-                        &song_arc,
-                        &mut charts,
-                        &mut gameplay_charts,
-                        &prepared_song_lua,
-                        &mut gameplay_session,
-                        gameplay_config.global_offset_seconds,
+                        &song_arc, &mut charts, &mut gameplay_charts, &prepared_song_lua,
+                        &mut gameplay_session, gameplay_config.global_offset_seconds,
                     )? {
                         crate::gameplay_runtime::refresh_chart_view(
-                            &mut gameplay_init_view,
-                            &init_config,
-                            &song_arc,
-                            &charts,
-                            &gameplay_charts,
-                            &player_profiles,
-                            &gameplay_session,
+                            &mut gameplay_init_view, &init_config, &song_arc, &charts,
+                            &gameplay_charts, &player_profiles, &gameplay_session,
                         );
                     }
                     let mut state = gameplay::init(
@@ -11277,16 +11106,9 @@ impl ApplicationHandler<UserEvent> for App {
 
         match event {
             WindowEvent::CloseRequested => {
-                let ready = self.state.screens.active_editor_mut().is_none_or(|editor| {
-                    editor.request_host_application_exit()
-                        == screens::edition::ApplicationExit::Ready
-                });
+                let ready=self.state.screens.active_editor_mut().is_none_or(|editor|editor.request_host_application_exit()==screens::edition::ApplicationExit::Ready);
                 self.flush_active_editor_audio();
-                if !ready {
-                    if let Some(window) = self.window.clone() {
-                        self.request_redraw(&window, "editor_exit_confirmation");
-                    }
-                }
+                if !ready {if let Some(window)=self.window.clone(){self.request_redraw(&window,"editor_exit_confirmation");}}
                 if ready {
                     info!("Close requested. Shutting down.");
                     event_loop.exit();
@@ -11362,7 +11184,9 @@ impl ApplicationHandler<UserEvent> for App {
                     self.request_redraw(&window, "editor_preedit");
                     return;
                 }
-                if !self.accepts_live_input() || self.state.screens.active_editor().is_none() {
+                if !self.accepts_live_input()
+                    || self.state.screens.active_editor().is_none()
+                {
                     return;
                 }
                 match event {
@@ -11387,38 +11211,20 @@ impl ApplicationHandler<UserEvent> for App {
                         modifiers.state(),
                     );
                     for (code, pressed) in changes {
-                        self.handle_raw_key_event(
-                            event_loop,
-                            RawKeyboardEvent {
-                                code,
-                                pressed,
-                                repeat: false,
-                                timestamp: Instant::now(),
-                                host_nanos: host_time::now_nanos(),
-                            },
-                        );
+                        self.handle_raw_key_event(event_loop, RawKeyboardEvent {
+                            code, pressed, repeat: false,
+                            timestamp: Instant::now(), host_nanos: host_time::now_nanos(),
+                        });
                     }
                 }
             }
-            WindowEvent::MouseWheel { delta, .. } => {
-                if !self.accepts_live_input() {
-                    return;
-                }
-                let consumed = self
-                    .state
-                    .screens
-                    .active_editor_mut()
-                    .is_some_and(|editor| match delta {
-                        winit::event::MouseScrollDelta::LineDelta(_, vertical) => {
-                            editor.wheel_lines(f64::from(vertical))
-                        }
-                        winit::event::MouseScrollDelta::PixelDelta(position) => {
-                            editor.wheel_pixels(position.y, window.scale_factor())
-                        }
-                    });
-                if consumed {
-                    self.request_redraw(&window, "editor_wheel");
-                }
+            WindowEvent::MouseWheel {delta,..} => {
+                if !self.accepts_live_input() {return;}
+                let consumed=self.state.screens.active_editor_mut().is_some_and(|editor|match delta {
+                    winit::event::MouseScrollDelta::LineDelta(_,vertical)=>editor.wheel_lines(f64::from(vertical)),
+                    winit::event::MouseScrollDelta::PixelDelta(position)=>editor.wheel_pixels(position.y,window.scale_factor()),
+                });
+                if consumed {self.request_redraw(&window,"editor_wheel");}
             }
             WindowEvent::KeyboardInput {
                 event: key_event, ..
@@ -11471,27 +11277,16 @@ impl ApplicationHandler<UserEvent> for App {
                 return;
             }
         }
-        match self
-            .state
-            .screens
-            .active_editor_mut()
-            .and_then(|editor| editor.take_host_application_exit())
-        {
-            Some(screens::edition::ApplicationExit::Ready) => {
+        match self.state.screens.active_editor_mut().and_then(|editor|editor.take_host_application_exit()) {
+            Some(screens::edition::ApplicationExit::Ready)=>{
                 self.flush_active_editor_audio();
-                if let Some(request) = self.state.screens.editor_exit_request.take() {
-                    self.state.screens.editor_exit_ready = true;
-                    let commands = self.handle_process_exit(request);
-                    self.run_commands(commands, event_loop);
-                } else {
-                    event_loop.exit();
-                    return;
-                }
+                if let Some(request)=self.state.screens.editor_exit_request.take() {
+                    self.state.screens.editor_exit_ready=true;
+                    let commands=self.handle_process_exit(request);self.run_commands(commands,event_loop);
+                } else {event_loop.exit();return;}
             }
-            Some(screens::edition::ApplicationExit::Cancelled) => {
-                self.state.screens.editor_exit_request = None;
-            }
-            _ => {}
+            Some(screens::edition::ApplicationExit::Cancelled)=>{self.state.screens.editor_exit_request=None;}
+            _=>{},
         }
         if self.gameplay_preload_holds_frame() {
             event_loop.set_control_flow(ControlFlow::WaitUntil(
@@ -11550,13 +11345,8 @@ pub fn init_paths(dirs: &AppDirs) -> Result<(), &'static str> {
     }
     deadsync_config::runtime::init_paths(dirs.config_path(), dirs.judgment_palettes_path())?;
     deadsync_assets::init_paths(dirs.asset_paths(cwd.as_deref()))?;
-    deadsync_editor::waveform_preferences::initialize_runtime_defaults(
-        std::thread::available_parallelism().map_or(1, usize::from),
-    );
-    deadsync_editor::runtime::init_paths(
-        dirs.editor_configs_dir(),
-        dirs.editor_preferences_path(),
-    )?;
+    deadsync_editor::waveform_preferences::initialize_runtime_defaults(std::thread::available_parallelism().map_or(1,usize::from));
+    deadsync_editor::runtime::init_paths(dirs.editor_configs_dir(), dirs.editor_preferences_path())?;
     deadsync_profile::app_runtime::init_paths(
         dirs.profiles_root(),
         dirs.default_player_options_path(),
@@ -11603,7 +11393,7 @@ pub fn run(
         live_case,
     );
 
-    app.state.screens.editor_launch = editor_launch;
+    app.state.screens.editor_launch=editor_launch;
     // Spawn background input backend threads; all input stays decoupled from frame rate.
     let proxy = event_loop.create_proxy();
     // Raw input backends default to "unfocused" until init_graphics seeds the

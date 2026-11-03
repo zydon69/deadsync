@@ -153,10 +153,7 @@ fn overflow_is_atomic_and_sm_resident_timing_or_compatible_cross_layout_notes_ca
     assert!(Clipboard::copy(&mut source, 0, 20, 10).is_err());
     assert!(Clipboard::copy(&mut source, 0, 400, 500).unwrap().is_none());
     let clipboard = Clipboard::copy(&mut source, 0, 192, 240).unwrap().unwrap();
-    for (format, row) in [
-        (Format::Sm, i32::MAX as u64),
-        (Format::Ssc, i32::MAX as u64),
-    ] {
+    for (format, row) in [(Format::Sm, i32::MAX as u64), (Format::Ssc, i32::MAX as u64)] {
         let mut target = target(format);
         target.set_text(None, "TITLE", "Redo").unwrap();
         target.undo().unwrap();
@@ -167,21 +164,13 @@ fn overflow_is_atomic_and_sm_resident_timing_or_compatible_cross_layout_notes_ca
         assert_eq!(target.redo_label(), Some(redo.as_str()));
         assert_eq!(target.grid(0).unwrap().iter().count(), 1);
     }
-    let mut sm = target(Format::Sm);
-    let before = sm.serialize().unwrap();
-    assert!(clipboard.paste(&mut sm, 0, 384, 0).unwrap());
-    assert_eq!(sm.document().format, Format::Sm);
-    let regions =
-        deadsync_editor::timing_edit::region::Draft::capture(&sm, 0, Scope::Chart).unwrap();
-    assert_eq!(
-        regions
-            .regions(deadsync_editor::timing_edit::region::Kind::Warp)
-            .values()
-            .get(&384),
-        Some(&48)
-    );
-    sm.undo().unwrap();
-    assert_eq!(sm.serialize().unwrap(), before);
+    let mut sm=target(Format::Sm);
+    let before=sm.serialize().unwrap();
+    assert!(clipboard.paste(&mut sm,0,384,0).unwrap());
+    assert_eq!(sm.document().format,Format::Sm);
+    let regions=deadsync_editor::timing_edit::region::Draft::capture(&sm,0,Scope::Chart).unwrap();
+    assert_eq!(regions.regions(deadsync_editor::timing_edit::region::Kind::Warp).values().get(&384),Some(&48));
+    sm.undo().unwrap();assert_eq!(sm.serialize().unwrap(),before);
     let bytes = String::from_utf8(target(Format::Ssc).serialize().unwrap())
         .unwrap()
         .replace("dance-single", "pump-single")

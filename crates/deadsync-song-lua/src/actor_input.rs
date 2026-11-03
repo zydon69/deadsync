@@ -4,8 +4,8 @@ use mlua::program::{self, Action, Binding, Datum, Field, FieldValue, Group, Para
 use mlua::{InspectionValue, Lua, Table};
 use rustc_hash::FxHashMap;
 
-mod tables;
 pub(crate) mod update;
+mod tables;
 pub use update::SongLuaCompiledActorInteractions;
 
 /// An authored native actor write, in callback execution order.
@@ -157,10 +157,7 @@ impl SongLuaCompiledActorInputs {
     /// Nil entries are absent; byte keys and false values remain exact.
     pub fn boolean_states(&self) -> impl Iterator<Item = (u32, &[u8], bool)> + '_ {
         self.callbacks.boolean_objects().flat_map(|object| {
-            self.callbacks
-                .boolean_entries(object)
-                .into_iter()
-                .flatten()
+            self.callbacks.boolean_entries(object).into_iter().flatten()
                 .map(move |(key, value)| (object, key, value))
         })
     }
@@ -203,11 +200,7 @@ fn compile_with_updates(
     let input_count = inputs.len();
     let callback_count = input_count + updates.len();
     // The snapshot roots inputs; the caller already roots every update function.
-    let callbacks = || {
-        inputs
-            .iter()
-            .chain(updates.iter().map(|(function, _)| function))
-    };
+    let callbacks = || inputs.iter().chain(updates.iter().map(|(function, _)| function));
     let tables = actors
         .iter()
         .chain(tracked.iter().map(|(_, table, _)| table))
@@ -268,54 +261,42 @@ fn compile_with_updates(
                     };
                     state_ids.insert(pointer, object);
                     if table.raw_len() > 0 {
-                        tables::capture_array(
-                            &table,
-                            object,
-                            first_state_object,
-                            &indices,
-                            reserved,
-                            &mut state_ids,
-                            &mut bindings,
-                        )?;
+                        tables::capture_array(&table, object, first_state_object, &indices, reserved, &mut state_ids, &mut bindings)?;
                     } else {
-                        table.for_each::<InspectionValue, InspectionValue>(|key, value| {
-                            let InspectionValue::Bytes(name) = key else {
+                    table.for_each::<InspectionValue, InspectionValue>(|key, value| {
+                        let InspectionValue::Bytes(name) = key else {
+                            return Err(mlua::Error::runtime("native input state needs byte keys"));
+                        };
+                        let cell = match value {
+                            InspectionValue::Boolean(value) => program::Cell::Boolean(value),
+                            InspectionValue::Integer(value) => program::Cell::Number(value as f64),
+                            InspectionValue::Number(value) => program::Cell::Number(value),
+                            InspectionValue::Bytes(value) => {
+                                byte_fields.push(bindings.fields.len());
+                                bindings.fields.push(Field {
+                                    object,
+                                    name: name.into_vec().into(),
+                                    value: FieldValue::Value(Binding::Literal(
+                                        program::Literal::Bytes(value),
+                                    )),
+                                });
+                                return Ok(());
+                            }
+                            _ => {
                                 return Err(mlua::Error::runtime(
-                                    "native input state needs byte keys",
+                                    "unsupported native input state value",
                                 ));
-                            };
-                            let cell = match value {
-                                InspectionValue::Boolean(value) => program::Cell::Boolean(value),
-                                InspectionValue::Integer(value) => {
-                                    program::Cell::Number(value as f64)
-                                }
-                                InspectionValue::Number(value) => program::Cell::Number(value),
-                                InspectionValue::Bytes(value) => {
-                                    byte_fields.push(bindings.fields.len());
-                                    bindings.fields.push(Field {
-                                        object,
-                                        name: name.into_vec().into(),
-                                        value: FieldValue::Value(Binding::Literal(
-                                            program::Literal::Bytes(value),
-                                        )),
-                                    });
-                                    return Ok(());
-                                }
-                                _ => {
-                                    return Err(mlua::Error::runtime(
-                                        "unsupported native input state value",
-                                    ));
-                                }
-                            };
-                            let index = bindings.cells.len();
-                            bindings.cells.push(cell);
-                            bindings.fields.push(Field {
-                                object,
-                                name: name.into_vec().into(),
-                                value: FieldValue::Value(Binding::Cell(index)),
-                            });
-                            Ok(())
-                        })?;
+                            }
+                        };
+                        let index = bindings.cells.len();
+                        bindings.cells.push(cell);
+                        bindings.fields.push(Field {
+                            object,
+                            name: name.into_vec().into(),
+                            value: FieldValue::Value(Binding::Cell(index)),
+                        });
+                        Ok(())
+                    })?;
                     }
                     object
                 };

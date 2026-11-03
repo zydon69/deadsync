@@ -21,9 +21,9 @@ use deadsync_score::{
     ScoreImportEndpoint, ScoreImportProgress, SubmitRetryState,
     arrowcloud_autosubmit_after_payload_decision, arrowcloud_autosubmit_player_decision,
     arrowcloud_autosubmit_session_decision, arrowcloud_entry_flags, arrowcloud_leaderboard_entry,
-    arrowcloud_leaderboard_pane, arrowcloud_pane_kind_from_type,
-    arrowcloud_score_from_retrieve_fields, arrowcloud_submit_stats_from_live_or_results,
-    arrowcloud_submit_ui_status, arrowcloud_user_id, gameplay_run_failed,
+    arrowcloud_leaderboard_pane, arrowcloud_pane_kind_from_type, arrowcloud_score_from_retrieve_fields,
+    arrowcloud_submit_stats_from_live_or_results, arrowcloud_submit_ui_status,
+    arrowcloud_user_id, gameplay_run_failed,
     log_arrowcloud_bulk_import_event, run_arrowcloud_bulk_import_pack_groups,
     set_arrowcloud_score_for_leaderboard, validate_score_import_credentials,
 };
@@ -1420,11 +1420,7 @@ pub fn fetch_leaderboards(
         return Ok(None);
     };
     let limit = limit.max(1).to_string();
-    get_arrowcloud_json(
-        api_url.as_str(),
-        Some(api_key),
-        Some(("limit", limit.as_str())),
-    )
+    get_arrowcloud_json(api_url.as_str(), Some(api_key), Some(("limit", limit.as_str())))
 }
 
 pub fn fetch_user(api_key: &str) -> Result<Option<ArrowCloudUserApiResponse>, OnlineRequestError> {

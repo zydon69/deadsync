@@ -58,10 +58,7 @@ impl PerfControl {
         let path = std::env::var_os("DEADSYNC_PERF_CONTROL")?;
         let ack = std::env::var_os("DEADSYNC_PERF_ACK").expect("perf acknowledgement FIFO");
         Some(Self {
-            control: std::fs::OpenOptions::new()
-                .write(true)
-                .open(path)
-                .expect("perf control FIFO"),
+            control: std::fs::OpenOptions::new().write(true).open(path).expect("perf control FIFO"),
             ack: std::fs::File::open(ack).expect("perf acknowledgement FIFO"),
         })
     }
@@ -72,13 +69,9 @@ impl PerfControl {
         let mut filled = 0;
         while filled < ack.len() {
             let mut byte = [0];
-            self.ack
-                .read_exact(&mut byte)
-                .expect("perf counter acknowledgement");
+            self.ack.read_exact(&mut byte).expect("perf counter acknowledgement");
             // Some perf releases include a trailing NUL after "ack\n".
-            if filled == 0 && byte[0] == 0 {
-                continue;
-            }
+            if filled == 0 && byte[0] == 0 { continue; }
             ack[filled] = byte[0];
             filled += 1;
         }
@@ -102,35 +95,22 @@ fn thread_cycles() -> Option<u64> {
     let mut cycles = 0;
     // SAFETY: the pseudo-handle identifies this live thread and the output
     // pointer is valid for the synchronous call.
-    assert_ne!(
-        unsafe { QueryThreadCycleTime(GetCurrentThread(), &mut cycles) },
-        0
-    );
+    assert_ne!(unsafe { QueryThreadCycleTime(GetCurrentThread(), &mut cycles) }, 0);
     Some(cycles)
 }
 
 #[cfg(not(windows))]
-fn thread_cycles() -> Option<u64> {
-    None
-}
+fn thread_cycles() -> Option<u64> { None }
 
 impl Measurement {
     pub fn start() -> Self {
         let mut control = PerfControl::open();
-        if let Some(control) = &mut control {
-            control.command(b"enable\n");
-        }
-        assert!(
-            !ENABLED.swap(true, Relaxed),
-            "allocation measurements cannot nest"
-        );
+        if let Some(control) = &mut control { control.command(b"enable\n"); }
+        assert!(!ENABLED.swap(true, Relaxed), "allocation measurements cannot nest");
         ALLOCS.store(0, Relaxed);
         REALLOCS.store(0, Relaxed);
         BYTES.store(0, Relaxed);
-        Self {
-            cycles: thread_cycles(),
-            started: Instant::now(),
-            control,
+        Self { cycles: thread_cycles(), started: Instant::now(), control,
         }
     }
     pub fn finish(mut self) -> serde_json::Value {
@@ -138,9 +118,7 @@ impl Measurement {
         let measurements = self.cycles.zip(thread_cycles());
         let cycles = measurements.map(|(start, end)| end - start);
         ENABLED.store(false, Relaxed);
-        if let Some(control) = &mut self.control {
-            control.command(b"disable\n");
-        }
+        if let Some(control) = &mut self.control { control.command(b"disable\n"); }
         serde_json::json!({"wall_seconds":elapsed.as_secs_f64(),
             "thread_cpu_cycles":cycles,
             "allocations":ALLOCS.load(Relaxed),"reallocations":REALLOCS.load(Relaxed),

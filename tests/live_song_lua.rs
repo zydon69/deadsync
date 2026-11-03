@@ -28,8 +28,7 @@ fn run() -> ExitCode {
     }
     args.retain(|arg| {
         !arg.to_string_lossy().starts_with("--test-threads=")
-            && arg != "--nocapture"
-            && arg != "--show-output"
+            && arg != "--nocapture" && arg != "--show-output"
     });
     let production_path = args
         .iter()

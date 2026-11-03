@@ -50,6 +50,7 @@ struct LuaChange {
     path: String,
 }
 
+
 fn fixture_root() -> PathBuf {
     paths::init();
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/itgmania-song-lua")
@@ -123,16 +124,11 @@ fn write_discovery_fixture(root: &Path, entry: &ManifestSimfile, fixture: &Fixtu
             .collect::<Vec<_>>();
         text.push_str(&format!("#{tag}:{};\n", changes.join(",")));
     }
-    if simfile
-        .extension()
-        .and_then(|value| value.to_str())
-        .is_some_and(|extension| extension.eq_ignore_ascii_case("ssc"))
-    {
+    if simfile.extension().and_then(|value| value.to_str())
+        .is_some_and(|extension| extension.eq_ignore_ascii_case("ssc")) {
         text.push_str("#NOTEDATA:;\n#STEPSTYPE:dance-single;\n#DIFFICULTY:Challenge;\n#METER:1;\n#NOTES:\n1000\n0000\n0000\n0000;\n");
     } else {
-        text.push_str(
-            "#NOTES:dance-single:fixture:Challenge:1:0,0,0,0,0:\n1000\n0000\n0000\n0000;\n",
-        );
+        text.push_str("#NOTES:dance-single:fixture:Challenge:1:0,0,0,0,0:\n1000\n0000\n0000\n0000;\n");
     }
     fs::write(&simfile, text).unwrap();
     simfile

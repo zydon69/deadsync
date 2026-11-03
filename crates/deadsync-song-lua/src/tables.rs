@@ -1208,10 +1208,7 @@ pub fn create_statsman_table(lua: &Lua, context: &SongLuaCompileContext) -> mlua
             }
         })?,
     )?;
-    statsman.set(
-        "Reset",
-        lua.create_function(|_, _args: IgnoredArgs| Ok(()))?,
-    )?;
+    statsman.set("Reset", lua.create_function(|_, _args: IgnoredArgs| Ok(()))?)?;
     statsman.set(
         "GetStagesPlayed",
         lua.create_function(|_, _args: IgnoredArgs| Ok(1_i64))?,
@@ -1231,15 +1228,11 @@ pub fn create_statsman_table(lua: &Lua, context: &SongLuaCompileContext) -> mlua
 struct SongLuaStageTables(Table);
 
 pub(crate) fn reset_stage_stats(lua: &Lua, context: &SongLuaCompileContext) -> mlua::Result<()> {
-    let stage = lua
-        .app_data_ref::<SongLuaStageTables>()
-        .ok_or_else(|| mlua::Error::runtime("missing current stage statistics"))?
-        .0
-        .clone();
+    let stage = lua.app_data_ref::<SongLuaStageTables>()
+        .ok_or_else(|| mlua::Error::runtime("missing current stage statistics"))?.0.clone();
     stage.raw_set("__songlua_gameplay_seconds", 0.0)?;
     let players = stage.raw_get::<Table>("__songlua_player_stats")?;
-    let current_steps = lua
-        .app_data_ref::<crate::host::SongLuaGameStateGlobals>()
+    let current_steps = lua.app_data_ref::<crate::host::SongLuaGameStateGlobals>()
         .map(|state| state.current_steps.clone());
     for player in 0..LUA_PLAYERS {
         let stats = players.raw_get::<Table>(player + 1)?;
@@ -1247,12 +1240,8 @@ pub(crate) fn reset_stage_stats(lua: &Lua, context: &SongLuaCompileContext) -> m
             .and_then(|index| context.song_steps.get(index))
             .map_or(0, |chart| chart.possible_grade_points);
         stats.raw_set("__songlua_possible_dance_points", possible)?;
-        for key in [
-            "__songlua_actual_dance_points",
-            "__songlua_current_possible_dance_points",
-            "__songlua_score",
-            "__songlua_cur_max_score",
-        ] {
+        for key in ["__songlua_actual_dance_points", "__songlua_current_possible_dance_points",
+            "__songlua_score", "__songlua_cur_max_score"] {
             stats.raw_set(key, 0)?;
         }
         stats.raw_set("__songlua_failed", false)?;
@@ -1266,9 +1255,7 @@ pub(crate) fn reset_stage_stats(lua: &Lua, context: &SongLuaCompileContext) -> m
         if let Some(steps) = &current_steps {
             let selected = steps.raw_get::<Value>(player + 1)?;
             for name in ["GetPlayedSteps", "GetPossibleSteps"] {
-                let array = stats
-                    .get::<mlua::Function>(name)?
-                    .call::<Table>(stats.clone())?;
+                let array = stats.get::<mlua::Function>(name)?.call::<Table>(stats.clone())?;
                 array.raw_set(1, selected.clone())?;
             }
         }
@@ -1389,12 +1376,8 @@ fn create_stage_stats_table(lua: &Lua, context: &SongLuaCompileContext) -> mlua:
 }
 
 fn dance_point_percent(actual: i64, possible: i64) -> f32 {
-    if possible == 0 {
-        return 0.0;
-    }
-    if actual == possible {
-        return 1.0;
-    }
+    if possible == 0 { return 0.0; }
+    if actual == possible { return 1.0; }
     // PlayerStageStats::MakePercentScore uses f32 arithmetic and ftruncf.
     // SL inherits Common::PercentScoreDecimalPlaces=2. Compute pow(0.1f, 4)
     // at compile time with one final f32 rounding, as native powf does.
@@ -1474,18 +1457,13 @@ fn create_player_stage_stats_table(
         lua.create_function({
             let stats = stats.clone();
             move |_, _args: IgnoredArgs| {
-                Ok(
-                    if stats
-                        .get::<Option<bool>>("__songlua_failed")?
-                        .unwrap_or(false)
-                    {
-                        "Grade_Failed"
-                    } else {
-                        // Simply Love's lowest tier is 17. Before judgments, native
-                        // PlayerStageStats computes a zero grade percentage.
-                        "Grade_Tier17"
-                    },
-                )
+                Ok(if stats.get::<Option<bool>>("__songlua_failed")?.unwrap_or(false) {
+                    "Grade_Failed"
+                } else {
+                    // Simply Love's lowest tier is 17. Before judgments, native
+                    // PlayerStageStats computes a zero grade percentage.
+                    "Grade_Tier17"
+                })
             }
         })?,
     )?;
@@ -1561,9 +1539,7 @@ fn create_player_stage_stats_table(
                 let point_arg = |index| {
                     lua.coerce_number(method_arg(&args, index).cloned().unwrap_or(Value::Nil))?
                         .map(|value| i64::from(value as i32))
-                        .ok_or_else(|| {
-                            mlua::Error::runtime("SetDancePointLimits requires two numbers")
-                        })
+                        .ok_or_else(|| mlua::Error::runtime("SetDancePointLimits requires two numbers"))
                 };
                 let actual = point_arg(0)?;
                 let possible = point_arg(1)?;
@@ -1612,11 +1588,7 @@ fn create_player_stage_stats_table(
                 let points = stats
                     .get::<Option<i64>>("__songlua_possible_dance_points")?
                     .unwrap_or(0);
-                crate::live::trace_stage_query(
-                    lua,
-                    "PlayerStageStats.GetPossibleDancePoints",
-                    points,
-                );
+                crate::live::trace_stage_query(lua, "PlayerStageStats.GetPossibleDancePoints", points);
                 Ok(points)
             }
         })?,
@@ -1629,11 +1601,7 @@ fn create_player_stage_stats_table(
                 let points = stats
                     .get::<Option<i64>>("__songlua_current_possible_dance_points")?
                     .unwrap_or(0);
-                crate::live::trace_stage_query(
-                    lua,
-                    "PlayerStageStats.GetCurrentPossibleDancePoints",
-                    points,
-                );
+                crate::live::trace_stage_query(lua, "PlayerStageStats.GetCurrentPossibleDancePoints", points);
                 Ok(points)
             }
         })?,
@@ -1674,13 +1642,9 @@ fn create_player_stage_stats_table(
         lua.create_function(|_, (stats, name): (Table, String)| {
             let name = name.strip_prefix("TapNoteScore_").unwrap_or(&name);
             if !crate::live::TAP_SCORES.contains(&name) {
-                return Err(mlua::Error::runtime(format!(
-                    "invalid TapNoteScore '{name}'"
-                )));
+                return Err(mlua::Error::runtime(format!("invalid TapNoteScore '{name}'")));
             }
-            stats
-                .raw_get::<Table>("__songlua_tap_scores")?
-                .raw_get::<u32>(name)
+            stats.raw_get::<Table>("__songlua_tap_scores")?.raw_get::<u32>(name)
         })?,
     )?;
     stats.set(
@@ -2266,25 +2230,17 @@ pub fn create_timing_table(
                     .ok_or_else(|| mlua::Error::runtime(format!("{method} requires a number")))?;
                 Ok(match method {
                     // TimingData::GetBPMAtBeat selects by the rounded note row.
-                    "GetBPMAtBeat" => {
-                        timing.get_bpm_for_beat(deadsync_core::timing::note_row_to_beat(
+                    "GetBPMAtBeat" => timing.get_bpm_for_beat(
+                        deadsync_core::timing::note_row_to_beat(
                             deadsync_core::timing::beat_to_note_row(value),
-                        ))
-                    }
+                        ),
+                    ),
                     // Lua exposes ITGmania's float timing traversal. The
                     // integer timeline remains the note-judgment clock.
-                    "GetElapsedTimeFromBeat" => timing.get_song_time_for_beat(
-                        value,
-                        crate::song_tables::current_music_rate(lua)?,
-                    ),
-                    _ => {
-                        timing
-                            .get_song_position_with_rate(
-                                value,
-                                crate::song_tables::current_music_rate(lua)?,
-                            )
-                            .beat
-                    }
+                    "GetElapsedTimeFromBeat" => timing.get_song_time_for_beat(value,
+                        crate::song_tables::current_music_rate(lua)?),
+                    _ => timing.get_song_position_with_rate(value,
+                        crate::song_tables::current_music_rate(lua)?).beat,
                 })
             })?,
         )?;
@@ -2752,10 +2708,7 @@ pub fn create_display_table(lua: &Lua, context: &SongLuaCompileContext) -> mlua:
         "GetFPS",
         lua.create_function(|_, _args: IgnoredArgs| Ok(60))?,
     )?;
-    display.set(
-        "GetVPF",
-        lua.create_function(|_, _args: IgnoredArgs| Ok(1))?,
-    )?;
+    display.set("GetVPF", lua.create_function(|_, _args: IgnoredArgs| Ok(1))?)?;
     display.set(
         "GetCumFPS",
         lua.create_function(|_, _args: IgnoredArgs| Ok(60))?,
@@ -2808,10 +2761,7 @@ pub fn create_unlockman_table(lua: &Lua) -> mlua::Result<Table> {
         "GetPointsForProfile",
         "GetPointsUntilNextUnlock",
     ] {
-        table.set(
-            name,
-            lua.create_function(|_, _args: IgnoredArgs| Ok(0_i64))?,
-        )?;
+        table.set(name, lua.create_function(|_, _args: IgnoredArgs| Ok(0_i64))?)?;
     }
     table.set(
         "AnyUnlocksToCelebrate",
@@ -3104,27 +3054,15 @@ mod tests {
     #[test]
     fn dance_percent_native_values() {
         let native: serde_json::Value = serde_json::from_str(include_str!(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/../../tests/fixtures/itgmania-song-lua-micro/native-dance-percent.json"
-        )))
-        .expect("complete native percent capture");
+            env!("CARGO_MANIFEST_DIR"), "/../../tests/fixtures/itgmania-song-lua-micro/native-dance-percent.json")))
+            .expect("complete native percent capture");
         for case in native["cases"].as_array().expect("native cases") {
-            let actual = super::dance_point_percent(
-                case["actual"].as_i64().expect("native points"),
-                case["possible"].as_i64().expect("native total"),
-            );
-            assert_eq!(
-                f64::from(actual),
-                case["percent"].as_f64().expect("native percentage"),
-                "native case {}",
-                case["index"]
-            );
+            let actual = super::dance_point_percent(case["actual"].as_i64().expect("native points"),
+                case["possible"].as_i64().expect("native total"));
+            assert_eq!(f64::from(actual), case["percent"].as_f64().expect("native percentage"),
+                "native case {}", case["index"]);
         }
-        assert_eq!(
-            super::dance_point_percent(0, 0),
-            0.0,
-            "native zero total branch"
-        );
+        assert_eq!(super::dance_point_percent(0, 0), 0.0, "native zero total branch");
     }
 
     #[test]
@@ -3297,15 +3235,9 @@ mod tests {
     #[test]
     fn native_float_timing_queries_preserve_separate_offset_inputs() {
         use deadsync_rules::timing::{TimingData, TimingSegments};
-        let mut timing = TimingData::from_segments(
-            0.01,
-            0.0,
-            &TimingSegments {
-                bpms: vec![(0.0, 130.0)],
-                ..Default::default()
-            },
-            &[],
-        );
+        let mut timing = TimingData::from_segments(0.01, 0.0, &TimingSegments {
+            bpms: vec![(0.0, 130.0)], ..Default::default()
+        }, &[]);
         timing.shift_group_offset_seconds(-0.009);
         timing.set_global_offset_seconds(-0.008);
         let lua = Lua::new();
@@ -3313,17 +3245,10 @@ mod tests {
         for (method, input, expected) in [
             // C++ float order: (-song_offset - group_offset) - global_offset.
             ("GetElapsedTimeFromBeat", 0.0_f32, 0.026999998837709427_f32),
-            (
-                "GetBeatFromElapsedTime",
-                0.027732426300644875_f32,
-                0.0015869262861087918_f32,
-            ),
+            ("GetBeatFromElapsedTime", 0.027732426300644875_f32, 0.0015869262861087918_f32),
         ] {
-            let value = table
-                .get::<mlua::Function>(method)
-                .unwrap()
-                .call::<f32>((table.clone(), input))
-                .unwrap();
+            let value = table.get::<mlua::Function>(method).unwrap()
+                .call::<f32>((table.clone(), input)).unwrap();
             assert_eq!(value.to_bits(), expected.to_bits(), "native {method}");
         }
     }

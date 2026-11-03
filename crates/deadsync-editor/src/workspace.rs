@@ -12,17 +12,9 @@ use std::path::Path;
 
 pub const SNAP_ROWS: [u64; 10] = [48, 24, 16, 12, 8, 6, 4, 3, 1, 0];
 /// Increment for discrete edit tools, distinct from Off measure navigation.
-pub fn snap_edit_rows(index: usize) -> u64 {
-    SNAP_ROWS[index].max(1)
-}
+pub fn snap_edit_rows(index:usize)->u64 { SNAP_ROWS[index].max(1) }
 /// Source Editor.GetShiftNotesRows: Off shifts one beat; insertion keeps its own minimum.
-pub fn snap_shift_rows(index: usize) -> u64 {
-    if SNAP_ROWS[index] == 0 {
-        crate::notes::ROWS_PER_BEAT
-    } else {
-        SNAP_ROWS[index]
-    }
-}
+pub fn snap_shift_rows(index:usize)->u64 { if SNAP_ROWS[index] == 0 { crate::notes::ROWS_PER_BEAT } else { SNAP_ROWS[index] } }
 pub const SNAP_NAMES: [&str; 10] = [
     "1/4", "1/8", "1/12", "1/16", "1/24", "1/32", "1/48", "1/64", "1/192", "Off",
 ];
@@ -75,10 +67,8 @@ struct StructuralFocus {
 
 /// Detached application clipboard values. No document/session identity or
 /// mutable source reference survives a File/Open, Close, or pack switch.
-#[derive(Clone, Default)]
-pub struct Clipboards {
-    notes: Option<Clipboard>,
-    events: Option<crate::event_clipboard::Clipboard>,
+#[derive(Clone,Default)]
+pub struct Clipboards {notes:Option<Clipboard>,events:Option<crate::event_clipboard::Clipboard>,
 }
 mod player_memory;
 mod row_selection;
@@ -104,16 +94,9 @@ impl Workspace {
     pub(crate) fn assistant_session(&mut self) -> &mut crate::history::Session {
         &mut self.file.session
     }
-    pub fn capture_clipboards(&self) -> Clipboards {
-        Clipboards {
-            notes: self.clipboard.clone(),
-            events: self.event_clipboard.clone(),
-        }
-    }
-    pub fn install_clipboards(&mut self, values: Clipboards) {
-        self.clipboard = values.notes;
-        self.event_clipboard = values.events;
-    }
+    pub fn capture_clipboards(&self)->Clipboards{Clipboards{notes:self.clipboard.clone(),events:self.event_clipboard.clone(),
+        }}
+    pub fn install_clipboards(&mut self,values:Clipboards){self.clipboard=values.notes;self.event_clipboard=values.events;}
 
     /// Commit a prevalidated musical focus transition. Load the target before
     /// changing any cursor state; subsequent assignments cannot fail.
@@ -138,23 +121,16 @@ impl Workspace {
     }
     /// Immutable live inputs for a native collator that precomputes sort keys.
     pub fn chart_order_snapshot(&mut self) -> Result<crate::chart_order::Snapshot, Error> {
-        crate::chart_order::Snapshot::loadable(&mut self.file.session).map(|report| report.snapshot)
+        crate::chart_order::Snapshot::loadable(&mut self.file.session).map(|report|report.snapshot)
     }
 
     pub fn new_song(resource_base: &Path, sync_offset: f64) -> Result<Self, Error> {
-        let candidate = crate::file_origin::NewSong::prepare(resource_base, sync_offset)?;
+        let candidate=crate::file_origin::NewSong::prepare(resource_base,sync_offset)?;
         Ok(Self::from_file_unfocused(FileSession::from_new(candidate)?))
     }
-    pub fn open(path: &Path, chart: usize) -> Result<Self, Error> {
-        Self::open_with_context(path, chart, Default::default())
-    }
-    pub fn open_with_context(
-        path: &Path,
-        chart: usize,
-        context: crate::document::LoadContext,
-    ) -> Result<Self, Error> {
-        Self::from_file(FileSession::open_with_context(path, context)?, chart)
-    }
+    pub fn open(path: &Path, chart: usize) -> Result<Self, Error> {Self::open_with_context(path,chart,Default::default())}
+    pub fn open_with_context(path:&Path,chart:usize,context:crate::document::LoadContext,
+    )->Result<Self,Error>{Self::from_file(FileSession::open_with_context(path,context)?,chart)}
 
     pub fn from_file(mut file: FileSession, chart: usize) -> Result<Self, Error> {
         let chart = if chart == 0
@@ -178,7 +154,7 @@ impl Workspace {
         Self::from_file_ready(file, usize::MAX)
     }
     fn from_file_ready(file: FileSession, chart: usize) -> Self {
-        let player_memory = player_memory::Memory::new(&file.session, chart, 0);
+        let player_memory=player_memory::Memory::new(&file.session,chart,0);
         Self {
             file,
             chart,
@@ -198,26 +174,19 @@ impl Workspace {
     }
 
     pub fn can_normalize_stepf2_chart(&self) -> bool {
-        self.has_chart()
-            && self.file.session.document().charts()[self.chart].steps_type == "pump-double"
+        self.has_chart() && self.file.session.document().charts()[self.chart].steps_type == "pump-double"
             && self.grid().uses_stepf2()
     }
 
-    pub fn change_note_owners(
-        &mut self,
-        count: u32,
-        transform: crate::transform::Transform,
+    pub fn change_note_owners(&mut self, count: u32, transform: crate::transform::Transform,
     ) -> Result<bool, Error> {
         let chart = self.chart;
         let (start, end) = self.selection().unwrap_or((self.row, self.row));
-        let changed =
-            self.file
-                .session
-                .edit_chart_atomic(chart, "Change note players", |staged| {
-                    staged.set_participants(chart, count)?;
-                    crate::transform::apply(staged, chart, start, end, None, transform)?;
-                    Ok(())
-                })?;
+        let changed = self.file.session.edit_chart_atomic(chart, "Change note players", |staged| {
+            staged.set_participants(chart, count)?;
+            crate::transform::apply(staged, chart, start, end, None, transform)?;
+            Ok(())
+        })?;
         self.sync_active_chart()?;
         Ok(changed)
     }
@@ -225,222 +194,123 @@ impl Workspace {
     pub fn swap_note_types(&mut self, pair: crate::note_swap::Pair) -> Result<bool, Error> {
         self.swap_note_types_detailed(pair).map_err(Into::into)
     }
-    pub fn swap_note_types_detailed(
-        &mut self,
-        pair: crate::note_swap::Pair,
+    pub fn swap_note_types_detailed(&mut self, pair: crate::note_swap::Pair,
     ) -> Result<bool, crate::note_swap::Failure> {
-        let chart = self
-            .active_chart()
-            .ok_or_else(|| Error::InvalidEdit("No active chart".into()))?;
+        let chart = self.active_chart().ok_or_else(|| Error::InvalidEdit("No active chart".into()))?;
         let (start, end) = self.selection().unwrap_or((self.row, self.row));
-        let selected = self
-            .file
-            .session
-            .grid(chart)?
-            .iter()
+        let selected = self.file.session.grid(chart)?.iter()
             .filter(|(position, _)| position.row >= start && position.row <= end)
-            .map(|(position, _)| position)
-            .collect();
+            .map(|(position, _)| position).collect();
         crate::note_swap::apply_detailed(&mut self.file.session, chart, &selected, pair)
     }
     /// Prepares against the effective clock; None selection means all events.
-    pub fn prepare_timing_conversion(
-        &self,
-        direction: crate::timing_edit::conversion::Direction,
-        all: bool,
+    pub fn prepare_timing_conversion(&self, direction: crate::timing_edit::conversion::Direction, all: bool,
     ) -> Result<crate::timing_edit::conversion::Plan, Error> {
-        self.prepare_timing_conversion_detailed(direction, all)
-            .map_err(Into::into)
+        self.prepare_timing_conversion_detailed(direction, all).map_err(Into::into)
     }
-    pub fn prepare_timing_conversion_detailed(
-        &self,
-        direction: crate::timing_edit::conversion::Direction,
-        all: bool,
+    pub fn prepare_timing_conversion_detailed(&self, direction: crate::timing_edit::conversion::Direction, all: bool,
     ) -> Result<crate::timing_edit::conversion::Plan, crate::timing_edit::conversion::Failure> {
         use crate::generation::timing::{EventKind, GenerationTiming};
         use crate::timing_edit::conversion::{Direction, Plan};
-        let chart = self
-            .active_chart()
-            .ok_or_else(|| Error::InvalidEdit("No active chart".into()))?;
+        let chart = self.active_chart().ok_or_else(|| Error::InvalidEdit("No active chart".into()))?;
         let timing = GenerationTiming::from_document(self.file.session.document(), chart)?;
         let (start, end) = self.selection().unwrap_or((self.row, self.row));
-        let selected: Vec<_> = timing
-            .editor_events()
-            .iter()
-            .filter(|event| {
-                event.row >= 0
-                    && (start..=end).contains(&(event.row as u64))
-                    && match direction {
-                        Direction::WarpsToNegativeStops => matches!(event.kind, EventKind::Warp(_)),
-                        Direction::NegativeStopsToWarps => {
+        let selected: Vec<_> = timing.editor_events().iter().filter(|event| {
+            event.row >= 0 && (start..=end).contains(&(event.row as u64)) && match direction {
+                Direction::WarpsToNegativeStops => matches!(event.kind, EventKind::Warp(_)),
+                Direction::NegativeStopsToWarps => {
                             matches!(event.kind, EventKind::Stop(value) if value < 0.0)
                         }
                     }
-            })
-            .map(|event| event.row as u64)
-            .collect();
-        Plan::prepare_detailed(
-            &self.file.session,
-            chart,
-            direction,
-            if all { None } else { Some(&selected) },
+        }).map(|event| event.row as u64).collect();
+        Plan::prepare_detailed(&self.file.session, chart, direction, if all { None } else { Some(&selected) },
         )
     }
-    pub fn apply_timing_conversion(
-        &mut self,
-        plan: &crate::timing_edit::conversion::Plan,
-        acknowledged: &std::collections::BTreeSet<u64>,
+    pub fn apply_timing_conversion(&mut self, plan: &crate::timing_edit::conversion::Plan, acknowledged: &std::collections::BTreeSet<u64>,
     ) -> Result<bool, Error> {
-        self.apply_timing_conversion_detailed(plan, acknowledged)
-            .map_err(Into::into)
+        self.apply_timing_conversion_detailed(plan, acknowledged).map_err(Into::into)
     }
-    pub fn apply_timing_conversion_detailed(
-        &mut self,
-        plan: &crate::timing_edit::conversion::Plan,
-        acknowledged: &std::collections::BTreeSet<u64>,
+    pub fn apply_timing_conversion_detailed(&mut self, plan: &crate::timing_edit::conversion::Plan, acknowledged: &std::collections::BTreeSet<u64>,
     ) -> Result<bool, crate::timing_edit::conversion::Failure> {
-        if self.active_chart() != Some(plan.chart()) {
-            return Err(crate::timing_edit::conversion::Failure::stale());
-        }
+        if self.active_chart() != Some(plan.chart()) { return Err(crate::timing_edit::conversion::Failure::stale()); }
         let changed = plan.apply_detailed(&mut self.file.session, acknowledged)?;
         self.sync_active_chart()?;
         Ok(changed)
     }
-    pub fn expand_event_selection(
-        &mut self,
-        selection: &crate::event_clipboard::Selection,
+    pub fn expand_event_selection(&mut self, selection: &crate::event_clipboard::Selection,
     ) -> Result<crate::event_clipboard::Selection, Error> {
         self.validate_event_selection(selection)?;
         selection.expand_to_chart(&mut self.file.session)
     }
-    pub fn prepare_note_operation(
-        &mut self,
-        scope: crate::note_operation::Scope,
-        operation: crate::note_operation::Operation,
+    pub fn prepare_note_operation(&mut self, scope: crate::note_operation::Scope, operation: crate::note_operation::Operation,
     ) -> Result<crate::note_operation::Plan, crate::note_operation::Failure> {
-        let chart = self
-            .active_chart()
-            .ok_or_else(|| Error::InvalidEdit("No chart for note operation".into()))?;
+        let chart = self.active_chart().ok_or_else(|| Error::InvalidEdit("No chart for note operation".into()))?;
         crate::note_operation::Plan::prepare(&mut self.file.session, chart, scope, operation)
     }
-    pub fn prepare_selected_note_operation(
-        &mut self,
-        selection: &crate::event_clipboard::Selection,
-        operation: crate::note_operation::Operation,
+    pub fn prepare_selected_note_operation(&mut self, selection: &crate::event_clipboard::Selection, operation: crate::note_operation::Operation,
     ) -> Result<crate::note_operation::Plan, crate::note_operation::Failure> {
         self.validate_event_selection(selection)?;
         selection.prepare_note_operation(&mut self.file.session, operation)
     }
-    pub fn apply_note_operation(
-        &mut self,
-        plan: &crate::note_operation::Plan,
+    pub fn apply_note_operation(&mut self, plan: &crate::note_operation::Plan,
     ) -> Result<bool, crate::note_operation::Failure> {
-        let chart = self
-            .active_chart()
-            .ok_or_else(|| Error::InvalidEdit("No chart for note operation".into()))?;
+        let chart = self.active_chart().ok_or_else(|| Error::InvalidEdit("No chart for note operation".into()))?;
         plan.apply(&mut self.file.session, chart)
     }
-    pub fn take_pattern_added_update(&mut self) -> Option<crate::history::PatternAddedEffect> {
-        self.file.session.take_pattern_added_update()
-    }
-    pub fn take_event_selection_update(&mut self) -> Option<crate::history::SelectionEffect> {
-        self.file.session.take_event_selection_update()
-    }
-    pub fn prepare_selected_timing_conversion(
-        &self,
-        selection: &crate::event_clipboard::Selection,
-        direction: crate::timing_edit::conversion::Direction,
+    pub fn take_pattern_added_update(&mut self)->Option<crate::history::PatternAddedEffect>{self.file.session.take_pattern_added_update()}
+    pub fn take_event_selection_update(&mut self)->Option<crate::history::SelectionEffect>{self.file.session.take_event_selection_update()}
+    pub fn prepare_selected_timing_conversion(&self, selection: &crate::event_clipboard::Selection, direction: crate::timing_edit::conversion::Direction,
     ) -> Result<crate::timing_edit::conversion::Plan, crate::timing_edit::conversion::Failure> {
-        self.validate_event_selection(selection)
-            .map_err(|_| crate::timing_edit::conversion::Failure::stale())?;
+        self.validate_event_selection(selection).map_err(|_| crate::timing_edit::conversion::Failure::stale())?;
         selection.prepare_timing_conversion(&self.file.session, direction)
     }
-    pub fn prepare_selected_transform(
-        &mut self,
-        selection: &crate::event_clipboard::Selection,
-        transform: crate::transform::Transform,
+    pub fn prepare_selected_transform(&mut self, selection: &crate::event_clipboard::Selection, transform: crate::transform::Transform,
     ) -> Result<crate::selected_transform::Plan, crate::selected_transform::Failure> {
-        self.validate_event_selection(selection)
-            .map_err(|_| crate::selected_transform::Failure::stale())?;
+        self.validate_event_selection(selection).map_err(|_| crate::selected_transform::Failure::stale())?;
         selection.prepare_transform(&mut self.file.session, transform)
     }
-    pub fn prepare_transform_scope(
-        &mut self,
-        scope: crate::note_operation::Scope,
-        transform: crate::transform::Transform,
+    pub fn prepare_transform_scope(&mut self, scope: crate::note_operation::Scope, transform: crate::transform::Transform,
     ) -> Result<crate::selected_transform::Plan, crate::selected_transform::Failure> {
-        let chart = self
-            .active_chart()
-            .ok_or_else(|| Error::InvalidEdit("No chart to transform".into()))?;
+        let chart = self.active_chart().ok_or_else(|| Error::InvalidEdit("No chart to transform".into()))?;
         crate::selected_transform::Plan::prepare(&mut self.file.session, chart, scope, transform)
     }
-    pub fn apply_selected_transform(
-        &mut self,
-        plan: &crate::selected_transform::Plan,
-        acknowledged: &std::collections::BTreeSet<crate::selected_transform::Impact>,
+    pub fn apply_selected_transform(&mut self, plan: &crate::selected_transform::Plan, acknowledged: &std::collections::BTreeSet<crate::selected_transform::Impact>,
     ) -> Result<bool, crate::selected_transform::Failure> {
-        let chart = self
-            .active_chart()
-            .ok_or_else(|| Error::InvalidEdit("No chart to transform".into()))?;
+        let chart = self.active_chart().ok_or_else(|| Error::InvalidEdit("No chart to transform".into()))?;
         plan.apply(&mut self.file.session, chart, acknowledged)
     }
     pub fn event_selection(&mut self) -> Result<crate::event_clipboard::Selection, Error> {
         let (start, end) = self.selection().unwrap_or((self.row, self.row));
         self.event_selection_between(start, end)
     }
-    pub fn event_selection_between(
-        &mut self,
-        start: u64,
-        end: u64,
+    pub fn event_selection_between(&mut self, start: u64, end: u64,
     ) -> Result<crate::event_clipboard::Selection, Error> {
         crate::event_clipboard::Selection::capture(&mut self.file.session, self.chart, start, end)
     }
-    pub fn shift_event_selection(
-        &mut self,
-        selection: &crate::event_clipboard::Selection,
-        rows: i64,
+    pub fn shift_event_selection(&mut self, selection: &crate::event_clipboard::Selection, rows: i64,
     ) -> Result<crate::event_shift::Report, Error> {
         self.validate_event_selection(selection)?;
-        crate::event_shift::Plan::capture(&mut self.file.session, selection, rows)?
-            .apply(&mut self.file.session)
+        crate::event_shift::Plan::capture(&mut self.file.session, selection, rows)?.apply(&mut self.file.session)
     }
-    fn validate_event_selection(
-        &self,
-        selection: &crate::event_clipboard::Selection,
+    fn validate_event_selection(&self, selection: &crate::event_clipboard::Selection,
     ) -> Result<(), Error> {
-        if selection.chart() == self.chart {
-            Ok(())
-        } else {
-            Err(Error::InvalidEdit(
-                "Event selection belongs to another chart".into(),
-            ))
-        }
+        if selection.chart() == self.chart { Ok(()) } else { Err(Error::InvalidEdit("Event selection belongs to another chart".into(),
+            )) }
     }
     /// Bridge the native keyboard row-range into the shared global identities.
     /// Notes are the only native range-selected objects; timing/attacks/patterns
     /// inside that row interval must not become selected implicitly.
-    pub fn note_range_event_selection(
-        &mut self,
-    ) -> Result<crate::event_clipboard::Selection, Error> {
-        let mut selection = self.event_selection()?;
-        let choices = selection
-            .events()
-            .iter()
-            .map(|e| matches!(e, crate::event_clipboard::Event::Note(_)))
-            .collect::<Vec<_>>();
-        for (i, chosen) in choices.into_iter().enumerate() {
-            selection.set_selected(i, chosen)?;
-        }
+    pub fn note_range_event_selection(&mut self,
+    )->Result<crate::event_clipboard::Selection,Error>{
+        let mut selection=self.event_selection()?;
+        let choices=selection.events().iter().map(|e|matches!(e,crate::event_clipboard::Event::Note(_))).collect::<Vec<_>>();
+        for (i,chosen) in choices.into_iter().enumerate(){selection.set_selected(i,chosen)?;}
         Ok(selection)
     }
-    pub fn copy_event_selection(
-        &mut self,
-        selection: &crate::event_clipboard::Selection,
+    pub fn copy_event_selection(&mut self, selection: &crate::event_clipboard::Selection,
     ) -> Result<(), Error> {
         self.validate_event_selection(selection)?;
-        if let Some(clipboard) = selection.copy(&mut self.file.session)? {
-            self.event_clipboard = Some(clipboard);
-        }
+        if let Some(clipboard) = selection.copy(&mut self.file.session)? { self.event_clipboard = Some(clipboard); }
         Ok(())
     }
     pub fn copy_chart_events(
@@ -448,53 +318,24 @@ impl Workspace {
         destinations: impl IntoIterator<Item = usize>,
         types: impl IntoIterator<Item = crate::chart_event_copy::EventType>,
     ) -> Result<crate::chart_event_copy::Report, Error> {
-        crate::chart_event_copy::Plan::capture(
-            &mut self.file.session,
-            self.chart,
-            destinations,
-            types,
+        crate::chart_event_copy::Plan::capture(&mut self.file.session, self.chart, destinations, types,
         )?
-        .apply(&mut self.file.session)
+            .apply(&mut self.file.session)
     }
-    pub fn paste_events_at_fractional_row_with_presentation_receipt(
-        &mut self,
-        row: f64,
-    ) -> Result<
-        Option<(
-            crate::event_clipboard::PasteReport,
-            crate::song_properties::Application,
-        )>,
-        Error,
-    > {
-        let result = if let Some(clipboard) = &self.event_clipboard {
-            Some(clipboard.paste_at_fractional_row_with_presentation_receipt(
-                &mut self.file.session,
-                self.chart,
-                row,
-                self.player,
-            )?)
-        } else {
-            None
-        };
-        self.sync_active_chart()?;
-        Ok(result)
+    pub fn paste_events_at_fractional_row_with_presentation_receipt(&mut self,row:f64,
+    )->Result<Option<(crate::event_clipboard::PasteReport,crate::song_properties::Application,
+        )>,Error,
+    >{
+        let result=if let Some(clipboard)=&self.event_clipboard{Some(clipboard.paste_at_fractional_row_with_presentation_receipt(&mut self.file.session,self.chart,row,self.player,
+            )?)}else{None};
+        self.sync_active_chart()?;Ok(result)
     }
-    pub fn paste_events_at_fractional_row(
-        &mut self,
-        row: f64,
-    ) -> Result<crate::event_clipboard::PasteReport, Error> {
-        let result = if let Some(clipboard) = &self.event_clipboard {
-            clipboard.paste_at_fractional_row(&mut self.file.session, self.chart, row, self.player)
-        } else {
-            Ok(Default::default())
-        };
-        if result.is_ok() {
-            self.sync_active_chart()?;
-        }
-        result
+    pub fn paste_events_at_fractional_row(&mut self,row:f64,
+    )->Result<crate::event_clipboard::PasteReport,Error>{
+        let result=if let Some(clipboard)=&self.event_clipboard{clipboard.paste_at_fractional_row(&mut self.file.session,self.chart,row,self.player)}else{Ok(Default::default())};
+        if result.is_ok(){self.sync_active_chart()?;}result
     }
-    pub fn paste_events_with_report(
-        &mut self,
+    pub fn paste_events_with_report(&mut self,
     ) -> Result<crate::event_clipboard::PasteReport, Error> {
         if let Some(clipboard) = &self.event_clipboard {
             clipboard.paste_with_report(&mut self.file.session, self.chart, self.row, self.player)
@@ -502,19 +343,13 @@ impl Workspace {
             Ok(Default::default())
         }
     }
-    pub fn cut_event_selection(
-        &mut self,
-        selection: &crate::event_clipboard::Selection,
+    pub fn cut_event_selection(&mut self, selection: &crate::event_clipboard::Selection,
     ) -> Result<(), Error> {
         self.validate_event_selection(selection)?;
-        if let Some(clipboard) = selection.cut(&mut self.file.session)? {
-            self.event_clipboard = Some(clipboard);
-        }
+        if let Some(clipboard) = selection.cut(&mut self.file.session)? { self.event_clipboard = Some(clipboard); }
         self.sync_active_chart()
     }
-    pub fn delete_event_selection(
-        &mut self,
-        selection: &crate::event_clipboard::Selection,
+    pub fn delete_event_selection(&mut self, selection: &crate::event_clipboard::Selection,
     ) -> Result<bool, Error> {
         self.validate_event_selection(selection)?;
         let changed = selection.delete(&mut self.file.session)?;
@@ -528,297 +363,116 @@ impl Workspace {
         Ok(changed)
     }
 
-    pub fn create_bound_profile(
-        &mut self,
-        plan: &crate::history::profile_creation::Plan,
-        directory: &Path,
-        profile: &crate::generation::profiles::Profile,
-    ) -> Result<crate::history::profile_creation::Committed, Error> {
-        plan.publish(&mut self.file.session, directory, profile)
+    pub fn create_bound_profile(&mut self,plan:&crate::history::profile_creation::Plan,directory:&Path,profile:&crate::generation::profiles::Profile,
+    )->Result<crate::history::profile_creation::Committed,Error>{
+        plan.publish(&mut self.file.session,directory,profile)
     }
-    pub fn create_profile(
-        &mut self,
-        directory: &Path,
-        profile: &crate::generation::profiles::Profile,
+    pub fn create_profile(&mut self, directory: &Path, profile: &crate::generation::profiles::Profile,
     ) -> Result<std::path::PathBuf, Error> {
         self.file.session.create_profile(directory, profile)
     }
 
-    pub fn delete_profile(
-        &mut self,
-        file: &crate::generation::profiles::ProfileFile,
+    pub fn delete_profile(&mut self, file: &crate::generation::profiles::ProfileFile,
     ) -> Result<(), Error> {
         self.file.session.delete_profile(file)
     }
 
-    pub fn capture_lane_input(&mut self) -> Result<crate::lane_entry::Inputs, Error> {
-        let chart = self
-            .active_chart()
-            .ok_or_else(|| Error::InvalidEdit("No active lane input chart".into()))?;
-        crate::lane_entry::Inputs::capture(&mut self.file.session, chart)
+    pub fn capture_lane_input(&mut self)->Result<crate::lane_entry::Inputs,Error>{
+        let chart=self.active_chart().ok_or_else(||Error::InvalidEdit("No active lane input chart".into()))?;
+        crate::lane_entry::Inputs::capture(&mut self.file.session,chart)
     }
-    pub fn press_lane_input(
-        &mut self,
-        input: &mut crate::lane_entry::Inputs,
-        press: crate::lane_entry::Press,
-    ) -> Result<crate::lane_entry::Outcome, Error> {
-        if self.active_chart() != Some(input.chart()) {
-            return Err(Error::InvalidEdit("Lane input chart lost focus".into()));
-        }
-        input.press(&mut self.file.session, press)
+    pub fn press_lane_input(&mut self,input:&mut crate::lane_entry::Inputs,press:crate::lane_entry::Press,
+    )->Result<crate::lane_entry::Outcome,Error>{
+        if self.active_chart()!=Some(input.chart()){return Err(Error::InvalidEdit("Lane input chart lost focus".into()));}
+        input.press(&mut self.file.session,press)
     }
-    pub fn release_lane_input(
-        &mut self,
-        input: &mut crate::lane_entry::Inputs,
-        lane: u16,
-    ) -> Result<bool, Error> {
-        if self.active_chart() != Some(input.chart()) {
-            return Err(Error::InvalidEdit("Lane input chart lost focus".into()));
-        }
-        input.release(&mut self.file.session, lane)
+    pub fn release_lane_input(&mut self,input:&mut crate::lane_entry::Inputs,lane:u16,
+    )->Result<bool,Error>{
+        if self.active_chart()!=Some(input.chart()){return Err(Error::InvalidEdit("Lane input chart lost focus".into()));}
+        input.release(&mut self.file.session,lane)
     }
-    pub fn prepare_quick_add(
-        &self,
-        kind: crate::quick_add::Kind,
-    ) -> Result<crate::quick_add::Plan, crate::quick_add::Failure> {
-        crate::quick_add::Plan::prepare(&self.file.session, self.chart(), kind, self.row() as f64)
+    pub fn prepare_quick_add(&self, kind:crate::quick_add::Kind,
+    )->Result<crate::quick_add::Plan,crate::quick_add::Failure>{
+        crate::quick_add::Plan::prepare(&self.file.session,self.chart(),kind,self.row() as f64)
     }
-    pub fn apply_quick_add(
-        &mut self,
-        plan: &crate::quick_add::Plan,
-    ) -> Result<bool, crate::quick_add::Failure> {
-        let chart = self.chart();
-        plan.apply(&mut self.file.session, chart)
+    pub fn apply_quick_add(&mut self,plan:&crate::quick_add::Plan,
+    )->Result<bool,crate::quick_add::Failure>{
+        let chart=self.chart();plan.apply(&mut self.file.session,chart)
     }
-    pub fn prepare_checked_shift(
-        &mut self,
-        selection: &crate::event_clipboard::Selection,
-        later: bool,
+    pub fn prepare_checked_shift(&mut self, selection: &crate::event_clipboard::Selection, later: bool,
     ) -> Result<crate::shift_all::Plan, crate::shift_all::Failure> {
         self.validate_event_selection(selection)?;
         let chart = self.chart();
         let rows = snap_shift_rows(self.snap()) as i64 * if later { 1 } else { -1 };
         crate::shift_all::Plan::checked(&mut self.file.session, chart, selection, rows)
     }
-    pub fn prepare_shift_all(
-        &mut self,
-        later: bool,
-    ) -> Result<crate::shift_all::Plan, crate::shift_all::Failure> {
-        let rows = snap_shift_rows(self.snap()) as i64 * if later { 1 } else { -1 };
-        let chart = self.chart();
-        crate::shift_all::Plan::prepare(&mut self.file.session, chart, rows)
+    pub fn prepare_shift_all(&mut self,later:bool,
+    )->Result<crate::shift_all::Plan,crate::shift_all::Failure>{
+        let rows=snap_shift_rows(self.snap()) as i64*if later{1}else{-1};let chart=self.chart();crate::shift_all::Plan::prepare(&mut self.file.session,chart,rows)
     }
-    pub fn apply_shift_all(
-        &mut self,
-        plan: crate::shift_all::Plan,
-        review: &crate::event_shift::Report,
-    ) -> Result<crate::event_shift::Report, crate::shift_all::Failure> {
-        let chart = self.chart();
-        plan.apply(&mut self.file.session, chart, review)
+    pub fn apply_shift_all(&mut self,plan:crate::shift_all::Plan,review:&crate::event_shift::Report,
+    )->Result<crate::event_shift::Report,crate::shift_all::Failure>{
+        let chart=self.chart();plan.apply(&mut self.file.session,chart,review)
     }
-    pub fn prepare_all_pattern_action(
-        &self,
-        action: crate::pattern_actions::Action,
-    ) -> Result<crate::pattern_actions::Plan, crate::pattern_actions::Failure> {
-        crate::pattern_actions::Plan::all(&self.file.session, self.chart(), action)
-    }
-    pub fn prepare_checked_pattern_action(
-        &self,
-        selection: &crate::event_clipboard::Selection,
-        action: crate::pattern_actions::Action,
-    ) -> Result<crate::pattern_actions::Plan, crate::pattern_actions::Failure> {
-        crate::pattern_actions::Plan::checked(&self.file.session, self.chart(), selection, action)
-    }
-    pub fn begin_pattern_action(
-        &mut self,
-        plan: crate::pattern_actions::Plan,
-        review: &crate::pattern_actions::Review,
-        directory: Option<&Path>,
-    ) -> Result<crate::pattern_actions::Started, crate::pattern_actions::Failure> {
-        let chart = self.chart();
-        plan.begin(&mut self.file.session, chart, review, directory)
-    }
-    pub fn begin_pattern_action_with_presentation_receipt(
-        &mut self,
-        plan: crate::pattern_actions::Plan,
-        review: &crate::pattern_actions::Review,
-        directory: Option<&Path>,
-    ) -> crate::pattern_actions::Admission {
-        let chart = self.chart();
-        plan.begin_with_presentation_receipt(&mut self.file.session, chart, review, directory)
-    }
-    pub fn misc_inventory(
-        &mut self,
-        chart: usize,
-    ) -> Result<crate::region_selection::inventory::Inventory, Error> {
-        crate::region_selection::inventory::Inventory::capture_misc(&mut self.file.session, chart)
-    }
-    pub fn source_chart_end_position(&mut self) -> Result<f64, Error> {
-        self.source_chart_end_position_at(self.row as f64)
-    }
-    pub fn region_inventory(
-        &mut self,
-        chart: usize,
-    ) -> Result<crate::region_selection::inventory::Inventory, Error> {
-        crate::region_selection::inventory::Inventory::capture(&mut self.file.session, chart)
-    }
+    pub fn prepare_all_pattern_action(&self,action:crate::pattern_actions::Action,
+    )->Result<crate::pattern_actions::Plan,crate::pattern_actions::Failure>{crate::pattern_actions::Plan::all(&self.file.session,self.chart(),action)}
+    pub fn prepare_checked_pattern_action(&self,selection:&crate::event_clipboard::Selection,action:crate::pattern_actions::Action,
+    )->Result<crate::pattern_actions::Plan,crate::pattern_actions::Failure>{crate::pattern_actions::Plan::checked(&self.file.session,self.chart(),selection,action)}
+    pub fn begin_pattern_action(&mut self,plan:crate::pattern_actions::Plan,review:&crate::pattern_actions::Review,directory:Option<&Path>,
+    )->Result<crate::pattern_actions::Started,crate::pattern_actions::Failure>{let chart=self.chart();plan.begin(&mut self.file.session,chart,review,directory)}
+    pub fn begin_pattern_action_with_presentation_receipt(&mut self,plan:crate::pattern_actions::Plan,review:&crate::pattern_actions::Review,directory:Option<&Path>,
+    )->crate::pattern_actions::Admission{let chart=self.chart();plan.begin_with_presentation_receipt(&mut self.file.session,chart,review,directory)}
+    pub fn misc_inventory(&mut self,chart:usize,
+    )->Result<crate::region_selection::inventory::Inventory,Error>{crate::region_selection::inventory::Inventory::capture_misc(&mut self.file.session,chart)}
+    pub fn source_chart_end_position(&mut self)->Result<f64,Error>{self.source_chart_end_position_at(self.row as f64)}
+    pub fn region_inventory(&mut self,chart:usize,
+    )->Result<crate::region_selection::inventory::Inventory,Error>{crate::region_selection::inventory::Inventory::capture(&mut self.file.session,chart)}
     pub fn file(&self) -> &FileSession {
         &self.file
     }
-    pub fn set_audio_preferences_untracked(
-        &mut self,
-        before: crate::audio_preferences::Audio,
-        after: crate::audio_preferences::Audio,
-        file: Option<&crate::audio_preferences::File>,
+    pub fn set_audio_preferences_untracked(&mut self, before: crate::audio_preferences::Audio, after: crate::audio_preferences::Audio, file: Option<&crate::audio_preferences::File>,
     ) -> Result<bool, Error> {
-        self.file
-            .session
-            .set_audio_preferences_untracked(before, after, file)
+        self.file.session.set_audio_preferences_untracked(before, after, file)
     }
-    pub fn set_audio_preferences(
-        &mut self,
-        before: crate::audio_preferences::Audio,
-        after: crate::audio_preferences::Audio,
-        file: Option<&crate::audio_preferences::File>,
+    pub fn set_audio_preferences(&mut self, before: crate::audio_preferences::Audio, after: crate::audio_preferences::Audio, file: Option<&crate::audio_preferences::File>,
     ) -> Result<bool, Error> {
         self.file.session.set_audio_preferences(before, after, file)
     }
-    pub fn set_density_preferences(
-        &mut self,
-        before: crate::density_preferences::Preferences,
-        after: crate::density_preferences::Preferences,
-        file: Option<&crate::audio_preferences::File>,
-    ) -> Result<bool, Error> {
-        self.file
-            .session
-            .set_density_preferences(before, after, file)
-    }
-    pub fn take_density_preferences_update(
-        &mut self,
-    ) -> Option<crate::density_preferences::Update> {
-        self.file.session.take_density_preferences_update()
-    }
-    pub fn set_receptor_preferences(
-        &mut self,
-        before: crate::receptor_preferences::Preferences,
-        after: crate::receptor_preferences::Preferences,
-        file: Option<&crate::audio_preferences::File>,
-    ) -> Result<bool, Error> {
-        self.file
-            .session
-            .set_receptor_preferences(before, after, file)
-    }
-    pub fn set_stream_preferences(
-        &mut self,
-        before: crate::stream_preferences::Preferences,
-        after: crate::stream_preferences::Preferences,
-        file: Option<&crate::audio_preferences::File>,
-    ) -> Result<bool, Error> {
-        self.file
-            .session
-            .set_stream_preferences(before, after, file)
-    }
-    pub fn set_selection_preferences(
-        &mut self,
-        before: crate::selection_preferences::Preferences,
-        after: crate::selection_preferences::Preferences,
-        file: Option<&crate::audio_preferences::File>,
-    ) -> Result<bool, Error> {
-        self.file
-            .session
-            .set_selection_preferences(before, after, file)
-    }
-    pub fn take_selection_preferences_update(
-        &mut self,
-    ) -> Option<crate::selection_preferences::Update> {
-        self.file.session.take_selection_preferences_update()
-    }
-    pub fn take_stream_preferences_update(&mut self) -> Option<crate::stream_preferences::Update> {
-        self.file.session.take_stream_preferences_update()
-    }
-    pub fn set_scroll_preferences(
-        &mut self,
-        before: crate::scroll_preferences::Preferences,
-        after: crate::scroll_preferences::Preferences,
-        file: Option<&crate::audio_preferences::File>,
-    ) -> Result<bool, Error> {
-        self.file
-            .session
-            .set_scroll_preferences(before, after, file)
-    }
-    pub fn take_receptor_preferences_update(
-        &mut self,
-    ) -> Option<crate::receptor_preferences::Update> {
-        self.file.session.take_receptor_preferences_update()
-    }
-    pub fn take_scroll_preferences_update(&mut self) -> Option<crate::scroll_preferences::Update> {
-        self.file.session.take_scroll_preferences_update()
-    }
-    pub fn set_display_options(
-        &mut self,
-        before: crate::options_preferences::Display,
-        after: crate::options_preferences::Display,
-        file: Option<&crate::audio_preferences::File>,
-    ) -> Result<bool, Error> {
-        self.file.session.set_display_options(before, after, file)
-    }
-    pub fn take_display_options_update(&mut self) -> Option<crate::options_preferences::Update> {
-        self.file.session.take_display_options_update()
-    }
-    pub fn set_visual_preferences(
-        &mut self,
-        before: crate::visual_preferences::Snapshot,
-        after: crate::visual_preferences::Snapshot,
-        file: Option<&crate::audio_preferences::File>,
-    ) -> Result<bool, Error> {
-        self.file
-            .session
-            .set_visual_preferences(before, after, file)
-    }
-    pub fn take_visual_preferences_update(&mut self) -> Option<crate::visual_preferences::Update> {
-        self.file.session.take_visual_preferences_update()
-    }
-    pub fn set_dark_preferences(
-        &mut self,
-        before: crate::dark_preferences::Preferences,
-        after: crate::dark_preferences::Preferences,
-        file: Option<&crate::audio_preferences::File>,
-    ) -> Result<bool, Error> {
-        self.file.session.set_dark_preferences(before, after, file)
-    }
-    pub fn take_dark_preferences_update(&mut self) -> Option<crate::dark_preferences::Update> {
-        self.file.session.take_dark_preferences_update()
-    }
-    pub fn set_note_color_preferences(
-        &mut self,
-        before: std::sync::Arc<crate::note_color_preferences::Preferences>,
-        after: std::sync::Arc<crate::note_color_preferences::Preferences>,
-        file: Option<&crate::audio_preferences::File>,
-    ) -> Result<bool, Error> {
-        self.file
-            .session
-            .set_note_color_preferences(before, after, file)
-    }
-    pub fn set_key_binding_preferences(
-        &mut self,
-        before: std::sync::Arc<crate::key_binding_preferences::Preferences>,
-        after: std::sync::Arc<crate::key_binding_preferences::Preferences>,
-        file: Option<&crate::audio_preferences::File>,
-    ) -> Result<bool, Error> {
-        self.file
-            .session
-            .set_key_binding_preferences(before, after, file)
-    }
-    pub fn take_note_color_preferences_update(
-        &mut self,
-    ) -> Option<crate::note_color_preferences::Update> {
-        self.file.session.take_note_color_preferences_update()
-    }
-    pub fn take_key_binding_preferences_update(
-        &mut self,
-    ) -> Option<crate::key_binding_preferences::Update> {
-        self.file.session.take_key_binding_preferences_update()
-    }
+    pub fn set_density_preferences(&mut self,before:crate::density_preferences::Preferences,after:crate::density_preferences::Preferences,file:Option<&crate::audio_preferences::File>,
+    )->Result<bool,Error>{self.file.session.set_density_preferences(before,after,file)}
+    pub fn take_density_preferences_update(&mut self,
+    )->Option<crate::density_preferences::Update>{self.file.session.take_density_preferences_update()}
+    pub fn set_receptor_preferences(&mut self,before:crate::receptor_preferences::Preferences,after:crate::receptor_preferences::Preferences,file:Option<&crate::audio_preferences::File>,
+    )->Result<bool,Error>{self.file.session.set_receptor_preferences(before,after,file)}
+    pub fn set_stream_preferences(&mut self,before:crate::stream_preferences::Preferences,after:crate::stream_preferences::Preferences,file:Option<&crate::audio_preferences::File>,
+    )->Result<bool,Error>{self.file.session.set_stream_preferences(before,after,file)}
+    pub fn set_selection_preferences(&mut self,before:crate::selection_preferences::Preferences,after:crate::selection_preferences::Preferences,file:Option<&crate::audio_preferences::File>,
+    )->Result<bool,Error>{self.file.session.set_selection_preferences(before,after,file)}
+    pub fn take_selection_preferences_update(&mut self,
+    )->Option<crate::selection_preferences::Update>{self.file.session.take_selection_preferences_update()}
+    pub fn take_stream_preferences_update(&mut self)->Option<crate::stream_preferences::Update>{self.file.session.take_stream_preferences_update()}
+    pub fn set_scroll_preferences(&mut self,before:crate::scroll_preferences::Preferences,after:crate::scroll_preferences::Preferences,file:Option<&crate::audio_preferences::File>,
+    )->Result<bool,Error>{self.file.session.set_scroll_preferences(before,after,file)}
+    pub fn take_receptor_preferences_update(&mut self,
+    )->Option<crate::receptor_preferences::Update>{self.file.session.take_receptor_preferences_update()}
+    pub fn take_scroll_preferences_update(&mut self)->Option<crate::scroll_preferences::Update>{self.file.session.take_scroll_preferences_update()}
+    pub fn set_display_options(&mut self,before:crate::options_preferences::Display,after:crate::options_preferences::Display,file:Option<&crate::audio_preferences::File>,
+    )->Result<bool,Error>{self.file.session.set_display_options(before,after,file)}
+    pub fn take_display_options_update(&mut self)->Option<crate::options_preferences::Update>{self.file.session.take_display_options_update()}
+    pub fn set_visual_preferences(&mut self,before:crate::visual_preferences::Snapshot,after:crate::visual_preferences::Snapshot,file:Option<&crate::audio_preferences::File>,
+    )->Result<bool,Error>{self.file.session.set_visual_preferences(before,after,file)}
+    pub fn take_visual_preferences_update(&mut self)->Option<crate::visual_preferences::Update>{self.file.session.take_visual_preferences_update()}
+    pub fn set_dark_preferences(&mut self,before:crate::dark_preferences::Preferences,after:crate::dark_preferences::Preferences,file:Option<&crate::audio_preferences::File>,
+    )->Result<bool,Error>{self.file.session.set_dark_preferences(before,after,file)}
+    pub fn take_dark_preferences_update(&mut self)->Option<crate::dark_preferences::Update>{self.file.session.take_dark_preferences_update()}
+    pub fn set_note_color_preferences(&mut self,before:std::sync::Arc<crate::note_color_preferences::Preferences>,after:std::sync::Arc<crate::note_color_preferences::Preferences>,file:Option<&crate::audio_preferences::File>,
+    )->Result<bool,Error>{self.file.session.set_note_color_preferences(before,after,file)}
+    pub fn set_key_binding_preferences(&mut self,before:std::sync::Arc<crate::key_binding_preferences::Preferences>,after:std::sync::Arc<crate::key_binding_preferences::Preferences>,file:Option<&crate::audio_preferences::File>,
+    )->Result<bool,Error>{self.file.session.set_key_binding_preferences(before,after,file)}
+    pub fn take_note_color_preferences_update(&mut self,
+    )->Option<crate::note_color_preferences::Update>{self.file.session.take_note_color_preferences_update()}
+    pub fn take_key_binding_preferences_update(&mut self,
+    )->Option<crate::key_binding_preferences::Update>{self.file.session.take_key_binding_preferences_update()}
     pub fn take_audio_preferences_update(&mut self) -> Option<crate::audio_preferences::Update> {
         self.file.session.take_audio_preferences_update()
     }
@@ -905,32 +559,15 @@ impl Workspace {
     }
 
     pub fn execute(&mut self, command: Command) -> Result<(), Error> {
-        if !self.has_chart()
-            && !matches!(
-                command,
-                Command::Undo
-                    | Command::Redo
-                    | Command::Save
-                    | Command::SaveRecovery
-                    | Command::Recover
-                    | Command::SelectChart(_)
-                    | Command::SetSnap(_)
-            )
-        {
+        if !self.has_chart() && !matches!(command, Command::Undo | Command::Redo | Command::Save | Command::SaveRecovery | Command::Recover | Command::SelectChart(_) | Command::SetSnap(_)) {
             return Err(Error::InvalidEdit("No active chart".into()));
         }
         match command {
             Command::Move(steps) => {
-                let spacing = if SNAP_ROWS[self.snap] == 0 {
-                    crate::timing_edit::signature::Signatures::from_document(
-                        self.file.session.document(),
-                        self.chart,
-                    )?
-                    .measure_position(self.row)?
-                    .rows_per_measure
-                } else {
-                    SNAP_ROWS[self.snap]
-                };
+                let spacing=if SNAP_ROWS[self.snap]==0 {
+                    crate::timing_edit::signature::Signatures::from_document(self.file.session.document(),self.chart,
+                    )?.measure_position(self.row)?.rows_per_measure
+                }else{SNAP_ROWS[self.snap]};
                 let distance = spacing
                     .checked_mul(steps.unsigned_abs())
                     .ok_or_else(|| Error::InvalidEdit("Cursor movement overflow".into()))?;
@@ -957,8 +594,9 @@ impl Workspace {
                     self.file.session.document(),
                     self.chart,
                 )?;
-                let destination = signatures
-                    .measure_destination(self.row, matches!(command, Command::PreviousMeasure))?;
+                let destination = signatures.measure_destination(
+                    self.row,
+                    matches!(command, Command::PreviousMeasure))?;
                 // Workspace note positions are currently nonnegative reference rows.
                 self.selection_end = None;
                 self.row = destination.clamp(0, i32::MAX as i64) as u64;
@@ -1000,13 +638,13 @@ impl Workspace {
                     ));
                 }
                 self.player = player;
-                self.player_memory
-                    .explicit(&self.file.session, self.chart, player);
+                self.player_memory.explicit(&self.file.session,self.chart,player);
             }
             Command::SelectTool(tool) => {
                 if !TOOLS.contains(&tool) {
                     return Err(Error::Unsupported(
-                        "This note kind is not available as a lane entry tool".into(),
+                        "This note kind is not available as a lane entry tool"
+                            .into(),
                     ));
                 }
                 self.tool = tool;
@@ -1040,10 +678,9 @@ impl Workspace {
                             self.selection()
                                 .map(|(_, end)| end)
                                 .filter(|&end| end > head_row)
-                                .unwrap_or(
-                                    head_row.checked_add(snap_edit_rows(self.snap)).ok_or_else(
-                                        || Error::InvalidEdit("Sustain exceeds row range".into()),
-                                    )?,
+                                .unwrap_or(head_row.checked_add(snap_edit_rows(self.snap)).ok_or_else(
+                                    || Error::InvalidEdit("Sustain exceeds row range".into()),
+                                )?,
                                 ),
                         )
                     } else {
@@ -1074,70 +711,42 @@ impl Workspace {
             }
             Command::Paste => {
                 if let Some(clipboard) = &self.clipboard {
-                    clipboard.paste_force(
-                        &mut self.file.session,
-                        self.chart,
-                        self.row,
-                        self.player,
+                    clipboard.paste_force(&mut self.file.session, self.chart, self.row, self.player,
                     )?;
                 }
             }
             Command::CopyEvents | Command::CutEvents => {
                 let (start, end) = self.selection().unwrap_or((self.row, self.row));
                 let clipboard = if matches!(command, Command::CutEvents) {
-                    crate::event_clipboard::Clipboard::cut(
-                        &mut self.file.session,
-                        self.chart,
-                        start,
-                        end,
+                    crate::event_clipboard::Clipboard::cut(&mut self.file.session, self.chart, start, end,
                     )?
                 } else {
-                    crate::event_clipboard::Clipboard::copy(
-                        &mut self.file.session,
-                        self.chart,
-                        start,
-                        end,
+                    crate::event_clipboard::Clipboard::copy(&mut self.file.session, self.chart, start, end,
                     )?
                 };
-                if let Some(clipboard) = clipboard {
-                    self.event_clipboard = Some(clipboard);
-                }
+                if let Some(clipboard) = clipboard { self.event_clipboard = Some(clipboard); }
             }
             Command::PasteEvents => {
                 self.paste_events_with_report()?;
             }
             Command::Undo => {
-                let focused = self
-                    .active_chart()
-                    .and_then(|chart| self.file.session.chart_ids().get(chart))
-                    .cloned();
+                let focused = self.active_chart().and_then(|chart| self.file.session.chart_ids().get(chart)).cloned();
                 let effect = self.file.authoring_history_with_effect(false)?;
-                let explicit = effect
-                    .applied
-                    .then(|| self.structural_focus.get(&effect.before_revision))
-                    .flatten()
-                    .filter(|focus| focus.before_revision == effect.after_revision)
+                let explicit = effect.applied.then(|| self.structural_focus.get(&effect.before_revision))
+                    .flatten().filter(|focus| focus.before_revision == effect.after_revision)
                     .map(|focus| focus.before_chart);
                 self.sync_history_focus(&effect, focused.as_ref(), explicit)?;
             }
             Command::Redo => {
-                let focused = self
-                    .active_chart()
-                    .and_then(|chart| self.file.session.chart_ids().get(chart))
-                    .cloned();
+                let focused = self.active_chart().and_then(|chart| self.file.session.chart_ids().get(chart)).cloned();
                 let effect = self.file.authoring_history_with_effect(true)?;
-                let explicit = effect
-                    .applied
-                    .then(|| self.structural_focus.get(&effect.after_revision))
-                    .flatten()
-                    .filter(|focus| focus.before_revision == effect.before_revision)
+                let explicit = effect.applied.then(|| self.structural_focus.get(&effect.after_revision))
+                    .flatten().filter(|focus| focus.before_revision == effect.before_revision)
                     .map(|focus| focus.after_chart);
                 self.sync_history_focus(&effect, focused.as_ref(), explicit)?;
             }
             Command::Save => self.file.save()?,
-            Command::SaveRecovery => {
-                let _publication = self.file.save_recovery()?;
-            }
+            Command::SaveRecovery => { let _publication=self.file.save_recovery()?; }
             Command::Recover => {
                 self.file.recover()?;
                 self.structural_focus.clear();
@@ -1193,17 +802,14 @@ impl Workspace {
         directory: Option<&Path>,
         profiles: crate::generation::job::ProfileOverrides,
     ) -> Result<crate::generation::job::ChartTask, Error> {
-        self.generation_task_at_with_profiles(self.chart, options, directory, profiles)
+        self.generation_task_at_with_profiles(self.chart,options,directory,profiles)
     }
     pub fn generation_task_at_with_profiles(
-        &self,
-        source_chart: usize,
-        options: crate::generation::job::ChartOptions,
-        directory: Option<&Path>,
-        profiles: crate::generation::job::ProfileOverrides,
-    ) -> Result<crate::generation::job::ChartTask, Error> {
-        crate::generation::job::ChartTask::capture(&self.file.session, source_chart, options)?
-            .with_profile_overrides(directory, profiles)
+        &self,source_chart:usize,options:crate::generation::job::ChartOptions,
+        directory:Option<&Path>,profiles:crate::generation::job::ProfileOverrides,
+    )->Result<crate::generation::job::ChartTask,Error>{
+        crate::generation::job::ChartTask::capture(&self.file.session,source_chart,options)?
+            .with_profile_overrides(directory,profiles)
     }
 
     pub fn pattern_task(
@@ -1227,34 +833,17 @@ impl Workspace {
         .map(|task| task.with_chart_expression())
     }
 
-    pub fn apply_sm_authoring_history(
-        &mut self,
-        redo: bool,
-    ) -> Result<crate::song_properties::Application, Error> {
-        if !self.file.session.history_changes_sm_authoring(redo) {
-            return Err(Error::InvalidEdit(
-                "History does not contain an authoring promotion".into(),
-            ));
-        }
-        let before = self.file.session.content_token();
-        let ids = self.file.session.chart_ids().to_vec();
-        self.execute(if redo { Command::Redo } else { Command::Undo })?;
-        Ok(crate::history::song_presentation::preserved_authoring(
-            before,
-            ids,
-            &self.file.session,
+    pub fn apply_sm_authoring_history(&mut self,redo:bool,
+    )->Result<crate::song_properties::Application,Error>{
+        if !self.file.session.history_changes_sm_authoring(redo){return Err(Error::InvalidEdit("History does not contain an authoring promotion".into(),
+            ));}
+        let before=self.file.session.content_token();let ids=self.file.session.chart_ids().to_vec();self.execute(if redo{Command::Redo}else{Command::Undo})?;
+        Ok(crate::history::song_presentation::preserved_authoring(before,ids,&self.file.session,
         ))
     }
-    pub fn prepare_sm_authoring(&mut self) -> Result<crate::history::authoring::Plan, Error> {
-        self.file.prepare_sm_authoring()
-    }
-    pub fn apply_sm_authoring(
-        &mut self,
-        plan: crate::history::authoring::Plan,
-        options: crate::advanced_export::Options,
-    ) -> Result<crate::song_properties::Application, Error> {
-        self.file.apply_sm_authoring(plan, options)
-    }
+    pub fn prepare_sm_authoring(&mut self)->Result<crate::history::authoring::Plan,Error>{self.file.prepare_sm_authoring()}
+    pub fn apply_sm_authoring(&mut self,plan:crate::history::authoring::Plan,options:crate::advanced_export::Options,
+    )->Result<crate::song_properties::Application,Error>{self.file.apply_sm_authoring(plan,options)}
     pub fn timing_migration(&self) -> Result<crate::timing_edit::migration::Draft, Error> {
         crate::timing_edit::migration::Draft::capture(&self.file.session)
     }
@@ -1265,16 +854,12 @@ impl Workspace {
         draft.apply(&mut self.file.session)
     }
 
-    pub fn apply_timing_migration_with_presentation_receipt(
-        &mut self,
-        draft: &crate::timing_edit::migration::Draft,
-    ) -> Result<crate::song_properties::Application, Error> {
+    pub fn apply_timing_migration_with_presentation_receipt(&mut self,draft:&crate::timing_edit::migration::Draft,
+    )->Result<crate::song_properties::Application,Error>{
         draft.apply_with_presentation_receipt(&mut self.file.session)
     }
-    pub fn apply_timing_migration_history(
-        &mut self,
-        redo: bool,
-    ) -> Result<crate::song_properties::Application, Error> {
+    pub fn apply_timing_migration_history(&mut self,redo:bool,
+    )->Result<crate::song_properties::Application,Error>{
         self.file.session.apply_timing_migration_history(redo)
     }
 
@@ -1314,9 +899,7 @@ impl Workspace {
         draft.apply(&mut self.file.session, self.chart)
     }
 
-    pub fn apply_labels(
-        &mut self,
-        draft: &crate::timing_edit::label::Draft,
+    pub fn apply_labels(&mut self, draft: &crate::timing_edit::label::Draft,
     ) -> Result<bool, Error> {
         draft.apply(&mut self.file.session, self.chart)
     }
@@ -1332,7 +915,9 @@ impl Workspace {
     ) -> Result<bool, Error> {
         draft.apply(&mut self.file.session, self.chart)
     }
-    pub fn apply_ticks(&mut self, draft: &crate::timing_edit::tick::Draft) -> Result<bool, Error> {
+    pub fn apply_ticks(
+        &mut self,
+        draft: &crate::timing_edit::tick::Draft) -> Result<bool, Error> {
         draft.apply(&mut self.file.session, self.chart)
     }
     pub fn apply_scrolls(
@@ -1350,16 +935,11 @@ impl Workspace {
     pub fn chart_properties(&self) -> Result<crate::chart_properties::Draft, Error> {
         crate::chart_properties::Draft::capture(&self.file.session, self.chart)
     }
-    pub fn select_attack(
-        &mut self,
-        scope: crate::timing_edit::Scope,
-        row: u64,
-    ) -> Result<(), Error> {
-        self.file.session.select_attack(self.chart, scope, row)
+    pub fn select_attack(&mut self, scope: crate::timing_edit::Scope, row: u64,
+    ) -> Result<(),Error> {
+        self.file.session.select_attack(self.chart,scope,row)
     }
-    pub fn forget_chart_attack(&mut self, chart: usize) {
-        self.file.session.forget_chart_attack(chart);
-    }
+    pub fn forget_chart_attack(&mut self, chart: usize) { self.file.session.forget_chart_attack(chart); }
     pub fn attack_inspector(
         &self,
         scope: crate::timing_edit::Scope,
@@ -1372,9 +952,7 @@ impl Workspace {
     ) -> Result<bool, Error> {
         draft.apply(&mut self.file.session, self.chart)
     }
-    pub fn attacks(
-        &self,
-        scope: crate::timing_edit::Scope,
+    pub fn attacks(&self, scope: crate::timing_edit::Scope,
     ) -> Result<crate::attacks::Draft, Error> {
         crate::attacks::Draft::capture(&self.file.session, self.chart(), scope)
     }
@@ -1383,63 +961,42 @@ impl Workspace {
     }
     pub fn note_attributes(&self, lane: u16) -> Result<crate::note_attributes::Draft, Error> {
         let position = crate::notes::Position {
-            row: self.row(),
-            lane,
-            player: self.player(),
+            row: self.row(), lane, player: self.player(),
         };
-        let note = self
-            .grid()
-            .get(position)
+        let note = self.grid().get(position)
             .ok_or_else(|| Error::InvalidEdit("No note head at this position".into()))?;
         Ok(crate::note_attributes::Draft::from_note(
-            &self.file.session,
-            self.chart(),
-            position,
-            note,
+            &self.file.session, self.chart(), position, note,
         ))
     }
-    pub fn apply_note_attributes(
-        &mut self,
-        draft: &crate::note_attributes::Draft,
+    pub fn apply_note_attributes(&mut self, draft: &crate::note_attributes::Draft,
     ) -> Result<bool, Error> {
         draft.apply(&mut self.file.session, self.chart)
     }
-    pub fn apply_song_assets(
-        &mut self,
-        assets: &crate::song_assets::Assets,
-        only_unset: bool,
+    pub fn apply_song_assets(&mut self, assets: &crate::song_assets::Assets, only_unset: bool,
     ) -> Result<usize, Error> {
         assets.apply(&mut self.file.session, only_unset)
     }
     pub fn song_properties(&self) -> Result<crate::song_properties::Draft, Error> {
         crate::song_properties::Draft::capture(&self.file.session)
     }
-    pub fn apply_song_properties_with_presentation_receipt(
-        &mut self,
-        draft: &crate::song_properties::Draft,
-    ) -> Result<crate::song_properties::Application, Error> {
+    pub fn apply_song_properties_with_presentation_receipt(&mut self,draft:&crate::song_properties::Draft,
+    )->Result<crate::song_properties::Application,Error>{
         draft.apply_with_presentation_receipt(&mut self.file.session)
     }
     pub fn apply_song_properties(
         &mut self,
         draft: &crate::song_properties::Draft,
     ) -> Result<bool, Error> {
-        Ok(draft
-            .apply_with_presentation_receipt(&mut self.file.session)?
-            .changed())
+        Ok(draft.apply_with_presentation_receipt(&mut self.file.session)?.changed())
     }
-    pub fn apply_chart_properties_with_presentation_receipt(
-        &mut self,
-        draft: &crate::chart_properties::Draft,
-    ) -> Result<crate::chart_properties::Application, Error> {
-        self.apply_chart_properties_at_with_presentation_receipt(self.chart, draft)
+    pub fn apply_chart_properties_with_presentation_receipt(&mut self,draft:&crate::chart_properties::Draft,
+    )->Result<crate::chart_properties::Application,Error>{
+        self.apply_chart_properties_at_with_presentation_receipt(self.chart,draft)
     }
-    pub fn apply_chart_properties_at_with_presentation_receipt(
-        &mut self,
-        chart: usize,
-        draft: &crate::chart_properties::Draft,
-    ) -> Result<crate::chart_properties::Application, Error> {
-        draft.apply_with_presentation_receipt(&mut self.file.session, chart)
+    pub fn apply_chart_properties_at_with_presentation_receipt(&mut self,chart:usize,draft:&crate::chart_properties::Draft,
+    )->Result<crate::chart_properties::Application,Error>{
+        draft.apply_with_presentation_receipt(&mut self.file.session,chart)
     }
     pub fn apply_chart_properties(
         &mut self,
@@ -1479,16 +1036,9 @@ impl Workspace {
         }
     }
 
-    pub fn reseed_inspected_marker(
-        &mut self,
-        draft: &crate::generation::marker_edit::Draft,
-        seed: i32,
-    ) -> Result<crate::song_properties::Application, Error> {
-        crate::history::song_presentation::reseed_marker(
-            draft,
-            &mut self.file.session,
-            self.chart,
-            seed,
+    pub fn reseed_inspected_marker(&mut self,draft:&crate::generation::marker_edit::Draft,seed:i32,
+    )->Result<crate::song_properties::Application,Error>{
+        crate::history::song_presentation::reseed_marker(draft,&mut self.file.session,self.chart,seed,
         )
     }
 
@@ -1544,19 +1094,12 @@ impl Workspace {
         Ok(changed)
     }
     pub fn navigate_saved_pattern_at(&mut self, cursor: f64, forward: bool) -> Result<bool, Error> {
-        if !cursor.is_finite() {
-            return Err(Error::InvalidEdit(
-                "Pattern navigation position must be finite".into(),
-            ));
-        }
-        let data =
-            crate::generation::metadata::ChartData::read(self.file.session.document(), self.chart)?;
-        if let Some(row) = data.and_then(|data| data.adjacent_marker_at(cursor, forward)) {
-            self.seek_preserving_selection(row)?;
-            Ok(true)
-        } else {
-            Ok(false)
-        }
+        if !cursor.is_finite() { return Err(Error::InvalidEdit("Pattern navigation position must be finite".into(),
+            )); }
+        let data = crate::generation::metadata::ChartData::read(self.file.session.document(),self.chart)?;
+        if let Some(row) = data.and_then(|data|data.adjacent_marker_at(cursor,forward)) {
+            self.seek_preserving_selection(row)?; Ok(true)
+        } else { Ok(false) }
     }
     pub fn navigate_saved_pattern(&mut self, forward: bool) -> Result<bool, Error> {
         let data =
@@ -1624,48 +1167,25 @@ impl Workspace {
 
     /// Same validated worker application, with a typed clock/audio proof for
     /// callers which own a fractional presentation position.
-    pub fn apply_generated_pattern_with_presentation_receipt(
-        &mut self,
-        preview: &crate::generation::pattern_job::Preview,
-    ) -> Result<crate::song_properties::Application, Error> {
-        let applied = crate::history::song_presentation::apply_pattern(
-            preview,
-            &mut self.file.session,
-            self.chart,
+    pub fn apply_generated_pattern_with_presentation_receipt(&mut self,preview:&crate::generation::pattern_job::Preview,
+    )->Result<crate::song_properties::Application,Error>{
+        let applied=crate::history::song_presentation::apply_pattern(preview,&mut self.file.session,self.chart,
         )?;
-        self.file.session.grid(self.chart)?;
-        self.anchor = None;
-        self.selection_end = None;
+        self.file.session.grid(self.chart)?;self.anchor=None;self.selection_end=None;
         Ok(applied)
     }
 
-    pub fn apply_pattern_set_with_presentation_receipt(
-        &mut self,
-        preview: &crate::generation::pattern_batch::Preview,
-    ) -> Result<crate::song_properties::Application, Error> {
-        let applied = crate::history::song_presentation::apply_pattern_set(
-            preview,
-            &mut self.file.session,
-            self.chart,
+    pub fn apply_pattern_set_with_presentation_receipt(&mut self,preview:&crate::generation::pattern_batch::Preview,
+    )->Result<crate::song_properties::Application,Error>{
+        let applied=crate::history::song_presentation::apply_pattern_set(preview,&mut self.file.session,self.chart,
         )?;
-        self.file.session.grid(self.chart)?;
-        self.anchor = None;
-        self.selection_end = None;
-        Ok(applied)
+        self.file.session.grid(self.chart)?;self.anchor=None;self.selection_end=None;Ok(applied)
     }
-    pub fn apply_cleared_pattern_with_presentation_receipt(
-        &mut self,
-        preview: &crate::generation::clear_patterns::Preview,
-    ) -> Result<crate::song_properties::Application, Error> {
-        let applied = crate::history::song_presentation::apply_cleared_pattern(
-            preview,
-            &mut self.file.session,
-            self.chart,
+    pub fn apply_cleared_pattern_with_presentation_receipt(&mut self,preview:&crate::generation::clear_patterns::Preview,
+    )->Result<crate::song_properties::Application,Error>{
+        let applied=crate::history::song_presentation::apply_cleared_pattern(preview,&mut self.file.session,self.chart,
         )?;
-        self.file.session.grid(self.chart)?;
-        self.anchor = None;
-        self.selection_end = None;
-        Ok(applied)
+        self.file.session.grid(self.chart)?;self.anchor=None;self.selection_end=None;Ok(applied)
     }
     pub fn pattern_set_task(
         &self,
@@ -1721,7 +1241,7 @@ impl Workspace {
     ) -> Result<Vec<usize>, Error> {
         let before_revision = self.file.session.revision();
         let before_chart = self.chart;
-        let before_ids = self.file.session.chart_ids().to_vec();
+        let before_ids=self.file.session.chart_ids().to_vec();
         let indices = preview.apply(&mut self.file.session)?;
         self.initialize_added_chart_players(&before_ids)?;
         let chart = indices[0];
@@ -1829,26 +1349,18 @@ impl Workspace {
         Ok(chart)
     }
 
-    pub(crate) fn apply_assistant_draft(
-        &mut self,
-        token: &crate::history::RevisionToken,
-        bytes: &[u8],
-    ) -> Result<(), Error> {
-        let before_revision = self.file.session.revision();
-        let before_chart = self.chart;
-        let before_ids = self.file.session.chart_ids().to_vec();
-        let count = self.file.session.document().charts().len();
-        self.file.session.commit_assistant_document(token, bytes)?;
-        let after = self.file.session.document().charts().len();
-        if after > count {
+    pub(crate) fn apply_assistant_draft(&mut self,token:&crate::history::RevisionToken,bytes:&[u8],
+    )->Result<(),Error>{
+        let before_revision=self.file.session.revision();
+        let before_chart=self.chart;
+        let before_ids=self.file.session.chart_ids().to_vec();
+        let count=self.file.session.document().charts().len();
+        self.file.session.commit_assistant_document(token,bytes)?;
+        let after=self.file.session.document().charts().len();
+        if after>count {
             self.initialize_added_chart_players(&before_ids)?;
-            let chart = after - 1;
-            self.structural_focus.insert(
-                self.file.session.revision(),
-                StructuralFocus {
-                    before_revision,
-                    before_chart,
-                    after_chart: chart,
+            let chart=after-1;
+            self.structural_focus.insert(self.file.session.revision(),StructuralFocus{before_revision,before_chart,after_chart:chart,
                 },
             );
             self.execute(Command::SelectChart(chart))?;
@@ -1891,23 +1403,17 @@ impl Workspace {
         focused: Option<&crate::generation::metadata::Guid>,
         explicit: Option<usize>,
     ) -> Result<(), Error> {
-        if !effect.applied {
-            return Ok(());
-        }
+        if !effect.applied { return Ok(()); }
         self.player_memory.prune(&self.file.session);
-        if let Some(delta) = &effect.chart_structure {
-            self.initialize_added_chart_players(&delta.before)?;
-        }
-        let identities = effect
-            .chart_structure
-            .as_ref()
+        if let Some(delta)=&effect.chart_structure {self.initialize_added_chart_players(&delta.before)?;}
+        let identities = effect.chart_structure.as_ref()
             .map_or(self.file.session.chart_ids(), |delta| {
                 delta.after.as_slice()
             });
         self.chart = explicit.unwrap_or_else(|| {
             focused
-                .and_then(|id| identities.iter().position(|candidate| candidate == id))
-                .unwrap_or(usize::MAX)
+            .and_then(|id| identities.iter().position(|candidate| candidate == id))
+            .unwrap_or(usize::MAX)
         });
         if self.chart != usize::MAX {
             self.sync_active_chart()?;
@@ -1934,7 +1440,7 @@ impl Workspace {
                 .iter()
                 .position(|c| crate::notes::layout_columns(&c.steps_type).is_some());
             let Some(chart) = candidate else {
-                self.anchor = None;
+                    self.anchor = None;
                 self.selection_end = None;
                 return Ok(());
             };
@@ -1972,308 +1478,120 @@ impl Workspace {
     }
 }
 
-impl Workspace {
-    pub fn set_history_capacity(&mut self, size: usize) -> Result<(), Error> {
-        self.file.session.set_history_capacity(size)
-    }
-    pub fn set_general_options(
-        &mut self,
-        before: crate::options_preferences::General,
-        after: crate::options_preferences::General,
-        file: Option<&crate::audio_preferences::File>,
-    ) -> Result<bool, Error> {
-        self.file.session.set_general_options(before, after, file)
-    }
-    pub fn take_general_options_update(
-        &mut self,
-    ) -> Option<crate::options_preferences::GeneralUpdate> {
-        self.file.session.take_general_options_update()
-    }
+impl Workspace {pub fn set_history_capacity(&mut self,size:usize)->Result<(),Error>{self.file.session.set_history_capacity(size)} pub fn set_general_options(&mut self,before:crate::options_preferences::General,after:crate::options_preferences::General,file:Option<&crate::audio_preferences::File>,
+    )->Result<bool,Error>{self.file.session.set_general_options(before,after,file)}
+ pub fn take_general_options_update(&mut self,
+    )->Option<crate::options_preferences::GeneralUpdate>{self.file.session.take_general_options_update()}}
+
+impl Workspace{
+ pub fn restore_options(&mut self,before:crate::options_preferences::restore::Snapshot,file:Option<&crate::audio_preferences::File>,
+    )->Result<bool,Error>{self.file.session.restore_options(before,file)}
+ pub fn set_recent_files_history_size(&mut self,before:usize,after:usize,file:&crate::audio_preferences::File,
+    )->Result<bool,Error>{self.file.session.set_recent_files_history_size(before,after,file)}
+ pub fn set_suppress_external_song_notifications(&mut self,before:bool,after:bool,file:&crate::audio_preferences::File,
+    )->Result<bool,Error>{self.file.session.set_suppress_external_song_notifications(before,after,file)}
+ pub fn take_restore_options_update(&mut self,
+    )->Option<crate::options_preferences::restore::Update>{self.file.session.take_restore_options_update()}
+}
+
+impl Workspace {pub fn apply_song_timing_history(&mut self,redo:bool,
+    )->Result<crate::song_properties::Application,Error>{self.file.session.apply_song_timing_history(redo)}}
+
+impl Workspace{
+ pub fn restore_scroll(&mut self,before:crate::scroll_preferences::restore::Snapshot,file:Option<&crate::audio_preferences::File>,
+    )->Result<bool,Error>{self.file.session.restore_scroll(before,file)}
+ pub fn take_restore_scroll_update(&mut self,
+    )->Option<crate::scroll_preferences::restore::Update>{self.file.session.take_restore_scroll_update()}
 }
 
 impl Workspace {
-    pub fn restore_options(
-        &mut self,
-        before: crate::options_preferences::restore::Snapshot,
-        file: Option<&crate::audio_preferences::File>,
-    ) -> Result<bool, Error> {
-        self.file.session.restore_options(before, file)
-    }
-    pub fn set_recent_files_history_size(
-        &mut self,
-        before: usize,
-        after: usize,
-        file: &crate::audio_preferences::File,
-    ) -> Result<bool, Error> {
-        self.file
-            .session
-            .set_recent_files_history_size(before, after, file)
-    }
-    pub fn set_suppress_external_song_notifications(
-        &mut self,
-        before: bool,
-        after: bool,
-        file: &crate::audio_preferences::File,
-    ) -> Result<bool, Error> {
-        self.file
-            .session
-            .set_suppress_external_song_notifications(before, after, file)
-    }
-    pub fn take_restore_options_update(
-        &mut self,
-    ) -> Option<crate::options_preferences::restore::Update> {
-        self.file.session.take_restore_options_update()
-    }
+    pub fn set_performance_preferences(&mut self, before: crate::performance::preferences::Preferences, after: crate::performance::preferences::Preferences, file: Option<&crate::audio_preferences::File>,
+    ) -> Result<bool, Error> { self.file.session.set_performance_preferences(before, after, file) }
+    pub fn restore_performance_preferences(&mut self, before: crate::performance::preferences::Preferences, file: Option<&crate::audio_preferences::File>,
+    ) -> Result<bool, Error> { self.file.session.restore_performance_preferences(before, file) }
+    pub fn take_performance_preferences_update(&mut self) -> Option<crate::performance::Update> { self.file.session.take_performance_preferences_update() }
+}
+
+impl Workspace{
+ pub fn prepare_source_preferences(&mut self,current:&crate::audio_preferences::File,raw:&[u8],platform:crate::key_binding_preferences::source_profile::Platform,
+    )->Result<crate::audio_preferences::source_import::Draft,Error>{let focus=self.has_chart().then_some(self.chart);crate::audio_preferences::source_import::Draft::prepare(&mut self.file.session,focus,current,raw,platform,
+        )}
+ pub fn import_source_preferences(&mut self,draft:crate::audio_preferences::source_import::Draft,current:&crate::audio_preferences::File,accept_adaptations:bool,
+    )->Result<bool,Error>{let focus=self.has_chart().then_some(self.chart);self.file.session.import_source_preferences(draft,current,focus,accept_adaptations)}
+ pub fn capture_source_preferences_context(&mut self,current:&crate::audio_preferences::File){self.file.session.capture_source_preferences_context(current);}
+ pub fn take_source_preferences_update(&mut self,
+    )->Option<Box<crate::audio_preferences::source_import::Update>>{self.file.session.take_source_preferences_update()}
+ pub fn source_preference_player(&mut self,raw:i32)->Result<(),Error>{if !self.has_chart(){return Ok(());}let players=self.file.session.grid(self.chart)?.players();self.execute(Command::SelectPlayer(raw.clamp(0,players.saturating_sub(1) as i32) as u32,
+        ))}
+ pub fn install_source_snap(&mut self,level:crate::snap::Level){self.snap=level.native_index();}
+
 }
 
 impl Workspace {
-    pub fn apply_song_timing_history(
-        &mut self,
-        redo: bool,
-    ) -> Result<crate::song_properties::Application, Error> {
-        self.file.session.apply_song_timing_history(redo)
-    }
+    pub fn edit_profile(&mut self,file:&crate::generation::profiles::ProfileFile,profile:&crate::generation::profiles::Profile,
+    )->Result<bool,Error>{self.file.session.edit_profile(file,profile)}
+    pub fn take_profile_edit_update(&mut self,
+    )->Option<crate::generation::profiles::edit::Update>{self.file.session.take_profile_edit_update()}
+    pub fn pending_profile_durability_update(&self,
+    )->Option<crate::generation::profiles::edit::Update>{self.file.session.pending_profile_durability_update()}
+    pub fn has_profile_durability(&self)->bool{self.file.session.has_profile_durability()}
+    pub fn retry_profile_durability(&mut self)->Result<(),Error>{self.file.session.retry_profile_durability()}
 }
 
-impl Workspace {
-    pub fn restore_scroll(
-        &mut self,
-        before: crate::scroll_preferences::restore::Snapshot,
-        file: Option<&crate::audio_preferences::File>,
-    ) -> Result<bool, Error> {
-        self.file.session.restore_scroll(before, file)
-    }
-    pub fn take_restore_scroll_update(
-        &mut self,
-    ) -> Option<crate::scroll_preferences::restore::Update> {
-        self.file.session.take_restore_scroll_update()
-    }
-}
+impl Workspace {pub fn retain_profile_publication(&mut self,file:crate::generation::profiles::ProfileFile){self.file.session.retain_profile_publication(file);}}
 
 impl Workspace {
-    pub fn set_performance_preferences(
-        &mut self,
-        before: crate::performance::preferences::Preferences,
-        after: crate::performance::preferences::Preferences,
-        file: Option<&crate::audio_preferences::File>,
-    ) -> Result<bool, Error> {
-        self.file
-            .session
-            .set_performance_preferences(before, after, file)
-    }
-    pub fn restore_performance_preferences(
-        &mut self,
-        before: crate::performance::preferences::Preferences,
-        file: Option<&crate::audio_preferences::File>,
-    ) -> Result<bool, Error> {
-        self.file
-            .session
-            .restore_performance_preferences(before, file)
-    }
-    pub fn take_performance_preferences_update(&mut self) -> Option<crate::performance::Update> {
-        self.file.session.take_performance_preferences_update()
-    }
-}
-
-impl Workspace {
-    pub fn prepare_source_preferences(
-        &mut self,
-        current: &crate::audio_preferences::File,
-        raw: &[u8],
-        platform: crate::key_binding_preferences::source_profile::Platform,
-    ) -> Result<crate::audio_preferences::source_import::Draft, Error> {
-        let focus = self.has_chart().then_some(self.chart);
-        crate::audio_preferences::source_import::Draft::prepare(
-            &mut self.file.session,
-            focus,
-            current,
-            raw,
-            platform,
-        )
-    }
-    pub fn import_source_preferences(
-        &mut self,
-        draft: crate::audio_preferences::source_import::Draft,
-        current: &crate::audio_preferences::File,
-        accept_adaptations: bool,
-    ) -> Result<bool, Error> {
-        let focus = self.has_chart().then_some(self.chart);
-        self.file
-            .session
-            .import_source_preferences(draft, current, focus, accept_adaptations)
-    }
-    pub fn capture_source_preferences_context(&mut self, current: &crate::audio_preferences::File) {
-        self.file
-            .session
-            .capture_source_preferences_context(current);
-    }
-    pub fn take_source_preferences_update(
-        &mut self,
-    ) -> Option<Box<crate::audio_preferences::source_import::Update>> {
-        self.file.session.take_source_preferences_update()
-    }
-    pub fn source_preference_player(&mut self, raw: i32) -> Result<(), Error> {
-        if !self.has_chart() {
-            return Ok(());
-        }
-        let players = self.file.session.grid(self.chart)?.players();
-        self.execute(Command::SelectPlayer(
-            raw.clamp(0, players.saturating_sub(1) as i32) as u32,
-        ))
-    }
-    pub fn install_source_snap(&mut self, level: crate::snap::Level) {
-        self.snap = level.native_index();
-    }
-}
-
-impl Workspace {
-    pub fn edit_profile(
-        &mut self,
-        file: &crate::generation::profiles::ProfileFile,
-        profile: &crate::generation::profiles::Profile,
-    ) -> Result<bool, Error> {
-        self.file.session.edit_profile(file, profile)
-    }
-    pub fn take_profile_edit_update(
-        &mut self,
-    ) -> Option<crate::generation::profiles::edit::Update> {
-        self.file.session.take_profile_edit_update()
-    }
-    pub fn pending_profile_durability_update(
-        &self,
-    ) -> Option<crate::generation::profiles::edit::Update> {
-        self.file.session.pending_profile_durability_update()
-    }
-    pub fn has_profile_durability(&self) -> bool {
-        self.file.session.has_profile_durability()
-    }
-    pub fn retry_profile_durability(&mut self) -> Result<(), Error> {
-        self.file.session.retry_profile_durability()
-    }
-}
-
-impl Workspace {
-    pub fn retain_profile_publication(&mut self, file: crate::generation::profiles::ProfileFile) {
-        self.file.session.retain_profile_publication(file);
-    }
-}
-
-impl Workspace {
-    pub fn apply_chart_properties_history(
-        &mut self,
-        redo: bool,
-    ) -> Result<crate::song_properties::Application, Error> {
-        self.file.session.apply_chart_properties_history(redo)
-    }
-    pub fn apply_timing_live_plan(
-        &mut self,
-        plan: crate::timing_edit::live::Plan,
+ pub fn apply_chart_properties_history(&mut self,redo:bool,
+    )->Result<crate::song_properties::Application,Error>{self.file.session.apply_chart_properties_history(redo)}
+    pub fn apply_timing_live_plan(&mut self, plan: crate::timing_edit::live::Plan,
     ) -> Result<crate::timing_edit::live::Application, Error> {
         plan.apply(&mut self.file.session)
     }
-    pub fn apply_unfocused_timing_history(&mut self, redo: bool) -> Result<bool, Error> {
-        self.file.session.apply_unfocused_timing_history(redo)
-    }
+    pub fn apply_unfocused_timing_history(&mut self,redo:bool)->Result<bool,Error>{self.file.session.apply_unfocused_timing_history(redo)}
+
 }
 
 impl Workspace {
-    pub fn apply_marker_metadata_with_presentation_receipt(
-        &mut self,
-        draft: &crate::generation::marker_edit::Draft,
-        delete: bool,
-    ) -> Result<crate::song_properties::Application, Error> {
-        crate::history::song_presentation::apply_marker_metadata(
-            draft,
-            &mut self.file.session,
-            self.chart,
-            delete,
+    pub fn apply_marker_metadata_with_presentation_receipt(&mut self,draft:&crate::generation::marker_edit::Draft,delete:bool,
+    )->Result<crate::song_properties::Application,Error>{
+        crate::history::song_presentation::apply_marker_metadata(draft,&mut self.file.session,self.chart,delete,
         )
     }
-    pub fn apply_marker_metadata_history(
-        &mut self,
-        redo: bool,
-    ) -> Result<crate::song_properties::Application, Error> {
-        crate::history::song_presentation::apply_marker_metadata_history(
-            &mut self.file.session,
-            redo,
+    pub fn apply_marker_metadata_history(&mut self,redo:bool,
+    )->Result<crate::song_properties::Application,Error>{
+        crate::history::song_presentation::apply_marker_metadata_history(&mut self.file.session,redo,
         )
     }
 }
 
 impl Workspace {
-    pub fn apply_song_properties_live_plan(
-        &mut self,
-        plan: crate::song_properties::live::Plan,
-    ) -> Result<crate::song_properties::live::Application, Error> {
-        if plan.chart() != self.active_chart() {
-            return Err(Error::ExternalChange);
-        }
-        plan.apply(&mut self.file.session)
-    }
+ pub fn apply_song_properties_live_plan(&mut self,plan:crate::song_properties::live::Plan,
+    )->Result<crate::song_properties::live::Application,Error>{
+  if plan.chart()!=self.active_chart(){return Err(Error::ExternalChange);}
+  plan.apply(&mut self.file.session)
+ }
 }
 
 impl Workspace {
-    pub fn apply_song_properties_metadata_history(
-        &mut self,
-        redo: bool,
-    ) -> Result<crate::song_properties::Application, Error> {
-        self.file
-            .session
-            .apply_song_properties_metadata_history(redo)
-    }
+ pub fn apply_song_properties_metadata_history(&mut self,redo:bool,
+    )->Result<crate::song_properties::Application,Error>{self.file.session.apply_song_properties_metadata_history(redo)}
 }
 
 impl Workspace {
-    pub fn apply_zoom_preferences(
-        &mut self,
-        before: crate::zoom_preferences::Preferences,
-        target: crate::zoom_preferences::Preferences,
-        file: &crate::audio_preferences::File,
-    ) -> Result<bool, Error> {
-        self.file
-            .session
-            .apply_zoom_preferences(before, target, file)
-    }
+ pub fn apply_zoom_preferences(&mut self,before:crate::zoom_preferences::Preferences,target:crate::zoom_preferences::Preferences,file:&crate::audio_preferences::File,
+    )->Result<bool,Error>{self.file.session.apply_zoom_preferences(before,target,file)}
 }
 
 impl Workspace {
-    pub fn prepare_chart_event_copy(
-        &mut self,
-        source: usize,
-        destinations: impl IntoIterator<Item = usize>,
-        types: impl IntoIterator<Item = crate::chart_event_copy::EventType>,
-        focus: Option<(
-            crate::chart_focus::Position,
-            crate::timing_edit::live::Anchor,
+ pub fn prepare_chart_event_copy(&mut self,source:usize,destinations:impl IntoIterator<Item=usize>,types:impl IntoIterator<Item=crate::chart_event_copy::EventType>,focus:Option<(crate::chart_focus::Position,crate::timing_edit::live::Anchor,
         )>,
-    ) -> Result<crate::chart_event_copy::live::Plan, Error> {
-        crate::chart_event_copy::live::Plan::prepare(
-            &mut self.file.session,
-            source,
-            destinations,
-            types,
-            focus,
-        )
-    }
-    pub fn apply_chart_event_copy_live(
-        &mut self,
-        plan: crate::chart_event_copy::live::Plan,
-    ) -> Result<crate::chart_event_copy::live::Application, Error> {
-        if plan.chart() != self.active_chart() {
-            return Err(Error::ExternalChange);
-        }
-        plan.apply(&mut self.file.session)
-    }
+    )->Result<crate::chart_event_copy::live::Plan,Error>{crate::chart_event_copy::live::Plan::prepare(&mut self.file.session,source,destinations,types,focus,
+        )}
+ pub fn apply_chart_event_copy_live(&mut self,plan:crate::chart_event_copy::live::Plan,
+    )->Result<crate::chart_event_copy::live::Application,Error>{if plan.chart()!=self.active_chart(){return Err(Error::ExternalChange);}plan.apply(&mut self.file.session)}
 }
 
 impl Workspace {
-    pub fn edit_pack_properties_reviewed(
-        &mut self,
-        review: &crate::pack::storage::history::Review,
-        after: crate::pack::Data,
-    ) -> Result<bool, Error> {
-        self.file
-            .session
-            .edit_pack_properties_reviewed(review, after)
-    }
+ pub fn edit_pack_properties_reviewed(&mut self,review:&crate::pack::storage::history::Review,after:crate::pack::Data,
+    )->Result<bool,Error>{self.file.session.edit_pack_properties_reviewed(review,after)}
 }

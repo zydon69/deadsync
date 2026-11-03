@@ -1,6 +1,6 @@
 //! Locked, stack-restoring access for read-only raw VM batches.
-use mlua::ffi;
 use mlua::{Lua, Result};
+use mlua::ffi;
 
 struct RestoreStack {
     state: *mut ffi::lua_State,
@@ -11,9 +11,7 @@ impl Drop for RestoreStack {
     fn drop(&mut self) {
         // SAFETY: the guard cannot outlive exec_raw_lua's VM lock. Lua 5.1
         // stack truncation neither allocates nor invokes authored callbacks.
-        unsafe {
-            ffi::lua_settop(self.state, self.top);
-        }
+        unsafe { ffi::lua_settop(self.state, self.top); }
     }
 }
 
@@ -34,9 +32,7 @@ pub(crate) unsafe fn with_read_stack<R>(
         // grows its stack under luaD_rawrunprotected and returns zero on error.
         // The guard restores the stack on Rust errors and unwinding as well.
         unsafe {
-            if ffi::lua_checkstack(state, slots) == 0 {
-                return Err(mlua::Error::StackError);
-            }
+            if ffi::lua_checkstack(state, slots) == 0 { return Err(mlua::Error::StackError); }
             let top = ffi::lua_gettop(state);
             let _restore = RestoreStack { state, top };
             read(raw, top)
@@ -59,8 +55,7 @@ mod tests {
                 assert_eq!(base, top);
                 raw.push(17)?;
                 raw.pop::<i32>()
-            })
-            .unwrap();
+            }).unwrap();
             assert_eq!(value, 17);
             assert_eq!(ffi::lua_gettop(raw.state()), top);
             let error = with_read_stack::<()>(&lua, 4, |raw, _| {

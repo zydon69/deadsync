@@ -1,7 +1,7 @@
 //! Reviewed activation of legacy SSC chart timing. The version and all required
 //! tempo materialization are committed together, without touching note data.
-use super::{inherited_fields_for_write, reference_uses_chart_timing, supports_chart_timing};
 pub use crate::history::song_presentation::PresentationOrigin;
+use super::{inherited_fields_for_write, reference_uses_chart_timing, supports_chart_timing};
 use crate::{
     Error,
     document::{Document, Format, escape_text},
@@ -134,10 +134,9 @@ impl Draft {
         self.validate_presentation(session)?;
         session.set_timing_migration_properties(&self.properties)
     }
-    pub fn apply_with_presentation_receipt(
-        &self,
-        session: &mut Session,
-    ) -> Result<crate::song_properties::Application, Error> {
+    pub fn apply_with_presentation_receipt(&self, session: &mut Session)
+        -> Result<crate::song_properties::Application, Error>
+    {
         crate::history::song_presentation::apply_timing_migration(self, session)
     }
     // Migration activates the editor's already-effective legacy clock in the
@@ -155,18 +154,14 @@ impl Draft {
         for chart in 0..session.document().charts().len() {
             let before = GenerationTiming::from_document(session.document(), chart)?;
             let after = GenerationTiming::from_document(candidate.document(), chart)?;
-            let before_offset =
-                crate::chart_properties::Draft::capture(session, chart)?.effective_music_offset();
-            let after_offset = crate::chart_properties::Draft::capture(&candidate, chart)?
-                .effective_music_offset();
+            let before_offset = crate::chart_properties::Draft::capture(session, chart)?.effective_music_offset();
+            let after_offset = crate::chart_properties::Draft::capture(&candidate, chart)?.effective_music_offset();
             if before.editor_events() != after.editor_events()
                 || before_offset.to_bits() != after_offset.to_bits()
                 || crate::song_properties::sync_offset(session.document())?.to_bits()
                     != crate::song_properties::sync_offset(candidate.document())?.to_bits()
             {
-                return Err(Error::InvalidEdit(
-                    "SSC migration would change the editor's effective clock".into(),
-                ));
+                return Err(Error::InvalidEdit("SSC migration would change the editor's effective clock".into()));
             }
         }
         Ok(())

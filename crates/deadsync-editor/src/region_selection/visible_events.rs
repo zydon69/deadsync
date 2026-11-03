@@ -43,7 +43,7 @@ fn key(e: Event, phase: u8) -> Key {
         phase,
         lane,
         player,
-        edited: false,
+        edited:false,
     }
 }
 fn cmp(a: Key, b: Key) -> Ordering {
@@ -55,11 +55,7 @@ fn cmp(a: Key, b: Key) -> Ordering {
         .then(a.player.cmp(&b.player))
         .then(a.edited.cmp(&b.edited))
 }
-fn head_key(h: &crate::lane_entry::Head) -> Key {
-    let mut k = key(Event::Note(h.position), h.note.kind.editor_phase());
-    k.edited = h.edited;
-    k
-}
+fn head_key(h:&crate::lane_entry::Head)->Key{let mut k=key(Event::Note(h.position),h.note.kind.editor_phase());k.edited=h.edited;k}
 fn coefficients(index: &Index, i: usize, s: Settings) -> Result<Helper, Error> {
     let mut h = Helper::new(s.mode, s.reverse);
     h.update(
@@ -192,15 +188,13 @@ impl RegionCompletion {
 #[derive(Default)]
 pub struct Plan {
     events: Vec<Event>,
-    heads: Vec<crate::lane_entry::Head>,
+    heads:Vec<crate::lane_entry::Head>,
     misc: Vec<(usize, f64)>,
     pub stopped_by_quota: bool,
     completion: Option<RegionCompletion>,
 }
 impl Plan {
-    pub fn heads(&self) -> &[crate::lane_entry::Head] {
-        &self.heads
-    }
+    pub fn heads(&self)->&[crate::lane_entry::Head]{&self.heads}
 
     pub fn completion(&self) -> Option<&RegionCompletion> {
         self.completion.as_ref()
@@ -267,20 +261,7 @@ pub fn prepare_with_region(
     region: Option<Region>,
     max_rates: i32,
 ) -> Result<Plan, Error> {
-    prepare_with_input(
-        grid,
-        clock,
-        index,
-        misc,
-        focal,
-        settings,
-        viewport,
-        max,
-        render_misc,
-        region,
-        max_rates,
-        None,
-    )
+    prepare_with_input(grid,clock,index,misc,focal,settings,viewport,max,render_misc,region,max_rates,None)
 }
 pub fn prepare_with_input(
     grid: &Grid,
@@ -294,9 +275,9 @@ pub fn prepare_with_input(
     render_misc: bool,
     region: Option<Region>,
     max_rates: i32,
-    input: Option<&crate::lane_entry::Inputs>,
+    input:Option<&crate::lane_entry::Inputs>,
 ) -> Result<Plan, Error> {
-    let held = crate::lane_entry::Held::new(grid, input);
+    let held=crate::lane_entry::Held::new(grid,input);
     if ![
         viewport.top,
         viewport.bottom,
@@ -359,33 +340,29 @@ pub fn prepare_with_input(
     // FindBestByPosition begins at the greatest single event strictly before
     // the query, or the first following event when no predecessor exists.
     let threshold = start_row.ceil().clamp(0.0, u64::MAX as f64) as u64;
-    let previous_note = held
-        .last_head_before(threshold)
-        .map(|h| (Event::Note(h.position), head_key(&h)));
+    let previous_note = held.last_head_before(threshold).map(|h|(Event::Note(h.position),head_key(&h)));
     let previous_misc = misc
         .partition_point(|e| e.event.chart_position() < start_row)
         .checked_sub(1)
-        .map(|i| (misc[i].event, key(misc[i].event, misc[i].phase)));
+        .map(|i| (misc[i].event, key(misc[i].event,misc[i].phase)));
     let previous = match (previous_note, previous_misc) {
-        (Some(a), Some(b)) => Some(if cmp(a.1, b.1).is_gt() { a } else { b }),
+        (Some(a), Some(b)) => Some(if cmp(a.1,b.1).is_gt() {
+            a
+        } else {
+            b
+        }),
         (a, b) => a.or(b),
     };
-    let from = previous.map(|(_, k)| k);
+    let from = previous.map(|(_, k)|k);
     let first_row = from.map_or(0, |k| k.row.floor().max(0.0) as u64);
     // Source overlapping holds are pre-added in lane order, before the quota
     // loop. A head can also occur in the loop: its count is intentionally not
     // deduplicated here. Actor consumers receive that same admitted sequence.
     if start_row >= 0.0 {
-        for head in held.crossing(start_row, threshold) {
-            plan.events.push(Event::Note(head.position));
-            plan.heads.push(head);
-        }
+        for head in held.crossing(start_row,threshold){plan.events.push(Event::Note(head.position));plan.heads.push(head);}
     }
     let mut admission = Admission::new(max, plan.events.len(), render_misc);
-    let mut notes = held
-        .heads_from(first_row)
-        .filter(|h| from.is_none_or(|f| !cmp(head_key(h), f).is_lt()))
-        .peekable();
+    let mut notes = held.heads_from(first_row).filter(|h|from.is_none_or(|f|!cmp(head_key(h),f).is_lt())).peekable();
     let mut mi = from.map_or(0, |f| {
         misc.partition_point(|e| cmp(key(e.event, e.phase), f).is_lt())
     });
@@ -406,16 +383,17 @@ pub fn prepare_with_input(
         let note = notes.peek();
         let widget = misc.get(mi).copied();
         let take_note = match (note, widget) {
-            (Some(h), Some(e)) => cmp(head_key(h), key(e.event, e.phase)).is_lt(),
+            (Some(h), Some(e)) => cmp(
+                head_key(h),
+                key(e.event, e.phase),
+            )
+            .is_lt(),
             (Some(_), None) => true,
             _ => false,
         };
-        let mut picked_head = None;
+        let mut picked_head=None;
         let (event, _phase, time, widget_index) = if take_note {
-            let h = notes.next().unwrap();
-            let p = h.position;
-            let phase = h.note.kind.editor_phase();
-            picked_head = Some(h);
+            let h=notes.next().unwrap();let p=h.position;let phase=h.note.kind.editor_phase();picked_head=Some(h);
             (
                 Event::Note(p),
                 phase,
@@ -484,9 +462,7 @@ pub fn prepare_with_input(
         });
         if decision.admit {
             plan.events.push(event);
-            if let Some(head) = picked_head {
-                plan.heads.push(head);
-            }
+            if let Some(head)=picked_head{plan.heads.push(head);}
             if let Some(i) = widget_index {
                 plan.misc.push((i, y));
             }
@@ -659,11 +635,7 @@ mod region_completion_tests {
 
     #[test]
     fn signed_zero_scroll_uses_original_fumen_search_sentinels_without_nonfinite_positions() {
-        use crate::{
-            document::{Document, Format},
-            history::Session,
-            notes::Note,
-        };
+        use crate::{document::{Document, Format}, history::Session, notes::Note};
         let cases: serde_json::Value = serde_json::from_str(include_str!(
             "../../tests/fixtures/key_commands/collapsed-viewport-source.json"
         ))

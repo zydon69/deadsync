@@ -635,103 +635,23 @@ fn type_key(kind: EventType) -> &'static str {
 mod source_presets_tests {
     use super::*;
     use deadlib_platform::input::RawKeyboardEvent;
-    fn press(state: &mut State, code: KeyCode) {
-        for pressed in [true, false] {
-            state.raw_key(&RawKeyboardEvent {
-                code,
-                pressed,
-                repeat: false,
-                timestamp: std::time::Instant::now(),
-                host_nanos: 0,
-            });
-        }
-    }
+    fn press(state:&mut State,code:KeyCode){for pressed in [true,false]{state.raw_key(&RawKeyboardEvent{code,pressed,repeat:false,timestamp:std::time::Instant::now(),host_nanos:0});}}
     #[test]
-    fn source_open_and_four_presets_are_exact_and_apply_is_one_undo_en_fr() {
-        for lang in ["en", "fr"] {
-            i18n::init(deadsync_assets::language::load_for_tests(lang));
-            i18n::set_locale(deadsync_assets::language::load_for_tests(lang));
-            let dir = tempfile::tempdir().unwrap();
-            let path = dir.path().join("copy.ssc");
+    fn source_open_and_four_presets_are_exact_and_apply_is_one_undo_en_fr(){
+        for lang in ["en","fr"]{
+            i18n::init(deadsync_assets::language::load_for_tests(lang));i18n::set_locale(deadsync_assets::language::load_for_tests(lang));
+            let dir=tempfile::tempdir().unwrap();let path=dir.path().join("copy.ssc");
             std::fs::write(&path,b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#BPMS:0=180,4=240;#LABELS:1=source;#NOTES:1000;#NOTEDATA:;#STEPSTYPE:dance-single;#BPMS:0=90;#LABELS:3=old;#NOTES:0100;").unwrap();
-            let mut state = State::open(&path, 0).unwrap();
-            let before = state.workspace.file().session.serialize().unwrap();
-            state.open_chart_event_copy();
-            let settings = state.chart_event_copy.as_ref().unwrap();
-            assert_eq!(settings.types.len(), 12);
-            assert!(!settings.types.contains(&EventType::Pattern));
-            assert!(settings.types.contains(&EventType::Attack));
-            for (key, expected) in [
-                (
-                    KeyCode::F3,
-                    vec![
-                        EventType::Signature,
-                        EventType::Tempo,
-                        EventType::Stop,
-                        EventType::Delay,
-                        EventType::Warp,
-                    ],
-                ),
-                (
-                    KeyCode::F4,
-                    vec![
-                        EventType::Signature,
-                        EventType::Tempo,
-                        EventType::Stop,
-                        EventType::Delay,
-                        EventType::Warp,
-                        EventType::Scroll,
-                        EventType::Speed,
-                    ],
-                ),
-                (KeyCode::F5, EventType::ALL.to_vec()),
-                (
-                    KeyCode::F2,
-                    EventType::ALL
-                        .into_iter()
-                        .filter(|k| *k != EventType::Pattern)
-                        .collect(),
-                ),
-            ] {
-                press(&mut state, key);
-                assert_eq!(
-                    state.chart_event_copy.as_ref().unwrap().types,
-                    expected.into_iter().collect()
-                );
-                assert_eq!(state.workspace.file().session.serialize().unwrap(), before);
-                assert!(state.workspace.file().session.undo_label().is_none());
+            let mut state=State::open(&path,0).unwrap();let before=state.workspace.file().session.serialize().unwrap();
+            state.open_chart_event_copy();let settings=state.chart_event_copy.as_ref().unwrap();assert_eq!(settings.types.len(),12);assert!(!settings.types.contains(&EventType::Pattern));assert!(settings.types.contains(&EventType::Attack));
+            for (key,expected)in[(KeyCode::F3,vec![EventType::Signature,EventType::Tempo,EventType::Stop,EventType::Delay,EventType::Warp]),(KeyCode::F4,vec![EventType::Signature,EventType::Tempo,EventType::Stop,EventType::Delay,EventType::Warp,EventType::Scroll,EventType::Speed]),(KeyCode::F5,EventType::ALL.to_vec()),(KeyCode::F2,EventType::ALL.into_iter().filter(|k|*k!=EventType::Pattern).collect())]{
+                press(&mut state,key);assert_eq!(state.chart_event_copy.as_ref().unwrap().types,expected.into_iter().collect());assert_eq!(state.workspace.file().session.serialize().unwrap(),before);assert!(state.workspace.file().session.undo_label().is_none());
             }
             // Navigate to Apply through actual panel keys, retaining the source
             // StepMania default (patterns remain opt-in).
-            press(&mut state, KeyCode::End);
-            press(&mut state, KeyCode::ArrowUp);
-            press(&mut state, KeyCode::Enter);
-            assert!(state.panel.is_none());
-            assert_eq!(
-                state
-                    .workspace
-                    .file()
-                    .session
-                    .document()
-                    .text(Some(1), "BPMS"),
-                Some("0=180,4=240".into())
-            );
-            assert_eq!(
-                state
-                    .workspace
-                    .file()
-                    .session
-                    .document()
-                    .text(Some(1), "LABELS"),
-                Some("1=source".into())
-            );
-            let after = state.workspace.file().session.serialize().unwrap();
-            assert_ne!(before, after);
-            state.command(deadsync_editor::workspace::Command::Undo);
-            assert_eq!(state.workspace.file().session.serialize().unwrap(), before);
-            assert!(state.workspace.file().session.undo_label().is_none());
-            state.command(deadsync_editor::workspace::Command::Redo);
-            assert_eq!(state.workspace.file().session.serialize().unwrap(), after);
+            press(&mut state,KeyCode::End);press(&mut state,KeyCode::ArrowUp);press(&mut state,KeyCode::Enter);
+            assert!(state.panel.is_none());assert_eq!(state.workspace.file().session.document().text(Some(1),"BPMS"),Some("0=180,4=240".into()));assert_eq!(state.workspace.file().session.document().text(Some(1),"LABELS"),Some("1=source".into()));
+            let after=state.workspace.file().session.serialize().unwrap();assert_ne!(before,after);state.command(deadsync_editor::workspace::Command::Undo);assert_eq!(state.workspace.file().session.serialize().unwrap(),before);assert!(state.workspace.file().session.undo_label().is_none());state.command(deadsync_editor::workspace::Command::Redo);assert_eq!(state.workspace.file().session.serialize().unwrap(),after);
         }
     }
 }

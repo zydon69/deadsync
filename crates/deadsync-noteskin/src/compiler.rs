@@ -732,10 +732,9 @@ fn install_host(
                 return Ok(Value::Nil);
             };
             let make_actor = make_actor.clone();
-            let func =
-                lua.create_function(move |_, _args: IgnoredArgs| -> mlua::Result<Table> {
-                    make_actor.call((false, button.clone(), element.clone()))
-                })?;
+            let func = lua.create_function(move |_, _args: IgnoredArgs| -> mlua::Result<Table> {
+                make_actor.call((false, button.clone(), element.clone()))
+            })?;
             Ok(Value::Function(func))
         })?
     };
@@ -1022,10 +1021,9 @@ fn normalize_table_aliases(
             continue;
         }
         let fingerprint = ascii_case_hash(want);
-        if let Some((_, _, value)) = existing
-            .iter()
-            .find(|(hash, have, _)| *hash == fingerprint && have.eq_ignore_ascii_case(want))
-        {
+        if let Some((_, _, value)) = existing.iter().find(|(hash, have, _)| {
+            *hash == fingerprint && have.eq_ignore_ascii_case(want)
+        }) {
             table.set(want.as_str(), value.clone())?;
         }
     }

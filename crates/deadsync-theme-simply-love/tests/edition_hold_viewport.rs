@@ -103,11 +103,13 @@ fn pump_rotated_arrow_caps_and_heads_crop_in_their_local_axes() {
         assert_clipped(a, viewport);
     }
     assert!(out.actors.iter().any(
-        |a| matches!(a,Actor::Sprite{rot_z_deg,cropright,..}if *rot_z_deg == -90.0 && *cropright > 0.0)
+        |a| matches!(a,Actor::Sprite{rot_z_deg,cropright,..}if *rot_z_deg== -90.0&& *cropright>0.0)
     ));
-    assert!(out.actors.iter().any(
-        |a| matches!(a,Actor::Sprite{rot_z_deg,croptop,..}if *rot_z_deg == -90.0 && *croptop > 0.0)
-    ));
+    assert!(
+        out.actors.iter().any(
+            |a| matches!(a,Actor::Sprite{rot_z_deg,croptop,..}if *rot_z_deg== -90.0&& *croptop>0.0)
+        )
+    );
 }
 #[test]
 fn solo_reverse_and_far_offscreen_sustains_remain_clipped_and_bounded() {

@@ -38,14 +38,10 @@ impl State {
             let Some(draft) = self.timing_migration.take() else {
                 return;
             };
-            let result = (|| -> Result<bool, deadsync_editor::Error> {
-                let before = self.capture_migration_presentation()?;
-                let application = self
-                    .workspace
-                    .apply_timing_migration_with_presentation_receipt(&draft)?;
-                if let Some(receipt) = application.presentation_receipt() {
-                    self.rebind_migration_presentation(before, receipt)?;
-                }
+            let result=(||->Result<bool,deadsync_editor::Error>{
+                let before=self.capture_migration_presentation()?;
+                let application=self.workspace.apply_timing_migration_with_presentation_receipt(&draft)?;
+                if let Some(receipt)=application.presentation_receipt(){self.rebind_migration_presentation(before,receipt)?;}
                 Ok(application.changed())
             })();
             // A refusal keeps the reviewed draft available for inspection.
@@ -61,19 +57,14 @@ impl State {
             }
         }
     }
-    pub(in crate::screens::edition) fn apply_timing_migration_history(&mut self, redo: bool) {
-        let result = (|| -> Result<(), deadsync_editor::Error> {
-            let before = self.capture_migration_presentation()?;
-            let application = self.workspace.apply_timing_migration_history(redo)?;
-            if let Some(receipt) = application.presentation_receipt() {
-                self.rebind_migration_presentation(before, receipt)?;
-            }
+    pub(in crate::screens::edition) fn apply_timing_migration_history(&mut self,redo:bool){
+        let result=(||->Result<(),deadsync_editor::Error>{
+            let before=self.capture_migration_presentation()?;
+            let application=self.workspace.apply_timing_migration_history(redo)?;
+            if let Some(receipt)=application.presentation_receipt(){self.rebind_migration_presentation(before,receipt)?;}
             Ok(())
         })();
-        match result {
-            Ok(()) => self.status = i18n::tr("Edition", "Ready"),
-            Err(error) => self.timing_error(error),
-        }
+        match result{Ok(())=>self.status=i18n::tr("Edition","Ready"),Err(error)=>self.timing_error(error)}
         self.refresh();
     }
     pub(in crate::screens::edition) fn timing_migration_summary(&self) -> Arc<str> {

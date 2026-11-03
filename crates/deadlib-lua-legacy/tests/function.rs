@@ -298,7 +298,10 @@ fn test_function_dump() -> Result<()> {
                 assert_eq!(unsafe { mlua::ffi::lua_gettop(state) }, top);
                 #[cfg(feature = "lua51")]
                 {
-                    assert_eq!(mlua::program::dump(&concat_lua).unwrap(), concat_lua.dump(false));
+                    assert_eq!(
+                        mlua::program::dump(&concat_lua).unwrap(),
+                        concat_lua.dump(false)
+                    );
                     assert!(matches!(
                         mlua::program::dump(&native),
                         Err(mlua::program::CompileError::Unsupported {

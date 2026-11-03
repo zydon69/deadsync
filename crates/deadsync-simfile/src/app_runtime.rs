@@ -284,13 +284,8 @@ pub fn load_chart_timing_and_notes(
 ) -> Result<Vec<(deadsync_rules::timing::TimingData, Vec<u8>, Vec<f32>)>, String> {
     let parse_options = parse_song_options();
     let options = crate::runtime::gameplay_chart_load_options(
-        song,
-        &paths().song_cache,
-        &parse_options,
-        RuntimeSongConfig {
-            global_offset_seconds,
-            ..runtime_song_config()
-        },
+        song, &paths().song_cache, &parse_options,
+        RuntimeSongConfig { global_offset_seconds, ..runtime_song_config() },
         deadsync_config::runtime::group_is_never_cached,
     );
     let started = std::time::Instant::now();

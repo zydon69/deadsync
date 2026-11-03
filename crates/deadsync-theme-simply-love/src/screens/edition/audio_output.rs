@@ -79,13 +79,7 @@ impl State {
                     },
                 );
             }
-            Err(error) => {
-                self.status = i18n::tr_fmt(
-                    "Edition",
-                    "AudioSaveFailedReason",
-                    &[("message", &i18n::editor_error(&error))],
-                )
-            }
+            Err(error) => self.status = i18n::tr_fmt("Edition", "AudioSaveFailedReason", &[("message", &i18n::editor_error(&error))]),
         }
     }
     fn prepare_initial_editor_output(&mut self) {
@@ -230,12 +224,9 @@ impl State {
             return false;
         }
         if self.audio_session.output.leave_without_audio {
-            self.audio_commands
-                .push(AudioCommand::EditorAbandonOutputLease {
-                    owner: self.audio_session.scope.owner,
-                });
-            self.audio_session.output.ready = false;
-            self.audio_session.output.faulted = true;
+            self.audio_commands.push(AudioCommand::EditorAbandonOutputLease {owner:self.audio_session.scope.owner});
+            self.audio_session.output.ready=false;
+            self.audio_session.output.faulted=true;
             return true;
         }
         let output = &self.audio_session.output;
@@ -271,14 +262,12 @@ impl State {
             return false;
         }
         if !matches!(ack.outcome, Outcome::Applied | Outcome::StaleOwner) {
-            if ack.outcome == Outcome::FailedUnavailable {
-                self.audio_session.output.leave_without_audio = true;
-                self.audio_session.output.faulted = true;
-                self.audio_session.output.ready = false;
-                self.status = i18n::tr("Edition", "AudioOutputCloseWithoutAudio");
-            } else {
-                self.status = i18n::tr("Edition", "AudioOutputRestoreFailed");
-            }
+            if ack.outcome==Outcome::FailedUnavailable {
+                self.audio_session.output.leave_without_audio=true;
+                self.audio_session.output.faulted=true;
+                self.audio_session.output.ready=false;
+                self.status=i18n::tr("Edition","AudioOutputCloseWithoutAudio");
+            } else {self.status = i18n::tr("Edition", "AudioOutputRestoreFailed");}
             return true;
         }
         self.audio_session.output.restored = true;
@@ -294,14 +283,8 @@ impl State {
         self.finish_authorized_audio_close();
         true
     }
-    pub(super) fn restart_source_output_after_device_return(&mut self) {
-        let output = &mut self.audio_session.output;
-        output.ready = false;
-        output.initial_attempted = false;
-        output.faulted = false;
-        output.activation_failed = false;
-        output.pending_init = None;
-        output.startup = None;
+    pub(super) fn restart_source_output_after_device_return(&mut self){
+        let output=&mut self.audio_session.output;output.ready=false;output.initial_attempted=false;output.faulted=false;output.activation_failed=false;output.pending_init=None;output.startup=None;
     }
     pub(super) fn rearm_audio_output_for_transport(&mut self) -> bool {
         if !self.audio_session.output.restored {
@@ -319,7 +302,7 @@ impl State {
 impl State {
     /// Only an authorized close awaiting backend restoration counts as a host
     /// departure. Startup DSP initialization is not a queued close request.
-    pub(super) fn audio_output_close_pending(&self) -> bool {
+    pub(super) fn audio_output_close_pending(&self)->bool {
         self.audio_session.output.leaving.is_some()
     }
 }

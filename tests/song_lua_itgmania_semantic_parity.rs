@@ -236,13 +236,8 @@ fn native_render_alpha_keeps_nonfinite_kind() {
         let actor: NativeActor = serde_json::from_value(serde_json::json!({
             "id": "quad", "path": "quad", "final_render_state": {"alpha": alpha, "visible": true},
             "render_state_samples": [[0, alpha, true]]
-        }))
-        .expect("lossless native render state");
-        let snapshot = actor
-            .final_render_state
-            .expect("final state")
-            .alpha
-            .expect("alpha");
+        })).expect("lossless native render state");
+        let snapshot = actor.final_render_state.expect("final state").alpha.expect("alpha");
         let sample = actor.render_state_samples[0].1.expect("sample alpha");
         assert!(snapshot == expected || (snapshot.is_nan() && expected.is_nan()));
         assert!(sample == expected || (sample.is_nan() && expected.is_nan()));
@@ -478,15 +473,10 @@ struct ParitySection {
 impl Parity {
     fn section(&mut self, name: &'static str) {
         self.log_stage();
-        if let Some(progress) = &self.progress
-            && !self.silent_sections
-        {
+        if let Some(progress) = &self.progress && !self.silent_sections {
             if let Some(section) = self.sections.last().filter(|section| section.checks > 0) {
-                eprintln!(
-                    "  {}: {}",
-                    section.name,
-                    parity_status(section.checks - section.failed, section.checks)
-                );
+                eprintln!("  {}: {}", section.name,
+                    parity_status(section.checks - section.failed, section.checks));
             }
             progress.stage(format!("comparing {name}"));
         }
@@ -518,10 +508,8 @@ impl Parity {
     /// `reported`, so dense per-frame samples do not flood the gap list.
     fn check_once(&mut self, ok: bool, reported: &mut bool, gap: impl FnOnce() -> String) {
         self.tally(1, usize::from(!ok));
-        if !ok
-            && !std::mem::replace(reported, true)
-            && (self.progress.is_none() || self.gaps.len() < 50)
-        {
+        if !ok && !std::mem::replace(reported, true)
+            && (self.progress.is_none() || self.gaps.len() < 50) {
             self.gaps.push(gap());
         }
     }
@@ -549,11 +537,7 @@ impl Parity {
     /// Nested comparators contribute to the same live totals while the parent
     /// retains its stage label. Their section tallies are merged afterward.
     fn nested(&self) -> Self {
-        Self {
-            progress: self.progress.clone(),
-            silent_sections: true,
-            ..Self::default()
-        }
+        Self { progress: self.progress.clone(), silent_sections: true, ..Self::default() }
     }
 
     fn passed(&self) -> usize {
@@ -633,21 +617,13 @@ fn read_trace_file(path: &Path) -> NativeTrace {
 }
 
 fn assert_native_observation_counts(observations: &[(&str, usize, usize)]) {
-    let changed = observations
-        .iter()
-        .filter(|(_, actual, expected)| actual != expected)
+    let changed = observations.iter().filter(|(_, actual, expected)| actual != expected)
         .collect::<Vec<_>>();
-    assert!(
-        changed.is_empty(),
-        "native observation counts changed: {changed:?}"
-    );
+    assert!(changed.is_empty(), "native observation counts changed: {changed:?}");
 }
 
 fn locate_simfile(trace: &NativeTrace) -> PathBuf {
-    song_fixture::for_trace(
-        &trace.title,
-        trace.source_simfile.as_deref(),
-        &trace.simfile,
+    song_fixture::for_trace(&trace.title, trace.source_simfile.as_deref(), &trace.simfile,
     )
 }
 
@@ -667,21 +643,11 @@ fn native_message_order(trace: &NativeTrace) -> Vec<(String, usize)> {
     if trace.message_dispatch.as_deref() != Some("native-subscriber-pointer-order") {
         return Vec::new();
     }
-    let definitions = trace
-        .actor_definitions
-        .iter()
-        .map(|definition| (definition.id.as_str(), definition))
-        .collect::<HashMap<_, _>>();
-    let actor_definitions = trace
-        .actor_definitions
-        .iter()
-        .flat_map(|definition| {
-            definition
-                .runtime_actors
-                .iter()
-                .map(move |actor| (actor.as_str(), definition.id.as_str()))
-        })
-        .collect::<HashMap<_, _>>();
+    let definitions = trace.actor_definitions.iter()
+        .map(|definition| (definition.id.as_str(), definition)).collect::<HashMap<_, _>>();
+    let actor_definitions = trace.actor_definitions.iter().flat_map(|definition| {
+        definition.runtime_actors.iter().map(move |actor| (actor.as_str(), definition.id.as_str()))
+    }).collect::<HashMap<_, _>>();
     let mut children = HashMap::<(&str, &str), std::collections::VecDeque<&NativeActor>>::new();
     let mut roots = HashMap::<&str, std::collections::VecDeque<&NativeActor>>::new();
     for actor in &trace.runtime_actors {
@@ -689,73 +655,46 @@ fn native_message_order(trace: &NativeTrace) -> Vec<(String, usize)> {
         if let Some(parent) = actor.parent_id.as_deref()
             && actor_definitions.contains_key(parent)
         {
-            children
-                .entry((parent, definition))
-                .or_default()
-                .push_back(actor);
+            children.entry((parent, definition)).or_default().push_back(actor);
         } else {
             if let Some(parent) = actor.parent_id.as_deref() {
-                assert!(
-                    trace.external_actors.iter().any(|actor| actor.id == parent),
-                    "native root parent must have a captured external identity"
-                );
+                assert!(trace.external_actors.iter().any(|actor| actor.id == parent),
+                    "native root parent must have a captured external identity");
             }
             roots.entry(definition).or_default().push_back(actor);
         }
     }
     let mut paths = HashMap::new();
     for (layer, root) in trace.roots.iter().enumerate() {
-        let root_actor = roots
-            .get_mut(root.as_str())
-            .and_then(|actors| actors.pop_front())
-            .expect("native root instance");
-        let mut pending = std::collections::VecDeque::from([(
-            root.as_str(),
-            root_actor.id.as_str(),
-            (layer + 1).to_string(),
+        let root_actor = roots.get_mut(root.as_str())
+            .and_then(|actors| actors.pop_front()).expect("native root instance");
+        let mut pending = std::collections::VecDeque::from([
+            (root.as_str(), root_actor.id.as_str(), (layer + 1).to_string(),
         )]);
         while let Some((definition, actor, path)) = pending.pop_front() {
-            assert!(
-                paths.insert(actor, path.clone()).is_none(),
-                "unique runtime identity"
-            );
+            assert!(paths.insert(actor, path.clone()).is_none(), "unique runtime identity");
             for child in &definitions[definition].children {
-                let instance = children
-                    .get_mut(&(actor, child.definition_id.as_str()))
-                    .and_then(|actors| actors.pop_front())
-                    .expect("native child instance");
-                pending.push_back((
-                    child.definition_id.as_str(),
-                    instance.id.as_str(),
+                let instance = children.get_mut(&(actor, child.definition_id.as_str()))
+                    .and_then(|actors| actors.pop_front()).expect("native child instance");
+                pending.push_back((child.definition_id.as_str(), instance.id.as_str(),
                     format!("{path}/{}", child.layer_index),
                 ));
             }
         }
     }
-    let mut order = trace
-        .runtime_actors
-        .iter()
-        .filter_map(|actor| {
-            actor
-                .message_order
-                .map(|rank| (paths[actor.id.as_str()].clone(), rank))
-        })
-        .collect::<Vec<_>>();
+    let mut order = trace.runtime_actors.iter().filter_map(|actor| {
+        actor.message_order.map(|rank| (paths[actor.id.as_str()].clone(), rank))
+    }).collect::<Vec<_>>();
     order.extend(trace.external_actors.iter().filter_map(|actor| {
         let rank = actor.message_order?;
-        let path = actor
-            .path
-            .split_once('/')
-            .and_then(|(owner, suffix)| paths.get(owner).map(|prefix| format!("{prefix}/{suffix}")))
-            .unwrap_or_else(|| actor.path.clone());
+        let path = actor.path.split_once('/').and_then(|(owner, suffix)| paths.get(owner).map(|prefix| format!("{prefix}/{suffix}"))).unwrap_or_else(|| actor.path.clone());
         Some((path, rank))
     }));
     order
 }
 
 #[cfg(test)]
-fn copy_baked_layer<T: Clone>(
-    source: &deadsync_song_lua::CompiledSongLua<T>,
+fn copy_baked_layer<T: Clone>(source: &deadsync_song_lua::CompiledSongLua<T>,
 ) -> deadsync_song_lua::CompiledSongLua<T> {
     // Corruption tests copy baked data only. A retained VM keeps one owner.
     assert!(source.live_scene.is_none() && source.live_actor_indices().is_empty());
@@ -827,17 +766,11 @@ fn compile_trace_song_at(
         simfile.parent().unwrap_or_else(|| Path::new(".")),
         song.title.clone(),
     );
-    context.song_steps = song
-        .charts
-        .iter()
-        .map(deadsync_song_lua::SongLuaStep::from)
-        .collect();
+    context.song_steps = song.charts.iter().map(deadsync_song_lua::SongLuaStep::from).collect();
     let selected_step = song.charts.iter().position(|chart| {
         chart.chart_type == trace.steps_type
-            && chart
-                .difficulty
-                .eq_ignore_ascii_case(trace.difficulty.trim_start_matches("Difficulty_"))
-            && chart.description.trim() == trace.description.trim()
+        && chart.difficulty.eq_ignore_ascii_case(trace.difficulty.trim_start_matches("Difficulty_"))
+        && chart.description.trim() == trace.description.trim()
     });
     context.player_step_indices = [selected_step; 2];
     context.message_actor_order = native_message_order(trace);
@@ -911,9 +844,7 @@ fn compile_trace_song_at(
     // display inputs; native null captures retain PrefsManager's default.
     context.display_aspect_ratio = if trace.display.height > 0.0 {
         trace.display.width / trace.display.height
-    } else {
-        16.0 / 9.0
-    };
+    } else { 16.0 / 9.0 };
     // Match gameplay's AFT capability advertisement so renderer-gated charts
     // exercise their texture effects during semantic comparisons as well.
     context.video_renderers = "opengl,software".to_string();
@@ -980,17 +911,15 @@ fn compile_trace_song_at(
 
     if let Some(graphic) = &trace.judgment_reference {
         assert!(
-            graphic
-                .path
-                .components()
-                .all(|part| { matches!(part, std::path::Component::Normal(_)) })
+            graphic.path.components().all(|part| {
+                matches!(part, std::path::Component::Normal(_))
+            })
         );
         let path = Path::new(env!("CARGO_MANIFEST_DIR"))
             .join("assets/graphics/judgements")
             .join(&graphic.path);
         assert_eq!(
-            whole_song_archives::hash_file(&path),
-            graphic.sha256,
+            whole_song_archives::hash_file(&path), graphic.sha256,
             "initial judgment dependency changed"
         );
         let path = fs::canonicalize(path).expect("pinned initial judgment exists");
@@ -1039,15 +968,12 @@ fn kind_name(kind: &SongLuaOverlayKind) -> &'static str {
 fn all_steps_keep_native_timing() {
     // Exercise both parsed and cached chart payloads through the real compiler;
     // the captured native control queries song, selected, and unselected timing.
-    let fixture_dir =
-        Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/itgmania-song-lua-micro");
+    let fixture_dir = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/itgmania-song-lua-micro");
     let root = std::env::temp_dir().join(format!(
-        "deadsync-all-steps-timing-{}-{}",
-        std::process::id(),
-        std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .expect("test clock")
-            .as_nanos(),
+        "deadsync-all-steps-timing-{}-{}", std::process::id(),
+        std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH)
+            .expect("test clock").as_nanos(),
     ));
     let song_dir = root.join("song");
     fs::create_dir_all(&song_dir).expect("timing control directory");
@@ -1059,66 +985,40 @@ fn all_steps_keep_native_timing() {
     let song = parse_song_meta_file(&simfile, &parse_options, 0.0, |_| 0.0)
         .expect("parse native control metadata");
     let cache_dir = root.join("cache");
-    let cache_path =
-        deadsync_simfile::cache::song_cache_path(&cache_dir, &simfile).expect("control cache path");
-    let data = deadsync_simfile::song::parse_song_data_file(&simfile, &parse_options, 0.0, |_| 0.0)
-        .expect("parse native control payload");
+    let cache_path = deadsync_simfile::cache::song_cache_path(&cache_dir, &simfile)
+        .expect("control cache path");
+    let data = deadsync_simfile::song::parse_song_data_file(
+        &simfile, &parse_options, 0.0, |_| 0.0).expect("parse native control payload");
     deadsync_simfile::cache::write_song_cache_file(&cache_path, &data, 0.0)
         .expect("write split timing cache");
     let native: Value = serde_json::from_slice(
         &fs::read(fixture_dir.join("timing-data-native.json")).expect("native timing results"),
-    )
-    .expect("native control JSON");
+    ).expect("native control JSON");
     for allow_cache_read in [false, true] {
         let options = deadsync_simfile::cache::GameplayChartLoadOptions {
-            cache_dir: &cache_dir,
-            parse_options: &parse_options,
-            allow_cache_read,
-            allow_cache_write: false,
-            verify_cache_freshness: true,
-            global_offset_seconds: 0.0,
+            cache_dir: &cache_dir, parse_options: &parse_options, allow_cache_read,
+            allow_cache_write: false, verify_cache_freshness: true, global_offset_seconds: 0.0,
         };
         let mut context = SongLuaCompileContext::new(&song_dir, song.title.clone());
-        context.song_step_timing =
-            deadsync_simfile::cache::load_chart_timings(&song, &options, |_| {
-                assert!(!allow_cache_read, "cache hit must avoid parsing");
-                0.0
-            })
-            .expect("load all chart timing");
-        context.song_steps = song
-            .charts
-            .iter()
-            .map(deadsync_song_lua::SongLuaStep::from)
-            .collect();
+        context.song_step_timing = deadsync_simfile::cache::load_chart_timings(
+            &song, &options, |_| { assert!(!allow_cache_read, "cache hit must avoid parsing"); 0.0 }).expect("load all chart timing");
+        context.song_steps = song.charts.iter().map(deadsync_song_lua::SongLuaStep::from).collect();
         context.song_timing = song.song_timing.clone();
         context.player_step_indices = [Some(0); 2];
         context.player_timing = std::array::from_fn(|_| Some(context.song_step_timing[0].clone()));
-        let compiled =
-            compile_song_lua_layers(&[song_dir.join("control.lua").as_path()], 0, &context)
-                .expect("compile real timing owner control");
+        let compiled = compile_song_lua_layers(&[song_dir.join("control.lua").as_path()], 0, &context)
+            .expect("compile real timing owner control");
         let mut checks = 0;
         for (name, expected) in native.as_object().expect("native owner results") {
-            let state = &compiled[0]
-                .overlays
-                .iter()
-                .find(|actor| actor.name.as_deref() == Some(name))
-                .expect("compiled timing owner")
-                .initial_state;
-            for (method, actual) in [
-                ("Actor.x", state.x),
-                ("Actor.y", state.y),
-                ("Actor.z", state.z),
-                ("Actor.aux", state.aux),
-                ("Actor.zoomx", state.zoom_x),
-                ("Actor.zoomy", state.zoom_y),
-                ("Actor.zoomz", state.zoom_z),
-                ("Actor.rotationx", state.rot_x_deg),
+            let state = &compiled[0].overlays.iter().find(|actor| actor.name.as_deref() == Some(name))
+                .expect("compiled timing owner").initial_state;
+            for (method, actual) in [("Actor.x", state.x), ("Actor.y", state.y), ("Actor.z", state.z),
+                ("Actor.aux", state.aux), ("Actor.zoomx", state.zoom_x), ("Actor.zoomy", state.zoom_y),
+                ("Actor.zoomz", state.zoom_z), ("Actor.rotationx", state.rot_x_deg),
             ] {
                 let expected = expected[method].as_f64().expect("native getter value") as f32;
-                assert!(
-                    (actual - expected).abs() <= 0.000001,
-                    "cache={allow_cache_read}, {name} {method}: {actual} vs native {expected}"
-                );
+                assert!((actual - expected).abs() <= 0.000001,
+                    "cache={allow_cache_read}, {name} {method}: {actual} vs native {expected}");
                 checks += 1;
             }
         }
@@ -1147,52 +1047,30 @@ fn native_assignment_snapshots() {
         .join("tests/fixtures/itgmania-song-lua-micro/options-assignment");
     let mut trace = read_trace_file(&root.join("native-snapshot.json"));
     let (compiled, _, context) = compile_trace_song_at(&trace, &root.join("control.ssc"));
-    let assignment = trace
-        .timeline_tracks
-        .iter_mut()
+    let assignment = trace.timeline_tracks.iter_mut()
         .find(|track| track.operation == "PlayerState.SetPlayerOptions")
         .expect("native fresh assignments");
     assert_eq!(assignment.samples.len(), 4);
     assert!(assignment.samples.iter().all(|sample| {
-        sample
-            .4
-            .as_ref()
-            .is_some_and(|detail| detail["numeric_options"].is_array())
+        sample.4.as_ref()
+        .is_some_and(|detail| detail["numeric_options"].is_array())
     }));
     let mut parity = Parity::default();
     runtime_modifiers::compare_runtime_modifiers(&trace, &compiled, &context, &mut parity);
     parity.assert_complete("compiled native assignment getters");
-    assert_eq!(
-        parity.checks(),
-        24,
-        "eight numeric targets plus finite/coverage guards"
-    );
+    assert_eq!(parity.checks(), 24, "eight numeric targets plus finite/coverage guards");
 
-    let assignment = trace
-        .timeline_tracks
-        .iter_mut()
-        .find(|track| track.operation == "PlayerState.SetPlayerOptions")
-        .expect("assignments");
-    let final_fields = assignment
-        .samples
-        .last_mut()
-        .expect("final assignment")
-        .4
-        .as_mut()
-        .expect("native detail")["numeric_options"]
-        .as_array_mut()
-        .expect("native numeric snapshot");
-    let dark = final_fields
-        .iter_mut()
-        .find(|field| field[0] == "dark")
+    let assignment = trace.timeline_tracks.iter_mut()
+        .find(|track| track.operation == "PlayerState.SetPlayerOptions").expect("assignments");
+    let final_fields = assignment.samples.last_mut().expect("final assignment").4
+        .as_mut().expect("native detail")["numeric_options"]
+        .as_array_mut().expect("native numeric snapshot");
+    let dark = final_fields.iter_mut().find(|field| field[0] == "dark")
         .expect("native dark getter");
     dark[1] = serde_json::json!(0.75);
     let mut parity = Parity::default();
     runtime_modifiers::compare_runtime_modifiers(&trace, &compiled, &context, &mut parity);
-    assert!(
-        !parity.gaps.is_empty(),
-        "native getter snapshots must affect the audit"
-    );
+    assert!(!parity.gaps.is_empty(), "native getter snapshots must affect the audit");
 }
 
 #[test]
@@ -1201,11 +1079,7 @@ fn native_current_options() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("tests/fixtures/itgmania-song-lua-micro/current-options");
     let trace = read_trace_file(&root.join("native.json"));
-    assert_eq!(
-        trace.update_frames.len(),
-        241,
-        "retain the complete control"
-    );
+    assert_eq!(trace.update_frames.len(), 241, "retain the complete control");
     assert!(trace.runtime_errors.is_empty());
     assert_eq!(trace.dropped_events, 0);
     let (compiled, primary, context) = compile_trace_song_at(&trace, &root.join("control.ssc"));
@@ -1450,7 +1324,8 @@ fn native_is_drawable(trace: &NativeTrace, definition: &NativeDefinition, actor:
     let texture = definition.properties.get("Texture");
     if texture.is_some_and(|value| !value.is_null() && value.as_str() != Some(""))
         || trace.projected_vertex_tracks.iter().any(|track| {
-            track.actor == actor || track.definition_id.as_deref() == Some(definition.id.as_str())
+            track.actor == actor
+                || track.definition_id.as_deref() == Some(definition.id.as_str())
         })
     {
         return true;
@@ -1462,13 +1337,9 @@ fn native_is_drawable(trace: &NativeTrace, definition: &NativeDefinition, actor:
     trace.operation_tracks.iter().any(|track| {
         track.actor == actor && !track.samples.is_empty() && loads_texture(&track.operation)
     }) || trace.tween_tracks.iter().any(|track| {
-        track.actor == actor
-            && track.segments.iter().any(|segment| {
-                segment
-                    .operations
-                    .iter()
-                    .any(|operation| loads_texture(&operation.operation))
-            })
+        track.actor == actor && track.segments.iter().any(|segment| {
+            segment.operations.iter().any(|operation| loads_texture(&operation.operation))
+        })
     })
 }
 
@@ -1618,9 +1489,7 @@ fn native_final_render_state(trace: &NativeTrace, actor: &str) -> NativeFinalRen
                 // Actor.visible uses BIArg, which accepts both booleans and
                 // numeric values converted to lua_Integer (including zero).
                 if let Some(visible) = args.first().and_then(|value| {
-                    value
-                        .as_bool()
-                        .or_else(|| value.as_f64().map(|number| number.trunc() != 0.0))
+                    value.as_bool().or_else(|| value.as_f64().map(|number| number.trunc() != 0.0))
                 }) {
                     state.visible = visible;
                     state.wrote_visible = true;
@@ -1831,15 +1700,11 @@ fn recurring_ease_tables_match_native_shared_state() {
             "Quad.y" => SongLuaOverlayUpdateTarget::Y,
             _ => continue,
         };
-        let name = trace
-            .actor_definitions
-            .iter()
+        let name = trace.actor_definitions.iter()
             .find(|definition| definition.runtime_actors.contains(&track.actor))
             .and_then(|definition| definition.name.as_deref())
             .expect("named native ease observer");
-        let index = compiled[0]
-            .overlays
-            .iter()
+        let index = compiled[0].overlays.iter()
             .position(|actor| actor.name.as_deref() == Some(name))
             .expect("compiled ease observer");
         for (_, beat, seconds, args) in &track.samples {
@@ -1914,26 +1779,18 @@ fn position_spline_curves_match_native_cpp() {
 #[test]
 fn looping_position_spline_curves_match_native_cpp() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
-    let native: Value = serde_json::from_slice(
-        &fs::read(
-            root.join("tests/fixtures/itgmania-song-lua-micro/position-spline-looped-native.json"),
-        )
-        .expect("native looping spline fixture"),
-    )
-    .expect("native JSON");
+    let native: Value = serde_json::from_slice(&fs::read(root.join(
+        "tests/fixtures/itgmania-song-lua-micro/position-spline-looped-native.json"),
+        ).expect("native looping spline fixture"),
+    ).expect("native JSON");
     assert_eq!(native["oracle"], "itgmania_native_actor_conformance");
     let mut checks = 0;
     for case in native["splines"].as_array().expect("native cases") {
-        let points: Vec<[f32; 3]> = case["points"]
-            .as_array()
-            .expect("points")
-            .iter()
-            .map(|point| std::array::from_fn(|axis| point[axis].as_f64().unwrap() as f32))
-            .collect();
+        let points: Vec<[f32; 3]> = case["points"].as_array().expect("points").iter()
+            .map(|point| std::array::from_fn(|axis| point[axis].as_f64().unwrap() as f32)).collect();
         let data = deadsync_gameplay::SongLuaSplineData {
             coefficients: deadsync_gameplay::SongLuaSplineSolver::default()
-                .solve_with_loop(&points, true)
-                .into(),
+                .solve_with_loop(&points, true).into(),
             constant: points.iter().all(|point| *point == points[0]),
             looping: true,
             beats_per_t: case["beats_per_t"].as_f64().unwrap() as f32,
@@ -1944,18 +1801,13 @@ fn looping_position_spline_curves_match_native_cpp() {
             let song = sample["song_beat"].as_f64().unwrap() as f32;
             let note = sample["note_beat"].as_f64().unwrap() as f32;
             let (position, derivative) = data.view().sample(song, note);
-            for (key, actual) in [
-                ("position", position),
-                ("derivative", derivative),
+            for (key, actual) in [("position", position), ("derivative", derivative),
                 ("receptor", data.view().receptor(song)),
             ] {
                 for axis in 0..3 {
                     let expected = sample[key][axis].as_f64().unwrap() as f32;
-                    assert!(
-                        (actual[axis] - expected).abs() <= 0.0002,
-                        "{key} axis {axis}, song {song}, note {note}: {} vs {expected}",
-                        actual[axis]
-                    );
+                    assert!((actual[axis] - expected).abs() <= 0.0002,
+                        "{key} axis {axis}, song {song}, note {note}: {} vs {expected}", actual[axis]);
                     checks += 1;
                 }
             }
@@ -2040,21 +1892,15 @@ fn aft_boundaries_match_native_geometry_and_visibility() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
     let temporary = tempfile::tempdir().unwrap();
     let song_dir = temporary.path();
-    fs::write(
-        song_dir.join("aft-boundary.lua"),
-        include_str!("fixtures/song-lua/aft-boundary.lua"),
-    )
-    .unwrap();
+    fs::write(song_dir.join("aft-boundary.lua"), include_str!("fixtures/song-lua/aft-boundary.lua"),
+    ).unwrap();
     // The native control has a visible Combo ActorFrame. Simply Love returns
     // an invisible leaf Actor when no combo font exists in the current theme.
-    let fonts = song_dir
-        .join(deadsync_song_lua::SONG_LUA_THEME_PATH_PREFIX)
+    let fonts = song_dir.join(deadsync_song_lua::SONG_LUA_THEME_PATH_PREFIX)
         .join("Fonts/_Combo Fonts/Wendy");
     fs::create_dir_all(&fonts).unwrap();
     fs::write(fonts.join("Wendy.ini"), "[main]\n").unwrap();
-    image::RgbaImage::new(16, 16)
-        .save(fonts.join("Wendy 4x4.png"))
-        .unwrap();
+    image::RgbaImage::new(16,16).save(fonts.join("Wendy 4x4.png")).unwrap();
     let trace =
         read_trace_file(&root.join("tests/fixtures/itgmania-song-lua-micro/aft-boundary.json"));
     let native: Value = serde_json::from_slice(
@@ -2608,20 +2454,13 @@ fn native_effect_period(timing: &mut [f32; 5], method: &str, args: &[Value]) -> 
         *timing = [period / 2.0, 0.0, period / 2.0, 0.0, 0.0];
     } else if method == "effecttiming" {
         *timing = [
-            number(0)?,
-            number(1)?,
-            number(2)?,
-            number(4).unwrap_or(0.0),
-            number(3)?,
+            number(0)?, number(1)?, number(2)?, number(4).unwrap_or(0.0), number(3)?,
         ];
     } else if method == "effect_hold_at_full" {
         timing[3] = number(0)?;
     }
-    matches!(
-        method,
-        "effectperiod" | "effecttiming" | "effect_hold_at_full"
-    )
-    .then(|| timing.iter().sum())
+    matches!(method, "effectperiod" | "effecttiming" | "effect_hold_at_full")
+        .then(|| timing.iter().sum())
 }
 
 // Walk setters in native call order: intrinsic size and effect timing are
@@ -2632,30 +2471,19 @@ fn native_update_render_writes_all(
     class: &str,
 ) -> Vec<NativeRenderWrite> {
     use SongLuaOverlayUpdateTarget as Target;
-    let mut operations = trace
-        .tween_tracks
-        .iter()
+    let mut operations = trace.tween_tracks.iter()
         .filter(|track| track.actor == actor)
         .flat_map(|track| {
             track.segments.iter().flat_map(move |segment| {
-                segment
-                    .operations
-                    .iter()
-                    .map(move |operation| (track, segment, operation))
+                segment.operations.iter().map(move |operation| (track, segment, operation))
             })
-        })
-        .collect::<Vec<_>>();
+        }).collect::<Vec<_>>();
     operations.sort_by_key(|(_, _, operation)| operation.seq);
     let mut size = [1.0; 2]; // Quad::Quad loads its default 1x1 texture.
     let mut timing = [0.5, 0.0, 0.5, 0.0, 0.0];
     let mut writes = Vec::new();
     for (track, segment, operation) in operations {
-        let method = operation
-            .operation
-            .rsplit('.')
-            .next()
-            .unwrap_or_default()
-            .to_ascii_lowercase();
+        let method = operation.operation.rsplit('.').next().unwrap_or_default().to_ascii_lowercase();
         let number = |index| value_f32(operation.args.get(index));
         match method.as_str() {
             "setsize" => {
@@ -2664,14 +2492,10 @@ fn native_update_render_writes_all(
                 }
             }
             "setwidth" => {
-                if let Some(width) = number(0) {
-                    size[0] = width;
-                }
+                if let Some(width) = number(0) { size[0] = width; }
             }
             "setheight" => {
-                if let Some(height) = number(0) {
-                    size[1] = height;
-                }
+                if let Some(height) = number(0) { size[1] = height; }
             }
             _ => {}
         }
@@ -2692,10 +2516,8 @@ fn native_update_render_writes_all(
                 beat: segment.beat,
                 target,
                 value,
-                relative: matches!(
-                    method.as_str(),
-                    "addx" | "addy" | "addz" | "addrotationx" | "addrotationy" | "addrotationz"
-                ),
+                relative: matches!(method.as_str(), "addx" | "addy" | "addz"
+                    | "addrotationx" | "addrotationy" | "addrotationz"),
                 quad_size: (class == "Quad" && method == "zoomto").then_some(size),
             });
         }
@@ -3015,74 +2837,74 @@ fn compare_update_render_values(
                 }
                 let captured_value = |target| {
                     compiled
-                        .overlay_writes
-                        .iter()
-                        .find(|track| {
-                            track.overlay_index == overlay_index && track.target == target
-                        })
-                        .and_then(|track| {
-                            track
-                                .samples
-                                .iter()
-                                .find(|sample| (sample.time - write.beat).abs() <= EPSILON)
-                        })
-                        .map(|sample| sample.value.clone())
-                        .or_else(|| {
-                            // A queued startup setter precedes the first tween advance.
-                            // Compare its captured argument, rather than the draw state
-                            // after that same frame has already consumed its delta.
-                            compiled
-                                .messages
-                                .iter()
-                                .filter(|event| {
-                                    event.message == "__songlua_queued_startup"
-                                        && (event.beat - write.beat).abs() <= EPSILON
-                                })
-                                .find_map(|event| {
-                                    compiled.overlays[overlay_index]
-                                        .message_commands
-                                        .iter()
-                                        .find(|command| command.message == event.message)?
-                                        .blocks
-                                        .iter()
-                                        .rev()
-                                        .find_map(|block| {
-                                            (block.duration == 0.0
-                                                && block.start <= 0.0
-                                                && block.delta.has_update_target(target))
-                                            .then(|| {
-                                                let state = overlay_state_after_blocks(
-                                                    SongLuaOverlayState::default(),
-                                                    [block],
-                                                    0.0,
-                                                );
-                                                overlay_state_render_value(&state, target)
-                                            })
-                                            .flatten()
+                    .overlay_writes
+                    .iter()
+                    .find(|track| {
+                        track.overlay_index == overlay_index && track.target == target
+                    })
+                    .and_then(|track| {
+                        track
+                            .samples
+                            .iter()
+                            .find(|sample| (sample.time - write.beat).abs() <= EPSILON)
+                    })
+                    .map(|sample| sample.value.clone())
+                    .or_else(|| {
+                        // A queued startup setter precedes the first tween advance.
+                        // Compare its captured argument, rather than the draw state
+                        // after that same frame has already consumed its delta.
+                        compiled
+                            .messages
+                            .iter()
+                            .filter(|event| {
+                                event.message == "__songlua_queued_startup"
+                                    && (event.beat - write.beat).abs() <= EPSILON
+                            })
+                            .find_map(|event| {
+                                compiled.overlays[overlay_index]
+                                    .message_commands
+                                    .iter()
+                                    .find(|command| command.message == event.message)?
+                                    .blocks
+                                    .iter()
+                                    .rev()
+                                    .find_map(|block| {
+                                        (block.duration == 0.0
+                                            && block.start <= 0.0
+                                            && block.delta.has_update_target(target))
+                                        .then(|| {
+                                            let state = overlay_state_after_blocks(
+                                                SongLuaOverlayState::default(),
+                                                [block],
+                                                0.0,
+                                            );
+                                            overlay_state_render_value(&state, target)
                                         })
-                                })
-                        })
-                        .or_else(|| {
-                            compiled_update_value_at(
-                                context,
-                                compiled,
-                                overlay_index,
-                                target,
-                                write.beat,
-                                song_elapsed_seconds_at(write.beat, context),
-                            )
-                        })
-                        .or_else(|| {
-                            let seconds = song_elapsed_seconds_at(write.beat, context);
-                            let state = compiled_message_state_at(
-                                context,
-                                compiled,
-                                overlay_index,
-                                write.beat,
-                                seconds,
-                            );
-                            overlay_state_render_value(&state, target)
-                        })
+                                        .flatten()
+                                    })
+                            })
+                    })
+                    .or_else(|| {
+                        compiled_update_value_at(
+                            context,
+                            compiled,
+                            overlay_index,
+                            target,
+                            write.beat,
+                            song_elapsed_seconds_at(write.beat, context),
+                        )
+                    })
+                    .or_else(|| {
+                        let seconds = song_elapsed_seconds_at(write.beat, context);
+                        let state = compiled_message_state_at(
+                            context,
+                            compiled,
+                            overlay_index,
+                            write.beat,
+                            seconds,
+                        );
+                        overlay_state_render_value(&state, target)
+                    })
                 };
                 let actual = if let Some([width, height]) = write.quad_size {
                     // ZoomTo stores width/height divided by intrinsic size.
@@ -3092,9 +2914,7 @@ fn compare_update_render_values(
                         captured_value(SongLuaOverlayUpdateTarget::ZoomX),
                         captured_value(SongLuaOverlayUpdateTarget::ZoomY),
                     ) {
-                        (
-                            Some(SongLuaOverlayUpdateValue::F32(x)),
-                            Some(SongLuaOverlayUpdateValue::F32(y)),
+                        (Some(SongLuaOverlayUpdateValue::F32(x)), Some(SongLuaOverlayUpdateValue::F32(y)),
                         ) => Some(SongLuaOverlayUpdateValue::Vec2([width * x, height * y])),
                         _ => None,
                     }
@@ -3187,31 +3007,19 @@ fn update_matching_keeps_retained_actor_variables() {
 fn compare_timeline(trace: &NativeTrace, compiled: &CompiledSongLua, parity: &mut Parity) {
     parity.section("timeline");
     for operation in ["GameState.SetCurrentSteps", "ScreenManager.SetNewScreen"] {
-        let mut native = trace
-            .timeline_tracks
-            .iter()
+        let mut native = trace.timeline_tracks.iter()
             .filter(|track| track.kind == "call" && track.operation == operation)
-            .flat_map(|track| &track.samples)
-            .collect::<Vec<_>>();
+            .flat_map(|track| &track.samples).collect::<Vec<_>>();
         native.sort_by_key(|sample| sample.0);
-        let actual = compiled
-            .state_calls
-            .iter()
-            .filter(|call| call.operation == operation)
-            .collect::<Vec<_>>();
+        let actual = compiled.state_calls.iter().filter(|call| call.operation == operation).collect::<Vec<_>>();
         parity.check(actual.len() == native.len(), || {
             format!(
-                "{operation} call count: native {}, DeadSync {}",
-                native.len(),
-                actual.len()
-            )
+            "{operation} call count: native {}, DeadSync {}", native.len(), actual.len())
         });
         for (actual, (_, beat, second, args, _)) in actual.iter().zip(native) {
             parity.check(actual.args == *args, || {
                 format!(
-                    "{operation} arguments: native {args:?}, DeadSync {:?}",
-                    actual.args
-                )
+                "{operation} arguments: native {args:?}, DeadSync {:?}", actual.args)
             });
             if let Some(beat) = beat {
                 parity.check((actual.beat - beat).abs() <= EPSILON, || {
@@ -4414,7 +4222,8 @@ fn compare_column_splines(
         let spline_tracks = compiled
             .iter()
             .flat_map(|layer| {
-                deadsync_song_lua::gameplay::song_lua_column_spline_tracks(layer, player, &timing)
+                deadsync_song_lua::gameplay::song_lua_column_spline_tracks(
+                    layer, player, &timing)
             })
             .collect::<Vec<_>>();
         let windows = compiled
@@ -4689,9 +4498,7 @@ fn compiled_overlay_states_at(
     let local = compiled_local_states_at(compiled, context, beat, seconds);
     // Production composition consumes raw music time, independently of the
     // elapsed timestamp used to select replay commands and native samples.
-    let clock = [
-        overlay_update_time(context, SongLuaTimeUnit::Second, beat, seconds),
-        beat,
+    let clock = [overlay_update_time(context, SongLuaTimeUnit::Second, beat, seconds), beat,
     ];
     let mut states = compose_overlay_states(
         &compiled.overlays,
@@ -5575,61 +5382,36 @@ fn update_intrinsics_match_native() {
         &trace,
         &root.join("tests/fixtures/song-lua/update-intrinsics.sm"),
     );
-    let definition = trace
-        .actor_definitions
-        .iter()
-        .find(|actor| actor.name.as_deref() == Some("Probe"))
-        .unwrap();
+    let definition = trace.actor_definitions.iter()
+        .find(|actor| actor.name.as_deref() == Some("Probe")).unwrap();
     let writes = native_update_render_writes_all(&trace, &definition.id, &definition.class);
     use SongLuaOverlayUpdateTarget as Target;
     use SongLuaOverlayUpdateValue as UpdateValue;
-    assert_eq!(
-        writes.len(),
-        4,
-        "retain all four effective update observations"
-    );
+    assert_eq!(writes.len(), 4, "retain all four effective update observations");
     for (target, expected) in [
         (Target::Size, UpdateValue::Vec2([60.0, 40.0])),
         (Target::Visible, UpdateValue::Bool(false)),
         (Target::EffectPeriod, UpdateValue::F32(1.0)),
-        (
-            Target::EffectMode,
-            UpdateValue::EffectMode(EffectMode::Pulse),
+        (Target::EffectMode, UpdateValue::EffectMode(EffectMode::Pulse),
         ),
     ] {
         let write = writes.iter().find(|write| write.target == target).unwrap();
         assert_eq!(write.value, expected, "{target:?}");
         assert!(write.beat > 1.0, "exercise a gameplay update after startup");
     }
-    assert_eq!(
-        writes
-            .iter()
-            .find(|write| write.target == Target::Size)
-            .unwrap()
-            .quad_size,
-        Some([20.0, 10.0])
-    );
+    assert_eq!(writes.iter().find(|write| write.target == Target::Size).unwrap().quad_size,
+        Some([20.0, 10.0]));
     let parity = compare_semantics(&trace, &compiled, primary, &context);
     eprintln!("{}", parity.summary("native update intrinsics"));
     parity.assert_complete("native update intrinsics");
 
     let mut wrong = compiled.iter().map(copy_baked_layer).collect::<Vec<_>>();
-    let index = wrong[0]
-        .overlays
-        .iter()
-        .position(|overlay| overlay.name.as_deref() == Some("Probe"))
-        .unwrap();
-    let sample = wrong[0]
-        .overlay_writes
-        .iter_mut()
+    let index = wrong[0].overlays.iter()
+        .position(|overlay| overlay.name.as_deref() == Some("Probe")).unwrap();
+    let sample = wrong[0].overlay_writes.iter_mut()
         .find(|track| track.overlay_index == index && track.target == Target::ZoomX)
-        .unwrap()
-        .samples
-        .first_mut()
-        .unwrap();
-    let UpdateValue::F32(zoom) = &mut sample.value else {
-        panic!("expected captured zoom");
-    };
+        .unwrap().samples.first_mut().unwrap();
+    let UpdateValue::F32(zoom) = &mut sample.value else { panic!("expected captured zoom"); };
     *zoom += 0.002; // 0.04 pixels on the sized Quad must exceed the 0.03 tolerance.
     let mut rejected = Parity::default();
     compare_update_render_values(&trace, &wrong, &context, &mut rejected);
@@ -5729,21 +5511,18 @@ fn assert_screen_parent_draws(name: &str, check_depth: bool) {
     )));
     let native_draws: Option<Value> = check_depth.then(|| {
         serde_json::from_slice(
-            &std::fs::read(root.join(format!(
-                "tests/fixtures/itgmania-song-lua-micro/{name}-draws-native.json",
-            )))
-            .expect("independent native draw capture"),
-        )
-        .expect("native draw JSON")
+        &std::fs::read(root.join(format!(
+            "tests/fixtures/itgmania-song-lua-micro/{name}-draws-native.json",
+        ))).expect("independent native draw capture"),
+    ).expect("native draw JSON")
     });
     let dir = root.join("tests/fixtures/song-lua");
     let mut context = SongLuaCompileContext::new(&dir, trace.title.clone());
     context.screen_width = 854.0;
     context.music_length_seconds = 4.0;
     context.song_timing_bpms = vec![(0.0, 60.0)];
-    let compiled =
-        compile_song_lua_layers(&[dir.join(format!("{name}.lua")).as_path()], 0, &context)
-            .expect("native screen-parent control compiles");
+    let compiled = compile_song_lua_layers(
+        &[dir.join(format!("{name}.lua")).as_path()], 0, &context).expect("native screen-parent control compiles");
     let parity = compare_semantics(&trace, &compiled, 0, &context);
     parity.assert_complete(name);
     let layer = &compiled[0];
@@ -5759,15 +5538,9 @@ fn assert_screen_parent_draws(name: &str, check_depth: bool) {
             let beat = value_f32(sample.first()).expect("beat");
             let second = value_f32(sample.get(1)).expect("second");
             let states = compiled_overlay_states_at(layer, &context, beat, second);
-            let screen_state =
-                compiled_local_states_at(layer, &context, beat, second)[screen_index];
+            let screen_state = compiled_local_states_at(layer, &context, beat, second)[screen_index];
             let frame = composer.render_screen_overlay(
-                &layer.overlays,
-                &states,
-                index,
-                [854.0, 480.0],
-                second,
-                beat,
+                &layer.overlays, &states, index, [854.0, 480.0], second, beat,
                 Some(screen_state),
             );
             let actual = rendered_quad_corners(&frame, [854.0, 480.0]);
@@ -5775,12 +5548,9 @@ fn assert_screen_parent_draws(name: &str, check_depth: bool) {
             assert!(!actual.is_empty(), "native geometry at second {second}");
             for (from, to) in [(&actual, &expected), (&expected, &actual)] {
                 for corner in from {
-                    assert!(
-                        to.iter().any(|target| (0..2)
-                            .all(|axis| { (corner[axis] - target[axis]).abs() <= 0.75 })),
-                        "{} at {second}: {actual:?} vs {expected:?}",
-                        track.actor
-                    );
+                    assert!(to.iter().any(|target| (0..2).all(|axis| {
+                        (corner[axis] - target[axis]).abs() <= 0.75
+                    })), "{} at {second}: {actual:?} vs {expected:?}", track.actor);
                     checks += 1;
                 }
             }
@@ -5792,51 +5562,34 @@ fn assert_screen_parent_draws(name: &str, check_depth: bool) {
                     _ => panic!("unexpected depth control actor"),
                 };
                 let drawn = native["cases"][phase]["native"]["samples"][0]["actors"]
-                    .as_array()
-                    .expect("native drawn actors")
-                    .iter()
-                    .find(|actor| actor["name"] == name)
-                    .expect("native depth control");
-                let expected = drawn["draws"][0]["vertices"]
-                    .as_array()
-                    .expect("native vertices")
-                    .iter()
+                    .as_array().expect("native drawn actors").iter()
+                    .find(|actor| actor["name"] == name).expect("native depth control");
+                let expected = drawn["draws"][0]["vertices"].as_array().expect("native vertices")
+                    .iter().map(|vertex| {
+                        std::array::from_fn(|axis| {
+                        value_f32(vertex["clip"].get(axis)).expect("native clip axis")
+                    })
+                    }).collect::<Vec<[f32; 4]>>();
+                let host = sample[5].as_array().expect("host clip vertices").iter()
                     .map(|vertex| {
                         std::array::from_fn(|axis| {
-                            value_f32(vertex["clip"].get(axis)).expect("native clip axis")
-                        })
+                        value_f32(vertex.get(axis)).expect("host clip axis")
                     })
-                    .collect::<Vec<[f32; 4]>>();
-                let host = sample[5]
-                    .as_array()
-                    .expect("host clip vertices")
-                    .iter()
-                    .map(|vertex| {
-                        std::array::from_fn(|axis| {
-                            value_f32(vertex.get(axis)).expect("host clip axis")
-                        })
-                    })
-                    .collect::<Vec<[f32; 4]>>();
+                    }).collect::<Vec<[f32; 4]>>();
                 assert_native_clips(&host, &expected, "harness", second);
                 assert_native_clips(&rendered_quad_clips(&frame), &expected, "renderer", second);
             }
         }
     }
-    assert_eq!(
-        checks, 80,
-        "two quads, four native phases, every rendered corner"
-    );
+    assert_eq!(checks, 80, "two quads, four native phases, every rendered corner");
 }
 
 fn assert_native_clips(actual: &[[f32; 4]], expected: &[[f32; 4]], label: &str, second: f32) {
     for (from, to) in [(actual, expected), (expected, actual)] {
         for vertex in from {
-            assert!(
-                to.iter().any(|target| (0..3).all(|axis| {
-                    (vertex[axis] / vertex[3] - target[axis] / target[3]).abs() <= 1e-6
-                })),
-                "{label} at {second}: clip {vertex:?} vs {to:?}"
-            );
+            assert!(to.iter().any(|target| (0..3).all(|axis| {
+                (vertex[axis] / vertex[3] - target[axis] / target[3]).abs() <= 1e-6
+            })), "{label} at {second}: clip {vertex:?} vs {to:?}");
         }
     }
 }
@@ -6052,16 +5805,10 @@ fn projected_corners_keep_negative_w() {
         ],
         ..CompiledSongLua::default()
     };
-    let vertices = compiled_perspective_vertices(
-        &compiled,
-        &[camera, sprite],
-        1,
-        sprite,
-        [64.0; 2],
-        None,
-        None,
+    let vertices =
+        compiled_perspective_vertices(&compiled, &[camera, sprite], 1, sprite, [64.0; 2], None, None,
     )
-    .expect("negative W is a defined perspective divide");
+            .expect("negative W is a defined perspective divide");
     assert!(vertices.iter().flatten().all(|axis| axis.is_finite()));
     assert!(
         vertex_center(&vertices)
@@ -6071,16 +5818,8 @@ fn projected_corners_keep_negative_w() {
     );
     let singular = SongLuaOverlayState { z: 320.0, ..sprite };
     assert!(
-        compiled_perspective_vertices(
-            &compiled,
-            &[camera, singular],
-            1,
-            singular,
-            [64.0; 2],
-            None,
-            None
-        )
-        .is_none()
+        compiled_perspective_vertices(&compiled, &[camera, singular], 1, singular, [64.0; 2], None, None)
+            .is_none()
     );
 }
 
@@ -6247,38 +5986,16 @@ fn projected_colors_keep_nonfinite_kind() {
 fn live_progress_includes_nested_native_color_comparisons() {
     crate::paths::init();
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
-    let trace =
-        read_trace_file(&root.join("tests/fixtures/itgmania-song-lua-micro/late-colors.json.zst"));
-    let (compiled, primary, context) =
-        compile_trace_song_at(&trace, &root.join("tests/fixtures/song-lua/late-colors.sm"));
+    let trace = read_trace_file(&root.join("tests/fixtures/itgmania-song-lua-micro/late-colors.json.zst"));
+    let (compiled, primary, context) = compile_trace_song_at(
+        &trace, &root.join("tests/fixtures/song-lua/late-colors.sm"));
     let reporter = progress::Reporter::start();
-    let parity = compare_semantics_with_progress(
-        &trace,
-        &compiled,
-        primary,
-        &context,
+    let parity = compare_semantics_with_progress(&trace, &compiled, primary, &context,
         Some(std::sync::Arc::clone(&reporter.progress)),
     );
-    assert!(
-        parity
-            .sections
-            .iter()
-            .any(|section| section.name == "draw colors" && section.checks > 0)
-    );
-    assert_eq!(
-        reporter
-            .progress
-            .checks
-            .load(std::sync::atomic::Ordering::Relaxed),
-        parity.checks()
-    );
-    assert_eq!(
-        reporter
-            .progress
-            .failed
-            .load(std::sync::atomic::Ordering::Relaxed),
-        parity.checks() - parity.passed()
-    );
+    assert!(parity.sections.iter().any(|section| section.name == "draw colors" && section.checks > 0));
+    assert_eq!(reporter.progress.checks.load(std::sync::atomic::Ordering::Relaxed), parity.checks());
+    assert_eq!(reporter.progress.failed.load(std::sync::atomic::Ordering::Relaxed), parity.checks() - parity.passed());
     parity.assert_complete("live native color progress");
 }
 
@@ -6331,8 +6048,7 @@ fn compare_projected_geometry(
             let Some(seconds) = sample.get(1).and_then(|value| value_f32(Some(value))) else {
                 continue;
             };
-            let music_seconds =
-                overlay_update_time(context, SongLuaTimeUnit::Second, beat, seconds);
+            let music_seconds = overlay_update_time(context, SongLuaTimeUnit::Second, beat, seconds);
             let Some(native_visible) = sample.get(2).and_then(Value::as_bool) else {
                 continue;
             };
@@ -6378,9 +6094,7 @@ fn compare_projected_geometry(
             // Compare the rendered rotation, rather than its stationary base.
             if state.effect_mode == EffectMode::Spin {
                 let effect = deadsync_song_lua::playback::actor_conformance::effect_sample(
-                    state,
-                    music_seconds,
-                    beat,
+                    state, music_seconds, beat,
                 );
                 [state.rot_x_deg, state.rot_y_deg, state.rot_z_deg] = effect.rotation;
             }
@@ -6514,18 +6228,16 @@ fn compare_projected_geometry(
             } else {
                 track.texture_size
             };
-            let screen_matrix =
-                screen_states
-                    .get(&(beat.to_bits(), seconds.to_bits()))
-                    .map(|screen| {
-                        let mut screen = *screen;
-                        screen.vibrate = false;
-                        screen.inherited_vibrate = [0.0; 3];
-                        deadsync_song_lua::playback::actor_conformance::screen_matrix(
-                            screen,
-                            [music_seconds, beat],
-                        )
-                    });
+            let screen_matrix = screen_states
+                .get(&(beat.to_bits(), seconds.to_bits()))
+                .map(|screen| {
+                    let mut screen = *screen;
+                    screen.vibrate = false;
+                    screen.inherited_vibrate = [0.0; 3];
+                    deadsync_song_lua::playback::actor_conformance::screen_matrix(
+                        screen, [music_seconds, beat],
+                    )
+                });
             let actual_vertices = if track.camera_actor == "orthographic-screen" && !perspective {
                 compiled_world_vertices(state, size).map(|world| {
                     let [x, y, _, _] = screen_matrix.map_or(world, |matrix| {
@@ -6863,11 +6575,7 @@ fn compare_manual_meshes(
                     &compiled[layer].overlays,
                     states,
                     screen,
-                    overlay_update_time(
-                        context,
-                        SongLuaTimeUnit::Second,
-                        *beat as f32,
-                        *second as f32,
+                    overlay_update_time(context, SongLuaTimeUnit::Second, *beat as f32, *second as f32,
                     ),
                     *beat as f32,
                 ))
@@ -6991,10 +6699,8 @@ fn compare_manual_meshes(
 }
 
 fn compare_manual_plans(
-    trace: &NativeTrace,
-    compiled: &[CompiledSongLua],
-    context: &SongLuaCompileContext,
-    parity: &mut Parity,
+    trace: &NativeTrace, compiled: &[CompiledSongLua],
+    context: &SongLuaCompileContext, parity: &mut Parity,
 ) {
     use deadsync_song_lua::{SongLuaDrawOp as Op, SongLuaDrawSource as Source};
     parity.section("custom draw plan");
@@ -7004,10 +6710,7 @@ fn compare_manual_plans(
         // Native trace timestamps are relative to beat zero. DrawFrame.second
         // retains the song music timestamp used by production playback.
         let music_second = overlay_update_time(
-            context,
-            SongLuaTimeUnit::Second,
-            *beat as f32,
-            *second as f32,
+            context, SongLuaTimeUnit::Second, *beat as f32, *second as f32,
         );
         let mut actual = Vec::new();
         for (layer, compiled) in compiled.iter().enumerate() {
@@ -7154,15 +6857,9 @@ fn compare_sprite_textures(
         for (_, second, raw) in expected {
             let path = if let Some(relative) = raw.strip_prefix("noteskin:/") {
                 let relative = Path::new(relative);
-                if !trace
-                    .noteskin_reference
-                    .as_ref()
-                    .is_some_and(|skin| skin.files.iter().any(|file| file.path == relative))
-                {
+                if !trace.noteskin_reference.as_ref().is_some_and(|skin| skin.files.iter().any(|file| file.path == relative)) {
                     parity.check(false, || {
-                        format!(
-                            "Sprite.Load noteskin asset is absent from the native inventory: {raw}"
-                        )
+                        format!("Sprite.Load noteskin asset is absent from the native inventory: {raw}")
                     });
                     continue;
                 }
@@ -7172,15 +6869,9 @@ fn compare_sprite_textures(
                     .join("assets/noteskins")
                     .join(relative)
             } else if let Some(relative) = raw.strip_prefix("judgment:/") {
-                if !trace
-                    .judgment_reference
-                    .as_ref()
-                    .is_some_and(|graphic| graphic.path == Path::new(relative))
-                {
+                if !trace.judgment_reference.as_ref().is_some_and(|graphic| graphic.path == Path::new(relative)) {
                     parity.check(false, || {
-                        format!(
-                            "Sprite.Load judgment asset is absent from the native inventory: {raw}"
-                        )
+                        format!("Sprite.Load judgment asset is absent from the native inventory: {raw}")
                     });
                     continue;
                 }
@@ -7257,11 +6948,7 @@ fn compare_judgment_textures(
                 .and_then(Value::as_str)
                 .expect("Sprite.Load path");
             let expected_path = if let Some(relative) = raw.strip_prefix("judgment:/") {
-                if !trace
-                    .judgment_reference
-                    .as_ref()
-                    .is_some_and(|graphic| graphic.path == Path::new(relative))
-                {
+                if !trace.judgment_reference.as_ref().is_some_and(|graphic| graphic.path == Path::new(relative)) {
                     parity.check(false, || {
                         format!("judgment asset is absent from the native inventory: {raw}")
                     });
@@ -7359,30 +7046,21 @@ fn generated_song_lua_compiled_matches_itgmania() {
         let trace_path = input("DEADSYNC_FUZZ_TRACE");
         let trace: Value = serde_json::from_slice(&fs::read(&trace_path).unwrap()).unwrap();
         let report = compiled_fuzz::compare(&trace, &trace_path, &input("DEADSYNC_FUZZ_SIMFILE"))
-            .unwrap_or_else(
-                |error| serde_json::json!({"compiled_checks_passed":false,"error":error}),
+            .unwrap_or_else(|error| serde_json::json!({"compiled_checks_passed":false,"error":error}),
             );
-        fs::write(
-            input("DEADSYNC_FUZZ_REPORT"),
-            serde_json::to_vec_pretty(&report).unwrap(),
-        )
-        .unwrap();
+        fs::write(input("DEADSYNC_FUZZ_REPORT"), serde_json::to_vec_pretty(&report).unwrap(),
+        ).unwrap();
         assert_eq!(report["compiled_checks_passed"], true, "{report}");
         return;
     }
     let trace = read_trace_file(&input("DEADSYNC_FUZZ_TRACE"));
     assert_eq!(trace.oracle, "itgmania_song_lua_headless_semantic_trace");
-    assert!(
-        trace.runtime_errors.is_empty(),
-        "incomplete oracle: runtime errors"
-    );
+    assert!(trace.runtime_errors.is_empty(), "incomplete oracle: runtime errors");
     assert_eq!(trace.dropped_events, 0, "incomplete oracle: dropped events");
     let (compiled, primary, context) =
         compile_trace_song_at(&trace, &input("DEADSYNC_FUZZ_SIMFILE"));
-    assert!(
-        !context.live && compiled.iter().all(|layer| layer.live_scene.is_none()),
-        "fuzzing must compare compiled playback without a retained Lua VM"
-    );
+    assert!(!context.live && compiled.iter().all(|layer| layer.live_scene.is_none()),
+        "fuzzing must compare compiled playback without a retained Lua VM");
     let mut parity = compare_semantics(&trace, &compiled, primary, &context);
     runtime_modifiers::compare_runtime_modifiers(&trace, &compiled, &context, &mut parity);
     let report = serde_json::json!({
@@ -7400,11 +7078,9 @@ fn generated_song_lua_compiled_matches_itgmania() {
         "pixel_parity_proven": false,
         "pending_coverage": ["native engine actor execution", "framebuffer pixels"],
     });
-    fs::write(
-        input("DEADSYNC_FUZZ_REPORT"),
-        serde_json::to_vec_pretty(&report).unwrap(),
+    fs::write(input("DEADSYNC_FUZZ_REPORT"), serde_json::to_vec_pretty(&report).unwrap(),
     )
-    .expect("write generated semantic report");
+        .expect("write generated semantic report");
     eprintln!("{}", parity.summary(&trace.title));
     assert!(parity.checks() > 0, "generated case made no comparisons");
     parity.assert_complete("generated song Lua semantic");
@@ -8153,11 +7829,10 @@ fn vibrate_restart_native() {
 fn subscriber_order_matches_native() {
     crate::paths::init();
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
-    let trace =
-        read_trace_file(&root.join("tests/fixtures/itgmania-song-lua-micro/subscriber-order.json"));
+    let trace = read_trace_file(
+        &root.join("tests/fixtures/itgmania-song-lua-micro/subscriber-order.json"));
     let (compiled, primary, mut context) = compile_trace_song_at(
-        &trace,
-        &root.join("tests/fixtures/song-lua/subscriber-order.sm"),
+        &trace, &root.join("tests/fixtures/song-lua/subscriber-order.sm"),
     );
     let parity = compare_semantics(&trace, &compiled, primary, &context);
     eprintln!("{}", parity.summary("Subscriber order"));
@@ -8166,33 +7841,16 @@ fn subscriber_order_matches_native() {
     assert_eq!(context.message_actor_order.len(), 17);
     // Reverse allocation ranks without changing Lua, native observations or
     // random seed. Shared counters must expose the changed recipient order.
-    let largest = context
-        .message_actor_order
-        .iter()
-        .map(|(_, rank)| *rank)
-        .max()
+    let largest = context.message_actor_order.iter().map(|(_, rank)| *rank).max()
         .expect("native subscriber ranks");
-    for (_, rank) in &mut context.message_actor_order {
-        *rank = largest + 1 - *rank;
-    }
+    for (_, rank) in &mut context.message_actor_order { *rank = largest + 1 - *rank; }
     let altered = compile_song_lua_layers(
-        &[root
-            .join("tests/fixtures/song-lua/subscriber-order.lua")
-            .as_path()],
-        primary,
-        &context,
-    )
-    .expect("compile alternate allocation order");
+        &[root.join("tests/fixtures/song-lua/subscriber-order.lua").as_path()],
+        primary, &context,
+    ).expect("compile alternate allocation order");
     let changed = compare_semantics(&trace, &altered, primary, &context);
-    assert_eq!(
-        changed.checks(),
-        parity.checks(),
-        "retain every native observation"
-    );
-    assert!(
-        changed.passed() < changed.checks(),
-        "subscriber ranks must affect replay"
-    );
+    assert_eq!(changed.checks(), parity.checks(), "retain every native observation");
+    assert!(changed.passed() < changed.checks(), "subscriber ranks must affect replay");
 }
 
 #[test]
@@ -8234,20 +7892,8 @@ fn late_wrapper_vibration_matches_native() {
     compare_projected_vibration_coverage(&trace, &compiled, &context, &mut missing);
     assert_eq!(missing.checks(), 2);
     assert_eq!(missing.passed(), 1);
-    assert_eq!(
-        reporter
-            .progress
-            .checks
-            .load(std::sync::atomic::Ordering::Relaxed),
-        2
-    );
-    assert_eq!(
-        reporter
-            .progress
-            .failed
-            .load(std::sync::atomic::Ordering::Relaxed),
-        1
-    );
+    assert_eq!(reporter.progress.checks.load(std::sync::atomic::Ordering::Relaxed), 2);
+    assert_eq!(reporter.progress.failed.load(std::sync::atomic::Ordering::Relaxed), 1);
     assert!(
         missing
             .gaps
@@ -8877,8 +8523,7 @@ fn semantic_fixture_manifest_is_complete_and_headless() {
     crate::paths::init();
     let fixture_root =
         PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/itgmania-song-lua");
-    let manifest: SemanticManifest =
-        whole_song_archives::reference_json(&fixture_root.join(SEMANTIC_MANIFEST));
+    let manifest: SemanticManifest = whole_song_archives::reference_json(&fixture_root.join(SEMANTIC_MANIFEST));
 
     assert_eq!(manifest.itgmania.execution, "embedded_bundled_lua");
     assert!(!manifest.itgmania.launches_executable);
@@ -9056,10 +8701,7 @@ fn brogamer_dizzy_and_confusion_do_not_leak_between_authored_windows() {
     let trace = read_trace_file(&trace_path);
     let (compiled, primary_index, context) = compile_trace_song(&trace);
     let compiled = &compiled[primary_index];
-    let timing = context
-        .song_timing
-        .as_ref()
-        .expect("parsed BroGamer timing");
+    let timing = context.song_timing.as_ref().expect("parsed BroGamer timing");
     let constants = deadsync_song_lua::gameplay::build_song_lua_constant_windows_for_player(
         compiled, &timing, 0, 0.0,
     );
@@ -9557,9 +9199,7 @@ fn compiled_song_lua_finish_then_tween_restarts_from_destination() {
     crate::paths::init();
     let temp = tempfile::tempdir().unwrap();
     let entry = temp.path().join("default.lua");
-    fs::write(
-        &entry,
-        r#"return Def.ActorFrame{
+    fs::write(&entry, r#"return Def.ActorFrame{
         OnCommand=function(self) self:SetUpdateFunction(function() end) end,
         Def.Quad{Name='Panel', InitCommand=function(self) self:x(12):y(34) end,
             OnCommand=function(self)
@@ -9567,18 +9207,11 @@ fn compiled_song_lua_finish_then_tween_restarts_from_destination() {
                 self:finishtweening():linear(1):x(-8)
             end},
     }"#,
-    )
-    .unwrap();
+    ).unwrap();
     let mut context = SongLuaCompileContext::new(temp.path(), "Finish queue");
     context.music_length_seconds = 2.0;
-    let compiled = compile_song_lua_layers(&[entry.as_path()], 0, &context)
-        .unwrap()
-        .remove(0);
-    let index = compiled
-        .overlays
-        .iter()
-        .position(|actor| actor.name.as_deref() == Some("Panel"))
-        .unwrap();
+    let compiled = compile_song_lua_layers(&[entry.as_path()], 0, &context).unwrap().remove(0);
+    let index = compiled.overlays.iter().position(|actor| actor.name.as_deref() == Some("Panel")).unwrap();
     assert!(compiled.live_scene.is_none());
     for (time, expected_x) in [(0.0, 120.0), (0.5, 56.0), (1.25, -8.0)] {
         let state = compiled_local_states_at(&compiled, &context, time, time)[index];
@@ -9604,14 +9237,8 @@ fn compiled_song_lua_immediate_properties_survive_queued_stop() {
     }"#).unwrap();
     let mut context = SongLuaCompileContext::new(temp.path(), "Immediate properties");
     context.music_length_seconds = 2.0;
-    let compiled = compile_song_lua_layers(&[entry.as_path()], 0, &context)
-        .unwrap()
-        .remove(0);
-    let index = compiled
-        .overlays
-        .iter()
-        .position(|actor| actor.name.as_deref() == Some("Panel"))
-        .unwrap();
+    let compiled = compile_song_lua_layers(&[entry.as_path()], 0, &context).unwrap().remove(0);
+    let index = compiled.overlays.iter().position(|actor| actor.name.as_deref() == Some("Panel")).unwrap();
     for time in [0.1, 0.5, 1.5] {
         let state = compiled_local_states_at(&compiled, &context, time, time)[index];
         assert_eq!([state.halign, state.valign], [0.75, 0.9], "at {time}");
@@ -9632,28 +9259,14 @@ fn compiled_song_lua_heading_accumulates_and_tweens_quaternions() {
     }"#).unwrap();
     let mut context = SongLuaCompileContext::new(temp.path(), "Quaternion tween");
     context.music_length_seconds = 2.0;
-    let compiled = compile_song_lua_layers(&[entry.as_path()], 0, &context)
-        .unwrap()
-        .remove(0);
-    let index = compiled
-        .overlays
-        .iter()
-        .position(|actor| actor.name.as_deref() == Some("Panel"))
-        .unwrap();
+    let compiled = compile_song_lua_layers(&[entry.as_path()], 0, &context).unwrap().remove(0);
+    let index = compiled.overlays.iter().position(|actor| actor.name.as_deref() == Some("Panel")).unwrap();
     assert!(compiled.live_scene.is_none());
     for (time, degrees) in [(0.0, 90.0_f32), (0.5, 135.0), (1.25, 180.0)] {
         let state = compiled_local_states_at(&compiled, &context, time, time)[index];
         let half = -degrees.to_radians() / 2.0;
         let expected = [0.0, half.sin(), 0.0, half.cos()];
-        assert!(
-            state
-                .quaternion
-                .iter()
-                .zip(expected)
-                .all(|(a, b)| (a - b).abs() < 0.0001),
-            "at {time}: {:?}",
-            state.quaternion
-        );
+        assert!(state.quaternion.iter().zip(expected).all(|(a,b)| (a-b).abs()<0.0001), "at {time}: {:?}",state.quaternion);
         assert_eq!(state.rot_z_deg, 15.0);
     }
 }
@@ -10111,9 +9724,7 @@ fn compiled_song_lua_parent_callback_overrides_spin_in_same_frame() {
     crate::paths::init();
     let temp = tempfile::tempdir().unwrap();
     let entry = temp.path().join("default.lua");
-    fs::write(
-        &entry,
-        r#"local panel
+    fs::write(&entry, r#"local panel
         return Def.ActorFrame{
             OnCommand=function(self) self:SetUpdateFunction(function()
                 if GAMESTATE:GetSongBeat() >= 0.5 then panel:rotationz(30) end
@@ -10122,30 +9733,16 @@ fn compiled_song_lua_parent_callback_overrides_spin_in_same_frame() {
                 panel=self; self:spin():effectmagnitude(0,0,30):effectclock('beat')
             end},
         }"#,
-    )
-    .unwrap();
+    ).unwrap();
     let mut context = SongLuaCompileContext::new(temp.path(), "Spin callback");
     context.music_length_seconds = 1.0;
-    context.compile_clock_inputs = vec![
-        [0.0, 0.0, 0.0],
-        [0.25, 0.25, 0.25],
-        [0.5, 0.5, 0.25],
-        [0.75, 0.75, 0.25],
+    context.compile_clock_inputs = vec![[0.0,0.0,0.0], [0.25,0.25,0.25], [0.5,0.5,0.25], [0.75,0.75,0.25],
     ];
-    let compiled = compile_song_lua_layers(&[entry.as_path()], 0, &context)
-        .unwrap()
-        .remove(0);
-    let index = compiled
-        .overlays
-        .iter()
-        .position(|actor| actor.name.as_deref() == Some("Panel"))
-        .unwrap();
-    for (time, expected) in [(0.25, 7.5), (0.5, 30.0), (0.75, 30.0)] {
+    let compiled = compile_song_lua_layers(&[entry.as_path()], 0, &context).unwrap().remove(0);
+    let index = compiled.overlays.iter().position(|actor| actor.name.as_deref() == Some("Panel")).unwrap();
+    for (time, expected) in [(0.25,7.5), (0.5,30.0), (0.75,30.0)] {
         let state = compiled_local_states_at(&compiled, &context, time, time)[index];
-        assert!(
-            (state.rot_z_deg - expected).abs() < 0.0001,
-            "at {time}: {state:?}"
-        );
+        assert!((state.rot_z_deg-expected).abs()<0.0001, "at {time}: {state:?}");
     }
 }
 
@@ -10154,39 +9751,22 @@ fn compiled_song_lua_quaternion_parent_and_child_rotate_about_world_origin() {
     crate::paths::init();
     let temp = tempfile::tempdir().unwrap();
     let entry = temp.path().join("default.lua");
-    fs::write(
-        &entry,
-        r#"return Def.ActorFrame{
+    fs::write(&entry, r#"return Def.ActorFrame{
         InitCommand=function(self) self:x(10):heading(90) end,
         Def.Quad{Name='Panel', InitCommand=function(self) self:y(20):pitch(90):setsize(2,2) end},
     }"#,
-    )
-    .unwrap();
+    ).unwrap();
     let context = SongLuaCompileContext::new(temp.path(), "Quaternion hierarchy");
-    let compiled = compile_song_lua_layers(&[entry.as_path()], 0, &context)
-        .unwrap()
-        .remove(0);
-    let index = compiled
-        .overlays
-        .iter()
-        .position(|actor| actor.name.as_deref() == Some("Panel"))
-        .unwrap();
+    let compiled = compile_song_lua_layers(&[entry.as_path()], 0, &context).unwrap().remove(0);
+    let index = compiled.overlays.iter().position(|actor| actor.name.as_deref() == Some("Panel")).unwrap();
     let state = compiled_overlay_states_at(&compiled, &context, 0.0, 0.0)[index];
-    let actual = compiled_world_vertices(state, [2.0, 2.0]);
+    let actual = compiled_world_vertices(state, [2.0,2.0]);
     // Actor::BeginDraw: pitch * heading * parent translation * child translation.
     // Heading(-90 Y) maps (x,y,0) -> (0,y,x); pitch(-90 X) -> (0,x,-y).
-    for (got, expected) in actual.iter().zip([
-        [0.0, 9.0, -19.0, 1.0],
-        [0.0, 11.0, -19.0, 1.0],
-        [0.0, 11.0, -21.0, 1.0],
-        [0.0, 9.0, -21.0, 1.0],
+    for (got, expected) in actual.iter().zip([[0.0,9.0,-19.0,1.0], [0.0,11.0,-19.0,1.0],
+        [0.0,11.0,-21.0,1.0], [0.0,9.0,-21.0,1.0],
     ]) {
-        assert!(
-            got.iter()
-                .zip(expected)
-                .all(|(a, b)| (a - b).abs() < 0.0001),
-            "{actual:?}"
-        );
+        assert!(got.iter().zip(expected).all(|(a,b)| (a-b).abs()<0.0001), "{actual:?}");
     }
 }
 
@@ -10414,46 +9994,28 @@ fn compiled_song_lua_beatnooffset_keeps_global_clock_after_startup_bounce() {
     crate::paths::init();
     let temp = tempfile::tempdir().unwrap();
     let entry = temp.path().join("default.lua");
-    fs::write(
-        &entry,
-        r#"return Def.ActorFrame{
+    fs::write(&entry, r#"return Def.ActorFrame{
         OnCommand=function(self) self:SetUpdateFunction(function() end) end,
         Def.Quad{Name='Panel', InitCommand=function(self)
             self:bounce():effectclock('beatnooffset')
         end},
     }"#,
-    )
-    .unwrap();
+    ).unwrap();
     let mut context = SongLuaCompileContext::new(temp.path(), "Unshifted beat clock");
     context.music_length_seconds = 1.0;
-    context.song_timing_bpms = vec![(0.0, 60.0)];
-    let mut timing = deadsync_rules::timing::TimingData::from_segments(
-        0.0,
-        0.0,
-        &deadsync_rules::timing::TimingSegments {
-            bpms: context.song_timing_bpms.clone(),
-            ..Default::default()
-        },
-        &[],
+    context.song_timing_bpms = vec![(0.0,60.0)];
+    let mut timing = deadsync_rules::timing::TimingData::from_segments(0.0, 0.0,
+        &deadsync_rules::timing::TimingSegments { bpms: context.song_timing_bpms.clone(), ..Default::default() }, &[],
     );
     timing.set_global_offset_seconds(-0.1);
     context.song_timing = Some(timing);
-    context.compile_clock_inputs = vec![[0.1, 0.0, 0.0], [0.2, 0.1, 0.1], [0.3, 0.2, 0.1]];
-    let compiled = compile_song_lua_layers(&[entry.as_path()], 0, &context)
-        .unwrap()
-        .remove(0);
-    let index = compiled
-        .overlays
-        .iter()
-        .position(|actor| actor.name.as_deref() == Some("Panel"))
-        .unwrap();
-    for time in [0.1, 0.2] {
+    context.compile_clock_inputs = vec![[0.1,0.0,0.0], [0.2,0.1,0.1], [0.3,0.2,0.1]];
+    let compiled = compile_song_lua_layers(&[entry.as_path()], 0, &context).unwrap().remove(0);
+    let index = compiled.overlays.iter().position(|actor| actor.name.as_deref() == Some("Panel")).unwrap();
+    for time in [0.1,0.2] {
         let state = compiled_local_states_at(&compiled, &context, time, time)[index];
         let [at, units] = state.effect_time.expect("compiled effect clock");
-        assert!(
-            (units + time - at - (time + 0.1)).abs() < 0.0001,
-            "at {time}: {state:?}"
-        );
+        assert!((units + time - at - (time+0.1)).abs()<0.0001, "at {time}: {state:?}");
     }
 }
 
@@ -10462,9 +10024,7 @@ fn compiled_song_lua_uses_external_clock_inputs() {
     crate::paths::init();
     let temp = tempfile::tempdir().unwrap();
     let entry = temp.path().join("default.lua");
-    fs::write(
-        &entry,
-        r#"return Def.ActorFrame {
+    fs::write(&entry, r#"return Def.ActorFrame {
         OnCommand=function(self)
             self:linear(1):x(100)
             self:SetUpdateFunction(function(self)
@@ -10472,26 +10032,17 @@ fn compiled_song_lua_uses_external_clock_inputs() {
             end)
         end,
     }"#,
-    )
-    .unwrap();
+    ).unwrap();
     let mut context = SongLuaCompileContext::new(temp.path(), "Separate clocks");
     context.music_length_seconds = 2.0;
     context.compile_clock_inputs = vec![
-        [0.0, 0.0, 0.0],
-        [0.2, 0.2, 0.05],
-        [0.6, 0.6, 0.1],
-        [1.0, 1.0, 0.05],
+        [0.0, 0.0, 0.0], [0.2, 0.2, 0.05], [0.6, 0.6, 0.1], [1.0, 1.0, 0.05],
     ];
-    let compiled = compile_song_lua_layers(&[entry.as_path()], 0, &context)
-        .unwrap()
-        .remove(0);
+    let compiled = compile_song_lua_layers(&[entry.as_path()], 0, &context).unwrap().remove(0);
     assert!(compiled.live_scene.is_none());
     for (time, expected_x) in [(0.2, 5.0), (0.6, 15.0), (1.0, 20.0)] {
         let state = compiled_local_states_at(&compiled, &context, time, time)[0];
-        assert!(
-            (state.x - expected_x).abs() < 0.0001,
-            "at {time}: {state:?}"
-        );
+        assert!((state.x - expected_x).abs() < 0.0001, "at {time}: {state:?}");
     }
 }
 
@@ -10501,9 +10052,7 @@ fn compile_song_lua_stoptweening_preserves_startup_current_state() {
     let temp = tempfile::tempdir().unwrap();
     let song_dir = temp.path();
     let entry = song_dir.join("default.lua");
-    fs::write(
-        &entry,
-        r#"
+    fs::write(&entry, r#"
 return Def.Quad{
 Name="Panel",
 InitCommand=function(self)
@@ -10516,15 +10065,10 @@ OnCommand=function(self)
 end,
 }
 "#,
-    )
-    .unwrap();
+    ).unwrap();
     let compiled = compile_song_lua_layers(
-        &[entry.as_path()],
-        0,
-        &SongLuaCompileContext::new(song_dir, "Startup Current"),
-    )
-    .unwrap()
-    .remove(0);
+        &[entry.as_path()], 0, &SongLuaCompileContext::new(song_dir, "Startup Current"),
+    ).unwrap().remove(0);
     let actor = &compiled.overlays[0];
     let initial = actor.initial_state;
     assert_eq!([initial.x, initial.y, initial.z], [12.0, 34.0, 16.0]);
@@ -10532,16 +10076,10 @@ end,
     assert_eq!(initial.rot_z_deg, 30.0);
     assert_eq!(initial.diffuse, [1.0, 0.0, 0.0, 0.5]);
     assert_eq!(initial.halign, 0.0);
-    let startup = actor
-        .message_commands
-        .iter()
-        .find(|command| command.message == "__songlua_actor_startup")
-        .unwrap();
+    let startup = actor.message_commands.iter()
+        .find(|command| command.message == "__songlua_actor_startup").unwrap();
     let final_state = overlay_state_after_blocks(initial, &startup.blocks, 1.0);
-    assert_eq!(
-        [final_state.x, final_state.y, final_state.z],
-        [8.0, 34.0, 16.0]
-    );
+    assert_eq!([final_state.x, final_state.y, final_state.z], [8.0, 34.0, 16.0]);
     assert_eq!(final_state.zoom, 1.5);
     assert_eq!(final_state.rot_z_deg, 30.0);
     assert_eq!(final_state.diffuse, initial.diffuse);
@@ -10850,15 +10388,12 @@ fn rendered_quad_corners(
     frame: &deadlib_present::render::RenderFrame,
     screen: [f32; 2],
 ) -> Vec<[f32; 2]> {
-    rendered_quad_clips(frame)
-        .iter()
-        .map(|clip| {
+    rendered_quad_clips(frame).iter().map(|clip| {
             [
-                (clip[0] / clip[3] + 1.0) * screen[0] * 0.5,
-                (1.0 - clip[1] / clip[3]) * screen[1] * 0.5,
-            ]
-        })
-        .collect()
+        (clip[0] / clip[3] + 1.0) * screen[0] * 0.5,
+        (1.0 - clip[1] / clip[3]) * screen[1] * 0.5,
+    ]
+        }).collect()
 }
 
 fn rendered_quad_clips(frame: &deadlib_present::render::RenderFrame) -> Vec<[f32; 4]> {
@@ -11606,33 +11141,24 @@ fn unnamed_message_child_matches_native() {
 #[test]
 fn zero_fov_matches_native_parent_camera() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
-    let trace =
-        read_trace_file(&root.join("tests/fixtures/itgmania-song-lua-micro/zero-fov.json.zst"));
+    let trace = read_trace_file(
+        &root.join("tests/fixtures/itgmania-song-lua-micro/zero-fov.json.zst"));
     assert!(trace.runtime_errors.is_empty());
     assert_eq!(trace.dropped_events, 0);
-    let (compiled, primary, context) =
-        compile_trace_song_at(&trace, &root.join("tests/fixtures/song-lua/zero-fov.sm"));
+    let (compiled, primary, context) = compile_trace_song_at(
+        &trace,
+        &root.join("tests/fixtures/song-lua/zero-fov.sm"));
     let parity = compare_semantics(&trace, &compiled, primary, &context);
     eprintln!("{}", parity.summary("native zero FOV"));
-    assert_eq!(
-        parity.checks(),
-        133,
-        "retain every native camera observation"
-    );
+    assert_eq!(parity.checks(), 133, "retain every native camera observation");
     parity.assert_complete("native zero FOV");
     let mut inherited = compiled.iter().map(copy_baked_layer).collect::<Vec<_>>();
-    let zero = inherited[primary]
-        .overlays
-        .iter()
+    let zero = inherited[primary].overlays.iter()
         .position(|actor| actor.name.as_deref() == Some("Zero"))
         .expect("zero FOV child");
-    let parent = inherited[primary].overlays[zero]
-        .parent_index
+    let parent = inherited[primary].overlays[zero].parent_index
         .expect("zero FOV frame");
-    assert_eq!(
-        inherited[primary].overlays[parent].initial_state.fov,
-        Some(0.0)
-    );
+    assert_eq!(inherited[primary].overlays[parent].initial_state.fov, Some(0.0));
     inherited[primary].overlays[parent].initial_state.fov = None;
     let mut rejected = Parity::default();
     compare_projected_geometry(&trace, &inherited, &context, &mut rejected);
@@ -11700,10 +11226,7 @@ fn runtime_cycle_start_and_screen_camera_match_native() {
         observation_counts.push((name, parity.checks(), checks));
     }
     for (name, actual, expected) in observation_counts {
-        assert_eq!(
-            actual, expected,
-            "{name}: retain every native runtime frame"
-        );
+        assert_eq!(actual, expected, "{name}: retain every native runtime frame");
     }
 }
 
@@ -12152,8 +11675,9 @@ fn mawaru6_whole_song_matches_native() {
 #[ignore = "replays a complete authored song; run explicitly with --ignored"]
 fn mawaru7_idle_holds_match_native() {
     crate::paths::init();
-    let mut trace = read_trace_file(&Path::new(env!("CARGO_MANIFEST_DIR")).join(
-        "tests/fixtures/itgmania-song-lua-selected/mawaru7/mawaru7.sm.current.semantic.json.zst",
+    let mut trace = read_trace_file(
+        &Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("tests/fixtures/itgmania-song-lua-selected/mawaru7/mawaru7.sm.current.semantic.json.zst",
     ));
     let (compiled, _, context) = compile_trace_song(&trace);
     // Check both the idle interval and the next immediate write. The full
@@ -12891,137 +12415,85 @@ fn karachi_whole_native() {
 fn message_queue_backlog_matches_native() {
     crate::paths::init();
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
-    let trace =
-        read_trace_file(&root.join("tests/fixtures/itgmania-song-lua-micro/message-wag-stop.json"));
+    let trace = read_trace_file(
+        &root.join("tests/fixtures/itgmania-song-lua-micro/message-wag-stop.json"));
     let (mut compiled, primary, context) = compile_trace_song_at(
-        &trace,
-        &root.join("tests/fixtures/song-lua/message-wag-stop.sm"),
+        &trace, &root.join("tests/fixtures/song-lua/message-wag-stop.sm"),
     );
     let mut parity = compare_semantics(&trace, &compiled, primary, &context);
     compare_drawable_frames(&trace, &compiled, &context, &mut parity);
     eprintln!("{}", parity.summary("Message queue backlog"));
-    assert_eq!(
-        parity.checks(),
-        794,
-        "retain command, geometry and every frame check"
-    );
+    assert_eq!(parity.checks(), 794, "retain command, geometry and every frame check");
     parity.assert_complete("Message queue backlog");
-    let capture = compiled[primary]
-        .stateful_message_captures
-        .iter_mut()
-        .find(|capture| capture.message == "Stop")
-        .expect("stop-message writes");
-    let write = capture
-        .writes
-        .iter_mut()
-        .find(|write| {
-            write.target == SongLuaOverlayUpdateTarget::Y
-                && write.value == SongLuaOverlayUpdateValue::F32(-150.0)
-        })
-        .expect("queued final Y setter");
+    let capture = compiled[primary].stateful_message_captures.iter_mut()
+        .find(|capture| capture.message == "Stop").expect("stop-message writes");
+    let write = capture.writes.iter_mut().find(|write| {
+        write.target == SongLuaOverlayUpdateTarget::Y
+            && write.value == SongLuaOverlayUpdateValue::F32(-150.0)
+    }).expect("queued final Y setter");
     assert!((write.delay_seconds - 2.51).abs() <= EPSILON);
     // Removing the old queue's 0.76 seconds must still fail the command audit.
     write.delay_seconds = 1.75;
     let mut rejected = Parity::default();
     compare_commands(&trace, &compiled, primary, &mut rejected);
     assert_eq!(rejected.checks(), 2, "retain both message targets");
-    assert_eq!(
-        rejected.passed(),
-        1,
-        "incorrect queue timing must be rejected"
-    );
+    assert_eq!(rejected.passed(), 1, "incorrect queue timing must be rejected");
 }
 
 #[test]
 fn callback_wag_matches_native() {
     crate::paths::init();
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
-    let trace =
-        read_trace_file(&root.join("tests/fixtures/itgmania-song-lua-micro/callback-wag.json"));
+    let trace = read_trace_file(
+        &root.join("tests/fixtures/itgmania-song-lua-micro/callback-wag.json"));
     let (mut compiled, primary, context) = compile_trace_song_at(
-        &trace,
-        &root.join("tests/fixtures/song-lua/callback-wag/message-wag-repeat.sm"),
+        &trace, &root.join("tests/fixtures/song-lua/callback-wag/message-wag-repeat.sm"),
     );
     let mut parity = compare_semantics(&trace, &compiled, primary, &context);
     compare_drawable_frames(&trace, &compiled, &context, &mut parity);
     eprintln!("{}", parity.summary("Callback wag"));
-    assert_eq!(
-        parity.checks(),
-        1218,
-        "retain geometry and all 722 drawable frames"
-    );
+    assert_eq!(parity.checks(), 1218, "retain geometry and all 722 drawable frames");
     parity.assert_complete("Callback wag");
-    let track = compiled[primary]
-        .overlay_updates
-        .iter_mut()
+    let track = compiled[primary].overlay_updates.iter_mut()
         .find(|track| track.target == SongLuaOverlayUpdateTarget::EffectMode)
         .expect("runtime effect selector");
-    let sample = track
-        .samples
-        .iter_mut()
-        .find(|sample| (sample.time - 3.75).abs() <= EPSILON)
+    let sample = track.samples.iter_mut().find(|sample| (sample.time - 3.75).abs() <= EPSILON)
         .expect("second callback stops the old wag");
     sample.value = SongLuaOverlayUpdateValue::EffectMode(EffectMode::Wag);
     let mut rejected = compare_semantics(&trace, &compiled, primary, &context);
     compare_drawable_frames(&trace, &compiled, &context, &mut rejected);
-    assert_eq!(
-        rejected.checks(),
-        parity.checks(),
-        "retain every observation"
-    );
-    assert!(
-        rejected.passed() < rejected.checks(),
-        "an unstopped wag must fail native geometry"
-    );
+    assert_eq!(rejected.checks(), parity.checks(), "retain every observation");
+    assert!(rejected.passed() < rejected.checks(), "an unstopped wag must fail native geometry");
 }
 
 #[test]
 fn wrapper_fade_matches_native() {
     crate::paths::init();
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
-    let trace =
-        read_trace_file(&root.join("tests/fixtures/itgmania-song-lua-micro/wrapper-fade.json"));
+    let trace = read_trace_file(
+        &root.join("tests/fixtures/itgmania-song-lua-micro/wrapper-fade.json"));
     let (mut compiled, primary, context) = compile_trace_song_at(
-        &trace,
-        &root.join("tests/fixtures/song-lua/wrapper-fade.sm"),
+        &trace, &root.join("tests/fixtures/song-lua/wrapper-fade.sm"),
     );
     let mut parity = compare_semantics(&trace, &compiled, primary, &context);
     compare_drawable_frames(&trace, &compiled, &context, &mut parity);
     eprintln!("{}", parity.summary("Wrapper fade"));
-    assert_eq!(
-        parity.checks(),
-        577,
-        "retain geometry and all 482 drawable frames"
-    );
+    assert_eq!(parity.checks(), 577, "retain geometry and all 482 drawable frames");
     parity.assert_complete("Wrapper fade");
-    let wrappers: Vec<_> = compiled[primary]
-        .overlays
-        .iter()
-        .enumerate()
+    let wrappers: Vec<_> = compiled[primary].overlays.iter().enumerate()
         .filter_map(|(index, actor)| {
             matches!(actor.kind, SongLuaOverlayKind::WrapperState).then_some(index)
-        })
-        .collect();
+        }).collect();
     assert_eq!(wrappers.len(), 1, "probes must leave no extra wrapper");
     let count = compiled[primary].overlay_updates.len();
     compiled[primary].overlay_updates.retain(|track| {
         !(track.overlay_index == wrappers[0] && track.target == SongLuaOverlayUpdateTarget::Diffuse)
     });
-    assert!(
-        compiled[primary].overlay_updates.len() < count,
-        "runtime wrapper alpha track"
-    );
+    assert!(compiled[primary].overlay_updates.len() < count, "runtime wrapper alpha track");
     let mut rejected = compare_semantics(&trace, &compiled, primary, &context);
     compare_drawable_frames(&trace, &compiled, &context, &mut rejected);
-    assert_eq!(
-        rejected.checks(),
-        parity.checks(),
-        "retain every observation"
-    );
-    assert!(
-        rejected.passed() < rejected.checks(),
-        "missing wrapper fade must fail native colors"
-    );
+    assert_eq!(rejected.checks(), parity.checks(), "retain every observation");
+    assert!(rejected.passed() < rejected.checks(), "missing wrapper fade must fail native colors");
 }
 
 #[test]
@@ -13029,42 +12501,23 @@ fn manual_draw_clock_matches_native() {
     crate::paths::init();
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
     for (label, origin) in [("draw-offset", 1.25), ("draw-negative", -0.5)] {
-        let trace = read_trace_file(&root.join(format!(
-            "tests/fixtures/itgmania-song-lua-micro/{label}.json"
-        )));
+        let trace = read_trace_file(&root.join(format!("tests/fixtures/itgmania-song-lua-micro/{label}.json")));
         let (mut compiled, primary, context) = compile_trace_song_at(
-            &trace,
-            &root.join(format!("tests/fixtures/song-lua/{label}.sm")),
+            &trace, &root.join(format!("tests/fixtures/song-lua/{label}.sm")),
         );
         assert_eq!(trace.manual_draw_frames.len(), 241);
-        assert_eq!(
-            context
-                .song_timing
-                .as_ref()
-                .expect("native song clock")
-                .get_time_for_beat_exact(0.0),
-            origin
-        );
+        assert_eq!(context.song_timing.as_ref().expect("native song clock").get_time_for_beat_exact(0.0), origin);
         assert_eq!(compiled[primary].draw_frames[0].second, origin);
         let parity = compare_semantics(&trace, &compiled, primary, &context);
         eprintln!("{}", parity.summary(label));
         assert_eq!(parity.checks(), 249, "retain every native draw observation");
         parity.assert_complete(label);
         // A misplaced retained timestamp must fail even with unchanged ops.
-        for frame in &mut compiled[primary].draw_frames {
-            frame.second += 0.25;
-        }
+        for frame in &mut compiled[primary].draw_frames { frame.second += 0.25; }
         let mut rejected = Parity::default();
         compare_manual_plans(&trace, &compiled, &context, &mut rejected);
-        assert_eq!(
-            rejected.checks(),
-            241,
-            "retain all native frame observations"
-        );
-        assert!(
-            rejected.passed() < rejected.checks(),
-            "incorrect music timestamps must fail"
-        );
+        assert_eq!(rejected.checks(), 241, "retain all native frame observations");
+        assert!(rejected.passed() < rejected.checks(), "incorrect music timestamps must fail");
     }
 }
 
@@ -13073,51 +12526,30 @@ fn public_music_seconds_matches_native() {
     crate::paths::init();
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
     for label in ["music-positive", "music-negative"] {
-        let trace = read_trace_file(&root.join(format!(
-            "tests/fixtures/itgmania-song-lua-micro/{label}.json"
-        )));
+        let trace = read_trace_file(&root.join(format!("tests/fixtures/itgmania-song-lua-micro/{label}.json")));
         assert_eq!(trace.song_position.as_deref(), Some("native-music-seconds"));
         assert_eq!(trace.update_frames.len(), 241);
         let (mut compiled, primary, context) = compile_trace_song_at(
-            &trace,
-            &root.join(format!("tests/fixtures/song-lua/{label}.sm")),
+            &trace, &root.join(format!("tests/fixtures/song-lua/{label}.sm")),
         );
         let mut parity = compare_semantics(&trace, &compiled, primary, &context);
         compare_drawable_frames(&trace, &compiled, &context, &mut parity);
         eprintln!("{}", parity.summary(label));
-        assert_eq!(
-            parity.checks(),
-            5258,
-            "retain every native getter and geometry observation"
-        );
+        assert_eq!(parity.checks(), 5258, "retain every native getter and geometry observation");
         parity.assert_complete(label);
-        let actor = compiled[primary]
-            .overlays
-            .iter()
-            .position(|actor| actor.name.as_deref() == Some("Clock1"))
-            .expect("music getter quad");
-        let track = compiled[primary]
-            .overlay_updates
-            .iter_mut()
+        let actor = compiled[primary].overlays.iter()
+            .position(|actor| actor.name.as_deref() == Some("Clock1")).expect("music getter quad");
+        let track = compiled[primary].overlay_updates.iter_mut()
             .find(|track| {
                 track.overlay_index == actor && track.target == SongLuaOverlayUpdateTarget::X
             })
             .expect("captured public music getter");
         assert!(!track.samples.is_empty());
-        for sample in &mut track.samples {
-            sample.value = SongLuaOverlayUpdateValue::F32(0.0);
-        }
+        for sample in &mut track.samples { sample.value = SongLuaOverlayUpdateValue::F32(0.0); }
         let mut rejected = compare_semantics(&trace, &compiled, primary, &context);
         compare_drawable_frames(&trace, &compiled, &context, &mut rejected);
-        assert_eq!(
-            rejected.checks(),
-            parity.checks(),
-            "retain every native observation"
-        );
-        assert!(
-            rejected.passed() < rejected.checks(),
-            "incorrect public music seconds must fail"
-        );
+        assert_eq!(rejected.checks(), parity.checks(), "retain every native observation");
+        assert!(rejected.passed() < rejected.checks(), "incorrect public music seconds must fail");
     }
 }
 
@@ -13126,53 +12558,29 @@ fn music_effect_clock_matches_native() {
     crate::paths::init();
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
     for label in ["music-effect-positive", "music-effect-negative"] {
-        let trace = read_trace_file(&root.join(format!(
-            "tests/fixtures/itgmania-song-lua-micro/{label}.json"
-        )));
-        assert_eq!(
-            trace.music_effect_clock.as_deref(),
-            Some("native-music-seconds")
-        );
+        let trace = read_trace_file(&root.join(format!("tests/fixtures/itgmania-song-lua-micro/{label}.json")));
+        assert_eq!(trace.music_effect_clock.as_deref(), Some("native-music-seconds"));
         assert_eq!(trace.update_frames.len(), 181);
         let (mut compiled, primary, context) = compile_trace_song_at(
-            &trace,
-            &root.join(format!("tests/fixtures/song-lua/{label}.sm")),
+            &trace, &root.join(format!("tests/fixtures/song-lua/{label}.sm")),
         );
         let mut parity = compare_semantics(&trace, &compiled, primary, &context);
         compare_drawable_frames(&trace, &compiled, &context, &mut parity);
         eprintln!("{}", parity.summary(label));
-        assert_eq!(
-            parity.checks(),
-            27170,
-            "retain every getter, spin, and pulse observation"
-        );
+        assert_eq!(parity.checks(), 27170, "retain every getter, spin, and pulse observation");
         parity.assert_complete(label);
-        let actor = compiled[primary]
-            .overlays
-            .iter()
-            .position(|actor| actor.name.as_deref() == Some("Music"))
-            .expect("music clock quad");
-        let track = compiled[primary]
-            .overlay_updates
-            .iter_mut()
+        let actor = compiled[primary].overlays.iter()
+            .position(|actor| actor.name.as_deref() == Some("Music")).expect("music clock quad");
+        let track = compiled[primary].overlay_updates.iter_mut()
             .find(|track| {
                 track.overlay_index == actor && track.target == SongLuaOverlayUpdateTarget::X
             })
             .expect("captured effect clock getter");
         assert!(!track.samples.is_empty());
-        for sample in &mut track.samples {
-            sample.value = SongLuaOverlayUpdateValue::F32(0.0);
-        }
+        for sample in &mut track.samples { sample.value = SongLuaOverlayUpdateValue::F32(0.0); }
         let mut rejected = compare_semantics(&trace, &compiled, primary, &context);
         compare_drawable_frames(&trace, &compiled, &context, &mut rejected);
-        assert_eq!(
-            rejected.checks(),
-            parity.checks(),
-            "retain every native observation"
-        );
-        assert!(
-            rejected.passed() < rejected.checks(),
-            "incorrect effect time must fail"
-        );
+        assert_eq!(rejected.checks(), parity.checks(), "retain every native observation");
+        assert!(rejected.passed() < rejected.checks(), "incorrect effect time must fail");
     }
 }

@@ -82,8 +82,7 @@ fn palette_editor_preserves_channels_focus_cursor_and_actor_output() {
                     draw(&mut new, &state, selected, focus, editing, blink, false);
                     assert_eq!(
                         crate::actor_test_support::canonical(&old),
-                        crate::actor_test_support::canonical(&new)
-                    );
+                        crate::actor_test_support::canonical(&new));
                 }
             }
         }

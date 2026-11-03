@@ -83,7 +83,8 @@ fn french_panel_saves_reloads_and_drives_actual_playback_policy_without_song_edi
         s.is_playing(),
         "opening source preferences retains playback"
     );
-    assert!(s.take_audio_commands().is_empty());
+    assert!(
+        s.take_audio_commands().is_empty());
     assert!(has(
         &s,
         "Arrêter la lecture lors du déplacement avec les flèches : Non"
@@ -109,7 +110,8 @@ fn french_panel_saves_reloads_and_drives_actual_playback_policy_without_song_edi
     press(&mut r, KeyCode::ArrowDown);
     assert!(!r.is_playing());
     assert!(
-        matches!(r.take_audio_commands().as_slice(), [GameplayAudioCommand::EditorPauseMusic { owner, .. }] if *owner == r.editor_asset_owner())
+        matches!(
+        r.take_audio_commands().as_slice(), [GameplayAudioCommand::EditorPauseMusic { owner, .. }] if *owner == r.editor_asset_owner())
     );
     open(&mut r);
     press(&mut r, KeyCode::ArrowDown);
@@ -187,7 +189,8 @@ fn unconfigured_preferences_publish_in_memory_and_rejected_future_files_remain_u
     press(&mut s, KeyCode::ArrowRight);
     save(&mut s);
     assert!(s.scroll_preferences().stop_playback());
-    assert!(has(&s, "Préférences de navigation enregistrées."));
+    assert!(has(
+        &s, "Préférences de navigation enregistrées."));
     press(&mut s, KeyCode::Escape);
     let p = d.path().join("prefs.json");
     let bytes = b"{\"Version\":99}";
@@ -221,10 +224,7 @@ fn navigation_shortcut_hint_has_bounded_width_and_does_not_overlap_status_footer
     s.actors(&mut a);
     let template = i18n::tr("Edition", "Shortcuts");
     let prefix = template.split("{close}").next().unwrap();
-    let hint = a
-        .into_iter()
-        .find(|a| matches!(a,Actor::Text{content,..} if content.starts_with(prefix)))
-        .expect("visible shortcut hint");
+    let hint=a.into_iter().find(|a|matches!(a,Actor::Text{content,..} if content.starts_with(prefix))).expect("visible shortcut hint");
     match hint {
         Actor::Text {
             offset,

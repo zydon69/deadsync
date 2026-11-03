@@ -54,9 +54,7 @@ pub fn theme_path(kind: &str, group: &str, name: &str) -> String {
     let name = name.trim_start_matches('/');
     let name = if kind == "G" && group.is_empty() {
         crate::lua_util::native_gameplay_in_bitmap_filename(name).unwrap_or(name)
-    } else {
-        name
-    };
+    } else { name };
     if group.is_empty() {
         format!("{}{kind}/{name}", crate::SONG_LUA_THEME_PATH_PREFIX)
     } else {
@@ -124,11 +122,7 @@ fn resolve_script_path_with(
     actor_path: bool,
 ) -> mlua::Result<PathBuf> {
     let prepare = |candidate: &Path| {
-        if actor_path {
-            collapse_actor_path(candidate)
-        } else {
-            candidate.to_path_buf()
-        }
+        if actor_path { collapse_actor_path(candidate) } else { candidate.to_path_buf() }
     };
     let raw = prepare(Path::new(path));
     if raw.is_absolute() && raw.exists() {

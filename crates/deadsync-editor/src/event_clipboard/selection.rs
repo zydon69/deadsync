@@ -88,14 +88,8 @@ impl Event {
             },
         }
     }
-    pub(super) fn sort_key(
-        self,
-        note_kinds: &BTreeMap<Position, Kind>,
-    ) -> (u64, u8, u16, u32, Self) {
-        let (lane, player) = match self {
-            Self::Note(position) => (position.lane, position.player),
-            _ => (0, 0),
-        };
+    pub(super) fn sort_key(self, note_kinds: &BTreeMap<Position, Kind>) -> (u64, u8, u16, u32, Self) {
+        let (lane, player) = match self { Self::Note(position) => (position.lane, position.player), _ => (0, 0) };
         (self.row(), self.order(note_kinds), lane, player, self)
     }
 }
@@ -138,10 +132,9 @@ impl Selection {
         if start > end || end > i32::MAX as u64 {
             return Err(Error::InvalidEdit("Invalid event selection bounds".into()));
         }
-        let mut events: Vec<_> =
-            Timing::capture_inventory(session, chart, scope(session), start, end)?
-                .keys()
-                .collect();
+        let mut events: Vec<_> = Timing::capture_inventory(session, chart, scope(session), start, end)?
+            .keys()
+            .collect();
         let attacks = Attacks::capture(session, chart, super::attack_scope(session))?;
         events.extend(
             attacks

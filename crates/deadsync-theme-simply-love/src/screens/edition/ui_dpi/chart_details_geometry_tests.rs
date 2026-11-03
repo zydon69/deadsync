@@ -100,11 +100,12 @@ fn source_chart_details_title_and_all_lanes_fit_en_fr_sizes_and_dpi_one_two() {
                             ]
                         };
                         let center = map(*modal);
-                        let composed_size =
-                            super::readout_geometry::composed_solid_size(&children[0], &metrics);
+                        let composed_size=super::readout_geometry::composed_solid_size(&children[0],&metrics);
                         let physical = [
-                            composed_size[0] * transform.x_axis.x * width / space::screen_width(),
-                            composed_size[1] * transform.y_axis.y * height / space::screen_height(),
+                            composed_size[0] * transform.x_axis.x * width
+                                / space::screen_width(),
+                            composed_size[1] * transform.y_axis.y * height
+                                / space::screen_height(),
                         ];
                         assert!((center[0] - width * 0.5).abs() < 0.04);
                         assert!((center[1] - height * 0.5).abs() < 0.04);
@@ -136,9 +137,7 @@ fn source_chart_details_title_and_all_lanes_fit_en_fr_sizes_and_dpi_one_two() {
                                         && location[1] + half_line
                                             <= center[1] + physical[1] * 0.5 + 0.05,
                                     "{language} {width}x{height} dpi{dpi} row{selected} text={:?} location={location:?} half_line={half_line:?} card_center={center:?} card_physical={physical:?} text_offset={offset:?} text_align={align:?} text_scale={scale:?} card_size={size:?} composed_size={composed_size:?} card_scale={background_scale:?} transform={transform:?} frame_origin={origin:?} metrics={metrics:?} canvas={}x{}",
-                                    content.as_str(),
-                                    space::screen_width(),
-                                    space::screen_height()
+                                    content.as_str(), space::screen_width(), space::screen_height()
                                 );
                                 if content.as_str()
                                     == i18n::tr("Edition", "ChartDetailsTitle").as_ref()

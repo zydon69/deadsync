@@ -6,18 +6,14 @@ pub struct Reservation {
     forbid_control: bool,
     forbid_shift: bool,
 }
-pub fn legacy() -> Vec<Reservation> {
-    Vec::new()
-}
+pub fn legacy() -> Vec<Reservation> { Vec::new() }
 /// Source accepts arbitrary ordered key sets, including ordinary prefixes
 /// and modifier finals. Preserve every key; normalize only physical aliases.
 pub const MAX_CHORD_KEYS: usize = 128;
 pub fn supported_chord(keys: &[String]) -> bool {
     let mut seen = BTreeSet::new();
-    keys.len() <= MAX_CHORD_KEYS
-        && keys.iter().all(|key| {
-            super::supported_key(key) && seen.insert(crate::key_commands::Key::named(key))
-        })
+    keys.len() <= MAX_CHORD_KEYS && keys.iter().all(|key| super::supported_key(key)
+        && seen.insert(crate::key_commands::Key::named(key)))
 }
 /// A shorter subset can coexist: a longer reserved chord wins in the evaluator.
 /// Equal, longer or non-subset chords with the same terminal key are ambiguous.

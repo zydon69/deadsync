@@ -1,5 +1,5 @@
-use crate::explosions::{ExplosionComposeRequest, ExplosionRotation, compose_explosion_layers};
 use crate::transforms::move_col_extra;
+use crate::explosions::{ExplosionComposeRequest, ExplosionRotation, compose_explosion_layers};
 use crate::{
     ColumnFeedbackRequest, ModelMeshCache, NoteXParams, NotefieldComposeRequest, PreparedNotefield,
     ReceptorDrawRequest, ReceptorPress, compose_column_feedback, compose_receptor_draws,
@@ -356,8 +356,7 @@ pub(crate) fn compose_notefield_feedback<S, F>(
         );
         if spline.enabled && spline.absolute {
             center = [
-                field.playfield_center_x
-                    + prepared.column_spline_receptors[local_col][0] * field_zoom,
+                field.playfield_center_x + prepared.column_spline_receptors[local_col][0] * field_zoom,
                 receptor_y,
             ];
         }
@@ -3197,9 +3196,7 @@ mod tests {
             SongLuaColumnSplineFrame, SongLuaColumnSplineTrack, SongLuaSplineData,
         };
         let captures: [serde_json::Value; 2] = [
-            include_str!(
-                "../../../tests/fixtures/itgmania-song-lua-micro/seventh-swap-native.json"
-            ),
+            include_str!("../../../tests/fixtures/itgmania-song-lua-micro/seventh-swap-native.json"),
             include_str!(
                 "../../../tests/fixtures/itgmania-song-lua-micro/seventh-swap-approach-native.json"
             ),
@@ -3327,8 +3324,7 @@ mod tests {
             // note size fall then jump back every reference frame.
             for tick in 0..12 {
                 let second = tick as f32 * rate / 240.0;
-                let mut request =
-                    request(&ns, &timing, &[], &hides, FieldPlacement::P1, 0, 1, 2, 2);
+                let mut request = request(&ns, &timing, &[], &hides, FieldPlacement::P1, 0, 1, 2, 2);
                 request.chart.music_rate = rate;
                 request.chart.visible_music_time_ns =
                     deadsync_core::song_time::song_time_ns_from_seconds(second);
@@ -3379,8 +3375,7 @@ mod tests {
             frames.truncate(2);
             sparse[0].frames = frames.into();
             for second in [0.25, 0.999, 1.0, 1.1] {
-                let mut request =
-                    request(&ns, &timing, &[], &hides, FieldPlacement::P1, 0, 1, 2, 2);
+                let mut request = request(&ns, &timing, &[], &hides, FieldPlacement::P1, 0, 1, 2, 2);
                 request.chart.visible_music_time_ns =
                     deadsync_core::song_time::song_time_ns_from_seconds(second);
                 request.chart.visible_beat = timing.get_beat_for_time(second);
@@ -3408,9 +3403,7 @@ mod tests {
 
     #[test]
     fn compiled_spline_curvature_uses_the_render_beat() {
-        use deadsync_gameplay::{
-            SongLuaColumnSplineFrame, SongLuaColumnSplineTrack, SongLuaSplineData,
-        };
+        use deadsync_gameplay::{SongLuaColumnSplineFrame, SongLuaColumnSplineTrack, SongLuaSplineData};
         let ns = noteskin();
         let timing = TimingData::default();
         let hides = SongLuaNoteHideWindows::default();
@@ -3422,111 +3415,73 @@ mod tests {
             coefficients: vec![
                 [[if zoom { 1.0 + beat } else { 0.0 }, 0.0, 1.0, 0.0]; 3],
                 [[if zoom { 2.0 + beat } else { 1.0 }, 2.0, 0.0, 0.0]; 3],
-            ]
-            .into(),
-            constant: false,
-            looping: false,
-            beats_per_t: 1.0,
-            receptor_t: 0.0,
-            subtract_song_beat: true,
+            ].into(),
+            constant: false, looping: false, beats_per_t: 1.0,
+            receptor_t: 0.0, subtract_song_beat: true,
         };
         let tracks = [SongLuaColumnSplineTrack {
-            player: 0,
-            column: 0,
-            time_offset: 0.0,
-            frames: (0..4)
-                .map(|frame| {
-                    let second = frame as f32 / 60.0;
-                    let beat = timing.get_beat_for_time(second);
-                    SongLuaColumnSplineFrame {
-                        second,
-                        position: Some(curve(beat, false)),
-                        zoom: Some(curve(beat, true)),
-                    }
-                })
-                .collect::<Vec<_>>()
-                .into(),
+            player: 0, column: 0, time_offset: 0.0,
+            frames: (0..4).map(|frame| {
+                let second = frame as f32 / 60.0;
+                let beat = timing.get_beat_for_time(second);
+                SongLuaColumnSplineFrame {
+                    second, position: Some(curve(beat, false)), zoom: Some(curve(beat, true)),
+                }
+            }).collect::<Vec<_>>().into(),
         }];
         for tick in 0..12 {
             let second = tick as f32 / 240.0;
             let mut request = request(&ns, &timing, &[], &hides, FieldPlacement::P1, 0, 1, 2, 2);
-            request.chart.visible_music_time_ns =
-                deadsync_core::song_time::song_time_ns_from_seconds(second);
+            request.chart.visible_music_time_ns = deadsync_core::song_time::song_time_ns_from_seconds(second);
             let beat = timing.get_beat_for_time(second);
             request.chart.visible_beat = beat;
             request.song_lua.column_splines = &tracks;
             let prepared = prepare_notefield(&request).unwrap();
             let relative = 0.5 - beat;
             let (position, derivative) = prepared.spline_sample(0, 0.5);
-            assert!(
-                (position[0] - relative * relative).abs() < 0.000001,
-                "quadratic position at tick {tick}: {} vs {}",
-                position[0],
-                relative * relative
-            );
+            assert!((position[0] - relative * relative).abs() < 0.000001,
+                "quadratic position at tick {tick}: {} vs {}", position[0], relative * relative);
             assert!((derivative[0] - 2.0 * relative).abs() < 0.000001);
-            assert!(
-                (prepared.spline_zoom(0, 0.5, 0.7) - (1.0 + beat + relative * relative)).abs()
-                    < 0.000001
-            );
+            assert!((prepared.spline_zoom(0, 0.5, 0.7) - (1.0 + beat + relative * relative)).abs() < 0.000001);
         }
     }
 
     #[test]
     fn compiled_spline_steps_do_not_anticipate_native_point_writes() {
-        use deadsync_gameplay::{
-            SongLuaColumnSplineFrame, SongLuaColumnSplineTrack, SongLuaSplineData,
-        };
+        use deadsync_gameplay::{SongLuaColumnSplineFrame, SongLuaColumnSplineTrack, SongLuaSplineData};
         let ns = noteskin();
         let timing = TimingData::default();
         let hides = SongLuaNoteHideWindows::default();
         let tracks = [SongLuaColumnSplineTrack {
-            player: 0,
-            column: 0,
-            time_offset: 0.0,
-            frames: (0..4)
-                .map(|frame| {
-                    let second = frame as f32 / 60.0;
-                    let beat = timing.get_beat_for_time(second);
-                    let sign = if frame < 2 { -1.0 } else { 1.0 };
-                    let spline = |points: &[[f32; 3]]| SongLuaSplineData {
-                        coefficients: deadsync_gameplay::solve_song_lua_spline(points).into(),
-                        constant: false,
-                        looping: false,
-                        beats_per_t: 1.0,
-                        receptor_t: 0.0,
-                        subtract_song_beat: true,
-                    };
-                    SongLuaColumnSplineFrame {
-                        second,
-                        position: Some(spline(&[
-                            [beat, sign * 200.0, 0.0],
-                            [16.0 + beat, sign * 100.0, 0.0],
-                        ])),
-                        zoom: Some(spline(&[[1.0 + beat; 3], [2.0 + beat; 3]])),
-                    }
-                })
-                .collect::<Vec<_>>()
-                .into(),
+            player: 0, column: 0, time_offset: 0.0,
+            frames: (0..4).map(|frame| {
+                let second = frame as f32 / 60.0;
+                let beat = timing.get_beat_for_time(second);
+                let sign = if frame < 2 { -1.0 } else { 1.0 };
+                let spline = |points: &[[f32; 3]]| SongLuaSplineData {
+                    coefficients: deadsync_gameplay::solve_song_lua_spline(points).into(),
+                    constant: false, looping: false, beats_per_t: 1.0,
+                    receptor_t: 0.0, subtract_song_beat: true,
+                };
+                SongLuaColumnSplineFrame { second,
+                    position: Some(spline(&[[beat, sign * 200.0, 0.0], [16.0 + beat, sign * 100.0, 0.0]])),
+                    zoom: Some(spline(&[[1.0 + beat; 3], [2.0 + beat; 3]])),
+                }
+            }).collect::<Vec<_>>().into(),
         }];
         for tick in 4..12 {
             let second = tick as f32 / 240.0;
             let mut request = request(&ns, &timing, &[], &hides, FieldPlacement::P1, 0, 1, 2, 2);
-            request.chart.visible_music_time_ns =
-                deadsync_core::song_time::song_time_ns_from_seconds(second);
+            request.chart.visible_music_time_ns = deadsync_core::song_time::song_time_ns_from_seconds(second);
             request.chart.visible_beat = timing.get_beat_for_time(second);
             request.song_lua.column_splines = &tracks;
             let prepared = prepare_notefield(&request).unwrap();
             let sign = if tick < 8 { -1.0 } else { 1.0 };
             let expected = sign * (200.0 - 100.0 * (0.5 - request.chart.visible_beat));
-            assert!(
-                (prepared.spline_sample(0, 0.5).0[1] - expected).abs() < 0.0001,
-                "native immediate point write anticipated at tick {tick}"
-            );
-            assert!(
-                (prepared.spline_zoom(0, 0.5, 0.7) - 1.5).abs() < 0.000001,
-                "continuous zoom clock was frozen at tick {tick}"
-            );
+            assert!((prepared.spline_sample(0, 0.5).0[1] - expected).abs() < 0.0001,
+                "native immediate point write anticipated at tick {tick}");
+            assert!((prepared.spline_zoom(0, 0.5, 0.7) - 1.5).abs() < 0.000001,
+                "continuous zoom clock was frozen at tick {tick}");
         }
 
         // A ramp starting from rest has no second plateau. It must retain
@@ -3539,24 +3494,20 @@ mod tests {
             position.coefficients = deadsync_gameplay::solve_song_lua_spline(&[
                 [0.0, -200.0 + shift, 0.0],
                 [16.0, -100.0 + shift, 0.0],
-            ])
-            .into();
+            ]).into();
         }
         ramp[0].frames = frames.into();
         for tick in 4..8 {
             let second = tick as f32 / 240.0;
             let mut request = request(&ns, &timing, &[], &hides, FieldPlacement::P1, 0, 1, 2, 2);
-            request.chart.visible_music_time_ns =
-                deadsync_core::song_time::song_time_ns_from_seconds(second);
+            request.chart.visible_music_time_ns = deadsync_core::song_time::song_time_ns_from_seconds(second);
             request.chart.visible_beat = timing.get_beat_for_time(second);
             request.song_lua.column_splines = &ramp;
             let prepared = prepare_notefield(&request).unwrap();
-            let expected =
-                -200.0 + 100.0 * (second * 60.0 - 1.0) + 100.0 * (0.5 - request.chart.visible_beat);
-            assert!(
-                (prepared.spline_sample(0, 0.5).0[1] - expected).abs() < 0.0001,
-                "continuous ramp was mistaken for a point jump at tick {tick}"
-            );
+            let expected = -200.0 + 100.0 * (second * 60.0 - 1.0)
+                + 100.0 * (0.5 - request.chart.visible_beat);
+            assert!((prepared.spline_sample(0, 0.5).0[1] - expected).abs() < 0.0001,
+                "continuous ramp was mistaken for a point jump at tick {tick}");
         }
     }
 
@@ -3744,14 +3695,8 @@ mod tests {
             let notes = [n];
             for placement in [FieldPlacement::P1, FieldPlacement::P2] {
                 for direction in [-1.0, 1.0] {
-                    for (zoom, move_z) in [
-                        (0.5, 0.0),
-                        (1.0, 0.0),
-                        (1.5, 0.0),
-                        (0.5, 0.5),
-                        (1.0, -0.25),
-                        (1.5, 1.5),
-                    ] {
+                    for (zoom, move_z) in [(0.5, 0.0), (1.0, 0.0), (1.5, 0.0),
+                        (0.5, 0.5), (1.0, -0.25), (1.5, 1.5)] {
                         let mut request =
                             request(&ns, &timing, &notes, &hides, placement, 0, 1, 2, 2);
                         request.chart.lane_note_row_indices = &lanes;
@@ -3819,20 +3764,20 @@ mod tests {
                                 // along the forward vector after their first row.
                                 let step_z = 0.00414175075 * zoom;
                                 assert!(
-                                    vertices.iter().all(|vertex| (vertex.pos[2]
-                                        - lane_depth
-                                        - depth * zoom)
-                                        .abs()
-                                        < 0.001
-                                        || (vertex.pos[2] - lane_depth - depth * zoom - step_z)
-                                            .abs()
-                                            < 0.001),
+                                    vertices
+                                        .iter()
+                                        .all(|vertex| (vertex.pos[2] - lane_depth - depth * zoom).abs() < 0.001
+                                            || (vertex.pos[2] - lane_depth - depth * zoom - step_z).abs()
+                                                < 0.001),
                                     "{part} constant beat"
                                 );
-                                assert!(vertices.iter().any(|vertex| {
-                                    (vertex.pos[2] - lane_depth - depth * zoom - step_z).abs()
-                                        < 0.001
-                                }));
+                                assert!(
+                                    vertices.iter().any(|vertex| (vertex.pos[2]
+                                        - lane_depth - depth * zoom
+                                        - step_z)
+                                        .abs()
+                                        < 0.001)
+                                );
                             }
                             assert!(after.iter().any(|draw| matches!(draw, FlatDraw::TexturedMesh(mesh) if mesh.texture.texture_key().expect("asset mesh")=="body")));
                         }
@@ -3899,19 +3844,12 @@ mod tests {
                             for curve in [
                                 [points[0]; 4],
                                 [points[0], points[0], points[1], points[1]],
-                                [
-                                    [0.0, -135.0, 0.0],
-                                    [0.0, 135.0, 0.0],
-                                    [0.0, 405.0, 0.0],
-                                    [0.0, 675.0, 0.0],
-                                ],
-                                [
-                                    [0.0, 135.0, 0.0],
-                                    [0.0, -135.0, 0.0],
-                                    [0.0, -405.0, 0.0],
-                                    [0.0, -675.0, 0.0],
-                                ],
-                            ] {
+                                [[0.0, -135.0, 0.0], [0.0, 135.0, 0.0],
+                                    [0.0, 405.0, 0.0], [0.0, 675.0, 0.0]],
+                                [[0.0, 135.0, 0.0], [0.0, -135.0, 0.0],
+                                    [0.0, -405.0, 0.0], [0.0, -675.0, 0.0]],
+                            ]
+                            {
                                 let constant = curve.iter().all(|point| *point == curve[0]);
                                 let mut tracks = absolute_tracks.clone();
                                 let mut frames = tracks[0].frames.to_vec();
@@ -3933,33 +3871,19 @@ mod tests {
                                 assert_eq!(draws.iter().any(|draw| matches!(draw, FlatDraw::TexturedMesh(mesh) if mesh.texture.texture_key().expect("asset mesh")=="body")), !constant,
                                     "hold path depends on the whole spline");
                                 if !constant {
-                                    let mesh = draws
-                                        .iter()
-                                        .find_map(|draw| match draw {
-                                            FlatDraw::TexturedMesh(mesh)
-                                                if mesh.texture.texture_key() == Some("body") =>
-                                            {
-                                                Some(mesh)
-                                            }
-                                            _ => None,
-                                        })
-                                        .unwrap();
+                                    let mesh = draws.iter().find_map(|draw| match draw {
+                                        FlatDraw::TexturedMesh(mesh)
+                                            if mesh.texture.texture_key() == Some("body") => Some(mesh),
+                                        _ => None,
+                                    }).unwrap();
                                     let vertices = match &mesh.vertices {
                                         FlatMeshVertices::Shared(v) => v.as_ref(),
                                         FlatMeshVertices::Reusable(v) => v.as_slice(),
                                     };
-                                    let min_x = vertices
-                                        .iter()
-                                        .map(|v| v.pos[0])
-                                        .fold(f32::INFINITY, f32::min);
-                                    let max_x = vertices
-                                        .iter()
-                                        .map(|v| v.pos[0])
-                                        .fold(f32::NEG_INFINITY, f32::max);
-                                    assert!(
-                                        max_x - min_x > 20.0 * zoom,
-                                        "absolute {kind:?} dir={direction}: collapsed hold width for {curve:?}"
-                                    );
+                                    let min_x = vertices.iter().map(|v| v.pos[0]).fold(f32::INFINITY, f32::min);
+                                    let max_x = vertices.iter().map(|v| v.pos[0]).fold(f32::NEG_INFINITY, f32::max);
+                                    assert!(max_x - min_x > 20.0 * zoom,
+                                        "absolute {kind:?} dir={direction}: collapsed hold width for {curve:?}");
                                 }
                             }
                         }
@@ -5248,35 +5172,27 @@ mod tests {
         };
         let native: serde_json::Value = serde_json::from_str(include_str!(
             "../../../tests/fixtures/itgmania-song-lua-micro/parabola-y-motion.json"
-        ))
-        .expect("independently compiled native travel vectors");
+        )).expect("independently compiled native travel vectors");
         let mut ns = noteskin();
         ns.notes = (0..deadsync_noteskin::NUM_QUANTIZATIONS)
-            .map(|_| TestSlot::new("note0"))
-            .collect();
+            .map(|_| TestSlot::new("note0")).collect();
         ns.mine_layers = vec![vec![TestSlot::new("note0")].into()];
         let timing = TimingData::default();
         let hides = SongLuaNoteHideWindows::default();
-        let lanes = [vec![
-            deadsync_gameplay::ChartNoteIndex::try_from_usize(0).expect("index"),
-        ]];
+        let lanes = [vec![deadsync_gameplay::ChartNoteIndex::try_from_usize(0).expect("index")]];
         for vector in native["vectors"].as_array().expect("native vectors") {
             let value = |key: &str| vector[key].as_f64().expect("native float") as f32;
             let travel = value("travel");
-            if travel < 0.0 {
-                continue;
-            }
+            if travel < 0.0 { continue; }
             for kind in [NoteType::Tap, NoteType::Mine] {
                 for direction in [-1.0, 1.0] {
                     let mut notes = [note(0)];
                     notes[0].note_type = kind;
                     notes[0].beat = 1.0 + travel / 64.0;
-                    notes[0].row_index =
-                        usize::try_from(deadsync_core::timing::beat_to_note_row(notes[0].beat))
-                            .expect("positive fixture beat");
+                    notes[0].row_index = usize::try_from(deadsync_core::timing::beat_to_note_row(notes[0].beat))
+                        .expect("positive fixture beat");
                     let rows = [deadsync_core::timing::beat_to_note_row(notes[0].beat)];
-                    let mut request =
-                        request(&ns, &timing, &notes, &hides, FieldPlacement::P1, 0, 1, 1, 1);
+                    let mut request = request(&ns, &timing, &notes, &hides, FieldPlacement::P1, 0, 1, 1, 1);
                     request.chart.lane_note_row_indices = &lanes;
                     request.chart.note_itg_rows = &rows;
                     request.geometry.column_dirs.fill(direction);
@@ -5288,47 +5204,29 @@ mod tests {
                     request.visual.accel.wave = value("wave");
                     request.visual.accel.wave_period = value("period");
                     request.visual.accel.boomerang = value("boomerang");
-                    let prepared =
-                        prepare_notefield(&request).expect("prepared native travel field");
+                    let prepared = prepare_notefield(&request).expect("prepared native travel field");
                     let frame = NotefieldFieldFrameView {
-                        feedback: spline_feedback(&[]),
-                        completed_rows: Default::default(),
+                        feedback: spline_feedback(&[]), completed_rows: Default::default(),
                     };
                     let mut draws = Vec::new();
                     compose_notefield_field(
-                        &mut Vec::new(),
-                        &mut draws,
-                        &mut Vec::new(),
-                        &mut ModelMeshCache::default(),
-                        &mut HoldMeshScratch::default(),
-                        &mut CapturedActorScratch::with_capacities(32, 0),
-                        &mut NotefieldCameraCache::default(),
-                        &request,
-                        &prepared,
-                        &frame,
-                        &source,
+                        &mut Vec::new(), &mut draws, &mut Vec::new(),
+                        &mut ModelMeshCache::default(), &mut HoldMeshScratch::default(),
+                        &mut CapturedActorScratch::with_capacities(32, 0), &mut NotefieldCameraCache::default(),
+                        &request, &prepared, &frame, &source,
                     );
                     let (mut arrow, mut receptor) = (None, None);
                     for draw in &draws {
-                        let FlatDraw::Sprite(sprite) = draw else {
-                            continue;
-                        };
-                        let SpriteSource::TextureHandle { key, .. } = &sprite.source else {
-                            continue;
-                        };
+                        let FlatDraw::Sprite(sprite) = draw else { continue; };
+                        let SpriteSource::TextureHandle { key, .. } = &sprite.source else { continue; };
                         match key.as_ref() {
                             "note0" => arrow = Some(sprite.center[1]),
                             "target0" => receptor = Some(sprite.center[1]),
                             _ => {}
                         }
                     }
-                    let actual = (arrow.expect("composed tap or mine")
-                        - receptor.expect("composed receptor"))
-                        / direction;
-                    assert!(
-                        (actual - value("y")).abs() < 0.001,
-                        "{kind:?}, {direction}, {vector}: composed={actual}"
-                    );
+                    let actual = (arrow.expect("composed tap or mine") - receptor.expect("composed receptor")) / direction;
+                    assert!((actual - value("y")).abs() < 0.001, "{kind:?}, {direction}, {vector}: composed={actual}");
                 }
             }
         }
@@ -6313,8 +6211,7 @@ mod tests {
         .expect("independently compiled native Confusion rotations");
         let strips: serde_json::Value = serde_json::from_str(include_str!(
             "../../../tests/fixtures/itgmania-song-lua-micro/confusion-spin-strip.json"
-        ))
-        .expect("native NoteDisplay strip width vectors");
+        )).expect("native NoteDisplay strip width vectors");
         let strip_vectors = strips["vectors"].as_array().expect("strip vectors");
         let mut ns = noteskin();
         // Native NoteDisplay anchors reversed heads at the original head only
@@ -6344,12 +6241,7 @@ mod tests {
         let timing = TimingData::default();
         let hides = SongLuaNoteHideWindows::default();
         let mut checked = 0;
-        for (vector_index, vector) in native["vectors"]
-            .as_array()
-            .expect("vectors")
-            .iter()
-            .enumerate()
-        {
+        for (vector_index, vector) in native["vectors"].as_array().expect("vectors").iter().enumerate() {
             let value = |key: &str| vector[key].as_f64().expect("native float") as f32;
             let travel = value("travel");
             if travel < 0.0 || value("beat") < 0.0 {
@@ -6448,20 +6340,13 @@ mod tests {
                         );
                     }
                     if matches!(kind, NoteType::Hold | NoteType::Roll)
-                        && ["strength_y", "offset_y", "twirl"]
-                            .iter()
-                            .any(|key| value(key) != 0.0)
-                    {
+                        && ["strength_y", "offset_y", "twirl"].iter().any(|key| value(key) != 0.0) {
                         let expected = &strip_vectors[vector_index];
                         let receptor_y = receptor_center_y.expect("receptor center");
                         let mut found = false;
                         for draw in &draws {
-                            let FlatDraw::TexturedMesh(mesh) = draw else {
-                                continue;
-                            };
-                            if mesh.texture.texture_key() != Some("body") {
-                                continue;
-                            }
+                            let FlatDraw::TexturedMesh(mesh) = draw else { continue; };
+                            if mesh.texture.texture_key() != Some("body") { continue; }
                             assert_eq!(mesh.depth_test, value("twirl") != 0.0);
                             let vertices = match &mesh.vertices {
                                 FlatMeshVertices::Shared(v) => v.as_ref(),
@@ -6469,19 +6354,13 @@ mod tests {
                             };
                             for quad in vertices.chunks_exact(6) {
                                 for (left, right) in [(&quad[0], &quad[1]), (&quad[5], &quad[4])] {
-                                    let row_travel =
-                                        (left.pos[1] + right.pos[1]) * 0.5 - receptor_y;
-                                    if (row_travel - travel).abs() > 0.0001 {
-                                        continue;
-                                    }
-                                    for (axis, key) in ["dx", "dy", "dz"].into_iter().enumerate() {
+                                    let row_travel = (left.pos[1] + right.pos[1]) * 0.5 - receptor_y;
+                                    if (row_travel - travel).abs() > 0.0001 { continue; }
+                                    for (axis,key) in ["dx", "dy", "dz"].into_iter().enumerate() {
                                         let actual = (left.pos[axis] - right.pos[axis]) * 0.5;
-                                        let native =
-                                            expected[key].as_f64().expect("native width") as f32;
-                                        assert!(
-                                            (actual - native).abs() < 0.001,
-                                            "{kind:?} strip {key}: {vector}; actual={actual}, native={native}"
-                                        );
+                                        let native = expected[key].as_f64().expect("native width") as f32;
+                                        assert!((actual - native).abs() < 0.001,
+                                            "{kind:?} strip {key}: {vector}; actual={actual}, native={native}");
                                     }
                                     found = true;
                                 }
@@ -6839,8 +6718,7 @@ mod tests {
         ];
         let native: serde_json::Value = serde_json::from_str(include_str!(
             "../../../tests/fixtures/itgmania-song-lua-micro/confusion-x-rotation.json"
-        ))
-        .expect("compiled ArrowEffects control");
+        )).expect("compiled ArrowEffects control");
         let timing = TimingData::default();
         let hides = SongLuaNoteHideWindows::default();
         let lanes = [
@@ -6908,11 +6786,8 @@ mod tests {
                                     / prepared.field.column_dirs[col];
                             let expected = receptor_x
                                 + (value("note") - receptor_x) * y_offset / value("travel");
-                            assert!(
-                                (sprite.rot_x_deg - expected).abs() < 0.0001,
-                                "{kind:?}, native vector {vector}, actual {}",
-                                sprite.rot_x_deg
-                            );
+                            assert!((sprite.rot_x_deg - expected).abs() < 0.0001,
+                                "{kind:?}, native vector {vector}, actual {}", sprite.rot_x_deg);
                             let deadlib_present::actors::Actor::Sprite { rot_x_deg, .. } =
                                 crate::actor_from_flat_draw(draw.clone())
                             else {

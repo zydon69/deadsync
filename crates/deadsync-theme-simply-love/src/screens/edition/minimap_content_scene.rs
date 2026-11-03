@@ -66,19 +66,7 @@ pub fn build(
     limits: Limits,
     colors: impl Fn(Position, &Note) -> Result<Colors, Error>,
 ) -> Result<Scene, Error> {
-    build_internal(
-        grid,
-        clock,
-        projection,
-        axis,
-        width,
-        note_width,
-        note_spacing,
-        background,
-        overlays,
-        limits,
-        None,
-        colors,
+    build_internal(grid,clock,projection,axis,width,note_width,note_spacing,background,overlays,limits,None,colors,
     )
 }
 pub fn build_on_background(
@@ -95,19 +83,7 @@ pub fn build_on_background(
     base: deadsync_editor::minimap_background::Background,
     colors: impl Fn(Position, &Note) -> Result<Colors, Error>,
 ) -> Result<Scene, Error> {
-    build_internal(
-        grid,
-        clock,
-        projection,
-        axis,
-        width,
-        note_width,
-        note_spacing,
-        background,
-        overlays,
-        limits,
-        Some(base),
-        colors,
+    build_internal(grid,clock,projection,axis,width,note_width,note_spacing,background,overlays,limits,Some(base),colors,
     )
 }
 fn build_internal(
@@ -142,9 +118,9 @@ fn build_internal(
     )?;
     if let Some(base) = base {
         raster.replace_pixels(base.pixels)?;
-        raster.line(base.content_start_y, 1, width - 2, 0xffffffff, false)?;
-        raster.line(base.content_end_y, 1, width - 2, 0xffffffff, false)?;
-        raster.line(base.cursor_y, 1, width - 2, 0xffcccccc, true)?;
+        raster.line(base.content_start_y,1,width-2,0xffffffff,false)?;
+        raster.line(base.content_end_y,1,width-2,0xffffffff,false)?;
+        raster.line(base.cursor_y,1,width-2,0xffcccccc,true)?;
     }
     let mut marker_count = 0;
     let mut markers_complete = true;

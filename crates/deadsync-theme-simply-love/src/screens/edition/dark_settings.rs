@@ -50,36 +50,22 @@ impl State {
         Ok(())
     }
     pub(super) fn toggle_dark(&mut self) {
-        let before = self.dark_preferences;
-        let result = (|| -> Result<(), deadsync_editor::Error> {
-            let current = self.capture_application_preferences_file()?;
-            let mut owner = Some(current.clone());
-            let mut requested = before;
-            requested.set_show(!before.show());
-            let preferences = deadsync_editor::audio_preferences::publication::publish(
-                &mut owner,
-                Some(&current),
-                requested,
-                |current| {
-                    let mut file = current.clone();
-                    let mut preferences = file.dark();
-                    if preferences.show() != before.show() {
-                        return Err(deadsync_editor::Error::ExternalChange);
-                    }
-                    preferences.set_show(!before.show());
-                    file.set_dark(preferences)?;
-                    Ok((preferences, file))
+        let before=self.dark_preferences;
+        let result=(||->Result<(),deadsync_editor::Error>{
+            let current=self.capture_application_preferences_file()?;
+            let mut owner=Some(current.clone());let mut requested=before;requested.set_show(!before.show());
+            let preferences=deadsync_editor::audio_preferences::publication::publish(
+                &mut owner,Some(&current),requested,|current|{
+                    let mut file=current.clone();let mut preferences=file.dark();
+                    if preferences.show()!=before.show(){return Err(deadsync_editor::Error::ExternalChange);}
+                    preferences.set_show(!before.show());file.set_dark(preferences)?;Ok((preferences,file))
                 },
             )?;
             self.configure_dark_preferences(preferences);
-            if let Some(file) = owner {
-                self.publish_application_preferences_owner(file);
-            }
+            if let Some(file)=owner{self.publish_application_preferences_owner(file);}
             Ok(())
         })();
-        if let Err(error) = result {
-            self.status = i18n::editor_error(&error).into();
-        }
+        if let Err(error)=result{self.status=i18n::editor_error(&error).into();}
     }
     pub(super) fn dark_settings_key(&mut self, index: usize, code: KeyCode) {
         let enter = matches!(code, KeyCode::Enter | KeyCode::NumpadEnter);
@@ -288,21 +274,14 @@ mod source_consumer_tests {
     use deadsync_editor::workspace::Command;
     struct WhiteTextureContext;
     impl deadlib_present::texture::TextureContext for WhiteTextureContext {
-        fn texture_registry_generation(&self) -> u64 {
-            1
-        }
+        fn texture_registry_generation(&self) -> u64 { 1 }
         fn texture_dims(&self, key: &str) -> Option<deadlib_present::texture::TextureMeta> {
             (key == "__white").then_some(deadlib_present::texture::TextureMeta { w: 1, h: 1 })
         }
-        fn sprite_sheet_dims(&self, _: &str) -> (u32, u32) {
-            (1, 1)
-        }
+        fn sprite_sheet_dims(&self, _: &str) -> (u32, u32) { (1, 1) }
         fn texture_handle(&self, key: &str) -> deadlib_render_core::TextureHandle {
-            if key == "__white" {
-                deadlib_render::test_util::WHITE_TEXTURE_HANDLE
-            } else {
-                deadlib_render_core::INVALID_TEXTURE_HANDLE
-            }
+            if key == "__white" { deadlib_render::test_util::WHITE_TEXTURE_HANDLE }
+            else { deadlib_render_core::INVALID_TEXTURE_HANDLE }
         }
     }
     #[test]
@@ -328,14 +307,7 @@ mod source_consumer_tests {
                 }
             ));
             let clear = [26. / 255., 51. / 255., 77. / 255., 1.];
-            let frame = compose::build_screen_with_texture_context(
-                &actors,
-                clear,
-                &metrics,
-                &Default::default(),
-                0.,
-                &WhiteTextureContext,
-            );
+            let frame = compose::build_screen_with_texture_context(&actors, clear, &metrics, &Default::default(), 0., &WhiteTextureContext);
             assert!(!frame.ops.is_empty());
             let pixels =
                 deadlib_render::test_util::render_solid_frame(&frame, metrics.projection(), 32, 32);
@@ -439,172 +411,34 @@ mod source_consumer_tests {
 #[cfg(test)]
 mod direct_toggle_tests {
     use super::*;
-    fn state(language: &str, disk: bool, show: bool) -> (tempfile::TempDir, State) {
-        i18n::init(deadsync_assets::language::load_for_tests(language));
-        let root = tempfile::tempdir().unwrap();
-        let mut state = State::without_song(root.path()).unwrap();
-        if disk {
-            let path = root.path().join("prefs.json");
-            std::fs::write(
-                &path,
-                br#"{"Version":1,"Dark":{"Future":7},"Vendor":{"keep":true}}"#,
-            )
-            .unwrap();
-            state.configure_audio_preferences(&path).unwrap();
-        }
-        let file = state.capture_application_preferences_file().unwrap();
-        let input=serde_json::json!({"PreferencesDark":{"ShowDarkBg":show},"PreferencesKeyBinds":{"ToggleDark":[["F24"]]},"VendorSource":{"keep":[1,9]}}).to_string();
-        let draft = state
-            .workspace
-            .prepare_source_preferences(
-                &file,
-                input.as_bytes(),
-                deadsync_editor::key_binding_preferences::source_profile::Platform::Mac,
-            )
-            .unwrap();
-        state
-            .workspace
-            .import_source_preferences(draft, &file, true)
-            .unwrap();
-        state.sync_source_preferences_history().unwrap();
-        (root, state)
+    fn state(language:&str,disk:bool,show:bool)->(tempfile::TempDir,State){
+        i18n::init(deadsync_assets::language::load_for_tests(language));let root=tempfile::tempdir().unwrap();let mut state=State::without_song(root.path()).unwrap();if disk{let path=root.path().join("prefs.json");std::fs::write(&path,br#"{"Version":1,"Dark":{"Future":7},"Vendor":{"keep":true}}"#).unwrap();state.configure_audio_preferences(&path).unwrap();}
+        let file=state.capture_application_preferences_file().unwrap();let input=serde_json::json!({"PreferencesDark":{"ShowDarkBg":show},"PreferencesKeyBinds":{"ToggleDark":[["F24"]]},"VendorSource":{"keep":[1,9]}}).to_string();let draft=state.workspace.prepare_source_preferences(&file,input.as_bytes(),deadsync_editor::key_binding_preferences::source_profile::Platform::Mac).unwrap();state.workspace.import_source_preferences(draft,&file,true).unwrap();state.sync_source_preferences_history().unwrap();(root,state)
     }
-    fn press(state: &mut State) {
-        for pressed in [true, false] {
-            state.raw_key(&RawKeyboardEvent {
-                code: KeyCode::F24,
-                pressed,
-                repeat: false,
-                timestamp: std::time::Instant::now(),
-                host_nanos: 0,
-            });
-        }
+    fn press(state:&mut State){for pressed in [true,false]{state.raw_key(&RawKeyboardEvent{code:KeyCode::F24,pressed,repeat:false,timestamp:std::time::Instant::now(),host_nanos:0});}}
+    #[test]
+    fn source_direct_toggle_keeps_previous_disjoint_color_undo_and_redo(){
+        for language in ["en","fr"]{for disk in [false,true]{
+            let (_root,mut state)=state(language,disk,true);let before=state.dark_preferences;let song=state.workspace.file().session.serialize().unwrap();state.open_dark_settings();let mut changed=state.dark_preferences;changed.set_color([0.2,0.3,0.4,0.5]).unwrap();state.dark_draft=Some(changed);state.dark_settings_key(8,KeyCode::Enter);assert_eq!(state.dark_preferences,changed);assert!(state.dark_draft.is_none());let revision=state.workspace.file().session.revision();
+            press(&mut state);assert!(!state.dark_preferences.show(),"{}",state.status);assert_eq!(state.dark_preferences.color(),changed.color());assert_eq!(state.workspace.file().session.revision(),revision);assert!(!state.capture_application_preferences_file().unwrap().has_changes());
+            state.command(Command::Undo);assert_eq!(state.dark_preferences.color(),before.color());assert!(!state.dark_preferences.show(),"Undo Color must preserve direct Show change");
+            state.command(Command::Redo);assert_eq!(state.dark_preferences.color(),changed.color());assert!(!state.dark_preferences.show());let file=state.capture_application_preferences_file().unwrap();assert!(!file.has_changes());assert!(file.source_archive().is_some());
+            if disk {let reopened=deadsync_editor::audio_preferences::File::open(file.path()).unwrap();assert_eq!(reopened.dark(),state.dark_preferences);let out:serde_json::Value=serde_json::from_slice(&std::fs::read(file.path()).unwrap()).unwrap();assert_eq!(out["Dark"]["Future"],7);assert_eq!(out["Vendor"]["keep"],true);}
+            // Panel Restore still creates its own undoable transaction.
+            let before_restore=state.dark_preferences;state.open_dark_settings();state.dark_settings_key(7,KeyCode::Enter);state.dark_settings_key(8,KeyCode::Enter);assert_eq!(state.dark_preferences,Preferences::default());state.command(Command::Undo);assert_eq!(state.dark_preferences,before_restore);state.command(Command::Redo);assert_eq!(state.dark_preferences,Preferences::default());assert_eq!(state.workspace.file().session.serialize().unwrap(),song);
+        }}
     }
     #[test]
-    fn source_direct_toggle_keeps_previous_disjoint_color_undo_and_redo() {
-        for language in ["en", "fr"] {
-            for disk in [false, true] {
-                let (_root, mut state) = state(language, disk, true);
-                let before = state.dark_preferences;
-                let song = state.workspace.file().session.serialize().unwrap();
-                state.open_dark_settings();
-                let mut changed = state.dark_preferences;
-                changed.set_color([0.2, 0.3, 0.4, 0.5]).unwrap();
-                state.dark_draft = Some(changed);
-                state.dark_settings_key(8, KeyCode::Enter);
-                assert_eq!(state.dark_preferences, changed);
-                assert!(state.dark_draft.is_none());
-                let revision = state.workspace.file().session.revision();
-                press(&mut state);
-                assert!(!state.dark_preferences.show(), "{}", state.status);
-                assert_eq!(state.dark_preferences.color(), changed.color());
-                assert_eq!(state.workspace.file().session.revision(), revision);
-                assert!(
-                    !state
-                        .capture_application_preferences_file()
-                        .unwrap()
-                        .has_changes()
-                );
-                state.command(Command::Undo);
-                assert_eq!(state.dark_preferences.color(), before.color());
-                assert!(
-                    !state.dark_preferences.show(),
-                    "Undo Color must preserve direct Show change"
-                );
-                state.command(Command::Redo);
-                assert_eq!(state.dark_preferences.color(), changed.color());
-                assert!(!state.dark_preferences.show());
-                let file = state.capture_application_preferences_file().unwrap();
-                assert!(!file.has_changes());
-                assert!(file.source_archive().is_some());
-                if disk {
-                    let reopened =
-                        deadsync_editor::audio_preferences::File::open(file.path()).unwrap();
-                    assert_eq!(reopened.dark(), state.dark_preferences);
-                    let out: serde_json::Value =
-                        serde_json::from_slice(&std::fs::read(file.path()).unwrap()).unwrap();
-                    assert_eq!(out["Dark"]["Future"], 7);
-                    assert_eq!(out["Vendor"]["keep"], true);
-                }
-                // Panel Restore still creates its own undoable transaction.
-                let before_restore = state.dark_preferences;
-                state.open_dark_settings();
-                state.dark_settings_key(7, KeyCode::Enter);
-                state.dark_settings_key(8, KeyCode::Enter);
-                assert_eq!(state.dark_preferences, Preferences::default());
-                state.command(Command::Undo);
-                assert_eq!(state.dark_preferences, before_restore);
-                state.command(Command::Redo);
-                assert_eq!(state.dark_preferences, Preferences::default());
-                assert_eq!(state.workspace.file().session.serialize().unwrap(), song);
-            }
-        }
+    fn original_dark_toggle_transcript_matches_direct_shortcut_without_history(){
+        let fixture:serde_json::Value=serde_json::from_str(include_str!(concat!(env!("CARGO_MANIFEST_DIR"),"/tests/fixtures/dark-toggle-source.json"))).unwrap();let cases=fixture["cases"].as_array().unwrap();assert_eq!(cases.len(),8);
+        for disk in [false,true] {for stages in cases.chunks_exact(4){
+            let (_root,mut state)=state("en",disk,stages[0]["show"].as_bool().unwrap());let revision=state.workspace.file().session.revision();for (stage,case) in stages.iter().take(3).enumerate(){if stage>0{press(&mut state);}assert_eq!(state.dark_preferences.show(),case["show"].as_bool().unwrap());assert_eq!(state.workspace.file().session.revision(),revision);}
+            let file=state.capture_application_preferences_file().unwrap();assert!(!file.has_changes());assert_eq!(file.dark().show(),stages[3]["show"].as_bool().unwrap());if disk {assert_eq!(deadsync_editor::audio_preferences::File::open(file.path()).unwrap().dark().show(),stages[3]["show"].as_bool().unwrap());}
+        }}
     }
     #[test]
-    fn original_dark_toggle_transcript_matches_direct_shortcut_without_history() {
-        let fixture: serde_json::Value = serde_json::from_str(include_str!(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/tests/fixtures/dark-toggle-source.json"
-        )))
-        .unwrap();
-        let cases = fixture["cases"].as_array().unwrap();
-        assert_eq!(cases.len(), 8);
-        for disk in [false, true] {
-            for stages in cases.chunks_exact(4) {
-                let (_root, mut state) = state("en", disk, stages[0]["show"].as_bool().unwrap());
-                let revision = state.workspace.file().session.revision();
-                for (stage, case) in stages.iter().take(3).enumerate() {
-                    if stage > 0 {
-                        press(&mut state);
-                    }
-                    assert_eq!(
-                        state.dark_preferences.show(),
-                        case["show"].as_bool().unwrap()
-                    );
-                    assert_eq!(state.workspace.file().session.revision(), revision);
-                }
-                let file = state.capture_application_preferences_file().unwrap();
-                assert!(!file.has_changes());
-                assert_eq!(file.dark().show(), stages[3]["show"].as_bool().unwrap());
-                if disk {
-                    assert_eq!(
-                        deadsync_editor::audio_preferences::File::open(file.path())
-                            .unwrap()
-                            .dark()
-                            .show(),
-                        stages[3]["show"].as_bool().unwrap()
-                    );
-                }
-            }
-        }
-    }
-    #[test]
-    fn direct_toggle_competing_leaf_is_atomic_and_external_disjoint_fields_survive() {
-        let (_root, mut state) = state("en", true, false);
-        let path = state.audio_preferences_path.clone().unwrap();
-        let mut external = deadsync_editor::audio_preferences::File::open(&path).unwrap();
-        let mut p = external.dark();
-        p.set_color([0.7, 0.6, 0.5, 0.4]).unwrap();
-        external.set_dark(p).unwrap();
-        external.save().unwrap();
-        let live_color = state.dark_preferences.color();
-        state.toggle_dark();
-        assert!(state.dark_preferences.show());
-        assert_eq!(state.dark_preferences.color(), live_color);
-        let file = deadsync_editor::audio_preferences::File::open(&path).unwrap();
-        assert_eq!(file.dark().color(), p.color());
-        assert!(file.dark().show());
-        let mut external = file;
-        let mut p = external.dark();
-        p.set_show(false);
-        external.set_dark(p).unwrap();
-        external.save().unwrap();
-        let bytes = std::fs::read(&path).unwrap();
-        let before = state.dark_preferences;
-        let revision = state.workspace.file().session.revision();
-        state.toggle_dark();
-        assert_eq!(state.dark_preferences, before);
-        assert_eq!(state.workspace.file().session.revision(), revision);
-        assert_eq!(std::fs::read(&path).unwrap(), bytes);
+    fn direct_toggle_competing_leaf_is_atomic_and_external_disjoint_fields_survive(){
+        let (_root,mut state)=state("en",true,false);let path=state.audio_preferences_path.clone().unwrap();let mut external=deadsync_editor::audio_preferences::File::open(&path).unwrap();let mut p=external.dark();p.set_color([0.7,0.6,0.5,0.4]).unwrap();external.set_dark(p).unwrap();external.save().unwrap();let live_color=state.dark_preferences.color();state.toggle_dark();assert!(state.dark_preferences.show());assert_eq!(state.dark_preferences.color(),live_color);let file=deadsync_editor::audio_preferences::File::open(&path).unwrap();assert_eq!(file.dark().color(),p.color());assert!(file.dark().show());
+        let mut external=file;let mut p=external.dark();p.set_show(false);external.set_dark(p).unwrap();external.save().unwrap();let bytes=std::fs::read(&path).unwrap();let before=state.dark_preferences;let revision=state.workspace.file().session.revision();state.toggle_dark();assert_eq!(state.dark_preferences,before);assert_eq!(state.workspace.file().session.revision(),revision);assert_eq!(std::fs::read(&path).unwrap(),bytes);
     }
 }

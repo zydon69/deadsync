@@ -16,39 +16,10 @@ pub enum ColorMethod {
     Unknown(i32),
 }
 impl ColorMethod {
-    pub fn read_source(value: Option<&serde_json::Value>) -> Result<Self, Error> {
-        let names = ["Stepmania".to_owned(), "Note".to_owned(), "Beat".to_owned()];
-        let value = crate::open_preferences::enum_value(value, &names, 0)?;
-        Ok(match value {
-            0 => Self::Stepmania,
-            1 => Self::Note,
-            2 => Self::Beat,
-            value => Self::Unknown(value),
-        })
-    }
-    pub fn raw(self) -> i32 {
-        match self {
-            Self::Stepmania => 0,
-            Self::Note => 1,
-            Self::Beat => 2,
-            Self::Unknown(value) => value,
-        }
-    }
-    pub fn effective(self) -> Self {
-        match self.raw() {
-            1 => Self::Note,
-            2 => Self::Beat,
-            _ => Self::Stepmania,
-        }
-    }
-    pub fn source_name(self) -> String {
-        match self.raw() {
-            0 => "Stepmania".into(),
-            1 => "Note".into(),
-            2 => "Beat".into(),
-            value => value.to_string(),
-        }
-    }
+    pub fn read_source(value:Option<&serde_json::Value>)->Result<Self,Error>{let names=["Stepmania".to_owned(),"Note".to_owned(),"Beat".to_owned()];let value=crate::open_preferences::enum_value(value,&names,0)?;Ok(match value{0=>Self::Stepmania,1=>Self::Note,2=>Self::Beat,value=>Self::Unknown(value)})}
+    pub fn raw(self)->i32{match self{Self::Stepmania=>0,Self::Note=>1,Self::Beat=>2,Self::Unknown(value)=>value}}
+    pub fn effective(self)->Self{match self.raw(){1=>Self::Note,2=>Self::Beat,_=>Self::Stepmania}}
+    pub fn source_name(self)->String{match self.raw(){0=>"Stepmania".into(),1=>"Note".into(),2=>"Beat".into(),value=>value.to_string()}}
 
     pub fn color_row(
         self,
@@ -64,7 +35,7 @@ impl ColorMethod {
                     .ok_or_else(|| Error::InvalidEdit("Color row overflow".into()))?
                     / 4
             }
-            _ => row,
+            _=>row,
         };
         Ok((value % 48) as u8)
     }
@@ -160,7 +131,9 @@ impl Palette {
             .chain(preferences.players.iter());
         if preferences.players.is_empty()
             || preferences.players.len() > 64
-            || colors.flatten().any(|channel| !channel.is_finite())
+            || colors
+                .flatten()
+                .any(|channel| !channel.is_finite())
             || [
                 preferences.normal_multiplier,
                 preferences.selected_multiplier,

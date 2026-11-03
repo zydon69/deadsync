@@ -25,8 +25,7 @@ impl Strings {
 }
 
 pub(super) fn same_cells(a: &Code, b: &Code) -> bool {
-    a.tables == b.tables
-        && a.cells.len() == b.cells.len()
+    a.tables == b.tables && a.cells.len() == b.cells.len()
         && a.cells
             .iter()
             .zip(&b.cells)

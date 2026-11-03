@@ -1,5 +1,4 @@
 use crate as assets;
-use deadlib_assets::texture_source_size;
 use deadlib_present::actors::{ActorResourceArena, SpriteSource as ActorSpriteSource};
 use deadlib_present::texture::TextureContext;
 use deadlib_render_core::{SamplerDesc, TexturedMeshVertex};
@@ -26,6 +25,7 @@ use deadsync_noteskin::{
     neg_rot_sin_cos, sprite_frame_index_from_phase_with_timing, sprite_frame_index_with_timing,
     sprite_scrolled_uv, sprite_sheet_frame, sprite_state_properties_animation_owned,
 };
+use deadlib_assets::texture_source_size;
 use log::warn;
 use rustc_hash::FxHashMap;
 use std::collections::HashMap;
@@ -897,9 +897,7 @@ fn model_image_keys(animation: &ItgTextureAnimation) -> Result<Arc<[Arc<str>]>, 
         .map(|frame| {
             let (width, height) =
                 texture_source_size(&frame.path).map_err(|error| error.to_string())?;
-            let key = crate::textures::model_texture_key(&crate::textures::canonical_texture_key(
-                &frame.path,
-            ));
+            let key = crate::textures::model_texture_key(&crate::textures::canonical_texture_key(&frame.path));
             let job = crate::textures::texture_decode_job(&key, true);
             let [width, height] = deadlib_assets::texture_image_size([width, height], &job.hints)
                 .map_err(|error| error.to_string())?;
@@ -911,9 +909,7 @@ fn model_image_keys(animation: &ItgTextureAnimation) -> Result<Arc<[Arc<str>]>, 
 
 fn bind_model_source(slot: &mut SpriteSlot) {
     let key = crate::textures::model_texture_key(slot.texture_key());
-    if key == slot.texture_key() {
-        return;
-    }
+    if key == slot.texture_key() { return; }
     let dims = match slot.source.as_ref() {
         SpriteSource::Atlas { tex_dims, .. } | SpriteSource::Animated { tex_dims, .. } => *tex_dims,
     };
@@ -1783,15 +1779,11 @@ Materials: 1
         let (second_key, second) = slot.model_additive(0.3).unwrap();
         assert_eq!(
             key.as_ref(),
-            crate::textures::model_texture_key(&crate::textures::canonical_texture_key(
-                root.join("a.png")
-            ))
+            crate::textures::model_texture_key(&crate::textures::canonical_texture_key(root.join("a.png")))
         );
         assert_eq!(
             second_key.as_ref(),
-            crate::textures::model_texture_key(&crate::textures::canonical_texture_key(
-                root.join("b.png")
-            ))
+            crate::textures::model_texture_key(&crate::textures::canonical_texture_key(root.join("b.png")))
         );
         assert_eq!(first, [0.0, 0.0, 1.0, 1.0]);
         assert_eq!(second, first);

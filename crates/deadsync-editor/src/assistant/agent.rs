@@ -489,16 +489,9 @@ fn run_process(
     ] {
         command.arg("-c").arg(format!("features.{feature}=false"));
     }
-    let mut child=command
-        .env("CODEX_HOME",home)
+    let mut child=command.env("CODEX_HOME",home)
         .env_remove("OPENAI_API_KEY")
-        .env_remove("CODEX_API_KEY")
-        .current_dir(&cwd)
-        .stdin(Stdio::piped())
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .spawn()
-        .map_err(|error|format!("Cannot start Codex App Server: {error}. Set DEADSYNC_CODEX_PATH to the installed Codex executable."))?;
+        .env_remove("CODEX_API_KEY").current_dir(&cwd).stdin(Stdio::piped()).stdout(Stdio::piped()).stderr(Stdio::piped()).spawn().map_err(|error|format!("Cannot start Codex App Server: {error}. Set DEADSYNC_CODEX_PATH to the installed Codex executable."))?;
     let stderr = child.stderr.take();
     let mut input = child.stdin.take().ok_or("Missing app-server stdin")?;
     let output = child.stdout.take().ok_or("Missing app-server stdout")?;
@@ -550,18 +543,8 @@ fn run_process(
             let tools:Vec<_>=protocol::tools().as_array().ok_or("Missing tools")?.iter().map(|t|json!({"type":"function","name":t["name"],"description":t["description"],"inputSchema":t["inputSchema"],"deferLoading":false})).collect();
             send(
                 &mut input,
-                json!({
-                    "id":2,
-                    "method":"thread/start",
-                    "params":{
-                        "cwd":cwd,
-                        "sandbox":"read-only",
-                        "approvalPolicy":"never",
-                        "ephemeral":true,
-                        "dynamicTools":tools,
-                        "baseInstructions":ASSISTANT_INSTRUCTIONS,
-                    }
-                }),
+                json!({"id":2,"method":"thread/start","params":{"cwd":cwd,"sandbox":"read-only","approvalPolicy":"never","ephemeral":true,"dynamicTools":tools,"baseInstructions":ASSISTANT_INSTRUCTIONS,
+                    }}),
             )?;
         } else if response_id(&frame, 2) {
             let id = frame["result"]["thread"]["id"]

@@ -114,9 +114,7 @@ fn acknowledged_multichart_music_scope_loss_is_explicit_and_radar_survives_sm_he
         .unwrap();
     let document = Document::parse(output.bytes(), Format::Sm).unwrap();
     assert_eq!(document.text(None, "MUSIC").as_deref(), Some("song.ogg"));
-    assert!(
-        String::from_utf8_lossy(output.bytes()).contains("#NOTES:dance-single:A:Hard:9:1,2,3,4,5:")
-    );
+    assert!(String::from_utf8_lossy(output.bytes()).contains("#NOTES:dance-single:A:Hard:9:1,2,3,4,5:"));
     assert_eq!(document.charts().len(), 2);
     assert_eq!(s.serialize().unwrap(), before);
     let mut options = Options::default();

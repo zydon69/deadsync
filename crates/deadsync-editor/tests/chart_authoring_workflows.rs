@@ -90,11 +90,9 @@ fn authored() -> Session {
 // retain that tag to verify lossless authoring; these writer tests use a fully
 // mapped input so they can exercise chart metadata emission after review.
 fn exportable_authored() -> Session {
-    let input = String::from_utf8(authored().serialize().unwrap()).unwrap();
-    assert_eq!(input.matches("#VENDOR:keep;").count(), 1);
-    Session::new(
-        Document::parse(input.replace("#VENDOR:keep;", "").into_bytes(), Format::Sm).unwrap(),
-    )
+    let input=String::from_utf8(authored().serialize().unwrap()).unwrap();
+    assert_eq!(input.matches("#VENDOR:keep;").count(),1);
+    Session::new(Document::parse(input.replace("#VENDOR:keep;","").into_bytes(),Format::Sm).unwrap())
 }
 fn plan(s: &mut Session, target: Format) -> Plan {
     Plan::prepare(
@@ -279,74 +277,16 @@ fn chart_receipt_keeps_warp_and_stop_positions_exact_but_refuses_clock_changes()
 }
 #[test]
 fn explicitly_cleared_credit_remains_empty_natively_but_ssc_source_reload_loss_is_reviewed() {
-    let mut s = session(Format::Ssc);
-    let mut draft = Draft::capture(&s, 0).unwrap();
-    assert_eq!(draft.text(Field::Credit), "global");
-    assert_eq!(draft.text(Field::Music), "");
-    draft.set_text(Field::Credit, "").unwrap();
-    draft.apply(&mut s, 0).unwrap();
-    assert_eq!(Text::read(s.document(), 0).unwrap().get(Field::Credit), "");
-    let plan = plan(&mut s, Format::Ssc);
-    assert!(
-        plan.issues()
-            .iter()
-            .any(|issue| issue.kind == IssueKind::OmittedChartMetadata && issue.field == "CREDIT")
-    );
-    assert!(
-        plan.generate(&s, &BTreeSet::new(), 1_000_000, &AtomicBool::new(false))
-            .is_err()
-    );
+ let mut s=session(Format::Ssc);let mut draft=Draft::capture(&s,0).unwrap();assert_eq!(draft.text(Field::Credit),"global");assert_eq!(draft.text(Field::Music),"");draft.set_text(Field::Credit,"").unwrap();draft.apply(&mut s,0).unwrap();assert_eq!(Text::read(s.document(),0).unwrap().get(Field::Credit),"");let plan=plan(&mut s,Format::Ssc);assert!(plan.issues().iter().any(|issue|issue.kind==IssueKind::OmittedChartMetadata&&issue.field=="CREDIT"));assert!(plan.generate(&s,&BTreeSet::new(),1_000_000,&AtomicBool::new(false)).is_err());
 }
 #[test]
 fn sm_local_music_is_distinct_from_effective_playback_and_sample_fallback() {
-    let root = tempfile::tempdir().unwrap();
-    let path = root.path().join("song.sm");
-    for name in ["global.ogg", "chart.ogg"] {
-        std::fs::write(root.path().join(name), b"command-only fixture").unwrap();
-    }
-    let mut s = session(Format::Sm);
-    assert_eq!(Text::read(s.document(), 0).unwrap().get(Field::Music), "");
-    for value in ["chart.ogg", ""] {
-        let mut draft = Draft::capture(&s, 0).unwrap();
-        draft.set_text(Field::Music, value).unwrap();
-        draft.apply(&mut s, 0).unwrap();
-        let expected = root.path().join(if value.is_empty() {
-            "global.ogg"
-        } else {
-            value
-        });
-        assert_eq!(
-            Text::read(s.document(), 0).unwrap().get(Field::Music),
-            value
-        );
-        assert_eq!(
-            deadsync_editor::playback::Preview::capture(&s, 0, &path)
-                .unwrap()
-                .music(),
-            expected
-        );
-        let mut song = deadsync_editor::song_properties::Draft::capture(&s).unwrap();
-        song.set_sample_length(2.0).unwrap();
-        assert_eq!(song.sample_audio(&s, 0, &path).unwrap().path, expected);
-    }
+ let root=tempfile::tempdir().unwrap();let path=root.path().join("song.sm");for name in ["global.ogg","chart.ogg"]{std::fs::write(root.path().join(name),b"command-only fixture").unwrap();}let mut s=session(Format::Sm);
+ assert_eq!(Text::read(s.document(),0).unwrap().get(Field::Music),"");
+ for value in ["chart.ogg",""] {let mut draft=Draft::capture(&s,0).unwrap();draft.set_text(Field::Music,value).unwrap();draft.apply(&mut s,0).unwrap();let expected=root.path().join(if value.is_empty(){"global.ogg"}else{value});assert_eq!(Text::read(s.document(),0).unwrap().get(Field::Music),value);assert_eq!(deadsync_editor::playback::Preview::capture(&s,0,&path).unwrap().music(),expected);let mut song=deadsync_editor::song_properties::Draft::capture(&s).unwrap();song.set_sample_length(2.0).unwrap();assert_eq!(song.sample_audio(&s,0,&path).unwrap().path,expected);}
 }
 #[test]
 fn owned_extension_updates_keep_unknown_members_and_invalid_revisions_are_atomic() {
-    let mut s = session(Format::Sm);
-    s.set_text(None, "GAChartDataVersionCHART0000", "1")
-        .unwrap();
-    s.set_text(None,"GAChartDataCHART0000",r#"{"Vendor":{"keep":true},"DeadSyncChartText":{"Version":1,"Fields":{"VendorField":{"x":2}},"VendorNative":{"keep":3}}}"#).unwrap();
-    let mut draft = Draft::capture(&s, 0).unwrap();
-    draft.set_text(Field::Name, "new").unwrap();
-    draft.apply(&mut s, 0).unwrap();
-    let data = ChartData::read(s.document(), 0).unwrap().unwrap();
-    assert_eq!(data.extra["Vendor"]["keep"], true);
-    assert_eq!(data.extra[EXTENSION]["Fields"]["VendorField"]["x"], 2);
-    assert_eq!(data.extra[EXTENSION]["VendorNative"]["keep"], 3);
-    let mut stale = Draft::capture(&s, 0).unwrap();
-    stale.set_text(Field::Music, "other.ogg").unwrap();
-    s.set_text(None, "TITLE", "intervening").unwrap();
-    let before = s.serialize().unwrap();
-    assert!(stale.apply(&mut s, 0).is_err());
-    assert_eq!(s.serialize().unwrap(), before);
+ let mut s=session(Format::Sm);s.set_text(None,"GAChartDataVersionCHART0000","1").unwrap();s.set_text(None,"GAChartDataCHART0000",r#"{"Vendor":{"keep":true},"DeadSyncChartText":{"Version":1,"Fields":{"VendorField":{"x":2}},"VendorNative":{"keep":3}}}"#).unwrap();let mut draft=Draft::capture(&s,0).unwrap();draft.set_text(Field::Name,"new").unwrap();draft.apply(&mut s,0).unwrap();let data=ChartData::read(s.document(),0).unwrap().unwrap();assert_eq!(data.extra["Vendor"]["keep"],true);assert_eq!(data.extra[EXTENSION]["Fields"]["VendorField"]["x"],2);assert_eq!(data.extra[EXTENSION]["VendorNative"]["keep"],3);
+ let mut stale=Draft::capture(&s,0).unwrap();stale.set_text(Field::Music,"other.ogg").unwrap();s.set_text(None,"TITLE","intervening").unwrap();let before=s.serialize().unwrap();assert!(stale.apply(&mut s,0).is_err());assert_eq!(s.serialize().unwrap(),before);
 }

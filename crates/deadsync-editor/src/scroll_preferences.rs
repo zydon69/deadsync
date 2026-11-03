@@ -2,9 +2,9 @@
 pub(crate) mod history;
 pub use history::Update;
 pub mod dragging;
-pub mod restore;
 pub mod spacing;
 pub mod wheel;
+pub mod restore;
 use crate::Error;
 use serde_json::{Map, Value};
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -56,14 +56,10 @@ impl Preferences {
     }
     /// The source SliderFloat permits a manually typed finite value outside its
     /// drag bounds. Keep the preference raw; ZoomManager bounds its live value.
-    pub fn set_speed_input(&mut self, index: usize, value: f32) -> Result<(), Error> {
-        if !value.is_finite() || index >= 3 {
-            return Err(Error::InvalidEdit("Invalid scrolling speed".into()));
-        }
-        let value = f64::from(value);
-        if !crate::number::reference_equal(self.speeds[index], value) {
-            self.speeds[index] = value;
-        }
+    pub fn set_speed_input(&mut self,index:usize,value:f32)->Result<(),Error>{
+        if !value.is_finite() || index>=3{return Err(Error::InvalidEdit("Invalid scrolling speed".into()));}
+        let value=f64::from(value);
+        if !crate::number::reference_equal(self.speeds[index],value){self.speeds[index]=value;}
         Ok(())
     }
     pub fn reverse(self) -> bool {

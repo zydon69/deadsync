@@ -1,11 +1,11 @@
 //! Shared raw note colors and UI/XNA policy, kept in original distinct groups.
 //! Application group names NoteColor/Options map GA's PreferencesNoteColor/Options.
 pub(crate) mod history;
+pub use history::Update;
 use crate::{
     Error,
     minimap_palette::{self, ColorMethod, Palette},
 };
-pub use history::Update;
 use serde_json::{Map, Value};
 #[derive(Clone, Debug, PartialEq)]
 pub struct Preferences {
@@ -111,8 +111,7 @@ impl Preferences {
         )?;
         boolean(note, "UseRowBasedColoringForPiu", &mut result.piu_row_based)?;
         // Real Fumen converter semantics; unknown numeric strings stay raw.
-        result.step_color_method = ColorMethod::read_source(options.get("StepColorMethodValue"))
-            .map_err(|_| invalid("StepColorMethodValue"))?;
+        result.step_color_method=ColorMethod::read_source(options.get("StepColorMethodValue")).map_err(|_|invalid("StepColorMethodValue"))?;
         result.validate()?;
         Ok(result)
     }

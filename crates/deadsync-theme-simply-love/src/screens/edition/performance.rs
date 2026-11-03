@@ -373,24 +373,18 @@ impl State {
             self.workspace
                 .restore_performance_preferences(before, Some(&file))?;
         } else if let Some(after) = self.performance.draft {
-            self.workspace
-                .set_performance_preferences(before, after, Some(&file))?;
+            self.workspace.set_performance_preferences(
+                before,
+                after,
+                Some(&file),
+            )?;
         }
         self.sync_performance_history()?;
         self.performance.draft = Some(self.performance.preferences);
         Ok(())
     }
-    pub(super) fn performance_numeric_draft(&self) -> Option<Preferences> {
-        self.performance.draft
-    }
-    pub(super) fn set_performance_numeric_draft(
-        &mut self,
-        p: Preferences,
-    ) -> Result<(), deadsync_editor::Error> {
-        p.validate()?;
-        self.performance.draft = Some(p);
-        Ok(())
-    }
+    pub(super) fn performance_numeric_draft(&self)->Option<Preferences>{self.performance.draft}
+    pub(super) fn set_performance_numeric_draft(&mut self,p:Preferences)->Result<(),deadsync_editor::Error>{p.validate()?;self.performance.draft=Some(p);Ok(())}
     pub(super) fn performance_key(&mut self, index: usize, code: KeyCode) {
         let enter = matches!(code, KeyCode::Enter | KeyCode::NumpadEnter);
         if code == KeyCode::Escape || (index == 7 && enter) {

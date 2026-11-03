@@ -78,33 +78,17 @@ pub struct Admission {
 }
 impl Admission {
     pub fn presentation_receipt(&self) -> Option<&crate::song_properties::PresentationReceipt> {
-        self.presentation
-            .as_ref()
-            .and_then(|application| application.presentation_receipt())
+        self.presentation.as_ref().and_then(|application| application.presentation_receipt())
     }
 }
 impl Plan {
-    pub fn begin_with_presentation_receipt(
-        self,
-        session: &mut Session,
-        chart: usize,
-        reviewed: &Review,
-        directory: Option<&Path>,
-    ) -> Admission {
+    pub fn begin_with_presentation_receipt(self, session: &mut Session, chart: usize, reviewed: &Review, directory: Option<&Path>) -> Admission {
         let before = session.content_token();
         let charts = session.chart_ids().to_vec();
         let result = self.begin(session, chart, reviewed, directory);
-        let seeded = match &result {
-            Ok(started) => started.seeds_committed,
-            Err(failure) => failure.seeds_committed,
-        };
-        let presentation = seeded.then(|| {
-            crate::history::song_presentation::preserved_authoring(before, charts, session)
-        });
-        Admission {
-            result,
-            presentation,
-        }
+        let seeded = match &result { Ok(started) => started.seeds_committed, Err(failure) => failure.seeds_committed };
+        let presentation = seeded.then(|| crate::history::song_presentation::preserved_authoring(before, charts, session));
+        Admission { result, presentation }
     }
     pub fn all(session: &Session, chart: usize, action: Action) -> Result<Self, Failure> {
         let data = ChartData::read(session.document(), chart)?
@@ -195,7 +179,13 @@ impl Plan {
         }
         let mut new_seeds = BTreeMap::new();
         if action == Action::GenerateNewSeeds {
-            let seeds = seeds.unwrap_or_else(|| rows.iter().map(|_| new_random_seed()).collect());
+            let seeds = seeds.unwrap_or_else(|| {
+                rows.iter()
+                    .map(|_| {
+                        new_random_seed()
+                    })
+                    .collect()
+            });
             if seeds.len() != rows.len() || seeds.iter().any(|s| *s < 0 || *s == i32::MAX) {
                 return Err(refusal(
                     Refusal::Invalid,
@@ -281,7 +271,7 @@ impl Plan {
 
 /// Native entropy source for the source System.Random.Next nonnegative range.
 /// Explicit actions may legitimately draw the same value as their predecessor.
-pub fn new_random_seed() -> i32 {
-    let bytes = uuid::Uuid::new_v4().into_bytes();
-    (u32::from_le_bytes(bytes[..4].try_into().unwrap()) % i32::MAX as u32) as i32
+pub fn new_random_seed()->i32{
+    let bytes=uuid::Uuid::new_v4().into_bytes();
+    (u32::from_le_bytes(bytes[..4].try_into().unwrap())%i32::MAX as u32) as i32
 }

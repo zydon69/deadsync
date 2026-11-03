@@ -68,23 +68,9 @@ fn inherited_display_tempo_becomes_a_local_override_in_both_formats_atomically()
         draft.set_display_tempo(Value::parse("90:180"));
         draft.set_rating(12).unwrap();
         assert!(draft.apply(&mut session, 0).unwrap());
-        assert_eq!(
-            Draft::capture(&session, 0)
-                .unwrap()
-                .display_tempo()
-                .serialize(),
-            "90.000000:180.000000"
-        );
-        assert_eq!(
-            session.document().text(None, "DISPLAYBPM").as_deref(),
-            Some("*")
-        );
-        if format == Format::Ssc {
-            assert_eq!(
-                session.document().text(Some(0), "DISPLAYBPM").as_deref(),
-                Some("90.000000:180.000000")
-            );
-        }
+        assert_eq!(Draft::capture(&session,0).unwrap().display_tempo().serialize(),"90.000000:180.000000");
+        assert_eq!(session.document().text(None,"DISPLAYBPM").as_deref(),Some("*"));
+        if format==Format::Ssc {assert_eq!(session.document().text(Some(0),"DISPLAYBPM").as_deref(),Some("90.000000:180.000000"));}
         let after = session.serialize().unwrap();
         session.undo().unwrap();
         assert_eq!(session.serialize().unwrap(), before);

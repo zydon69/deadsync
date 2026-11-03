@@ -212,8 +212,7 @@ pub(super) fn viewport_body_budget(width: f32, height: f32) -> usize {
         return 0;
     }
     ((f64::from(height) * 128.0 / f64::from(width)).ceil() as usize)
-        .saturating_add(4)
-        .min(16_384)
+        .saturating_add(4).min(16_384)
 }
 
 pub struct ChartRequest<'a> {
@@ -267,20 +266,13 @@ pub fn chart_render_draft(
 ) -> Result<Output, &'static str> {
     chart_render_cached_alpha(r, palette, signatures, Some(0.8), true)
 }
-pub fn chart_render_cached_with_options(
-    r: ChartRequest<'_>,
-    palette: &deadsync_editor::note_color_palette::Palette,
-    signatures: Option<&deadsync_editor::timing_edit::signature::Signatures>,
-    light_holds: bool,
-) -> Result<Output, &'static str> {
-    chart_render_cached_alpha(r, palette, signatures, None, light_holds)
-}
+pub fn chart_render_cached_with_options(r: ChartRequest<'_>,palette:&deadsync_editor::note_color_palette::Palette,signatures:Option<&deadsync_editor::timing_edit::signature::Signatures>,light_holds:bool)->Result<Output,&'static str>{chart_render_cached_alpha(r,palette,signatures,None,light_holds)}
 fn chart_render_cached_alpha(
     r: ChartRequest<'_>,
     palette: &deadsync_editor::note_color_palette::Palette,
     signatures: Option<&deadsync_editor::timing_edit::signature::Signatures>,
     alpha: Option<f32>,
-    light_holds: bool,
+    light_holds:bool,
 ) -> Result<Output, &'static str> {
     let row = palette
         .color_row(r.row, signatures)
@@ -457,30 +449,11 @@ mod rotation_boundary_tests {
     fn every_source_hold_head_and_pump_cap_uses_native_handedness() {
         for layout in deadsync_editor::chart_order::TYPE_ORDER {
             for lane in 0..deadsync_editor::notes::layout_columns(layout).unwrap() {
-                let graphic = graphics::graphic(layout, lane, false, false).unwrap();
-                for (id, source_rotation) in [
-                    (&graphic.head_fill, graphic.head_rotation),
-                    (&graphic.cap_fill, graphic.cap_rotation),
-                ] {
-                    let actor = sprite(
-                        id,
-                        Destination {
-                            x: 100.,
-                            top: 140.,
-                            width: 48.,
-                            height: 48.,
-                        },
-                        None,
-                        source_rotation,
-                        false,
-                        false,
-                        [1.; 4],
-                    )
-                    .unwrap();
-                    let Actor::Sprite { rot_z_deg, .. } = actor else {
-                        panic!("sprite");
-                    };
-                    assert_eq!(rot_z_deg, -source_rotation, "{layout}/{lane}/{id}");
+                let graphic=graphics::graphic(layout,lane,false,false).unwrap();
+                for (id,source_rotation) in [(&graphic.head_fill,graphic.head_rotation),(&graphic.cap_fill,graphic.cap_rotation)] {
+                    let actor=sprite(id,Destination{x:100.,top:140.,width:48.,height:48.},None,source_rotation,false,false,[1.;4]).unwrap();
+                    let Actor::Sprite{rot_z_deg,..}=actor else {panic!("sprite");};
+                    assert_eq!(rot_z_deg,-source_rotation,"{layout}/{lane}/{id}");
                 }
             }
         }
@@ -497,55 +470,29 @@ mod viewport_corner_tests {
         let viewport = [20.0, 40.0, 180.0, 220.0];
         for rotation in [0.0_f32, 90.0, 180.0, 270.0] {
             for center in [[24.0, 130.0], [176.0, 130.0], [100.0, 44.0], [100.0, 216.0]] {
-                let mut actor = sprite(
-                    &graphic.head_fill,
-                    Destination {
-                        x: center[0],
-                        top: f64::from(center[1] - 24.0),
-                        width: 48.0,
-                        height: 48.0,
-                    },
-                    None,
-                    -rotation,
-                    false,
-                    false,
-                    [1.0; 4],
-                )
-                .unwrap();
+                let mut actor = sprite(&graphic.head_fill, Destination {
+                    x: center[0], top: f64::from(center[1] - 24.0),
+                    width: 48.0, height: 48.0,
+                }, None, -rotation, false, false, [1.0; 4]).unwrap();
                 assert!(clip_world_sprite(&mut actor, viewport).unwrap());
-                let Actor::Sprite {
-                    offset,
-                    rot_z_deg,
-                    cropleft,
-                    cropright,
-                    croptop,
-                    cropbottom,
-                    ..
-                } = actor
-                else {
-                    panic!("sprite");
-                };
+                let Actor::Sprite { offset, rot_z_deg, cropleft, cropright,
+                    croptop, cropbottom, .. } = actor else { panic!("sprite"); };
                 let (sin, cos) = rot_z_deg.to_radians().sin_cos();
                 // Match the actual non-skewed compositor: crop moves the
                 // center in world axes, then rotates the resized rectangle.
-                let center = [
-                    offset[0] + (cropleft - cropright) * 24.0,
-                    offset[1] + (croptop - cropbottom) * 24.0,
-                ];
-                let half = [
-                    24.0 * (1.0 - cropleft - cropright),
-                    24.0 * (1.0 - croptop - cropbottom),
-                ];
+                let center = [offset[0] + (cropleft - cropright) * 24.0,
+                    offset[1] + (croptop - cropbottom) * 24.0];
+                let half = [24.0 * (1.0 - cropleft - cropright),
+                    24.0 * (1.0 - croptop - cropbottom)];
                 for x in [-half[0], half[0]] {
                     for y in [-half[1], half[1]] {
-                        let world = [center[0] + cos * x + sin * y, center[1] - sin * x + cos * y];
-                        assert!(
-                            world[0] >= viewport[0] - 0.001
-                                && world[0] <= viewport[2] + 0.001
-                                && world[1] >= viewport[1] - 0.001
-                                && world[1] <= viewport[3] + 0.001,
-                            "rotation={rotation}, center={center:?}, corner={world:?}"
-                        );
+                        let world = [center[0] + cos * x + sin * y,
+                            center[1] - sin * x + cos * y];
+                        assert!(world[0] >= viewport[0] - 0.001
+                            && world[0] <= viewport[2] + 0.001
+                            && world[1] >= viewport[1] - 0.001
+                            && world[1] <= viewport[3] + 0.001,
+                            "rotation={rotation}, center={center:?}, corner={world:?}");
                     }
                 }
             }

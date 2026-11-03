@@ -380,17 +380,7 @@ impl Draft {
     }
     pub(super) fn live_edit(&self) -> deadsync_editor::timing_edit::live::Edit<'_> {
         use deadsync_editor::timing_edit::live::Edit;
-        match self {
-            Self::Bpm(d) => Edit::Tempo(d),
-            Self::Labels(d) => Edit::Labels(d),
-            Self::Speeds(d) => Edit::Speeds(d),
-            Self::Combos(d) => Edit::Combos(d),
-            Self::Ticks(d) => Edit::Ticks(d),
-            Self::Scrolls(d) => Edit::Scrolls(d),
-            Self::Signatures(d) => Edit::Signatures(d),
-            Self::Pauses { draft, .. } => Edit::Pauses(draft),
-            Self::Regions { draft, .. } => Edit::Regions(draft),
-        }
+        match self { Self::Bpm(d)=>Edit::Tempo(d), Self::Labels(d)=>Edit::Labels(d), Self::Speeds(d)=>Edit::Speeds(d), Self::Combos(d)=>Edit::Combos(d), Self::Ticks(d)=>Edit::Ticks(d), Self::Scrolls(d)=>Edit::Scrolls(d), Self::Signatures(d)=>Edit::Signatures(d), Self::Pauses{draft,..}=>Edit::Pauses(draft), Self::Regions{draft,..}=>Edit::Regions(draft) }
     }
     pub(super) fn valid_value_at(&self, row: u64, text: &str) -> bool {
         if self.kind() == EventKind::Label {

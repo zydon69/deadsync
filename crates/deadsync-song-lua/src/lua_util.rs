@@ -1,8 +1,8 @@
-use crate::base_transform::{BaseField, BaseTransform};
 use crate::callback_args::{CheckedPrefix, IgnoredArgs, NumericArgs};
+use crate::tween_pose::TweenPose;
 use crate::native_vector::ActorVectorValue;
 use crate::render_flags::{RenderFlag, RenderFlags};
-use crate::tween_pose::TweenPose;
+use crate::base_transform::{BaseField, BaseTransform};
 use deadlib_present::actors::TextAttribute;
 use deadlib_present::anim::EffectClock;
 use mlua::{FromLua, Function, Lua, MultiValue, Table, Value, ffi};
@@ -54,9 +54,10 @@ use crate::{
     song_lua_valid_sprite_state_index, song_lua_valign_value, song_music_rate,
     sprite_animation_state_at, sprite_frame_count, sprite_image_frame_size, sprite_texture_rect,
     text_glow_mode_label, texture_pixel_offset_rect, theme_metric_number, theme_path,
-    top_screen_danger_index, top_screen_life_meter_index, top_screen_life_meter_name,
-    top_screen_option_row_name, top_screen_player_index, top_screen_player_name,
-    top_screen_score_index, top_screen_score_name, top_screen_score_percent_name,
+    top_screen_danger_index, top_screen_life_meter_index,
+    top_screen_life_meter_name, top_screen_option_row_name, top_screen_player_index,
+    top_screen_player_name, top_screen_score_index, top_screen_score_name,
+    top_screen_score_percent_name,
     top_screen_step_stats_pane_index, top_screen_steps_display_index, truthy, underlay_score_index,
     underlay_score_name,
 };
@@ -587,7 +588,8 @@ pub(crate) fn append_wrapper_actors(
     let Some(start) = capture.wrapper_start else {
         return;
     };
-    for (offset, (_, actor, initial)) in capture.wrappers[capture.wrapper_seen..].iter().enumerate()
+    for (offset, (_, actor, initial)) in
+        capture.wrappers[capture.wrapper_seen..].iter().enumerate()
     {
         debug_assert_eq!(actors.len(), start + capture.wrapper_seen + offset);
         actors.push(actor.clone());
@@ -781,9 +783,7 @@ fn actor_current_position(lua: &Lua, actor: &Table, axis: usize) -> mlua::Result
             }
         }
     }
-    if let Some(value) = live_current_value(lua, actor, |current| {
-        [current.x, current.y, current.z][axis]
-    }) {
+    if let Some(value) = live_current_value(lua, actor, |current| [current.x, current.y, current.z][axis]) {
         return Ok(value);
     }
     Ok(actor
@@ -1180,9 +1180,7 @@ fn record_overlay_update_capture(
     }
     // Live setters have already updated native pose state, or will write an
     // immediate property below. Neither needs an offline command-history block.
-    if live_actor_playback(lua) {
-        return true;
-    }
+    if live_actor_playback(lua) { return true; }
     let direct_message_actor = {
         let Some(capture) = lua.app_data_ref::<SongLuaOverlayUpdateCapture>() else {
             return false;
@@ -1292,9 +1290,7 @@ fn record_overlay_update_capture_immediate(
     key: &str,
     value: SongLuaOverlayUpdateValue,
 ) -> bool {
-    if live_actor_playback(lua) {
-        return true;
-    }
+    if live_actor_playback(lua) { return true; }
     let Some(target) = capture_target_for_key(key) else {
         return false;
     };
@@ -1443,8 +1439,7 @@ fn load_script_file_with_source(
     environment: Option<Table>,
 ) -> mlua::Result<Function> {
     let source = fs::read_to_string(path).map_err(mlua::Error::external)?;
-    let source =
-        crate::cmd::preprocess_lua_cmd_syntax_cow(&source).map_err(mlua::Error::external)?;
+    let source = crate::cmd::preprocess_lua_cmd_syntax_cow(&source).map_err(mlua::Error::external)?;
     let environment = match environment {
         Some(environment) => environment,
         None => initial_chunk_environment(lua, source_path)?,
@@ -1562,19 +1557,13 @@ pub fn install_file_loader_globals(
             // ActorDef.lua::ResolveRelativePath uses the calling function's
             // source, even when a command invokes a helper from another file.
             // The actor's directory is only the fallback for a C caller.
-            let caller_dir = lua
-                .inspect_stack(1, |frame| {
-                    let source = frame.source();
-                    let source = source.source.as_deref()?.trim_start_matches('@');
-                    if source.starts_with('=') || source == "[C]" {
-                        return None;
-                    }
-                    Path::new(source)
-                        .parent()
-                        .filter(|dir| !dir.as_os_str().is_empty())
-                        .map(Path::to_path_buf)
-                })
-                .flatten();
+            let caller_dir = lua.inspect_stack(1, |frame| {
+                let source = frame.source();
+                let source = source.source.as_deref()?.trim_start_matches('@');
+                if source.starts_with('=') || source == "[C]" { return None; }
+                Path::new(source).parent().filter(|dir| !dir.as_os_str().is_empty())
+                    .map(Path::to_path_buf)
+            }).flatten();
             match caller_dir {
                 Some(dir) => call_with_script_dir(lua, &dir, || {
                     load_actor_path(lua, &song_dir, &path, args, create_dummy_actor)
@@ -1594,8 +1583,7 @@ pub fn load_actor_path(
     create_dummy_actor: fn(&Lua, &'static str) -> mlua::Result<Table>,
 ) -> mlua::Result<Value> {
     if deadlib_assets::generated_texture_shared_key(path).is_some() {
-        return create_media_actor(lua, "Sprite", Path::new(path), create_dummy_actor)
-            .map(Value::Table);
+        return create_media_actor(lua, "Sprite", Path::new(path), create_dummy_actor).map(Value::Table);
     }
     if let Some(actor) = create_theme_path_actor(lua, path, create_dummy_actor)? {
         return Ok(Value::Table(actor));
@@ -1677,11 +1665,7 @@ pub fn install_def_globals(
 ) -> mlua::Result<()> {
     let globals = lua.globals();
     if lua.app_data_ref::<crate::live::LiveMode>().is_some() {
-        lua.set_app_data(ActorDefinitionHost {
-            human_player_count,
-            create_dummy_actor,
-            install_methods: install_actor_methods,
-        });
+        lua.set_app_data(ActorDefinitionHost { human_player_count, create_dummy_actor, install_methods: install_actor_methods });
     }
     let def = lua.create_table()?;
     for &(name, actor_type) in &[
@@ -1725,8 +1709,7 @@ pub fn install_def_globals(
     globals.set("Def", def)?;
     crate::actor_classes::install(lua)?;
     // _fallback/Scripts/02 Sprite.lua builds authored animation states.
-    lua.load(
-        r#"
+    lua.load(r#"
 function Sprite.LinearFrames(NumFrames, Seconds)
     local Frames = {}
     for i = 0,NumFrames-1 do
@@ -1734,10 +1717,7 @@ function Sprite.LinearFrames(NumFrames, Seconds)
     end
     return Frames
 end
-"#,
-    )
-    .set_name("_fallback/Scripts/02 Sprite.lua")
-    .exec()?;
+"#).set_name("_fallback/Scripts/02 Sprite.lua").exec()?;
     // Native Player/NoteField classes inherit ActorFrame. Their own method
     // inventories also keep SM5.2-only feature probes absent on ITGmania.
     for (name, methods) in [
@@ -1886,19 +1866,14 @@ fn make_actor_ctor(
         // Native Def.* decorates the declaration; it does not construct an
         // Actor. Runtime bookkeeping here changes Lua 5.1 sparse-table layout.
         let mt = lua.create_table()?;
-        mt.set(
-            "__concat",
-            lua.create_function(|lua, (left, right): (Table, Table)| {
-                let merged = lua.create_table()?;
-                left.for_each::<Value, Value>(|key, value| merged.raw_set(key, value))?;
-                merge_actor_concat(lua, &merged, &right)?;
-                merged.set_metatable(left.metatable())?;
-                Ok(merged)
-            })?,
-        )?;
-        let factory: Function = lua
-            .load(
-                r#"
+        mt.set("__concat", lua.create_function(|lua, (left, right): (Table, Table)| {
+            let merged = lua.create_table()?;
+            left.for_each::<Value, Value>(|key, value| merged.raw_set(key, value))?;
+            merge_actor_concat(lua, &merged, &right)?;
+            merged.set_metatable(left.metatable())?;
+            Ok(merged)
+        })?)?;
+        let factory: Function = lua.load(r#"
 return function(class, mt, getinfo)
     return function(t)
         t.Class = class
@@ -1917,9 +1892,7 @@ return function(class, mt, getinfo)
         return setmetatable(t, mt)
     end
 end
-"#,
-            )
-            .eval()?;
+"#).eval()?;
         // Native ActorDef walks real frames, including theme loading before
         // any authored song path exists. Never use the compatibility debug table
         // for this constructor: it cannot signal the end of the Lua stack.
@@ -1928,13 +1901,9 @@ end
                 let source = frame.source();
                 let info = lua.create_table()?;
                 info.raw_set("source", source.source.as_deref().unwrap_or("=[C]"))?;
-                info.raw_set(
-                    "currentline",
-                    frame.current_line().map_or(-1_i64, |line| line as i64),
-                )?;
+                info.raw_set("currentline", frame.current_line().map_or(-1_i64, |line| line as i64))?;
                 Ok(Value::Table(info))
-            })
-            .unwrap_or(Ok(Value::Nil))
+            }).unwrap_or(Ok(Value::Nil))
         })?;
         return factory.call((actor_type, mt, getinfo));
     }
@@ -1943,14 +1912,7 @@ end
             Value::Table(table) => table,
             _ => lua.create_table()?,
         };
-        initialize_actor_instance(
-            lua,
-            &table,
-            actor_type,
-            human_player_count,
-            create_dummy_actor,
-            install_actor_methods,
-        )?;
+        initialize_actor_instance(lua, &table, actor_type, human_player_count, create_dummy_actor, install_actor_methods)?;
         own_actor_children(lua, &table, install_actor_methods)?;
         Ok(table)
     })
@@ -1965,11 +1927,9 @@ fn initialize_actor_instance(
     install_actor_methods: fn(&Lua, &Table) -> mlua::Result<()>,
 ) -> mlua::Result<()> {
     init_actor_type(lua, table, actor_type)?;
-    if let Some(script_dir) = table
-        .raw_get::<Option<String>>("__songlua_script_dir")?
-        .or(lua
-            .globals()
-            .get::<Option<String>>("__songlua_script_dir")?)
+    if let Some(script_dir) = table.raw_get::<Option<String>>("__songlua_script_dir")?.or(lua
+        .globals()
+        .get::<Option<String>>("__songlua_script_dir")?)
     {
         table.set("__songlua_script_dir", script_dir)?;
     }
@@ -2008,11 +1968,9 @@ fn initialize_actor_instance(
 }
 
 fn materialize_actor_declaration(lua: &Lua, declaration: &Table) -> mlua::Result<Table> {
-    let host = *lua
-        .app_data_ref::<ActorDefinitionHost>()
+    let host = *lua.app_data_ref::<ActorDefinitionHost>()
         .ok_or_else(|| mlua::Error::runtime("actor declaration has no gameplay host"))?;
-    let class = declaration
-        .raw_get::<Option<String>>("Class")?
+    let class = declaration.raw_get::<Option<String>>("Class")?
         .or(declaration.raw_get::<Option<String>>("Type")?)
         .unwrap_or_default();
     // ActorUtil::LoadFromNode returns a fresh Actor for a missing class.
@@ -2021,57 +1979,31 @@ fn materialize_actor_declaration(lua: &Lua, declaration: &Table) -> mlua::Result
         return (host.create_dummy_actor)(lua, "Actor");
     }
     let kind = match class.as_str() {
-        "Actor" => "Actor",
-        "ActorFrame" => "ActorFrame",
-        "Sprite" => "Sprite",
-        "Banner" => "Banner",
-        "ActorMultiVertex" => "ActorMultiVertex",
-        "Sound" => "Sound",
-        "BitmapText" => "BitmapText",
-        "BPMDisplay" => "BPMDisplay",
-        "RollingNumbers" => "RollingNumbers",
-        "GraphDisplay" => "GraphDisplay",
-        "SongMeterDisplay" => "SongMeterDisplay",
-        "CourseContentsList" => "CourseContentsList",
-        "DeviceList" => "DeviceList",
-        "InputList" => "InputList",
-        "Model" => "Model",
-        "Quad" => "Quad",
-        "ActorProxy" => "ActorProxy",
-        "ActorFrameTexture" => "ActorFrameTexture",
-        _ => {
-            return Err(mlua::Error::runtime(format!(
-                "unknown actor declaration class {class}"
-            )));
-        }
+        "Actor" => "Actor", "ActorFrame" => "ActorFrame", "Sprite" => "Sprite",
+        "Banner" => "Banner", "ActorMultiVertex" => "ActorMultiVertex", "Sound" => "Sound",
+        "BitmapText" => "BitmapText", "BPMDisplay" => "BPMDisplay", "RollingNumbers" => "RollingNumbers",
+        "GraphDisplay" => "GraphDisplay", "SongMeterDisplay" => "SongMeterDisplay",
+        "CourseContentsList" => "CourseContentsList", "DeviceList" => "DeviceList", "InputList" => "InputList",
+        "Model" => "Model", "Quad" => "Quad", "ActorProxy" => "ActorProxy", "ActorFrameTexture" => "ActorFrameTexture",
+        _ => return Err(mlua::Error::runtime(format!("unknown actor declaration class {class}"))),
     };
     // Resolve the native declaration order before adding any instance fields.
     let (_, children) = actor_def_children(lua, declaration)?;
     let actor = lua.create_table()?;
     declaration.for_each::<Value, Value>(|key, value| {
         if let Value::String(name) = &key {
-            if name.to_str()? != "children" {
-                actor.raw_set(key, value)?;
-            }
+            if name.to_str()? != "children" { actor.raw_set(key, value)?; }
         }
         Ok(())
     })?;
     if let Some(dir) = declaration.raw_get::<Option<String>>("_Dir")? {
         actor.raw_set("__songlua_script_dir", dir)?;
     }
-    initialize_actor_instance(
-        lua,
-        &actor,
-        kind,
-        host.human_player_count,
-        host.create_dummy_actor,
-        host.install_methods,
-    )?;
+    initialize_actor_instance(lua, &actor, kind, host.human_player_count,
+        host.create_dummy_actor, host.install_methods)?;
     let mut index = actor.raw_len() + 1;
     for (_, child) in children {
-        if matches!(child.raw_get::<Value>("Condition")?, Value::Boolean(false)) {
-            continue;
-        }
+        if matches!(child.raw_get::<Value>("Condition")?, Value::Boolean(false)) { continue; }
         let child = own_actor_root(lua, Value::Table(child), host.install_methods)?;
         if let Value::Table(child) = child {
             actor.raw_set(index, child)?;
@@ -2104,12 +2036,10 @@ fn actor_def_children(
     }
     let prefix = children.len() as f64;
     source.for_each::<Value, Value>(|key, value| {
-        let Value::Table(child) = value else {
-            return Ok(());
-        };
-        let already_added = lua
-            .coerce_number(key.clone())?
-            .is_some_and(|index| index >= 1.0 && index <= prefix && index.fract() == 0.0);
+        let Value::Table(child) = value else { return Ok(()) };
+        let already_added = lua.coerce_number(key.clone())?.is_some_and(|index| {
+            index >= 1.0 && index <= prefix && index.fract() == 0.0
+        });
         if !already_added {
             children.push((key, child));
         }
@@ -2139,10 +2069,7 @@ fn own_actor_children(
 ) -> mlua::Result<()> {
     let (source, children) = actor_def_children(lua, actor)?;
     for (key, child) in children {
-        if child
-            .raw_get::<Option<String>>("__songlua_actor_type")?
-            .is_none()
-        {
+        if child.raw_get::<Option<String>>("__songlua_actor_type")?.is_none() {
             if lua.app_data_ref::<ActorDefinitionHost>().is_some() {
                 source.raw_set(key, materialize_actor_declaration(lua, &child)?)?;
             }
@@ -2169,20 +2096,13 @@ pub(crate) fn own_actor_root(
     root: Value,
     install_methods: fn(&Lua, &Table) -> mlua::Result<()>,
 ) -> mlua::Result<Value> {
-    let Value::Table(actor) = root else {
-        return Ok(root);
-    };
-    if actor
-        .raw_get::<Option<String>>("__songlua_actor_type")?
-        .is_none()
+    let Value::Table(actor) = root else { return Ok(root) };
+    if actor.raw_get::<Option<String>>("__songlua_actor_type")?.is_none()
         && lua.app_data_ref::<ActorDefinitionHost>().is_some()
     {
         return materialize_actor_declaration(lua, &actor).map(Value::Table);
     }
-    let actor = if actor
-        .raw_get::<Option<bool>>("__songlua_def_owned")?
-        .unwrap_or(false)
-    {
+    let actor = if actor.raw_get::<Option<bool>>("__songlua_def_owned")?.unwrap_or(false) {
         clone_actor_def(lua, &actor, install_methods, true)?
     } else {
         actor
@@ -2308,18 +2228,13 @@ pub fn table_bool_field(table: &Table, names: &[&str]) -> mlua::Result<Option<bo
 
 pub fn current_song_lua_style_name(lua: &Lua) -> String {
     let owned_style = lua.globals().get::<Table>("GAMESTATE").and_then(|state| {
-        state
-            .raw_get::<Table>("__songlua_current_style")?
-            .raw_get::<Value>(1)
+        state.raw_get::<Table>("__songlua_current_style")?.raw_get::<Value>(1)
     });
-    let Ok(Value::Table(style)) =
-        owned_style.or_else(|_| current_gamestate_value(lua, "GetCurrentStyle"))
-    else {
+    let Ok(Value::Table(style)) = owned_style
+        .or_else(|_| current_gamestate_value(lua, "GetCurrentStyle")) else {
         return "single".to_string();
     };
-    if let Ok(Some(key)) = style.raw_get::<Option<String>>("__songlua_style_key") {
-        return key;
-    }
+    if let Ok(Some(key)) = style.raw_get::<Option<String>>("__songlua_style_key") { return key; }
     let Ok(Some(method)) = style.get::<Option<Function>>("GetName") else {
         return "single".to_string();
     };
@@ -2395,9 +2310,7 @@ pub fn actor_children(lua: &Lua, actor: &Table) -> mlua::Result<Table> {
             if !value.is_nil() {
                 // Keep the order table owned by Lua. Capturing it in Rust
                 // retains an auxiliary stack slot for every child registry.
-                let order = registry
-                    .metatable()
-                    .expect("owned child registry metatable")
+                let order = registry.metatable().expect("owned child registry metatable")
                     .raw_get::<Table>("__songlua_child_names")?;
                 order.raw_set(order.raw_len() + 1, key.clone())?;
             }
@@ -2428,10 +2341,7 @@ pub(crate) fn set_actor_name(actor: &Table, name: mlua::LuaString) -> mlua::Resu
 
 pub fn actor_named_children(lua: &Lua, actor: &Table) -> mlua::Result<Table> {
     let children = lua.create_table()?;
-    if actor
-        .raw_get::<Option<bool>>("__songlua_owned_child_lookup")?
-        .unwrap_or(false)
-    {
+    if actor.raw_get::<Option<bool>>("__songlua_owned_child_lookup")?.unwrap_or(false) {
         // Native PushChildrenTable traverses m_SubActors after BeginScreen's
         // stable draw-order sort, not the named lookup registry's insertion order.
         for child in actor.sequence_values::<Table>() {
@@ -2924,11 +2834,7 @@ fn clone_actor_state(lua: &Lua, key: &str, value: Value) -> mlua::Result<Value> 
     clone_lua_value(lua, value)
 }
 
-fn retained_key_text(
-    lua: &Lua,
-    key: &mlua::LuaString,
-    keep: fn(&str) -> bool,
-) -> mlua::Result<Option<String>> {
+fn retained_key_text(lua: &Lua, key: &mlua::LuaString, keep: fn(&str) -> bool) -> mlua::Result<Option<String>> {
     // SAFETY: one rooted, checked Lua string; UTF-8 validation and the fixed
     // Rust predicate do not call Lua. Only owned text leaves the read scope.
     unsafe {
@@ -2937,24 +2843,15 @@ fn retained_key_text(
             let mut len = 0;
             let data = ffi::lua_tolstring(raw.state(), base + 1, &mut len);
             let bytes = std::slice::from_raw_parts(data.cast::<u8>(), len);
-            let text = std::str::from_utf8(bytes).map_err(|error| {
-                mlua::Error::FromLuaConversionError {
-                    from: "string",
-                    to: "&str".into(),
-                    message: Some(error.to_string()),
-                }
+            let text = std::str::from_utf8(bytes).map_err(|error| mlua::Error::FromLuaConversionError {
+                from: "string", to: "&str".into(), message: Some(error.to_string()),
             })?;
             Ok(keep(text).then(|| text.to_owned()))
         })
     }
 }
 
-fn remove_scalar_global(
-    lua: &Lua,
-    key: &mlua::LuaString,
-    scalar: bool,
-    retained: &HashSet<&str>,
-) -> mlua::Result<bool> {
+fn remove_scalar_global(lua: &Lua, key: &mlua::LuaString, scalar: bool, retained: &HashSet<&str>) -> mlua::Result<bool> {
     // SAFETY: same rooted immutable-string read; hashing is pure Rust.
     unsafe {
         crate::raw_vm::with_read_stack(lua, 1, |raw, base| {
@@ -2962,12 +2859,8 @@ fn remove_scalar_global(
             let mut len = 0;
             let data = ffi::lua_tolstring(raw.state(), base + 1, &mut len);
             let bytes = std::slice::from_raw_parts(data.cast::<u8>(), len);
-            let text = std::str::from_utf8(bytes).map_err(|error| {
-                mlua::Error::FromLuaConversionError {
-                    from: "string",
-                    to: "&str".into(),
-                    message: Some(error.to_string()),
-                }
+            let text = std::str::from_utf8(bytes).map_err(|error| mlua::Error::FromLuaConversionError {
+                from: "string", to: "&str".into(), message: Some(error.to_string()),
             })?;
             Ok(scalar && !retained.contains(text))
         })
@@ -2993,16 +2886,10 @@ fn snapshot_actor_state(
     })?;
     {
         let pose = live_pose_snapshot(lua, actor)?.into_iter().flatten();
-        let flags = live_render_flags(lua, actor)
-            .into_iter()
-            .flat_map(RenderFlags::snapshot);
-        let base = live_base_transform(lua, actor)
-            .into_iter()
-            .flat_map(BaseTransform::snapshot);
+        let flags = live_render_flags(lua, actor).into_iter().flat_map(RenderFlags::snapshot);
+        let base = live_base_transform(lua, actor).into_iter().flat_map(BaseTransform::snapshot);
         for (key, value) in pose.chain(flags).chain(base) {
-            if !keep_key(key) {
-                continue;
-            }
+            if !keep_key(key) { continue; }
             if let Some(entry) = out.iter_mut().find(|(name, _)| name == key) {
                 entry.1 = value;
             } else if !value.is_nil() {
@@ -3124,10 +3011,7 @@ pub fn restore_actors_semantic_state(
 pub fn snapshot_actor_semantic_state_table(lua: &Lua, actor: &Table) -> mlua::Result<Table> {
     if live_destination_value(lua, actor, |_| ()).is_some() {
         let snapshot = lua.create_table()?;
-        for (index, (key, value)) in snapshot_actor_semantic_state(lua, actor)?
-            .into_iter()
-            .enumerate()
-        {
+        for (index, (key, value)) in snapshot_actor_semantic_state(lua, actor)?.into_iter().enumerate() {
             let entry = lua.create_table_with_capacity(2, 0)?;
             entry.raw_set(1, key)?;
             entry.raw_set(2, value)?;
@@ -3197,16 +3081,12 @@ pub(crate) fn take_message_coverage(lua: &Lua) -> Vec<String> {
 
 #[cfg(feature = "test-support")]
 pub(crate) fn install_message_order(lua: &Lua, ranks: &[(String, usize)]) -> mlua::Result<()> {
-    if ranks.is_empty() {
-        return Ok(());
-    }
+    if ranks.is_empty() { return Ok(()); }
     let mut order = FxHashMap::default();
     let mut identities = rustc_hash::FxHashSet::default();
     for (path, rank) in ranks {
         if *rank == 0 || order.insert(path.clone(), *rank).is_some() || !identities.insert(*rank) {
-            return Err(mlua::Error::external(
-                "invalid captured subscriber identities",
-            ));
+            return Err(mlua::Error::external("invalid captured subscriber identities"));
         }
     }
     lua.set_app_data(SongLuaMessageOrder(order));
@@ -3226,18 +3106,12 @@ pub(crate) fn message_actor_path(actor: &Table) -> mlua::Result<String> {
             parts.push(path);
             break;
         }
-        if current
-            .raw_get::<Option<String>>("__songlua_actor_type")?
-            .as_deref()
-            == Some("TopScreen")
-        {
+        if current.raw_get::<Option<String>>("__songlua_actor_type")?.as_deref() == Some("TopScreen") {
             parts.push("ScreenGameplay".into());
             break;
         }
         let Some(parent) = current.raw_get::<Option<Table>>("__songlua_parent")? else {
-            return Err(mlua::Error::external(
-                "subscriber has no captured actor path",
-            ));
+            return Err(mlua::Error::external("subscriber has no captured actor path"));
         };
         let mut component = None;
         if let Some(wrappers) = parent.raw_get::<Option<Table>>("__songlua_wrappers")? {
@@ -3250,9 +3124,7 @@ pub(crate) fn message_actor_path(actor: &Table) -> mlua::Result<String> {
         }
         if component.is_none() {
             for (index, child) in parent.sequence_values::<Value>().enumerate() {
-                if let Value::Table(child) = child?
-                    && child.to_pointer() == current.to_pointer()
-                {
+                if let Value::Table(child) = child? && child.to_pointer() == current.to_pointer() {
                     component = Some((index + 1).to_string());
                     break;
                 }
@@ -3260,9 +3132,7 @@ pub(crate) fn message_actor_path(actor: &Table) -> mlua::Result<String> {
         }
         let name = component.or(current.raw_get::<Option<String>>("Name")?);
         let Some(name) = name.filter(|name| !name.is_empty()) else {
-            return Err(mlua::Error::external(
-                "subscriber has no captured child identity",
-            ));
+            return Err(mlua::Error::external("subscriber has no captured child identity"));
         };
         parts.push(name);
         current = parent;
@@ -3274,8 +3144,7 @@ pub(crate) fn message_actor_path(actor: &Table) -> mlua::Result<String> {
 #[cfg(feature = "test-support")]
 fn captured_message_actor_identity(lua: &Lua, actor: &Table) -> mlua::Result<Option<usize>> {
     let path = message_actor_path(actor)?;
-    let rank = lua
-        .app_data_ref::<SongLuaMessageOrder>()
+    let rank = lua.app_data_ref::<SongLuaMessageOrder>()
         .and_then(|order| order.0.get(&path).copied());
     if rank.is_none() {
         if lua.app_data_ref::<SongLuaMessageCoverage>().is_none() {
@@ -3294,51 +3163,26 @@ fn captured_message_actor_identity(lua: &Lua, actor: &Table) -> mlua::Result<Opt
 #[test]
 fn broadcast_identity_order() {
     let lua = Lua::new();
-    lua.load(
-        r#"
+    lua.load(r#"
         seen = {}
         local function receive(self) seen[#seen + 1] = self end
         a = { GoMessageCommand = receive }
         b = { GoMessageCommand = receive }
         __songlua_actor_registry = { a, b }
-    "#,
-    )
-    .exec()
-    .expect("live subscribers");
+    "#).exec().expect("live subscribers");
     let a = lua.globals().get::<Table>("a").expect("subscriber a");
     let b = lua.globals().get::<Table>("b").expect("subscriber b");
-    let expected = if a.to_pointer() < b.to_pointer() {
-        [a.clone(), b.clone()]
-    } else {
-        [b.clone(), a.clone()]
-    };
+    let expected = if a.to_pointer() < b.to_pointer() { [a.clone(), b.clone()] } else { [b.clone(), a.clone()] };
     for reversed in [false, true] {
-        lua.globals()
-            .set("seen", lua.create_table().expect("observations"))
-            .expect("reset observations");
-        let registry = lua
-            .create_sequence_from(if reversed {
-                [b.clone(), a.clone()]
-            } else {
-                [a.clone(), b.clone()]
-            })
+        lua.globals().set("seen", lua.create_table().expect("observations")).expect("reset observations");
+        let registry = lua.create_sequence_from(if reversed { [b.clone(), a.clone()] } else { [a.clone(), b.clone()] })
             .expect("registry permutation");
-        lua.globals()
-            .set("__songlua_actor_registry", registry)
-            .expect("install registry");
+        lua.globals().set("__songlua_actor_registry", registry).expect("install registry");
         broadcast_song_lua_message(&lua, "Go", None).expect("deliver by identity");
-        let seen = lua
-            .globals()
-            .get::<Table>("seen")
-            .expect("observed recipients");
+        let seen = lua.globals().get::<Table>("seen").expect("observed recipients");
         assert_eq!(seen.raw_len(), 2);
         for (index, actor) in expected.iter().enumerate() {
-            assert_eq!(
-                seen.raw_get::<Table>(index + 1)
-                    .expect("recipient")
-                    .to_pointer(),
-                actor.to_pointer()
-            );
+            assert_eq!(seen.raw_get::<Table>(index + 1).expect("recipient").to_pointer(), actor.to_pointer());
         }
     }
 }
@@ -3367,14 +3211,10 @@ fn registry_contains_actor(lua: &Lua, registry: &Table, actor: &Table) -> mlua::
                 match ffi::lua_type(state, base + 3) {
                     ffi::LUA_TNIL => return Ok(false),
                     ffi::LUA_TTABLE => {
-                        if ffi::lua_rawequal(state, base + 2, base + 3) != 0 {
-                            return Ok(true);
-                        }
+                        if ffi::lua_rawequal(state, base + 2, base + 3) != 0 { return Ok(true); }
                     }
                     // Preserve checked conversion of unusual registry values.
-                    _ => {
-                        let _ = Value::from_stack(base + 3, raw)?;
-                    }
+                    _ => { let _ = Value::from_stack(base + 3, raw)?; }
                 }
                 ffi::lua_pop(state, 1);
             }
@@ -3415,9 +3255,7 @@ fn init_actor_type(lua: &Lua, actor: &Table, actor_type: &'static str) -> mlua::
     actor.set("__songlua_actor_type", actor_type)?;
     // Quad and ActorMultiVertex constructors load RageTexture_Default. Its manager lookup key is
     // __blank__, but the resource itself has an empty filename and 1x1 size.
-    if actor_type.eq_ignore_ascii_case("Quad")
-        || actor_type.eq_ignore_ascii_case("ActorMultiVertex")
-    {
+    if actor_type.eq_ignore_ascii_case("Quad") || actor_type.eq_ignore_ascii_case("ActorMultiVertex") {
         actor.raw_set("__songlua_default_texture", true)?;
     }
     if actor_type.eq_ignore_ascii_case("ActorFrameTexture")
@@ -3501,7 +3339,8 @@ pub fn normalize_broadcast_params(
 fn runtime_broadcast_beat(lua: &Lua) -> f32 {
     // Use the queued command's dispatch frame, including pauses and split
     // chart timing, rather than the callback that originally queued it.
-    lua.app_data_ref::<SongLuaQueuedCommand>()
+    lua
+        .app_data_ref::<SongLuaQueuedCommand>()
         .and_then(|scope| scope.time.map(|(frame, _)| frame))
         .and_then(|frame| {
             lua.app_data_ref::<SongLuaCompileFrames>()
@@ -3510,23 +3349,16 @@ fn runtime_broadcast_beat(lua: &Lua) -> f32 {
         .unwrap_or_else(|| compile_song_runtime_values(lua).map_or(0.0, |(beat, _)| beat))
 }
 
-fn source_broadcast_value(
-    value: Value,
-    depth: usize,
-    seen: &mut Vec<usize>,
-) -> Result<serde_json::Value, String> {
+fn source_broadcast_value(value: Value, depth: usize, seen: &mut Vec<usize>) -> Result<serde_json::Value, String> {
     use serde_json::{Value as Json, json};
     Ok(match value {
         Value::Nil => Json::Null,
         Value::Boolean(value) => json!(value),
         Value::Integer(value) => source_broadcast_number(value as f64),
-        Value::Number(value) if value.is_finite() => source_broadcast_number(value),
-        Value::String(value) => Json::String(
-            value
-                .to_str()
-                .map_err(|error| error.to_string())?
-                .replace('\\', "/"),
-        ),
+        Value::Number(value) if value.is_finite() => {
+            source_broadcast_number(value)
+        }
+        Value::String(value) => Json::String(value.to_str().map_err(|error| error.to_string())?.replace('\\', "/")),
         Value::Function(value) => {
             // Like the native safe_value logger, inspect the original closure
             // without calling or wrapping it. Dispatch retains its identity.
@@ -3537,21 +3369,12 @@ fn source_broadcast_value(
         }
         Value::Table(table) => {
             let identity = table.to_pointer() as usize;
-            if depth >= 5 {
-                return Err("broadcast table exceeds native trace depth".into());
-            }
-            if seen.contains(&identity) {
-                return Err("broadcast table contains a cycle".into());
-            }
+            if depth >= 5 { return Err("broadcast table exceeds native trace depth".into()); }
+            if seen.contains(&identity) { return Err("broadcast table contains a cycle".into()); }
             // Native actor identity requires the runtime definition map. Do
             // not serialize actors as ordinary tables and certify their data.
             for key in ["GetName", "GetParent"] {
-                if matches!(
-                    table
-                        .raw_get::<Value>(key)
-                        .map_err(|error| error.to_string())?,
-                    Value::Function(_)
-                ) {
+                if matches!(table.raw_get::<Value>(key).map_err(|error| error.to_string())?, Value::Function(_)) {
                     return Err("broadcast actor identity remains pending".into());
                 }
             }
@@ -3560,12 +3383,7 @@ fn source_broadcast_value(
             seen.pop();
             result?
         }
-        value => {
-            return Err(format!(
-                "broadcast {} trace remains pending",
-                value.type_name()
-            ));
-        }
+        value => return Err(format!("broadcast {} trace remains pending", value.type_name())),
     })
 }
 
@@ -3582,34 +3400,20 @@ fn source_broadcast_number(value: f64) -> serde_json::Value {
     }
 }
 
-fn source_broadcast_table(
-    table: Table,
-    depth: usize,
-    seen: &mut Vec<usize>,
-) -> Result<serde_json::Value, String> {
+fn source_broadcast_table(table: Table, depth: usize, seen: &mut Vec<usize>) -> Result<serde_json::Value, String> {
     use serde_json::Value as Json;
     let mut entries = Vec::new();
     let mut max_index = 0;
     let mut array = true;
     for pair in table.pairs::<Value, Value>().take(257) {
-        if entries.len() == 256 {
-            return Err("broadcast table exceeds native trace entry limit".into());
-        }
+        if entries.len() == 256 { return Err("broadcast table exceeds native trace entry limit".into()); }
         let (key, value) = pair.map_err(|error| error.to_string())?;
         let (name, index) = match key {
-            Value::String(key) => (
-                key.to_str().map_err(|error| error.to_string())?.to_string(),
-                None,
-            ),
+            Value::String(key) => (key.to_str().map_err(|error| error.to_string())?.to_string(), None),
             Value::Boolean(key) => (key.to_string(), None),
-            Value::Integer(key) => (
-                key.to_string(),
-                usize::try_from(key).ok().filter(|&key| key > 0),
-            ),
+            Value::Integer(key) => (key.to_string(), usize::try_from(key).ok().filter(|&key| key > 0)),
             Value::Number(key) if key.is_finite() && key.fract() == 0.0 => (
-                key.to_string(),
-                (key > 0.0 && key <= 256.0).then_some(key as usize),
-            ),
+                key.to_string(), (key > 0.0 && key <= 256.0).then_some(key as usize)),
             _ => return Err("broadcast table key representation remains pending".into()),
         };
         array &= index.is_some();
@@ -3634,15 +3438,10 @@ fn source_broadcast_table(
 }
 
 pub(crate) fn capture_source_broadcast(lua: &Lua, message: &str, params: Option<&Value>) {
-    if lua.app_data_ref::<LiveSourceBroadcasts>().is_none() {
-        return;
-    }
-    if !crate::live::observes_source_call(lua) {
-        return;
-    }
+    if lua.app_data_ref::<LiveSourceBroadcasts>().is_none() { return; }
+    if !crate::live::observes_source_call(lua) { return; }
     let beat = runtime_broadcast_beat(lua);
-    let music_seconds =
-        compile_song_runtime_values(lua).map_or(0.0, |(_, seconds)| f64::from(seconds));
+    let music_seconds = compile_song_runtime_values(lua).map_or(0.0, |(_, seconds)| f64::from(seconds));
     let params = match params {
         None => Ok(None),
         // The native probe records an explicit nil argument, separately from
@@ -3651,12 +3450,7 @@ pub(crate) fn capture_source_broadcast(lua: &Lua, message: &str, params: Option<
         Some(value) => source_broadcast_value(value.clone(), 0, &mut Vec::new()).map(Some),
     };
     if let Some(mut events) = lua.app_data_mut::<LiveSourceBroadcasts>() {
-        events.0.push(crate::live::SongLuaLiveBroadcast {
-            beat,
-            music_seconds,
-            name: message.to_owned(),
-            params,
-        });
+        events.0.push(crate::live::SongLuaLiveBroadcast { beat, music_seconds, name: message.to_owned(), params });
     }
 }
 
@@ -3676,22 +3470,15 @@ pub fn broadcast_song_lua_message(
 /// Engine parameters already contain native note objects and optional fields.
 /// Do not add the compiler's sampled Judgment defaults to a real engine event.
 pub(crate) fn broadcast_native_song_lua_message(
-    lua: &Lua,
-    message: &str,
-    params: Option<Value>,
+    lua: &Lua, message: &str, params: Option<Value>,
 ) -> mlua::Result<()> {
     broadcast_song_lua_message_impl(lua, message, params, false)
 }
 
 fn broadcast_song_lua_message_impl(
-    lua: &Lua,
-    message: &str,
-    params: Option<Value>,
-    normalize: bool,
+    lua: &Lua, message: &str, params: Option<Value>, normalize: bool,
 ) -> mlua::Result<()> {
-    if message.trim().is_empty() {
-        return Ok(());
-    }
+    if message.trim().is_empty() { return Ok(()); }
     let command = ActorCommandName::new(message, "MessageCommand");
     let globals = lua.globals();
     let beat = runtime_broadcast_beat(lua);
@@ -3703,9 +3490,7 @@ fn broadcast_song_lua_message_impl(
         // A live session has no baked startup-message snapshot. Retain every
         // actual Init/On/update event, even before overlay capture is installed.
         events.0.push((beat, message.to_string(), params.is_some()));
-    } else if !on_startup
-        && let Some(mut capture) = lua.app_data_mut::<SongLuaOverlayUpdateCapture>()
-    {
+    } else if !on_startup && let Some(mut capture) = lua.app_data_mut::<SongLuaOverlayUpdateCapture>() {
         capture
             .runtime_broadcasts
             .push((beat, message.to_string(), params.is_some()));
@@ -3731,8 +3516,7 @@ fn broadcast_song_lua_message_impl(
         });
     let result = || {
         let registry = song_lua_actor_registry(lua)?;
-        let mut actors =
-            smallvec::SmallVec::<[(usize, Table); 32]>::with_capacity(registry.raw_len());
+        let mut actors = smallvec::SmallVec::<[(usize, Table); 32]>::with_capacity(registry.raw_len());
         for value in registry.sequence_values::<Value>() {
             let Value::Table(actor) = value? else {
                 continue;
@@ -3764,11 +3548,7 @@ fn broadcast_song_lua_message_impl(
                 actors[slot] = entry;
             }
         }
-        let params = if normalize {
-            normalize_broadcast_params(lua, message, params)?
-        } else {
-            params
-        };
+        let params = if normalize { normalize_broadcast_params(lua, message, params)? } else { params };
         // Drain in place so consuming the snapshot does not move its inline buffer.
         actors.drain(..).try_for_each(|(_, actor)| {
             // Native Actor::HandleMessage invokes the command immediately,
@@ -3943,11 +3723,7 @@ fn table_has_entries(table: &Table) -> mlua::Result<bool> {
     Ok(table.pairs::<Value, Value>().next().transpose()?.is_some())
 }
 
-pub(crate) fn normalize_tap_note_table(
-    lua: &Lua,
-    params: &Table,
-    note: Table,
-) -> mlua::Result<Table> {
+pub(crate) fn normalize_tap_note_table(lua: &Lua, params: &Table, note: Table) -> mlua::Result<Table> {
     if !matches!(note.get::<Value>("GetTapNoteType")?, Value::Nil) {
         return Ok(note);
     }
@@ -4126,15 +3902,11 @@ fn lookup_actor_named_command<'a>(
     if let Some(command) = actor.get::<Option<Function>>(name)? {
         return Ok(Some((command, std::borrow::Cow::Borrowed(name))));
     }
-    let Some(base) = name
-        .strip_suffix("Command")
-        .filter(|base| !base.ends_with("Message"))
-    else {
+    let Some(base) = name.strip_suffix("Command").filter(|base| !base.ends_with("Message")) else {
         return Ok(None);
     };
     let field = format!("{base}MessageCommand");
-    Ok(actor
-        .get::<Option<Function>>(field.as_str())?
+    Ok(actor.get::<Option<Function>>(field.as_str())?
         .map(|command| (command, std::borrow::Cow::Owned(field))))
 }
 
@@ -4158,8 +3930,7 @@ fn run_actor_message_with_params(
     params: Option<Value>,
 ) -> mlua::Result<()> {
     if !live_actor_playback(lua)
-        && let Some(scope) = lua.app_data_ref::<SongLuaQueuedCommand>()
-    {
+        && let Some(scope) = lua.app_data_ref::<SongLuaQueuedCommand>() {
         let cursor = actor
             .get::<Option<f32>>("__songlua_capture_cursor")?
             .unwrap_or(0.0);
@@ -4170,8 +3941,7 @@ fn run_actor_message_with_params(
     }
     run_actor_named_command_with_drain_and_params(lua, actor, name, true, params.clone())?;
     // Screen derives from ActorFrame and forwards direct commands to children.
-    if actor_type_is(actor, "ActorFrame")?
-        || actor_type_is(actor, "ActorFrameTexture")?
+    if actor_type_is(actor, "ActorFrame")? || actor_type_is(actor, "ActorFrameTexture")?
         || actor_type_is(actor, "TopScreen")?
     {
         for child in actor_direct_children(lua, actor)? {
@@ -4239,9 +4009,7 @@ fn run_guarded_actor_command(
     active.set(name, true)?;
     let recurring_cursor_key = "__songlua_recurring_update_start_cursor";
     // This long key is not interned by Lua; reuse it across all scope accesses.
-    let previous_recurring_state = if live_actor_playback(lua) {
-        None
-    } else {
+    let previous_recurring_state = if live_actor_playback(lua) { None } else {
         let recurring_exact_key = lua.create_string("__songlua_recurring_update_exact_interval")?;
         let previous_cursor = actor.get::<Value>(recurring_cursor_key)?;
         let previous_exact = actor.get::<Value>(&recurring_exact_key)?;
@@ -4261,16 +4029,11 @@ fn run_guarded_actor_command(
     // Legacy capture tools wrap declaration functions only. The capture's
     // source-backed observer profile can also observe real dynamic dispatch.
     // Snapshot provenance before the callback can replace its command.
-    let dynamic = actor
-        .raw_get::<Option<Table>>("__songlua_dynamic_commands")?
-        .map(|commands| commands.raw_get::<Option<Function>>(name))
-        .transpose()?
-        .flatten();
+    let dynamic = actor.raw_get::<Option<Table>>("__songlua_dynamic_commands")?
+        .map(|commands| commands.raw_get::<Option<Function>>(name)).transpose()?.flatten();
     let observed = crate::live::observes_dynamic_commands(lua)
         || dynamic.is_none_or(|function| function.to_pointer() != command.to_pointer());
-    if observed {
-        crate::live::trace_command(lua, command, name, "begin");
-    }
+    if observed { crate::live::trace_command(lua, command, name, "begin"); }
     let result = call_actor_function(lua, actor, command, params).map_err(|err| {
         mlua::Error::external(format!(
             "{} failed for {}: {err}",
@@ -4289,23 +4052,16 @@ fn run_guarded_actor_command(
                 if lua.app_data_ref::<SongLuaMessageCoverage>().is_none() {
                     lua.set_app_data(SongLuaMessageCoverage::default());
                 }
-                let gap = format!(
-                    "native capture omits theme callback errors: {} {name}",
-                    command.info().source.unwrap_or_default()
-                );
+                let gap = format!("native capture omits theme callback errors: {} {name}",
+                    command.info().source.unwrap_or_default());
                 if let Some(mut coverage) = lua.app_data_mut::<SongLuaMessageCoverage>()
-                    && coverage.seen.insert(gap.clone())
-                {
-                    coverage.pending.push(gap);
-                }
+                    && coverage.seen.insert(gap.clone()) { coverage.pending.push(gap); }
             }
             Ok(())
-        }
+        },
         result => result,
     };
-    if observed {
-        crate::live::trace_command(lua, command, name, "end");
-    }
+    if observed { crate::live::trace_command(lua, command, name, "end"); }
     #[cfg(feature = "test-support")]
     if let Some(prior) = prior_update {
         lua.app_data_mut::<SongLuaOverlayUpdateCapture>()
@@ -4652,14 +4408,8 @@ pub fn install_actor_metatable(
 
 /// Background.cpp loads Lua files through UpperLeft.lua, whose declaration
 /// concatenates native callbacks with the authored root before actor creation.
-pub(crate) fn install_background_upper_left(
-    lua: &Lua,
-    actor: &Table,
-    color: [f32; 4],
-) -> mlua::Result<Table> {
-    let factory: Function = lua
-        .load(
-            r#"
+pub(crate) fn install_background_upper_left(lua: &Lua, actor: &Table, color: [f32; 4]) -> mlua::Result<Table> {
+    let factory: Function = lua.load(r#"
 return function(color)
     return {
         OnCommand = function(self)
@@ -4670,17 +4420,12 @@ return function(color)
         LoseFocusCommand = function(self) self:pause() end,
     }
 end
-"#,
-        )
-        .set_name("@theme:/BackgroundEffects/UpperLeft.lua")
-        .eval()?;
+"#).set_name("@theme:/BackgroundEffects/UpperLeft.lua").eval()?;
     merge_actor_concat(lua, actor, &factory.call::<Table>(color.to_vec())?)?;
     // UpperLeft.lua returns an ActorFrame owning the authored actor. The
     // texture rate callback reads that real parent's update rate.
-    let wrap: Function = lua
-        .load("return function(child)\n\n\nreturn Def.ActorFrame{child}\nend")
-        .set_name("@theme:/BackgroundEffects/UpperLeft.lua")
-        .eval()?;
+    let wrap: Function = lua.load("return function(child)\n\n\nreturn Def.ActorFrame{child}\nend")
+        .set_name("@theme:/BackgroundEffects/UpperLeft.lua").eval()?;
     wrap.call(actor.clone())
 }
 
@@ -4717,8 +4462,7 @@ fn merge_actor_concat(lua: &Lua, actor: &Table, rhs: &Table) -> mlua::Result<()>
 pub fn actor_shadow_len(lua: &Lua, actor: &Table) -> mlua::Result<[f32; 2]> {
     if !live_actor_playback(lua)
         && let Some(value) = actor_current_capture_block(lua, actor)?
-            .get::<Option<Table>>("shadow_len")?
-            .and_then(|value| table_vec2(&value))
+            .get::<Option<Table>>("shadow_len")?.and_then(|value| table_vec2(&value))
     {
         return Ok(value);
     }
@@ -4797,8 +4541,7 @@ fn for_each_actor_message_command(
         let (Value::String(key), Value::Function(command)) = (key, value) else {
             return Ok(());
         };
-        let Ok(Some(name)) = retained_key_text(&lua, &key, |name| name.ends_with("MessageCommand"))
-        else {
+        let Ok(Some(name)) = retained_key_text(&lua, &key, |name| name.ends_with("MessageCommand")) else {
             return Ok(());
         };
         visit(name, command);
@@ -4876,10 +4619,7 @@ pub fn capture_actor_message_commands(
 }
 
 pub fn actor_current_capture_block(lua: &Lua, actor: &Table) -> mlua::Result<Table> {
-    debug_assert!(
-        !live_actor_playback(lua),
-        "live actor requested compiler capture history"
-    );
+    debug_assert!(!live_actor_playback(lua), "live actor requested compiler capture history");
     record_probe_actor_call(lua, actor)?;
     prepare_capture_scope_actor(lua, actor)?;
     if let Some(block) = actor.get::<Option<Table>>("__songlua_capture_block")? {
@@ -4964,13 +4704,9 @@ fn actor_immediate_capture_block(lua: &Lua, actor: &Table) -> mlua::Result<Table
                 .raw_get::<Table>(index)
                 .and_then(|existing| {
                     let existing_start = existing.get::<f32>("start")?;
-                    Ok(existing_start > start
-                        || (existing_start == start
-                            && (existing
-                                .get::<Option<usize>>("__songlua_tween_step")?
-                                .unwrap_or(0)
-                                > 0
-                                || existing.get::<Option<f32>>("duration")?.unwrap_or(0.0) > 0.0)))
+                    Ok(existing_start > start || (existing_start == start
+                        && (existing.get::<Option<usize>>("__songlua_tween_step")?.unwrap_or(0) > 0
+                            || existing.get::<Option<f32>>("duration")?.unwrap_or(0.0) > 0.0)))
                 })
                 .unwrap_or(false)
         })
@@ -4999,9 +4735,7 @@ fn capture_immediate_bool(lua: &Lua, actor: &Table, key: &str, value: bool) -> m
 }
 
 fn capture_immediate_f32(lua: &Lua, actor: &Table, key: &str, value: f32) -> mlua::Result<()> {
-    if set_live_base_field(lua, actor, key, value) {
-        return Ok(());
-    }
+    if set_live_base_field(lua, actor, key, value) { return Ok(()); }
     if !record_overlay_update_capture_immediate(
         lua,
         actor,
@@ -5031,12 +4765,7 @@ fn capture_immediate_u32(lua: &Lua, actor: &Table, key: &str, value: u32) -> mlu
 
 fn capture_immediate_vec2(lua: &Lua, actor: &Table, key: &str, size: [f32; 2]) -> mlua::Result<()> {
     if live_actor_playback(lua) {
-        return crate::native_vector::store(
-            lua,
-            actor,
-            actor_capture_state_key(key).as_ref(),
-            size,
-        );
+        return crate::native_vector::store(lua, actor, actor_capture_state_key(key).as_ref(), size);
     }
     let table = lua.create_table_from(
         size.into_iter()
@@ -5063,12 +4792,7 @@ fn capture_immediate_vec3(
     value: [f32; 3],
 ) -> mlua::Result<()> {
     if live_actor_playback(lua) {
-        return crate::native_vector::store(
-            lua,
-            actor,
-            actor_capture_state_key(key).as_ref(),
-            value,
-        );
+        return crate::native_vector::store(lua, actor, actor_capture_state_key(key).as_ref(), value);
     }
     let table = lua.create_table_with_capacity(3, 0)?;
     for (index, component) in value.into_iter().enumerate() {
@@ -5094,12 +4818,7 @@ fn capture_immediate_vec4(
     value: [f32; 4],
 ) -> mlua::Result<()> {
     if live_actor_playback(lua) {
-        return crate::native_vector::store(
-            lua,
-            actor,
-            actor_capture_state_key(key).as_ref(),
-            value,
-        );
+        return crate::native_vector::store(lua, actor, actor_capture_state_key(key).as_ref(), value);
     }
     let table = lua.create_table_with_capacity(4, 0)?;
     for (index, component) in value.into_iter().enumerate() {
@@ -5125,12 +4844,7 @@ fn capture_immediate_vec5(
     value: [f32; 5],
 ) -> mlua::Result<()> {
     if live_actor_playback(lua) {
-        return crate::native_vector::store(
-            lua,
-            actor,
-            actor_capture_state_key(key).as_ref(),
-            value,
-        );
+        return crate::native_vector::store(lua, actor, actor_capture_state_key(key).as_ref(), value);
     }
     let table = lua.create_table_with_capacity(5, 0)?;
     for (index, component) in value.into_iter().enumerate() {
@@ -5163,8 +4877,7 @@ fn capture_immediate_string(lua: &Lua, actor: &Table, key: &str, value: &str) ->
         _ => None,
     });
     if !live_actor_playback(lua)
-        && !update
-            .is_some_and(|value| record_overlay_update_capture_immediate(lua, actor, key, value))
+        && !update.is_some_and(|value| record_overlay_update_capture_immediate(lua, actor, key, value))
     {
         let block = actor_immediate_capture_block(lua, actor)?;
         block.set(key, value)?;
@@ -5174,9 +4887,7 @@ fn capture_immediate_string(lua: &Lua, actor: &Table, key: &str, value: &str) ->
 }
 
 pub fn capture_block_set_f32(lua: &Lua, actor: &Table, key: &str, value: f32) -> mlua::Result<()> {
-    if set_live_base_field(lua, actor, key, value) {
-        return Ok(());
-    }
+    if set_live_base_field(lua, actor, key, value) { return Ok(()); }
     if live_destination_scalar(lua, actor, key).is_some() {
         record_overlay_update_capture(lua, actor, key, SongLuaOverlayUpdateValue::F32(value));
         return Ok(());
@@ -5222,18 +4933,17 @@ pub fn capture_block_set_f32(lua: &Lua, actor: &Table, key: &str, value: f32) ->
         .transpose()?
         .flatten()
         .unwrap_or(0.0);
-    let scheduled = current_pos_key.is_some()
-        && (actor
-            .get::<Option<f32>>("__songlua_capture_cursor")?
+    let scheduled = current_pos_key.is_some() && (actor
+        .get::<Option<f32>>("__songlua_capture_cursor")?
+        .unwrap_or(0.0)
+        .max(0.0)
+        > f32::EPSILON
+        || actor
+            .get::<Option<f32>>("__songlua_capture_duration")?
             .unwrap_or(0.0)
             .max(0.0)
             > f32::EPSILON
-            || actor
-                .get::<Option<f32>>("__songlua_capture_duration")?
-                .unwrap_or(0.0)
-                .max(0.0)
-                > f32::EPSILON
-            || queued_zero_progress(lua, actor).is_some());
+        || queued_zero_progress(lua, actor).is_some());
     if !record_overlay_update_capture(lua, actor, key, SongLuaOverlayUpdateValue::F32(value)) {
         let block = actor_current_capture_block(lua, actor)?;
         block.set(key, value)?;
@@ -5266,19 +4976,10 @@ pub fn capture_block_set_f32(lua: &Lua, actor: &Table, key: &str, value: f32) ->
     // destination fields and color tables are unchanged. Only current-position
     // getters need reconciliation when the authored write targets a queue tail.
     if let Some(current_key) = current_pos_key {
-        let current = lua.app_data_ref::<ActorTweenReplays>().and_then(|replays| {
-            replays
-                .0
-                .get(&(actor.to_pointer() as usize))
-                .map(|replay| replay.current)
-        });
+        let current = lua.app_data_ref::<ActorTweenReplays>()
+            .and_then(|replays| replays.0.get(&(actor.to_pointer() as usize)).map(|replay| replay.current));
         if let Some(current) = current {
-            let value = match key {
-                "aux" => current.aux,
-                "x" => current.x,
-                "y" => current.y,
-                _ => current.z,
-            };
+            let value = match key { "aux" => current.aux, "x" => current.x, "y" => current.y, _ => current.z };
             actor.raw_set(current_key, value)?;
         }
     }
@@ -5291,9 +4992,7 @@ pub fn capture_block_set_bool(
     key: &str,
     value: bool,
 ) -> mlua::Result<()> {
-    if set_live_render_flag(lua, actor, key, value) {
-        return Ok(());
-    }
+    if set_live_render_flag(lua, actor, key, value) { return Ok(()); }
     if key == "visible"
         && (lua.app_data_ref::<SongLuaStartupQueues>().is_some()
             || lua.app_data_ref::<SongLuaQueuedStartup>().is_some()
@@ -5421,12 +5120,7 @@ fn set_actor_capture_state(
 
 pub fn capture_block_set_color(lua: &Lua, actor: &Table, color: [f32; 4]) -> mlua::Result<()> {
     if live_actor_playback(lua) && has_tween_replay(lua, actor) {
-        record_overlay_update_capture(
-            lua,
-            actor,
-            "diffuse",
-            SongLuaOverlayUpdateValue::Vec4(color),
-        );
+        record_overlay_update_capture(lua, actor, "diffuse", SongLuaOverlayUpdateValue::Vec4(color));
         return Ok(());
     }
     let value = lua.create_table_with_capacity(4, 0)?;
@@ -5460,9 +5154,7 @@ pub fn capture_actor_vertex_diffuse(
     };
     if write_live_vertex_colors(lua, actor, |colors| {
         for (index, vertex_color) in colors.iter_mut().enumerate() {
-            if corner_mask & (1 << index) != 0 {
-                *vertex_color = color;
-            }
+            if corner_mask & (1 << index) != 0 { *vertex_color = color; }
         }
     }) {
         return Ok(());
@@ -5552,15 +5244,9 @@ pub fn capture_block_set_vec4(
     key: &str,
     value4: [f32; 4],
 ) -> mlua::Result<()> {
-    let update = if key == "quaternion" {
-        SongLuaOverlayUpdateValue::Quaternion(value4)
-    } else {
-        SongLuaOverlayUpdateValue::Vec4(value4)
-    };
-    if matches!(key, "glow" | "quaternion")
-        && live_actor_playback(lua)
-        && has_tween_replay(lua, actor)
-    {
+    let update = if key == "quaternion" { SongLuaOverlayUpdateValue::Quaternion(value4) }
+        else { SongLuaOverlayUpdateValue::Vec4(value4) };
+    if matches!(key, "glow" | "quaternion") && live_actor_playback(lua) && has_tween_replay(lua, actor) {
         record_overlay_update_capture(lua, actor, key, update);
         return Ok(());
     }
@@ -5609,23 +5295,14 @@ fn write_live_vertex_colors(
     actor: &Table,
     write: impl FnOnce(&mut [[f32; 4]; 4]),
 ) -> bool {
-    if !live_actor_playback(lua) {
-        return false;
-    }
-    let Some(mut replays) = lua.app_data_mut::<ActorTweenReplays>() else {
-        return false;
-    };
-    let Some(replay) = replays.0.get_mut(&(actor.to_pointer() as usize)) else {
-        return false;
-    };
+    if !live_actor_playback(lua) { return false; }
+    let Some(mut replays) = lua.app_data_mut::<ActorTweenReplays>() else { return false; };
+    let Some(replay) = replays.0.get_mut(&(actor.to_pointer() as usize)) else { return false; };
     let target = SongLuaOverlayUpdateTarget::VertexColors;
     replay.targets |= 1u128 << target as usize;
     #[cfg(feature = "test-support")]
     let queued = !replay.queue.is_empty();
-    let dest = replay
-        .queue
-        .back_mut()
-        .map_or(&mut replay.current, |step| &mut step.to);
+    let dest = replay.queue.back_mut().map_or(&mut replay.current, |step| &mut step.to);
     // Preserve actor_vertex_colors' neutral fallback. Overlay diffuse is stored
     // separately from these optional corner colors.
     let colors = dest.vertex_colors.get_or_insert([[1.0; 4]; 4]);
@@ -5634,9 +5311,8 @@ fn write_live_vertex_colors(
     let colors = *colors;
     drop(replays);
     #[cfg(feature = "test-support")]
-    observe_tween_write(lua, actor, target, queued, || {
-        SongLuaOverlayUpdateValue::VertexColors(Arc::new(colors))
-    });
+    observe_tween_write(lua, actor, target, queued,
+        || SongLuaOverlayUpdateValue::VertexColors(Arc::new(colors)));
     true
 }
 
@@ -5718,12 +5394,7 @@ pub fn capture_block_set_size(lua: &Lua, actor: &Table, size: [f32; 2]) -> mlua:
     value.raw_set(1, size[0])?;
     value.raw_set(2, size[1])?;
     // Actor::SetWidth/SetHeight update m_size, outside DestTweenState().
-    if !record_overlay_update_capture_immediate(
-        lua,
-        actor,
-        "size",
-        SongLuaOverlayUpdateValue::Vec2(size),
-    ) {
+    if !record_overlay_update_capture_immediate(lua, actor, "size", SongLuaOverlayUpdateValue::Vec2(size)) {
         let block = actor_immediate_capture_block(lua, actor)?;
         block.set("size", value.clone())?;
         block.set("__songlua_has_changes", true)?;
@@ -5790,8 +5461,7 @@ pub fn capture_block_set_string(
         _ => None,
     });
     if !live_actor_playback(lua)
-        && !update_value.is_some_and(|value| record_overlay_update_capture(lua, actor, key, value))
-    {
+        && !update_value.is_some_and(|value| record_overlay_update_capture(lua, actor, key, value)) {
         let block = actor_current_capture_block(lua, actor)?;
         block.set(key, value)?;
         block.set("__songlua_has_changes", true)?;
@@ -5811,18 +5481,14 @@ pub fn capture_texture_rect(lua: &Lua, actor: &Table, rect: [f32; 4]) -> mlua::R
 }
 
 pub fn actor_halign(lua: &Lua, actor: &Table) -> mlua::Result<f32> {
-    if let Some(base) = live_base_transform(lua, actor) {
-        return Ok(base.get(BaseField::HAlign).unwrap_or(0.5));
-    }
+    if let Some(base) = live_base_transform(lua, actor) { return Ok(base.get(BaseField::HAlign).unwrap_or(0.5)); }
     Ok(actor
         .get::<Option<f32>>("__songlua_state_halign")?
         .unwrap_or(0.5))
 }
 
 pub fn actor_valign(lua: &Lua, actor: &Table) -> mlua::Result<f32> {
-    if let Some(base) = live_base_transform(lua, actor) {
-        return Ok(base.get(BaseField::VAlign).unwrap_or(0.5));
-    }
+    if let Some(base) = live_base_transform(lua, actor) { return Ok(base.get(BaseField::VAlign).unwrap_or(0.5)); }
     Ok(actor
         .get::<Option<f32>>("__songlua_state_valign")?
         .unwrap_or(0.5))
@@ -6006,8 +5672,7 @@ pub fn set_actor_texture_from_value(
         // allocation and frame metadata, independently of this actor's size.
         match value {
             Some(Value::Table(texture))
-                if texture
-                    .raw_get::<Option<LuaFieldText<32>>>("__songlua_native_type")?
+                if texture.raw_get::<Option<LuaFieldText<32>>>("__songlua_native_type")?
                     .is_some_and(|kind| kind.as_str() == "RageTexture") =>
             {
                 actor.raw_set("__songlua_amv_texture_handle", texture.clone())?;
@@ -6142,10 +5807,7 @@ pub fn actor_image_texture_size(actor: &Table) -> mlua::Result<Option<(f32, f32)
     if let Some(path) = actor_texture_path(actor)?
         && let Some(texture) = deadlib_assets::generated_texture(&path.to_string_lossy())
     {
-        return Ok(Some((
-            texture.source_size[0] as f32,
-            texture.source_size[1] as f32,
-        )));
+        return Ok(Some((texture.source_size[0] as f32, texture.source_size[1] as f32)));
     }
     if let Some(path) = actor_texture_path(actor)?
         && is_song_lua_image_path(&path)
@@ -6217,12 +5879,11 @@ fn image_source_size(path: &Path) -> Option<(f32, f32)> {
     if !is_song_lua_image_path(path) {
         return None;
     }
-    let (width, height) =
-        if let Some(texture) = deadlib_assets::generated_texture(&path.to_string_lossy()) {
-            (texture.source_size[0], texture.source_size[1])
-        } else {
-            deadlib_assets::texture_source_size(path).ok()?
-        };
+    let (width, height) = if let Some(texture) = deadlib_assets::generated_texture(&path.to_string_lossy()) {
+        (texture.source_size[0], texture.source_size[1])
+    } else {
+        deadlib_assets::texture_source_size(path).ok()?
+    };
     // RageBitmapTexture applies the res override before halving doubleres.
     let (width, height) = deadlib_assets::texture_source_dims_from_real(
         path.to_string_lossy().as_ref(),
@@ -6329,8 +5990,7 @@ fn scale_background(lua: &Lua, actor: &Table, center: bool) -> mlua::Result<()> 
     // _fallback/02 Actor.lua reads this inside the theme helper. Calling the
     // public Lua binding from Rust attributes that internal query to the song.
     let values: Table = preferences.raw_get("__songlua_preference_values")?;
-    let mode = values
-        .raw_get::<Option<String>>("BackgroundFitMode")?
+    let mode = values.raw_get::<Option<String>>("BackgroundFitMode")?
         .unwrap_or_else(|| "BackgroundFitMode_CoverPreserve".into());
     let (base_width, base_height) = actor_base_size(actor)?;
     if base_width > 0.0 && base_height > 0.0 {
@@ -6542,9 +6202,7 @@ pub fn install_actor_image_coord_methods(lua: &Lua, actor: &Table) -> mlua::Resu
 }
 
 fn actor_upload_image_size(actor: &Table) -> mlua::Result<Option<[f32; 2]>> {
-    let Some((width, height)) = actor_image_texture_size(actor)? else {
-        return Ok(None);
-    };
+    let Some((width, height)) = actor_image_texture_size(actor)? else { return Ok(None); };
     let path = actor_texture_path(actor)?.unwrap_or_default();
     let mut hints = deadlib_assets::parse_texture_hints(&path.to_string_lossy());
     hints.max_size = Some(2048);
@@ -6637,16 +6295,7 @@ pub fn create_texture_proxy(lua: &Lua, actor: &Table) -> mlua::Result<Table> {
     if actor.raw_get::<bool>("__songlua_default_texture")? {
         texture.raw_set("__songlua_default_texture", true)?;
         install_texture_proxy_methods(
-            lua,
-            &texture,
-            actor,
-            String::new(),
-            1.0,
-            1.0,
-            1.0,
-            1.0,
-            (1.0, 1.0),
-            1,
+            lua, &texture, actor, String::new(), 1.0, 1.0, 1.0, 1.0, (1.0, 1.0), 1,
         )?;
         return Ok(texture);
     }
@@ -6743,15 +6392,16 @@ pub fn create_texture_proxy(lua: &Lua, actor: &Table) -> mlua::Result<Table> {
     // RageBitmapTexture caps the image at the native game preference (2048),
     // then stretches both axes if either allocation is under eight pixels.
     // Logical source hints do not change this prepared image/allocation pair.
-    let bitmap_sizes = actor_upload_image_size(actor)?.map(|image| {
-        let allocation = image.map(|dimension| {
-            (dimension as u32)
-                .checked_next_power_of_two()
-                .unwrap_or(u32::MAX)
-                .max(8)
+    let bitmap_sizes = actor_upload_image_size(actor)?
+        .map(|image| {
+            let allocation = image.map(|dimension| {
+                (dimension as u32)
+                    .checked_next_power_of_two()
+                    .unwrap_or(u32::MAX)
+                    .max(8)
+            });
+            (image, allocation.map(|value| value as f32))
         });
-        (image, allocation.map(|value| value as f32))
-    });
     let ([image_width, image_height], [texture_width, texture_height]) =
         bitmap_sizes.unwrap_or(([source_width, source_height], [source_width, source_height]));
     install_texture_proxy_methods(
@@ -6916,27 +6566,18 @@ fn play_sound_actor(lua: &Lua, actor: &Table) -> mlua::Result<()> {
                 // turn ActorSound::Play into a Lua command error.
                 return Ok(());
             };
-            crate::live::actor_sound(
-                lua,
-                crate::SongLuaActorSound::Play {
-                    owner: actor.to_pointer() as u64,
-                    path,
-                },
-            );
+            crate::live::actor_sound(lua, crate::SongLuaActorSound::Play {
+                owner: actor.to_pointer() as u64, path,
+            });
         }
         Ok(())
     } else {
         // LunaActorSound::play calls Play immediately. Actor tween cursors do
         // not delay it, and a later load must not change the captured file.
         if let Some(file) = actor.get::<Option<String>>("File")? {
-            let Ok(path) = resolve_actor_asset_path(actor, &file) else {
-                return Ok(());
-            };
+            let Ok(path) = resolve_actor_asset_path(actor, &file) else { return Ok(()); };
             capture_runtime_sound(lua, path.clone());
-            if let Some(calls) = lua
-                .globals()
-                .get::<Option<Table>>(SONG_LUA_SOUND_CALLS_KEY)?
-            {
+            if let Some(calls) = lua.globals().get::<Option<Table>>(SONG_LUA_SOUND_CALLS_KEY)? {
                 calls.raw_set(calls.raw_len() + 1, path.to_string_lossy().as_ref())?;
             }
         }
@@ -6950,60 +6591,39 @@ fn install_sound_methods(lua: &Lua, actor: &Table) -> mlua::Result<()> {
     }
     // ActorSound calls are immediate (not tween properties). Preserve their
     // order and actor identity, including two actors loading the same file.
-    actor.set(
-        "stop",
-        lua.create_function({
-            let actor = actor.clone();
-            move |lua, _: MultiValue| {
-                crate::live::actor_sound(
-                    lua,
-                    crate::SongLuaActorSound::Stop {
-                        owner: actor.to_pointer() as u64,
-                    },
-                );
-                Ok(actor.clone())
-            }
-        })?,
-    )?;
-    actor.set(
-        "pause",
-        lua.create_function({
-            let actor = actor.clone();
-            move |lua, args: MultiValue| {
-                let paused = method_arg(&args, 0)
-                    .cloned()
-                    .and_then(read_boolish)
-                    .unwrap_or(false);
-                crate::live::actor_sound(
-                    lua,
-                    crate::SongLuaActorSound::Pause {
-                        owner: actor.to_pointer() as u64,
-                        paused,
-                    },
-                );
-                Ok(actor.clone())
-            }
-        })?,
-    )?;
+    actor.set("stop", lua.create_function({
+        let actor = actor.clone();
+        move |lua, _: MultiValue| {
+            crate::live::actor_sound(lua, crate::SongLuaActorSound::Stop {
+                owner: actor.to_pointer() as u64,
+            });
+            Ok(actor.clone())
+        }
+    })?)?;
+    actor.set("pause", lua.create_function({
+        let actor = actor.clone();
+        move |lua, args: MultiValue| {
+            let paused = method_arg(&args, 0).cloned().and_then(read_boolish).unwrap_or(false);
+            crate::live::actor_sound(lua, crate::SongLuaActorSound::Pause {
+                owner: actor.to_pointer() as u64, paused,
+            });
+            Ok(actor.clone())
+        }
+    })?)?;
     let sound = lua.create_table()?;
     sound.raw_set("__songlua_volume", 1.0_f32)?;
     sound.raw_set("__songlua_pitch", 1.0_f32)?;
-    sound.set(
-        "pitch",
-        lua.create_function({
-            let sound = sound.clone();
-            move |_, args: MultiValue| {
-                // LunaRageSound::pitch copies the native params, writes FArg(1),
-                // and returns the same sound. Keep the other parameters intact.
-                let pitch = method_arg(&args, 0)
-                    .cloned()
-                    .and_then(read_f32)
-                    .ok_or_else(|| mlua::Error::runtime("Expected pitch number"))?;
-                sound.raw_set("__songlua_pitch", pitch)?;
-                Ok(sound.clone())
-            }
-        })?,
-    )?;
+    sound.set("pitch", lua.create_function({
+        let sound = sound.clone();
+        move |_, args: MultiValue| {
+            // LunaRageSound::pitch copies the native params, writes FArg(1),
+            // and returns the same sound. Keep the other parameters intact.
+            let pitch = method_arg(&args, 0).cloned().and_then(read_f32)
+                .ok_or_else(|| mlua::Error::runtime("Expected pitch number"))?;
+            sound.raw_set("__songlua_pitch", pitch)?;
+            Ok(sound.clone())
+        }
+    })?)?;
     sound.set(
         "volume",
         lua.create_function({
@@ -7011,9 +6631,7 @@ fn install_sound_methods(lua: &Lua, actor: &Table) -> mlua::Result<()> {
             move |_, args: MultiValue| {
                 // LunaRageSound::volume stores FArg(1) without clamping and
                 // returns the same RageSound, rather than its owning Actor.
-                let volume = method_arg(&args, 0)
-                    .cloned()
-                    .and_then(read_f32)
+                let volume = method_arg(&args, 0).cloned().and_then(read_f32)
                     .ok_or_else(|| mlua::Error::runtime("Expected volume number"))?;
                 sound.raw_set("__songlua_volume", volume)?;
                 Ok(sound.clone())
@@ -7142,12 +6760,7 @@ pub fn run_named_command_on_children_recursively(
 // ActorFrame overrides SetZTestMode and SetZWrite to apply the setter to
 // every owned child. Capture these writes on the children themselves so a
 // child's later ztest(0) still overrides its parent's earlier ztest(1).
-fn capture_actor_depth_recursive(
-    lua: &Lua,
-    actor: &Table,
-    field: &str,
-    enabled: bool,
-) -> mlua::Result<()> {
+fn capture_actor_depth_recursive(lua: &Lua, actor: &Table, field: &str, enabled: bool) -> mlua::Result<()> {
     capture_block_set_bool(lua, actor, field, enabled)?;
     for child in actor_direct_children(lua, actor)? {
         capture_actor_depth_recursive(lua, &child, field, enabled)?;
@@ -7179,10 +6792,7 @@ pub fn make_actor_stop_tweening_method(lua: &Lua, actor: &Table) -> mlua::Result
         if let Some(blocks) = actor.get::<Option<Table>>("__songlua_capture_blocks")? {
             for block in blocks.sequence_values::<Table>() {
                 let block = block?;
-                if block
-                    .get::<Option<usize>>("__songlua_tween_step")?
-                    .unwrap_or(0)
-                    == 0
+                if block.get::<Option<usize>>("__songlua_tween_step")?.unwrap_or(0) == 0
                     && block.get::<Option<f32>>("duration")?.unwrap_or(0.0) == 0.0
                 {
                     immediate.push(block);
@@ -7193,10 +6803,7 @@ pub fn make_actor_stop_tweening_method(lua: &Lua, actor: &Table) -> mlua::Result
         stop_pending_tweens(lua, &actor, position);
         reset_actor_capture(lua, &actor)?;
         if !immediate.is_empty() {
-            actor.set(
-                "__songlua_capture_blocks",
-                lua.create_sequence_from(immediate)?,
-            )?;
+            actor.set("__songlua_capture_blocks", lua.create_sequence_from(immediate)?)?;
         }
         // StopTweening removes the back state; relative setters now start at
         // the current position, including a later child's pre-update pose.
@@ -7254,53 +6861,42 @@ fn clear_actor_queue(lua: &Lua, actor: &Table) -> mlua::Result<()> {
 
 pub fn make_actor_wrap_width_method(lua: &Lua, actor: &Table) -> mlua::Result<Function> {
     let actor = actor.clone();
-    lua.create_function(
-        move |lua, CheckedPrefix((first, second, _third, _rest)): NumericArgs| {
-            let value = if matches!(first, Value::Table(_)) {
-                &second
-            } else {
-                &first
-            };
-            let Some(value) = read_f32(value.clone()) else {
-                return Ok(actor.clone());
-            };
-            let wrap = value as i32;
-            if wrap >= 0 {
-                capture_block_set_i32(lua, &actor, "wrap_width_pixels", wrap)?;
-            }
-            Ok(actor.clone())
-        },
-    )
+    lua.create_function(move |lua, CheckedPrefix((first, second, _third, _rest)): NumericArgs| {
+        let value = if matches!(first, Value::Table(_)) { &second } else { &first };
+        let Some(value) = read_f32(value.clone()) else {
+            return Ok(actor.clone());
+        };
+        let wrap = value as i32;
+        if wrap >= 0 {
+            capture_block_set_i32(lua, &actor, "wrap_width_pixels", wrap)?;
+        }
+        Ok(actor.clone())
+    })
 }
 
 pub fn make_actor_set_size_method(lua: &Lua, actor: &Table) -> mlua::Result<Function> {
     let actor = actor.clone();
-    lua.create_function(
-        move |lua, CheckedPrefix((first, second, third, _rest)): NumericArgs| {
-            let (width, height) = if matches!(first, Value::Table(_)) {
-                (&second, &third)
-            } else {
-                (&first, &second)
-            };
-            let Some(width) = read_f32(width.clone()) else {
-                return Ok(actor.clone());
-            };
-            let Some(height) = read_f32(height.clone()) else {
-                return Ok(actor.clone());
-            };
-            capture_block_set_size(lua, &actor, [width, height])?;
-            Ok(actor.clone())
-        },
-    )
+    lua.create_function(move |lua, CheckedPrefix((first, second, third, _rest)): NumericArgs| {
+        let (width, height) = if matches!(first, Value::Table(_)) {
+            (&second, &third)
+        } else {
+            (&first, &second)
+        };
+        let Some(width) = read_f32(width.clone()) else {
+            return Ok(actor.clone());
+        };
+        let Some(height) = read_f32(height.clone()) else {
+            return Ok(actor.clone());
+        };
+        capture_block_set_size(lua, &actor, [width, height])?;
+        Ok(actor.clone())
+    })
 }
 
 // Actor.cpp's FArg property setters narrow Lua numbers to float without
 // discarding NaN or infinity. Keep duration and other validated inputs on read_f32.
 fn read_actor_scalar_f32(value: Value) -> Option<f32> {
-    match value {
-        Value::Number(value) => Some(value as f32),
-        other => read_f32(other),
-    }
+    match value { Value::Number(value) => Some(value as f32), other => read_f32(other) }
 }
 
 pub fn make_actor_capture_f32_method(
@@ -7309,33 +6905,24 @@ pub fn make_actor_capture_f32_method(
     key: &'static str,
     probe_name: Option<&'static str>,
 ) -> mlua::Result<Function> {
-    let setter = if crate::live::active(lua) {
-        match key {
-            "x" => Some(crate::actor_methods::Setter::X),
-            "y" => Some(crate::actor_methods::Setter::Y),
-            _ => None,
-        }
-    } else {
-        None
-    };
+    let setter = if crate::live::active(lua) { match key {
+        "x" => Some(crate::actor_methods::Setter::X),
+        "y" => Some(crate::actor_methods::Setter::Y),
+        _ => None,
+    }} else { None };
     let target = setter.map(|_| actor.to_pointer() as usize);
     let actor = actor.clone();
-    let function =
-        lua.create_function(move |lua, (_self, value): (Option<Value>, Option<Value>)| {
-            if let Some(probe_name) = probe_name {
-                record_probe_method_call(lua, &actor, probe_name)?;
-            }
-            if let Some(value) = value.and_then(read_actor_scalar_f32) {
-                capture_block_set_f32(lua, &actor, key, value)?;
-            }
-            Ok(actor.clone())
-        })?;
+    let function = lua.create_function(move |lua, (_self, value): (Option<Value>, Option<Value>)| {
+        if let Some(probe_name) = probe_name {
+            record_probe_method_call(lua, &actor, probe_name)?;
+        }
+        if let Some(value) = value.and_then(read_actor_scalar_f32) {
+            capture_block_set_f32(lua, &actor, key, value)?;
+        }
+        Ok(actor.clone())
+    })?;
     if let Some((setter, target)) = setter.zip(target) {
-        crate::actor_methods::register(
-            lua,
-            &function,
-            crate::actor_methods::Method::Bound(setter, target),
-        )?;
+        crate::actor_methods::register(lua, &function, crate::actor_methods::Method::Bound(setter, target))?;
     }
     Ok(function)
 }
@@ -7351,11 +6938,8 @@ pub fn make_actor_add_f32_method(
         let Some(delta) = delta.and_then(read_f32) else {
             return Ok(actor.clone());
         };
-        let captured = if live_actor_playback(lua) {
-            None
-        } else {
-            actor_current_capture_block(lua, &actor)?.get::<Option<f32>>(key)?
-        };
+        let captured = if live_actor_playback(lua) { None }
+            else { actor_current_capture_block(lua, &actor)?.get::<Option<f32>>(key)? };
         // Spin advances and wraps current rotation without rewriting capture
         // fields. Relative setters must use the actual back tween/current pose.
         let rotation = lua.app_data_ref::<ActorTweenReplays>().and_then(|replays| {
@@ -7370,9 +6954,7 @@ pub fn make_actor_add_f32_method(
         });
         let current = match rotation.or_else(|| live_destination_scalar(lua, &actor, key)) {
             Some(value) => value,
-            None => captured
-                .or(actor.get::<Option<f32>>(state_key.as_ref())?)
-                .unwrap_or(0.0),
+            None => captured.or(actor.get::<Option<f32>>(state_key.as_ref())?).unwrap_or(0.0),
         };
         capture_block_set_f32(lua, &actor, key, current + delta)?;
         Ok(actor.clone())
@@ -7385,36 +6967,29 @@ pub fn make_actor_tween_method(
     easing: Option<&'static str>,
 ) -> mlua::Result<Function> {
     let actor = actor.clone();
-    lua.create_function(
-        move |lua, CheckedPrefix((_first, value, _third, _rest)): NumericArgs| {
-            let duration = read_f32(value.clone()).unwrap_or(0.0).max(0.0);
-            let exact_duration = read_f64(value.clone()).unwrap_or(0.0).max(0.0);
-            begin_actor_tween(lua, &actor, duration, exact_duration, easing)
-        },
-    )
+    lua.create_function(move |lua, CheckedPrefix((_first, value, _third, _rest)): NumericArgs| {
+        let duration = read_f32(value.clone())
+            .unwrap_or(0.0)
+            .max(0.0);
+        let exact_duration = read_f64(value.clone())
+            .unwrap_or(0.0)
+            .max(0.0);
+        begin_actor_tween(lua, &actor, duration, exact_duration, easing)
+    })
 }
 
 // Actor::BeginTweening finishes an overflowing queue before adding its 52nd
 // state. Sleep adds two states; queued commands add one zero-duration state.
 fn finish_overflowing_tween_queue(lua: &Lua, actor: &Table) -> mlua::Result<()> {
-    let retained = lua.app_data_ref::<ActorTweenReplays>().and_then(|replays| {
-        replays
-            .0
-            .get(&(actor.to_pointer() as usize))
-            .map(|replay| replay.queue.len())
-    });
-    let count = if let Some(count) = retained {
-        count
-    } else if let Some(frames) = lua.app_data_ref::<SongLuaCompileFrames>() {
-        frames
-            .clocks
-            .get(&(actor.to_pointer() as usize))
-            .map_or(0, |clock| clock.steps.len())
-    } else {
-        actor
-            .raw_get::<Option<Table>>("__songlua_command_queue_steps")?
-            .map_or(0, |steps| steps.raw_len())
-    };
+    let retained = lua.app_data_ref::<ActorTweenReplays>().and_then(|replays|
+        replays.0.get(&(actor.to_pointer() as usize)).map(|replay| replay.queue.len()));
+    let count = if let Some(count) = retained { count }
+        else if let Some(frames) = lua.app_data_ref::<SongLuaCompileFrames>() {
+            frames.clocks.get(&(actor.to_pointer() as usize)).map_or(0, |clock| clock.steps.len())
+        } else {
+            actor.raw_get::<Option<Table>>("__songlua_command_queue_steps")?
+                .map_or(0, |steps| steps.raw_len())
+        };
     if count > 50 {
         log::warn!("Lua: tween overflow; finishing actor queue");
         finish_actor_tree_tweening(lua, actor)?;
@@ -7422,13 +6997,8 @@ fn finish_overflowing_tween_queue(lua: &Lua, actor: &Table) -> mlua::Result<()> 
     Ok(())
 }
 
-fn begin_actor_tween(
-    lua: &Lua,
-    actor: &Table,
-    duration: f32,
-    exact_duration: f64,
-    easing: Option<&str>,
-) -> mlua::Result<Table> {
+fn begin_actor_tween(lua: &Lua, actor: &Table, duration: f32, exact_duration: f64,
+    easing: Option<&str>) -> mlua::Result<Table> {
     prepare_capture_scope_actor(lua, actor)?;
     finish_overflowing_tween_queue(lua, actor)?;
     if live_actor_playback(lua) {
@@ -7437,9 +7007,7 @@ fn begin_actor_tween(
         return Ok(actor.clone());
     }
     flush_actor_capture(actor)?;
-    let mut cursor = actor
-        .get::<Option<f32>>("__songlua_capture_cursor")?
-        .unwrap_or(0.0);
+    let mut cursor = actor.get::<Option<f32>>("__songlua_capture_cursor")?.unwrap_or(0.0);
     queue_spin_tween(lua, actor, exact_duration, easing)?;
     queue_replay_tween(lua, actor, exact_duration, easing);
     if let Some(delay) = record_queue_step(lua, actor, Some(exact_duration))? {
@@ -7459,34 +7027,19 @@ fn begin_actor_tween(
 fn make_native_actor_tween_method(lua: &Lua, actor: &Table) -> mlua::Result<Function> {
     let actor = actor.clone();
     lua.create_function(move |lua, args: MultiValue| {
-        let duration = lua
-            .coerce_number(args.get(1).cloned().unwrap_or(Value::Nil))?
-            .ok_or_else(|| mlua::Error::runtime("tween duration must be a number"))?
-            as f32;
+        let duration = lua.coerce_number(args.get(1).cloned().unwrap_or(Value::Nil))?
+            .ok_or_else(|| mlua::Error::runtime("tween duration must be a number"))? as f32;
         if duration < 0.0 {
             log::warn!("Lua: tween({duration}): tween time must not be negative");
             return Ok(actor.clone());
         }
-        if duration.is_nan() {
-            return Err(mlua::Error::runtime("invalid tween duration"));
-        }
-        let kind = crate::song_tables::option_enum(
-            args.get(2),
-            &[
-                "TweenType_Linear",
-                "TweenType_Accelerate",
-                "TweenType_Decelerate",
-                "TweenType_Spring",
-                "TweenType_Bezier",
-            ],
-            "TweenType",
-        )?;
+        if duration.is_nan() { return Err(mlua::Error::runtime("invalid tween duration")); }
+        let kind = crate::song_tables::option_enum(args.get(2),
+            &["TweenType_Linear", "TweenType_Accelerate", "TweenType_Decelerate",
+                "TweenType_Spring", "TweenType_Bezier"], "TweenType")?;
         let bezier;
         let easing = match kind {
-            0 => "linear",
-            1 => "inQuad",
-            2 => "outQuad",
-            3 => "spring",
+            0 => "linear", 1 => "inQuad", 2 => "outQuad", 3 => "spring",
             _ => {
                 let Some(Value::Table(controls)) = args.get(3) else {
                     return Err(mlua::Error::runtime("Bezier tween requires a table"));
@@ -7499,8 +7052,7 @@ fn make_native_actor_tween_method(lua: &Lua, actor: &Table) -> mlua::Result<Func
                 let mut points = Vec::with_capacity(count);
                 for index in 1..=count {
                     // ITween uses lua_tonumber: nonnumeric entries become 0.
-                    let value = lua
-                        .coerce_number(controls.raw_get::<Value>(index)?)?
+                    let value = lua.coerce_number(controls.raw_get::<Value>(index)?)?
                         .unwrap_or(0.0) as f32;
                     points.push(value.to_string());
                 }
@@ -7569,17 +7121,10 @@ pub fn install_actor_command_methods(lua: &Lua, actor: &Table) -> mlua::Result<(
             let actor = actor.clone();
             move |_, args: MultiValue| {
                 let Some(Value::Table(target)) = args.get(1) else {
-                    return Err(mlua::Error::RuntimeError(
-                        "ActorProxy.SetTarget requires an Actor".into(),
-                    ));
+                    return Err(mlua::Error::RuntimeError("ActorProxy.SetTarget requires an Actor".into()));
                 };
-                if target
-                    .raw_get::<Option<String>>("__songlua_actor_type")?
-                    .is_none()
-                {
-                    return Err(mlua::Error::RuntimeError(
-                        "ActorProxy.SetTarget requires an Actor".into(),
-                    ));
+                if target.raw_get::<Option<String>>("__songlua_actor_type")?.is_none() {
+                    return Err(mlua::Error::RuntimeError("ActorProxy.SetTarget requires an Actor".into()));
                 }
                 set_proxy_target_fields(&actor, target)?;
                 Ok(actor.clone())
@@ -7607,14 +7152,8 @@ pub fn install_actor_command_methods(lua: &Lua, actor: &Table) -> mlua::Result<(
         }
     })?;
     if crate::live::active(lua) {
-        crate::actor_methods::register(
-            lua,
-            &visible,
-            crate::actor_methods::Method::Bound(
-                crate::actor_methods::Setter::Visible,
-                actor.to_pointer() as usize,
-            ),
-        )?;
+        crate::actor_methods::register(lua, &visible,
+            crate::actor_methods::Method::Bound(crate::actor_methods::Setter::Visible, actor.to_pointer() as usize))?;
     }
     actor.set("visible", visible)?;
     actor.set(
@@ -7624,15 +7163,14 @@ pub fn install_actor_command_methods(lua: &Lua, actor: &Table) -> mlua::Result<(
             move |lua, (_self, name, function): (Table, String, Function)| {
                 let command_name = ActorCommandName::new(&name, "Command");
                 if crate::live::active(lua) {
-                    let commands =
-                        match actor.raw_get::<Option<Table>>("__songlua_dynamic_commands")? {
-                            Some(commands) => commands,
-                            None => {
-                                let commands = lua.create_table()?;
-                                actor.raw_set("__songlua_dynamic_commands", commands.clone())?;
-                                commands
-                            }
-                        };
+                    let commands = match actor.raw_get::<Option<Table>>("__songlua_dynamic_commands")? {
+                        Some(commands) => commands,
+                        None => {
+                            let commands = lua.create_table()?;
+                            actor.raw_set("__songlua_dynamic_commands", commands.clone())?;
+                            commands
+                        }
+                    };
                     commands.raw_set(command_name.as_str(), function.clone())?;
                 }
                 actor.set(command_name, function)?;
@@ -7646,9 +7184,7 @@ pub fn install_actor_command_methods(lua: &Lua, actor: &Table) -> mlua::Result<(
             let actor = actor.clone();
             move |_, (_self, name): (Table, String)| {
                 let command_name = ActorCommandName::new(&name, "Command");
-                if let Some(commands) =
-                    actor.raw_get::<Option<Table>>("__songlua_dynamic_commands")?
-                {
+                if let Some(commands) = actor.raw_get::<Option<Table>>("__songlua_dynamic_commands")? {
                     commands.raw_set(command_name.as_str(), Value::Nil)?;
                 }
                 actor.set(command_name, Value::Nil)?;
@@ -7664,10 +7200,8 @@ pub fn install_actor_command_methods(lua: &Lua, actor: &Table) -> mlua::Result<(
                 let Some(name) = method_arg(&args, 0).cloned().and_then(read_string) else {
                     return Ok(Value::Nil);
                 };
-                Ok(
-                    lookup_actor_named_command(&actor, &ActorCommandName::new(&name, "Command"))?
-                        .map_or(Value::Nil, |(command, _)| Value::Function(command)),
-                )
+                Ok(lookup_actor_named_command(&actor, &ActorCommandName::new(&name, "Command"))?
+                    .map_or(Value::Nil, |(command, _)| Value::Function(command)))
             }
         })?,
     )?;
@@ -7999,8 +7533,7 @@ pub fn install_actor_texture_load_methods(lua: &Lua, actor: &Table) -> mlua::Res
                     set_actor_texture_from_value(&actor, Some(&Value::Nil), true)?;
                     actor.raw_set("__songlua_default_texture", true)?;
                 } else {
-                    let path = lua
-                        .coerce_string(value)?
+                    let path = lua.coerce_string(value)?
                         .ok_or_else(|| mlua::Error::runtime("LoadTexture: string expected"))?;
                     set_actor_texture_from_value(&actor, Some(&Value::String(path)), false)?;
                 }
@@ -8125,8 +7658,7 @@ pub fn install_actor_texture_load_methods(lua: &Lua, actor: &Table) -> mlua::Res
         "LoadFromCurrentSongBackground",
         // This is a theme Lua helper, not a Sprite C binding. Preserve its
         // real caller provenance for the queries it performs internally.
-        lua.load(
-            r#"
+        lua.load(r#"
 return function(self)
     local song = GAMESTATE:GetCurrentSong()
     if not song then
@@ -8138,41 +7670,27 @@ return function(self)
     self:LoadFromSongBackground(song)
     return self
 end
-"#,
-        )
-        .set_name("@theme:/Scripts/02 Sprite.lua")
-        .eval::<Function>()?,
+"#).set_name("@theme:/Scripts/02 Sprite.lua").eval::<Function>()?,
     )?;
-    actor.set(
-        "LoadFromSong",
-        lua.create_function({
-            let actor = actor.clone();
-            move |lua, args: MultiValue| {
-                let path = if let Some(Value::Table(song)) = method_arg(&args, 0)
-                    && truthy(&call_table_method(song, "HasBanner")?)
-                {
-                    call_table_method(song, "GetBannerPath")?
-                        .as_string()
-                        .map(|path| path.to_string_lossy())
-                } else {
-                    None
-                };
-                let path = match path.filter(|path| !path.is_empty()) {
-                    Some(path) => path,
-                    None => load_native_blank_texture()?.to_owned(),
-                };
-                load_actor_texture(
-                    lua,
-                    &actor,
-                    Some(&Value::String(lua.create_string(&path)?)),
-                    false,
-                )?;
-                actor.set("__songlua_state_banner_scrolling", false)?;
-                actor.set("__songlua_state_banner_scroll_percent", 0.0_f32)?;
-                Ok(actor.clone())
-            }
-        })?,
-    )?;
+    actor.set("LoadFromSong", lua.create_function({
+        let actor = actor.clone();
+        move |lua, args: MultiValue| {
+            let path = if let Some(Value::Table(song)) = method_arg(&args, 0)
+                && truthy(&call_table_method(song, "HasBanner")?)
+            {
+                call_table_method(song, "GetBannerPath")?.as_string()
+                    .map(|path| path.to_string_lossy())
+            } else { None };
+            let path = match path.filter(|path| !path.is_empty()) {
+                Some(path) => path,
+                None => load_native_blank_texture()?.to_owned(),
+            };
+            load_actor_texture(lua, &actor, Some(&Value::String(lua.create_string(&path)?)), false)?;
+            actor.set("__songlua_state_banner_scrolling", false)?;
+            actor.set("__songlua_state_banner_scroll_percent", 0.0_f32)?;
+            Ok(actor.clone())
+        }
+    })?)?;
     for (name, path_methods) in [
         (
             "LoadFromCourse",
@@ -8346,14 +7864,8 @@ end
 }
 
 pub fn install_actor_transform_methods(lua: &Lua, actor: &Table) -> mlua::Result<()> {
-    actor.set(
-        "x",
-        make_actor_capture_f32_method(lua, actor, "x", Some("x"))?,
-    )?;
-    actor.set(
-        "y",
-        make_actor_capture_f32_method(lua, actor, "y", Some("y"))?,
-    )?;
+    actor.set("x", make_actor_capture_f32_method(lua, actor, "x", Some("x"))?)?;
+    actor.set("y", make_actor_capture_f32_method(lua, actor, "y", Some("y"))?)?;
     actor.set(
         "fov",
         lua.create_function({
@@ -8695,9 +8207,7 @@ pub fn install_actor_transform_methods(lua: &Lua, actor: &Table) -> mlua::Result
             let actor = actor.clone();
             move |lua, args: MultiValue| {
                 if !matches!(args.get(1), None | Some(Value::Nil | Value::Function(_))) {
-                    return Err(mlua::Error::RuntimeError(
-                        "SetUpdateFunction requires a function or nil".into(),
-                    ));
+                    return Err(mlua::Error::RuntimeError("SetUpdateFunction requires a function or nil".into()));
                 }
                 // Discovery visits queued commands before their native update.
                 // Keep the currently installed callback active until the real
@@ -8747,9 +8257,7 @@ pub fn install_actor_transform_methods(lua: &Lua, actor: &Table) -> mlua::Result
         lua.create_function({
             let actor = actor.clone();
             move |lua, _self: Option<Value>| {
-                if let Some(aux) = live_current_value(lua, &actor, |current| current.aux) {
-                    return Ok(aux);
-                }
+                if let Some(aux) = live_current_value(lua, &actor, |current| current.aux) { return Ok(aux); }
                 Ok(actor.get::<Option<f32>>("__songlua_aux")?.unwrap_or(0.0))
             }
         })?,
@@ -8772,9 +8280,7 @@ pub fn install_actor_transform_methods(lua: &Lua, actor: &Table) -> mlua::Result
             let actor = actor.clone();
             move |lua, args: MultiValue| {
                 if !matches!(args.get(1), None | Some(Value::Nil | Value::Function(_))) {
-                    return Err(mlua::Error::RuntimeError(
-                        "SetDrawFunction requires a function or nil".into(),
-                    ));
+                    return Err(mlua::Error::RuntimeError("SetDrawFunction requires a function or nil".into()));
                 }
                 if let Some(Value::Function(function)) = args.get(1).cloned() {
                     lua.globals()
@@ -9381,45 +8887,31 @@ pub fn install_actor_crop_shadow_methods(lua: &Lua, actor: &Table) -> mlua::Resu
         "rotationz",
         make_actor_capture_f32_method(lua, actor, "rot_z_deg", Some("rotationz"))?,
     )?;
-    actor.set(
-        "basealpha",
-        lua.create_function({
+    actor.set("basealpha", lua.create_function({
+        let actor = actor.clone();
+        move |lua, (_self, value): (Option<Value>, Option<Value>)| {
+            if let Some(value) = value.and_then(read_actor_scalar_f32) {
+                capture_immediate_f32(lua, &actor, "base_alpha", value)?;
+            }
+            Ok(actor.clone())
+        }
+    })?)?;
+    for (method, axis) in [("heading", 1), ("pitch", 0), ("roll", 2)] {
+        actor.set(method, lua.create_function({
             let actor = actor.clone();
             move |lua, (_self, value): (Option<Value>, Option<Value>)| {
-                if let Some(value) = value.and_then(read_actor_scalar_f32) {
-                    capture_immediate_f32(lua, &actor, "base_alpha", value)?;
+                if let Some(degrees) = value.and_then(read_actor_scalar_f32) {
+                    prepare_capture_scope_actor(lua, &actor)?;
+                    let destination = live_destination_value(lua, &actor, |pose| pose.quaternion)
+                        .or(actor.raw_get::<Option<ActorVectorValue<4>>>("__songlua_state_quaternion")?
+                            .and_then(|value| value.0))
+                        .unwrap_or(crate::actor_quaternion::IDENTITY);
+                    capture_block_set_vec4(lua, &actor, "quaternion",
+                        crate::actor_quaternion::rotate(destination, axis, degrees))?;
                 }
                 Ok(actor.clone())
             }
-        })?,
-    )?;
-    for (method, axis) in [("heading", 1), ("pitch", 0), ("roll", 2)] {
-        actor.set(
-            method,
-            lua.create_function({
-                let actor = actor.clone();
-                move |lua, (_self, value): (Option<Value>, Option<Value>)| {
-                    if let Some(degrees) = value.and_then(read_actor_scalar_f32) {
-                        prepare_capture_scope_actor(lua, &actor)?;
-                        let destination =
-                            live_destination_value(lua, &actor, |pose| pose.quaternion)
-                                .or(actor
-                                    .raw_get::<Option<ActorVectorValue<4>>>(
-                                        "__songlua_state_quaternion",
-                                    )?
-                                    .and_then(|value| value.0))
-                                .unwrap_or(crate::actor_quaternion::IDENTITY);
-                        capture_block_set_vec4(
-                            lua,
-                            &actor,
-                            "quaternion",
-                            crate::actor_quaternion::rotate(destination, axis, degrees),
-                        )?;
-                    }
-                    Ok(actor.clone())
-                }
-            })?,
-        )?;
+        })?)?;
     }
     for (axis, method) in ["baserotationx", "baserotationy", "baserotationz"]
         .into_iter()
@@ -10262,12 +9754,7 @@ pub fn install_actor_effect_methods(lua: &Lua, actor: &Table) -> mlua::Result<()
                     return Ok(actor.clone());
                 };
                 capture_immediate_string(lua, &actor, "effect_clock", effect_clock_label(clock))?;
-                capture_immediate_bool(
-                    lua,
-                    &actor,
-                    "effect_no_offset",
-                    raw.eq_ignore_ascii_case("beatnooffset"),
-                )?;
+                capture_immediate_bool(lua, &actor, "effect_no_offset", raw.eq_ignore_ascii_case("beatnooffset"))?;
                 capture_immediate_bool(
                     lua,
                     &actor,
@@ -10304,15 +9791,9 @@ pub fn install_actor_effect_methods(lua: &Lua, actor: &Table) -> mlua::Result<()
         lua.create_function({
             let actor = actor.clone();
             move |lua, args: MultiValue| {
-                let factor = lua
-                    .coerce_number(method_arg(&args, 0).cloned().unwrap_or(Value::Nil))?
-                    .ok_or_else(|| mlua::Error::runtime("hurrytweening factor must be a number"))?
-                    as f32;
-                if factor < 0.0 {
-                    return Err(mlua::Error::runtime(
-                        "Tweening hurry factor cannot be negative",
-                    ));
-                }
+                let factor = lua.coerce_number(method_arg(&args, 0).cloned().unwrap_or(Value::Nil))?
+                    .ok_or_else(|| mlua::Error::runtime("hurrytweening factor must be a number"))? as f32;
+                if factor < 0.0 { return Err(mlua::Error::runtime("Tweening hurry factor cannot be negative")); }
                 prepare_capture_scope_actor(lua, &actor)?;
                 hurry_actor_tweening(lua, &actor, factor)?;
                 Ok(actor.clone())
@@ -10336,13 +9817,10 @@ pub fn install_actor_render_compat_methods(lua: &Lua, actor: &Table) -> mlua::Re
     ] {
         actor.set(name, make_actor_chain_method(lua, actor)?)?;
     }
-    actor.set(
-        "SortByDrawOrder",
-        lua.create_function(|_, actor: Table| {
-            sort_actor_children_by_draw_order(&actor)?;
-            Ok(actor)
-        })?,
-    )?;
+    actor.set("SortByDrawOrder", lua.create_function(|_, actor: Table| {
+        sort_actor_children_by_draw_order(&actor)?;
+        Ok(actor)
+    })?)?;
     if actor_type_is(actor, "ActorFrameTexture")? {
         actor.set(
             "Create",
@@ -10586,11 +10064,7 @@ pub fn install_actor_visual_text_methods(lua: &Lua, actor: &Table) -> mlua::Resu
                             Some(Value::Boolean(value)) => *value,
                             Some(Value::Integer(value)) => *value != 0,
                             Some(Value::Number(value)) => value.trunc() != 0.0,
-                            _ => {
-                                return Err(mlua::Error::runtime(
-                                    "backfacecull expects a boolean or number",
-                                ));
-                            }
+                            _ => return Err(mlua::Error::runtime("backfacecull expects a boolean or number")),
                         };
                         if enabled {
                             CullMode::Back
@@ -10640,11 +10114,7 @@ pub fn install_actor_visual_text_methods(lua: &Lua, actor: &Table) -> mlua::Resu
                         Some(Value::Boolean(value)) => *value,
                         Some(Value::Integer(value)) => *value != 0,
                         Some(Value::Number(value)) => value.trunc() != 0.0,
-                        _ => {
-                            return Err(mlua::Error::runtime(format!(
-                                "{name} expects a boolean or number"
-                            )));
-                        }
+                        _ => return Err(mlua::Error::runtime(format!("{name} expects a boolean or number"))),
                     };
                     if name != "zwrite" {
                         capture_actor_depth_recursive(lua, &actor, "depth_test", enabled)?;
@@ -10663,14 +10133,9 @@ pub fn install_actor_visual_text_methods(lua: &Lua, actor: &Table) -> mlua::Resu
         lua.create_function({
             let actor = actor.clone();
             move |lua, args: MultiValue| {
-                let mode = method_arg(&args, 0)
-                    .cloned()
-                    .and_then(read_string)
+                let mode = method_arg(&args, 0).cloned().and_then(read_string)
                     .ok_or_else(|| mlua::Error::runtime("ztestmode expects a ZTestMode"))?;
-                let normalized = mode
-                    .trim()
-                    .trim_start_matches("ZTestMode_")
-                    .to_ascii_lowercase();
+                let normalized = mode.trim().trim_start_matches("ZTestMode_").to_ascii_lowercase();
                 let (enabled, on_fail) = match normalized.as_str() {
                     "off" => (false, false),
                     "writeonpass" => (true, false),
@@ -11401,27 +10866,21 @@ pub fn install_actor_transform_getter_methods(lua: &Lua, actor: &Table) -> mlua:
         "GetBaseZoomX",
         lua.create_function({
             let actor = actor.clone();
-            move |lua, _args: IgnoredArgs| {
-                actor_base_zoom_axis(lua, &actor, "__songlua_state_basezoom_x")
-            }
+            move |lua, _args: IgnoredArgs| actor_base_zoom_axis(lua, &actor, "__songlua_state_basezoom_x")
         })?,
     )?;
     actor.set(
         "GetBaseZoomY",
         lua.create_function({
             let actor = actor.clone();
-            move |lua, _args: IgnoredArgs| {
-                actor_base_zoom_axis(lua, &actor, "__songlua_state_basezoom_y")
-            }
+            move |lua, _args: IgnoredArgs| actor_base_zoom_axis(lua, &actor, "__songlua_state_basezoom_y")
         })?,
     )?;
     actor.set(
         "GetBaseZoomZ",
         lua.create_function({
             let actor = actor.clone();
-            move |lua, _args: IgnoredArgs| {
-                actor_base_zoom_axis(lua, &actor, "__songlua_state_basezoom_z")
-            }
+            move |lua, _args: IgnoredArgs| actor_base_zoom_axis(lua, &actor, "__songlua_state_basezoom_z")
         })?,
     )?;
     actor.set(
@@ -11543,10 +11002,7 @@ pub fn install_actor_parent_methods(lua: &Lua, actor: &Table) -> mlua::Result<()
 fn adopt_actor_child(parent: &Table, child: &Table) -> mlua::Result<()> {
     // Session root lists group loaders; they are not native ActorFrames and
     // must not replace a song actor's SongForeground/SongBackground parent.
-    if parent
-        .raw_get::<Option<String>>("__songlua_actor_type")?
-        .is_some()
-    {
+    if parent.raw_get::<Option<String>>("__songlua_actor_type")?.is_some() {
         child.raw_set("__songlua_parent", parent.clone())?;
     }
     Ok(())
@@ -11582,15 +11038,9 @@ fn compact_actor_children(lua: &Lua, actor: &Table) -> mlua::Result<()> {
 }
 
 fn sort_actor_children_by_draw_order(actor: &Table) -> mlua::Result<()> {
-    let mut children = actor
-        .sequence_values::<Table>()
-        .collect::<mlua::Result<Vec<_>>>()?;
+    let mut children = actor.sequence_values::<Table>().collect::<mlua::Result<Vec<_>>>()?;
     // ActorFrame::SortByDrawOrder is stable: ties retain the current child order.
-    children.sort_by_key(|child| {
-        child
-            .raw_get::<i32>("__songlua_state_draw_order")
-            .unwrap_or(0)
-    });
+    children.sort_by_key(|child| child.raw_get::<i32>("__songlua_state_draw_order").unwrap_or(0));
     for (index, child) in children.into_iter().enumerate() {
         actor.raw_set(index + 1, child)?;
     }
@@ -11637,10 +11087,7 @@ pub fn run_actor_init_commands_for_table(lua: &Lua, actor: &Table) -> mlua::Resu
         actor.raw_set("__songlua_native_name", name.clone())?;
         actor.raw_set("Name", name)?;
     } else {
-        actor.raw_set(
-            "__songlua_native_name",
-            actor.raw_get::<Value>("__songlua_load_name")?,
-        )?;
+        actor.raw_set("__songlua_native_name", actor.raw_get::<Value>("__songlua_load_name")?)?;
     }
     actor.raw_set("__songlua_load_name", Value::Nil)?;
     // ActorFrame::LoadFromNode initializes its children before Actor runs Init.
@@ -11652,10 +11099,7 @@ pub fn run_actor_init_commands_for_table(lua: &Lua, actor: &Table) -> mlua::Resu
 }
 
 pub fn run_actor_startup_commands_for_table(lua: &Lua, actor: &Table) -> mlua::Result<()> {
-    if actor
-        .raw_get::<Option<bool>>("__songlua_defer_on")?
-        .unwrap_or(false)
-    {
+    if actor.raw_get::<Option<bool>>("__songlua_defer_on")?.unwrap_or(false) {
         return Ok(());
     }
     if actor
@@ -11687,96 +11131,28 @@ pub(crate) fn init_actor_native_state(lua: &Lua, actor: &Table) -> mlua::Result<
     let previous_flags = live_render_flags(lua, actor);
     // ActorFrame::InitState resets children and base Actor state, preserving
     // names, Lua fields, command handlers, callbacks and loaded resources.
-    for child in actor.sequence_values::<Table>() {
-        init_actor_native_state(lua, &child?)?;
-    }
-    let keys = actor
-        .clone()
-        .pairs::<Value, Value>()
-        .filter_map(|pair| {
-            let (Value::String(key), _) = pair.ok()? else {
-                return None;
-            };
-            let name = key.to_str().ok()?;
-            let native_state = name.strip_prefix("__songlua_state_").is_some_and(|name| {
-                matches!(
-                    name,
-                    "aux"
-                        | "x"
-                        | "y"
-                        | "z"
-                        | "z_bias"
-                        | "draw_order"
-                        | "halign"
-                        | "valign"
-                        | "visible"
-                        | "zoom"
-                        | "zoom_x"
-                        | "zoom_y"
-                        | "zoom_z"
-                        | "basezoom"
-                        | "basezoom_x"
-                        | "basezoom_y"
-                        | "basezoom_z"
-                        | "base_rotation"
-                        | "base_alpha"
-                        | "quaternion"
-                        | "rot_x_deg"
-                        | "rot_y_deg"
-                        | "rot_z_deg"
-                        | "skew_x"
-                        | "skew_y"
-                        | "cropleft"
-                        | "cropright"
-                        | "croptop"
-                        | "cropbottom"
-                        | "fadeleft"
-                        | "faderight"
-                        | "fadetop"
-                        | "fadebottom"
-                        | "stretch_rect"
-                        | "diffuse"
-                        | "vertex_colors"
-                        | "glow"
-                        | "blend"
-                        | "shadow_len"
-                        | "shadow_color"
-                        | "depth_test"
-                        | "depth_write"
-                        | "depth_test_on_fail"
-                        | "cull_mode"
-                        | "texture_filtering"
-                        | "texture_wrapping"
-                        | "texcoord_offset"
-                        | "vibrate"
-                        | "rainbow"
-                        | "rainbow_scroll"
-                        | "spin"
-                        | "motion_clock"
-                        | "hibernating"
-                ) || name.starts_with("effect_")
-            });
-            (native_state
-                || matches!(
-                    name.as_ref(),
-                    "__songlua_visible"
-                        | "__songlua_current_x"
-                        | "__songlua_current_y"
-                        | "__songlua_current_z"
-                        | "__songlua_diffuse"
-                        | "__songlua_aux"
-                        | "__songlua_hibernate_seconds"
-                        | "__songlua_startup_commands_ran"
-                        | "__songlua_startup_command_started"
-                        | "__songlua_startup_children_walked"
-                )
-                || name.starts_with("__songlua_command_queue"))
-            .then(|| key.clone())
-        })
-        .collect::<Vec<_>>();
-    for key in keys {
-        actor.raw_set(key, Value::Nil)?;
-    }
+    for child in actor.sequence_values::<Table>() { init_actor_native_state(lua, &child?)?; }
+    let keys = actor.clone().pairs::<Value, Value>().filter_map(|pair| {
+        let (Value::String(key), _) = pair.ok()? else { return None; };
+        let name = key.to_str().ok()?;
+        let native_state = name.strip_prefix("__songlua_state_").is_some_and(|name|
+            matches!(name, "aux" | "x" | "y" | "z" | "z_bias" | "draw_order"
+                | "halign" | "valign" | "visible" | "zoom" | "zoom_x" | "zoom_y" | "zoom_z"
+                | "basezoom" | "basezoom_x" | "basezoom_y" | "basezoom_z" | "base_rotation" | "base_alpha" | "quaternion"
+                | "rot_x_deg" | "rot_y_deg" | "rot_z_deg" | "skew_x" | "skew_y"
+                | "cropleft" | "cropright" | "croptop" | "cropbottom"
+                | "fadeleft" | "faderight" | "fadetop" | "fadebottom" | "stretch_rect"
+                | "diffuse" | "vertex_colors" | "glow" | "blend" | "shadow_len" | "shadow_color"
+                | "depth_test" | "depth_write" | "depth_test_on_fail" | "cull_mode" | "texture_filtering" | "texture_wrapping"
+                | "texcoord_offset" | "vibrate" | "rainbow" | "rainbow_scroll" | "spin"
+                | "motion_clock" | "hibernating") || name.starts_with("effect_"));
+        (native_state || matches!(name.as_ref(), "__songlua_visible" | "__songlua_current_x"
+            | "__songlua_current_y" | "__songlua_current_z" | "__songlua_diffuse" | "__songlua_aux"
+            | "__songlua_hibernate_seconds" | "__songlua_startup_commands_ran"
+            | "__songlua_startup_command_started" | "__songlua_startup_children_walked")
+            || name.starts_with("__songlua_command_queue")).then(|| key.clone())
+    }).collect::<Vec<_>>();
+    for key in keys { actor.raw_set(key, Value::Nil)?; }
     if actor_type_is(actor, "Sprite")? {
         actor.raw_set("__songlua_state_sprite_state_index", 0u32)?;
         actor.raw_set("__songlua_state_sprite_animate", true)?;
@@ -11784,75 +11160,41 @@ pub(crate) fn init_actor_native_state(lua: &Lua, actor: &Table) -> mlua::Result<
     let current = actor_overlay_initial_state(actor).map_err(mlua::Error::external)?;
     let render_flags = (previous_flags.is_some() || live_actor_playback(lua)).then(|| {
         let mut flags = RenderFlags::from(current);
-        if let Some(previous) = previous_flags {
-            flags.preserve_on_reset(previous);
-        }
+        if let Some(previous) = previous_flags { flags.preserve_on_reset(previous); }
         flags
     });
     let native_base = live_actor_playback(lua);
-    let base_transform = native_base
-        .then(|| BaseTransform::read(actor).map(Box::new))
-        .transpose()?;
+    let base_transform = native_base.then(|| BaseTransform::read(actor).map(Box::new)).transpose()?;
     if let Some(mut replays) = lua.app_data_mut::<ActorTweenReplays>() {
-        replays.0.insert(
-            actor.to_pointer() as usize,
-            ActorTweenReplay {
-                current: current.into(),
-                render_flags,
-                base_transform,
-                queue: Default::default(),
-                progress: None,
-                targets: 0,
-            },
-        );
+        replays.0.insert(actor.to_pointer() as usize, ActorTweenReplay {
+            current: current.into(), render_flags, base_transform, queue: Default::default(), progress: None, targets: 0,
+        });
     }
     if render_flags.is_some() {
-        for flag in RenderFlag::ALL {
-            actor.raw_set(flag.state_key(), Value::Nil)?;
-        }
+        for flag in RenderFlag::ALL { actor.raw_set(flag.state_key(), Value::Nil)?; }
     }
     if native_base {
-        for field in BaseField::ALL {
-            actor.raw_set(field.state_key(), Value::Nil)?;
-        }
+        for field in BaseField::ALL { actor.raw_set(field.state_key(), Value::Nil)?; }
     }
     reset_actor_capture(lua, actor)?;
     sync_tween_getters(lua, actor)
 }
 
-pub(crate) fn run_background_transition(
-    lua: &Lua,
-    actor: &Table,
-    transition: &str,
-) -> mlua::Result<()> {
+pub(crate) fn run_background_transition(lua: &Lua, actor: &Table, transition: &str) -> mlua::Result<()> {
     let duration = match transition {
         "" => return Ok(()),
         "CrossFade" => 1.0,
         "CrossFade_Faster" => 0.75,
         "CrossFade_Fastest" => 0.5,
-        _ => {
-            return Err(mlua::Error::runtime(format!(
-                "unsupported background transition: {transition}"
-            )));
-        }
+        _ => return Err(mlua::Error::runtime(format!("unsupported background transition: {transition}"))),
     };
     fn leaves(lua: &Lua, actor: &Table, duration: f32) -> mlua::Result<()> {
         let children = actor_direct_children(lua, actor)?;
         if children.is_empty() {
-            actor
-                .get::<Function>("stoptweening")?
-                .call::<()>(actor.clone())?;
-            actor
-                .get::<Function>("linear")?
-                .call::<()>((actor.clone(), duration))?;
-            actor
-                .get::<Function>("diffusealpha")?
-                .call::<()>((actor.clone(), 0.0))?;
-        } else {
-            for child in children {
-                leaves(lua, &child, duration)?;
-            }
-        }
+            actor.get::<Function>("stoptweening")?.call::<()>(actor.clone())?;
+            actor.get::<Function>("linear")?.call::<()>((actor.clone(), duration))?;
+            actor.get::<Function>("diffusealpha")?.call::<()>((actor.clone(), 0.0))?;
+        } else { for child in children { leaves(lua, &child, duration)?; } }
         Ok(())
     }
     leaves(lua, actor, duration)
@@ -12389,41 +11731,28 @@ fn live_actor_playback(lua: &Lua) -> bool {
 // owner that can alter it outside the compiled callback unit.
 pub(crate) fn can_compile_actor_position(lua: &Lua, actor: &Table) -> bool {
     use mlua::InspectionValue;
-    if lua.app_data_ref::<SongLuaProbeCaptureActive>().is_some() {
-        return false;
-    }
-    if !lua
-        .app_data_ref::<ActorTweenReplays>()
-        .is_some_and(|replays| {
-            replays
-                .0
-                .get(&(actor.to_pointer() as usize))
-                .is_some_and(|replay| replay.queue.is_empty())
-        })
-    {
+    if lua.app_data_ref::<SongLuaProbeCaptureActive>().is_some() { return false; }
+    if !lua.app_data_ref::<ActorTweenReplays>().is_some_and(|replays|
+        replays.0.get(&(actor.to_pointer() as usize)).is_some_and(|replay| replay.queue.is_empty())) {
         return false;
     }
     for key in ["__songlua_command_queue", "__songlua_state_spin"] {
         match actor.raw_get::<InspectionValue>(key) {
-            Ok(InspectionValue::Nil) => {}
-            Ok(InspectionValue::Table(table))
-                if key == "__songlua_command_queue" && table.raw_len() == 0 => {}
+            Ok(InspectionValue::Nil) => {},
+            Ok(InspectionValue::Table(table)) if key == "__songlua_command_queue" && table.raw_len() == 0 => {},
             _ => return false,
         }
     }
     match actor.raw_get::<InspectionValue>("__songlua_state_effect_mode") {
-        Ok(InspectionValue::Nil) => {}
-        Ok(InspectionValue::Bytes(mode)) if mode.as_ref() == b"none" => {}
+        Ok(InspectionValue::Nil) => {},
+        Ok(InspectionValue::Bytes(mode)) if mode.as_ref() == b"none" => {},
         _ => return false,
     }
-    actor
-        .raw_get::<Option<bool>>("__songlua_state_rainbow")
-        .is_ok_and(|value| !value.unwrap_or(false))
+    actor.raw_get::<Option<bool>>("__songlua_state_rainbow").is_ok_and(|value| !value.unwrap_or(false))
 }
 
 pub(crate) fn can_compile_actor_input(lua: &Lua) -> bool {
-    live_actor_playback(lua)
-        && lua.app_data_ref::<SongLuaActionCaptureActive>().is_none()
+    live_actor_playback(lua) && lua.app_data_ref::<SongLuaActionCaptureActive>().is_none()
         && !lua.has_hook()
         && !log::log_enabled!(target: "deadsync_song_lua::trace", log::Level::Trace)
 }
@@ -12433,13 +11762,10 @@ pub(crate) fn begin_live_actor_playback(lua: &Lua, actors: &[Table]) -> mlua::Re
         ensure_tween_replay(lua, actor)?;
         // Promotion must not re-read unrelated properties such as Sprite's
         // Texture fallback, which can invoke authored __index code.
-        let model = actor
-            .raw_get::<Option<LuaFieldText<32>>>("__songlua_actor_type")?
+        let model = actor.raw_get::<Option<LuaFieldText<32>>>("__songlua_actor_type")?
             .is_some_and(|kind| kind.as_str().eq_ignore_ascii_case("Model"));
         let mut flags = RenderFlags::from(SongLuaOverlayState {
-            depth_test: model,
-            depth_write: model,
-            texture_wrapping: model,
+            depth_test: model, depth_write: model, texture_wrapping: model,
             ..Default::default()
         });
         for flag in RenderFlag::ALL {
@@ -12449,17 +11775,12 @@ pub(crate) fn begin_live_actor_playback(lua: &Lua, actors: &[Table]) -> mlua::Re
         }
         let base_transform = BaseTransform::read(actor)?;
         if let Some(mut replays) = lua.app_data_mut::<ActorTweenReplays>()
-            && let Some(replay) = replays.0.get_mut(&(actor.to_pointer() as usize))
-        {
+            && let Some(replay) = replays.0.get_mut(&(actor.to_pointer() as usize)) {
             replay.render_flags = Some(flags);
             replay.base_transform = Some(Box::new(base_transform));
         }
-        for flag in RenderFlag::ALL {
-            actor.raw_set(flag.state_key(), Value::Nil)?;
-        }
-        for field in BaseField::ALL {
-            actor.raw_set(field.state_key(), Value::Nil)?;
-        }
+        for flag in RenderFlag::ALL { actor.raw_set(flag.state_key(), Value::Nil)?; }
+        for field in BaseField::ALL { actor.raw_set(field.state_key(), Value::Nil)?; }
         reset_actor_capture(lua, actor)?;
         actor.raw_set("__songlua_capture_blocks", Value::Nil)?;
     }
@@ -12469,27 +11790,14 @@ pub(crate) fn begin_live_actor_playback(lua: &Lua, actors: &[Table]) -> mlua::Re
 
 fn live_base_transform(lua: &Lua, actor: &Table) -> Option<BaseTransform> {
     lua.app_data_ref::<ActorTweenReplays>()?
-        .0
-        .get(&(actor.to_pointer() as usize))?
-        .base_transform
-        .as_deref()
-        .copied()
+        .0.get(&(actor.to_pointer() as usize))?.base_transform.as_deref().copied()
 }
 
 fn set_live_base_field(lua: &Lua, actor: &Table, key: &str, value: f32) -> bool {
-    let Some(field) = BaseField::from_key(key) else {
-        return false;
-    };
-    let Some(mut replays) = lua.app_data_mut::<ActorTweenReplays>() else {
-        return false;
-    };
-    let Some(base) = replays
-        .0
-        .get_mut(&(actor.to_pointer() as usize))
-        .and_then(|replay| replay.base_transform.as_mut())
-    else {
-        return false;
-    };
+    let Some(field) = BaseField::from_key(key) else { return false; };
+    let Some(mut replays) = lua.app_data_mut::<ActorTweenReplays>() else { return false; };
+    let Some(base) = replays.0.get_mut(&(actor.to_pointer() as usize))
+        .and_then(|replay| replay.base_transform.as_mut()) else { return false; };
     base.set(field, value);
     true
 }
@@ -12497,19 +11805,10 @@ fn set_live_base_field(lua: &Lua, actor: &Table, key: &str, value: f32) -> bool 
 #[cfg(test)]
 pub(crate) fn use_table_base_transform(lua: &Lua, actors: &[Table]) -> mlua::Result<()> {
     for actor in actors {
-        let base = lua
-            .app_data_mut::<ActorTweenReplays>()
-            .and_then(|mut replays| {
-                replays
-                    .0
-                    .get_mut(&(actor.to_pointer() as usize))?
-                    .base_transform
-                    .take()
-            });
+        let base = lua.app_data_mut::<ActorTweenReplays>().and_then(|mut replays|
+            replays.0.get_mut(&(actor.to_pointer() as usize))?.base_transform.take());
         if let Some(base) = base {
-            for (key, value) in base.snapshot() {
-                actor.raw_set(key, value)?;
-            }
+            for (key, value) in base.snapshot() { actor.raw_set(key, value)?; }
         }
     }
     Ok(())
@@ -12517,25 +11816,14 @@ pub(crate) fn use_table_base_transform(lua: &Lua, actors: &[Table]) -> mlua::Res
 
 fn live_render_flags(lua: &Lua, actor: &Table) -> Option<RenderFlags> {
     lua.app_data_ref::<ActorTweenReplays>()?
-        .0
-        .get(&(actor.to_pointer() as usize))?
-        .render_flags
+        .0.get(&(actor.to_pointer() as usize))?.render_flags
 }
 
 fn set_live_render_flag(lua: &Lua, actor: &Table, key: &str, value: bool) -> bool {
-    let Some(flag) = RenderFlag::from_key(key) else {
-        return false;
-    };
-    let Some(mut replays) = lua.app_data_mut::<ActorTweenReplays>() else {
-        return false;
-    };
-    let Some(flags) = replays
-        .0
-        .get_mut(&(actor.to_pointer() as usize))
-        .and_then(|replay| replay.render_flags.as_mut())
-    else {
-        return false;
-    };
+    let Some(flag) = RenderFlag::from_key(key) else { return false; };
+    let Some(mut replays) = lua.app_data_mut::<ActorTweenReplays>() else { return false; };
+    let Some(flags) = replays.0.get_mut(&(actor.to_pointer() as usize))
+        .and_then(|replay| replay.render_flags.as_mut()) else { return false; };
     flags.set(flag, value);
     true
 }
@@ -12543,36 +11831,19 @@ fn set_live_render_flag(lua: &Lua, actor: &Table, key: &str, value: bool) -> boo
 #[cfg(test)]
 pub(crate) fn use_table_render_flags(lua: &Lua, actors: &[Table]) -> mlua::Result<()> {
     for actor in actors {
-        let flags = lua
-            .app_data_mut::<ActorTweenReplays>()
-            .and_then(|mut replays| {
-                replays
-                    .0
-                    .get_mut(&(actor.to_pointer() as usize))?
-                    .render_flags
-                    .take()
-            });
+        let flags = lua.app_data_mut::<ActorTweenReplays>().and_then(|mut replays|
+            replays.0.get_mut(&(actor.to_pointer() as usize))?.render_flags.take());
         if let Some(flags) = flags {
-            for (key, value) in flags.snapshot() {
-                actor.raw_set(key, value)?;
-            }
+            for (key, value) in flags.snapshot() { actor.raw_set(key, value)?; }
         }
     }
     Ok(())
 }
 
-fn live_current_value<T>(
-    lua: &Lua,
-    actor: &Table,
-    read: impl FnOnce(&TweenPose) -> T,
-) -> Option<T> {
-    if !crate::live::active(lua) {
-        return None;
-    }
+fn live_current_value<T>(lua: &Lua, actor: &Table, read: impl FnOnce(&TweenPose) -> T) -> Option<T> {
+    if !crate::live::active(lua) { return None; }
     lua.app_data_ref::<ActorTweenReplays>()?
-        .0
-        .get(&(actor.to_pointer() as usize))
-        .map(|replay| read(&replay.current))
+        .0.get(&(actor.to_pointer() as usize)).map(|replay| read(&replay.current))
 }
 
 fn live_current_pose(lua: &Lua, actor: &Table) -> Option<TweenPose> {
@@ -12587,92 +11858,62 @@ fn live_destination_value<T>(
     actor: &Table,
     read: impl FnOnce(&TweenPose) -> T,
 ) -> Option<T> {
-    if !live_actor_playback(lua) {
-        return None;
-    }
+    if !live_actor_playback(lua) { return None; }
     lua.app_data_ref::<ActorTweenReplays>()?
-        .0
-        .get(&(actor.to_pointer() as usize))
+        .0.get(&(actor.to_pointer() as usize))
         .map(|replay| read(replay.queue.back().map_or(&replay.current, |step| &step.to)))
 }
 
 fn live_destination_scalar(lua: &Lua, actor: &Table, key: &str) -> Option<f32> {
-    live_destination_value(lua, actor, |dest| {
-        Some(match key {
-            "aux" => dest.aux,
-            "x" => dest.x,
-            "y" => dest.y,
-            "z" => dest.z,
-            "zoom" => dest.zoom,
-            "zoom_x" => dest.zoom_x,
-            "zoom_y" => dest.zoom_y,
-            "zoom_z" => dest.zoom_z,
-            "skew_x" => dest.skew_x,
-            "skew_y" => dest.skew_y,
-            "cropleft" => dest.cropleft,
-            "cropright" => dest.cropright,
-            "croptop" => dest.croptop,
-            "cropbottom" => dest.cropbottom,
-            "fadeleft" => dest.fadeleft,
-            "faderight" => dest.faderight,
-            "fadetop" => dest.fadetop,
-            "fadebottom" => dest.fadebottom,
-            // Rotation setters also publish table-backed destination getters and
-            // synchronize the current spin snapshot through record_tween_write.
-            _ => return None,
-        })
-    })
-    .flatten()
+    live_destination_value(lua, actor, |dest| Some(match key {
+        "aux" => dest.aux,
+        "x" => dest.x,
+        "y" => dest.y,
+        "z" => dest.z,
+        "zoom" => dest.zoom,
+        "zoom_x" => dest.zoom_x,
+        "zoom_y" => dest.zoom_y,
+        "zoom_z" => dest.zoom_z,
+        "skew_x" => dest.skew_x,
+        "skew_y" => dest.skew_y,
+        "cropleft" => dest.cropleft,
+        "cropright" => dest.cropright,
+        "croptop" => dest.croptop,
+        "cropbottom" => dest.cropbottom,
+        "fadeleft" => dest.fadeleft,
+        "faderight" => dest.faderight,
+        "fadetop" => dest.fadetop,
+        "fadebottom" => dest.fadebottom,
+        // Rotation setters also publish table-backed destination getters and
+        // synchronize the current spin snapshot through record_tween_write.
+        _ => return None,
+    })).flatten()
 }
 
 fn actor_destination_position(lua: &Lua, actor: &Table, axis: usize) -> mlua::Result<f32> {
     if let Some(value) = live_destination_value(lua, actor, |dest| [dest.x, dest.y, dest.z][axis]) {
         return Ok(value);
     }
-    Ok(actor
-        .get::<Option<f32>>(POSITION_DEST_KEYS[axis])?
-        .unwrap_or(0.0))
+    Ok(actor.get::<Option<f32>>(POSITION_DEST_KEYS[axis])?.unwrap_or(0.0))
 }
 
 fn actor_destination_zoom(lua: &Lua, actor: &Table, key: &str) -> mlua::Result<f32> {
-    if let Some(value) = live_destination_scalar(lua, actor, key) {
-        return Ok(value);
-    }
-    Ok(actor
-        .get::<Option<f32>>(actor_capture_state_key(key).as_ref())?
-        .or(actor.get::<Option<f32>>("__songlua_state_zoom")?)
-        .unwrap_or(1.0))
+    if let Some(value) = live_destination_scalar(lua, actor, key) { return Ok(value); }
+    Ok(actor.get::<Option<f32>>(actor_capture_state_key(key).as_ref())?
+        .or(actor.get::<Option<f32>>("__songlua_state_zoom")?).unwrap_or(1.0))
 }
 
-fn live_pose_snapshot(
-    lua: &Lua,
-    actor: &Table,
-) -> mlua::Result<Option<[(&'static str, Value); 26]>> {
-    let Some(dest) = live_destination_value(lua, actor, |dest| *dest) else {
-        return Ok(None);
-    };
+fn live_pose_snapshot(lua: &Lua, actor: &Table) -> mlua::Result<Option<[(&'static str, Value); 26]>> {
+    let Some(dest) = live_destination_value(lua, actor, |dest| *dest) else { return Ok(None); };
     let current = live_current_pose(lua, actor).expect("live destination has a current pose");
     // Release the native state borrow before allocating or calling Lua.
     Ok(Some([
-        (
-            "__songlua_diffuse",
-            Value::Table(make_color_table(lua, dest.diffuse)?),
-        ),
-        (
-            "__songlua_state_diffuse",
-            Value::Table(make_color_table(lua, dest.diffuse)?),
-        ),
-        (
-            "__songlua_state_glow",
-            Value::Table(make_color_table(lua, dest.glow)?),
-        ),
-        (
-            "__songlua_state_vertex_colors",
-            dest.vertex_colors
-                .map(|colors| make_vertex_color_table(lua, colors).map(Value::Table))
-                .transpose()?
-                .unwrap_or(Value::Nil),
-        ),
+        ("__songlua_diffuse", Value::Table(make_color_table(lua, dest.diffuse)?)),
+        ("__songlua_state_diffuse", Value::Table(make_color_table(lua, dest.diffuse)?)),
+        ("__songlua_state_glow", Value::Table(make_color_table(lua, dest.glow)?)),
+        ("__songlua_state_vertex_colors", dest.vertex_colors
+            .map(|colors| make_vertex_color_table(lua, colors).map(Value::Table))
+            .transpose()?.unwrap_or(Value::Nil)),
         ("__songlua_state_aux", Value::Number(dest.aux.into())),
         ("__songlua_state_x", Value::Number(dest.x.into())),
         ("__songlua_state_y", Value::Number(dest.y.into())),
@@ -12683,38 +11924,14 @@ fn live_pose_snapshot(
         ("__songlua_state_zoom_z", Value::Number(dest.zoom_z.into())),
         ("__songlua_state_skew_x", Value::Number(dest.skew_x.into())),
         ("__songlua_state_skew_y", Value::Number(dest.skew_y.into())),
-        (
-            "__songlua_state_cropleft",
-            Value::Number(dest.cropleft.into()),
-        ),
-        (
-            "__songlua_state_cropright",
-            Value::Number(dest.cropright.into()),
-        ),
-        (
-            "__songlua_state_croptop",
-            Value::Number(dest.croptop.into()),
-        ),
-        (
-            "__songlua_state_cropbottom",
-            Value::Number(dest.cropbottom.into()),
-        ),
-        (
-            "__songlua_state_fadeleft",
-            Value::Number(dest.fadeleft.into()),
-        ),
-        (
-            "__songlua_state_faderight",
-            Value::Number(dest.faderight.into()),
-        ),
-        (
-            "__songlua_state_fadetop",
-            Value::Number(dest.fadetop.into()),
-        ),
-        (
-            "__songlua_state_fadebottom",
-            Value::Number(dest.fadebottom.into()),
-        ),
+        ("__songlua_state_cropleft", Value::Number(dest.cropleft.into())),
+        ("__songlua_state_cropright", Value::Number(dest.cropright.into())),
+        ("__songlua_state_croptop", Value::Number(dest.croptop.into())),
+        ("__songlua_state_cropbottom", Value::Number(dest.cropbottom.into())),
+        ("__songlua_state_fadeleft", Value::Number(dest.fadeleft.into())),
+        ("__songlua_state_faderight", Value::Number(dest.faderight.into())),
+        ("__songlua_state_fadetop", Value::Number(dest.fadetop.into())),
+        ("__songlua_state_fadebottom", Value::Number(dest.fadebottom.into())),
         ("__songlua_aux", Value::Number(current.aux.into())),
         ("__songlua_current_x", Value::Number(current.x.into())),
         ("__songlua_current_y", Value::Number(current.y.into())),
@@ -12724,19 +11941,13 @@ fn live_pose_snapshot(
 
 pub(crate) fn copy_live_actor_pose(lua: &Lua, source: &Table, into: &Table) -> mlua::Result<()> {
     if let Some(pose) = live_pose_snapshot(lua, source)? {
-        for (key, value) in pose {
-            into.raw_set(key, value)?;
-        }
+        for (key, value) in pose { into.raw_set(key, value)?; }
     }
     if let Some(flags) = live_render_flags(lua, source) {
-        for (key, value) in flags.snapshot() {
-            into.raw_set(key, value)?;
-        }
+        for (key, value) in flags.snapshot() { into.raw_set(key, value)?; }
     }
     if let Some(base) = live_base_transform(lua, source) {
-        for (key, value) in base.snapshot() {
-            into.raw_set(key, value)?;
-        }
+        for (key, value) in base.snapshot() { into.raw_set(key, value)?; }
     }
     Ok(())
 }
@@ -12755,9 +11966,7 @@ pub(crate) fn begin_live_runtime(lua: &Lua) -> mlua::Result<()> {
     if lua.app_data_ref::<crate::live::SourceRequests>().is_none() {
         lua.set_app_data(crate::live::SourceRequests(Vec::new()));
     }
-    let scene = lua
-        .app_data_ref::<crate::live::LiveMode>()
-        .map_or(1, |mode| mode.0 + 1);
+    let scene = lua.app_data_ref::<crate::live::LiveMode>().map_or(1, |mode| mode.0 + 1);
     lua.set_app_data(crate::live::LiveMode(scene));
     lua.remove_app_data::<crate::live::LivePlayers>();
     lua.set_app_data(ActorTweenReplays(FxHashMap::default()));
@@ -12832,9 +12041,7 @@ pub(crate) fn begin_tween_replay<Kind>(
         // The zero-delta startup update can advance external-clock spin.
         // Preserve that current pose, while queued destinations remain the
         // states captured by Init/On before that update.
-        if let Some(overlay) = overlays
-            .iter()
-            .find(|o| o.table.to_pointer() as usize == pointer)
+        if let Some(overlay) = overlays.iter().find(|o| o.table.to_pointer() as usize == pointer)
             && let Ok(Some(rotation)) = spin_render_pose(&overlay.table)
         {
             [current.rot_x_deg, current.rot_y_deg, current.rot_z_deg] = rotation;
@@ -12898,14 +12105,8 @@ fn record_tween_write(
         .map_or(&mut replay.current, |step| &mut step.to);
     dest.set(target, value);
     drop(replays);
-    if !queued
-        && matches!(
-            target,
-            SongLuaOverlayUpdateTarget::RotationX
-                | SongLuaOverlayUpdateTarget::RotationY
-                | SongLuaOverlayUpdateTarget::RotationZ
-        )
-    {
+    if !queued && matches!(target, SongLuaOverlayUpdateTarget::RotationX
+        | SongLuaOverlayUpdateTarget::RotationY | SongLuaOverlayUpdateTarget::RotationZ) {
         // ActorFrame callbacks run after child updates. Publish their direct
         // writes to the spin snapshot before this frame is captured.
         sync_replay_spin_pose(lua, actor).ok()?;
@@ -12979,8 +12180,7 @@ fn observe_tween_write(
     value: impl FnOnce() -> SongLuaOverlayUpdateValue,
 ) {
     if let Some(mut capture) = lua.app_data_mut::<SongLuaOverlayUpdateCapture>()
-        && let Some(index) = capture.touch(actor)
-    {
+        && let Some(index) = capture.touch(actor) {
         let beat = compile_song_runtime_values(lua).map_or(0.0, |(beat, _)| beat);
         capture.record_write(index, beat, target, &value(), queued);
     }
@@ -12991,13 +12191,9 @@ fn sync_tween_getters(lua: &Lua, actor: &Table) -> mlua::Result<()> {
     if live_actor_playback(lua) {
         // Rotation also feeds the spin snapshot. Other tween properties are
         // native-owned and exported only at explicit snapshot boundaries.
-        if let Some(rotation) = live_destination_value(lua, actor, |dest| {
-            [dest.rot_x_deg, dest.rot_y_deg, dest.rot_z_deg]
-        }) {
-            for (key, value) in ["rot_x_deg", "rot_y_deg", "rot_z_deg"]
-                .into_iter()
-                .zip(rotation)
-            {
+        if let Some(rotation) = live_destination_value(lua, actor,
+            |dest| [dest.rot_x_deg, dest.rot_y_deg, dest.rot_z_deg]) {
+            for (key, value) in ["rot_x_deg", "rot_y_deg", "rot_z_deg"].into_iter().zip(rotation) {
                 set_actor_capture_state(actor, key, value)?;
             }
         }
@@ -13045,10 +12241,7 @@ fn sync_tween_getters(lua: &Lua, actor: &Table) -> mlua::Result<()> {
         make_color_table(lua, dest.diffuse)?,
     )?;
     actor.raw_set("__songlua_state_glow", make_color_table(lua, dest.glow)?)?;
-    actor.raw_set(
-        "__songlua_state_quaternion",
-        lua.create_sequence_from(dest.quaternion)?,
-    )?;
+    actor.raw_set("__songlua_state_quaternion", lua.create_sequence_from(dest.quaternion)?)?;
     actor.raw_set(
         "__songlua_state_vertex_colors",
         dest.vertex_colors
@@ -13069,18 +12262,11 @@ fn sync_replay_spin_pose(lua: &Lua, actor: &Table) -> mlua::Result<()> {
     let Some(pose) = actor.raw_get::<Option<Table>>("__songlua_state_spin")? else {
         return Ok(());
     };
-    let current = lua.app_data_ref::<ActorTweenReplays>().and_then(|replays| {
-        replays
-            .0
-            .get(&(actor.to_pointer() as usize))
-            .map(|replay| replay.current)
-    });
+    let current = lua.app_data_ref::<ActorTweenReplays>().and_then(|replays|
+        replays.0.get(&(actor.to_pointer() as usize)).map(|replay| replay.current));
     if let Some(current) = current {
         let rotation: Table = pose.get("rotation")?;
-        for (index, value) in [current.rot_x_deg, current.rot_y_deg, current.rot_z_deg]
-            .into_iter()
-            .enumerate()
-        {
+        for (index, value) in [current.rot_x_deg, current.rot_y_deg, current.rot_z_deg].into_iter().enumerate() {
             rotation.raw_set(index + 1, value)?;
         }
     }
@@ -13116,31 +12302,18 @@ pub(crate) fn ensure_tween_replay(lua: &Lua, actor: &Table) -> mlua::Result<()> 
     let current = actor_overlay_initial_state(actor).map_err(mlua::Error::external)?;
     let render_flags = live_actor_playback(lua).then(|| RenderFlags::from(current));
     let native_base = live_actor_playback(lua);
-    let base_transform = native_base
-        .then(|| BaseTransform::read(actor).map(Box::new))
-        .transpose()?;
+    let base_transform = native_base.then(|| BaseTransform::read(actor).map(Box::new)).transpose()?;
     if let Some(mut replays) = lua.app_data_mut::<ActorTweenReplays>() {
-        replays.0.insert(
-            actor.to_pointer() as usize,
-            ActorTweenReplay {
-                current: current.into(),
-                render_flags,
-                base_transform,
-                queue: Default::default(),
-                progress: (!crate::live::active(lua)).then(Vec::new),
-                targets: 0,
-            },
-        );
+        replays.0.insert(actor.to_pointer() as usize, ActorTweenReplay {
+            current: current.into(), render_flags, base_transform, queue: Default::default(),
+            progress: (!crate::live::active(lua)).then(Vec::new), targets: 0,
+        });
     }
     if render_flags.is_some() {
-        for flag in RenderFlag::ALL {
-            actor.raw_set(flag.state_key(), Value::Nil)?;
-        }
+        for flag in RenderFlag::ALL { actor.raw_set(flag.state_key(), Value::Nil)?; }
     }
     if native_base {
-        for field in BaseField::ALL {
-            actor.raw_set(field.state_key(), Value::Nil)?;
-        }
+        for field in BaseField::ALL { actor.raw_set(field.state_key(), Value::Nil)?; }
     }
     Ok(())
 }
@@ -13205,14 +12378,8 @@ fn dispatch_replay_command(
 }
 
 fn advance_tween_replay(lua: &Lua, actor: &Table, delta: f64, span: f32) -> mlua::Result<()> {
-    if lua
-        .app_data_ref::<ActorTweenReplays>()
-        .and_then(|replays| {
-            replays
-                .0
-                .get(&(actor.to_pointer() as usize))
-                .map(|replay| replay.queue.is_empty())
-        })
+    if lua.app_data_ref::<ActorTweenReplays>()
+        .and_then(|replays| replays.0.get(&(actor.to_pointer() as usize)).map(|replay| replay.queue.is_empty()))
         .unwrap_or(true)
     {
         return Ok(());
@@ -13277,11 +12444,8 @@ fn advance_tween_replay(lua: &Lua, actor: &Table, delta: f64, span: f32) -> mlua
         // rewriting every destination scalar/color here only serializes the
         // same data back to Lua (including fresh color tables every tick).
         // Queue replacement and InitState still synchronize destinations.
-        if !crate::live::active(lua) {
-            sync_tween_getters(lua, actor)?;
-        } else {
-            sync_replay_spin_pose(lua, actor)?;
-        }
+        if !crate::live::active(lua) { sync_tween_getters(lua, actor)?; }
+        else { sync_replay_spin_pose(lua, actor)?; }
         if let Some(command) = command {
             dispatched += 1;
             if dispatched > 10000 {
@@ -13301,9 +12465,7 @@ pub(crate) fn sample_tween_replays(lua: &Lua) {
         .map_or(0.0, |frames| frames.time(frames.frame) as f32);
     if let Some(mut replays) = lua.app_data_mut::<ActorTweenReplays>() {
         for replay in replays.0.values_mut() {
-            let Some(progress) = &mut replay.progress else {
-                continue;
-            };
+            let Some(progress) = &mut replay.progress else { continue; };
             if let Some(step) = replay.queue.front()
                 && step.from.is_some()
                 && progress[step.index]
@@ -13374,9 +12536,7 @@ pub(crate) fn finish_tween_replay<Kind>(
             let Some(index) = step.and_then(|step| step.checked_sub(1)) else {
                 continue;
             };
-            let Some(progress) = &replay.progress else {
-                continue;
-            };
+            let Some(progress) = &replay.progress else { continue; };
             let samples = &progress[index];
             if !samples.is_empty() {
                 block.progress = Some(samples.clone().into());
@@ -13421,11 +12581,7 @@ fn startup_clock_path(actor: &Table) -> mlua::Result<Vec<[f32; 2]>> {
     Ok(path)
 }
 
-fn startup_clock_frames(
-    times: &[f64],
-    path: &[[f32; 2]],
-    inputs: Option<&[[f32; 2]]>,
-) -> Vec<[f32; 2]> {
+fn startup_clock_frames(times: &[f64], path: &[[f32; 2]], inputs: Option<&[[f32; 2]]>) -> Vec<[f32; 2]> {
     let mut path = path.to_vec();
     times
         .iter()
@@ -13489,12 +12645,11 @@ pub(crate) fn bake_startup_tweens<'a>(
         if state.steps.is_empty() {
             continue;
         }
-        frames.actor_frames = (actor_frames.is_some()
-            || state
-                .clock_path
-                .iter()
-                .any(|[sleep, rate]| *sleep > 0.0 || *rate != 1.0))
-        .then(|| startup_clock_frames(&frames.times, &state.clock_path, actor_frames));
+        frames.actor_frames = (actor_frames.is_some() || state
+            .clock_path
+            .iter()
+            .any(|[sleep, rate]| *sleep > 0.0 || *rate != 1.0))
+            .then(|| startup_clock_frames(&frames.times, &state.clock_path, actor_frames));
         let mut clock = SongLuaQueueClock {
             progress: None,
             epoch: 0,
@@ -13744,15 +12899,10 @@ pub(crate) struct SongLuaStartupCapture {
 #[cfg(feature = "test-support")]
 fn set_reference_start_clock(lua: &Lua, context: &SongLuaCompileContext) -> mlua::Result<()> {
     if let Some(&[music, beat, _]) = context.compile_clock_inputs.first() {
-        let origin = context
-            .song_timing
-            .as_ref()
+        let origin = context.song_timing.as_ref()
             .map_or(0.0, |timing| f64::from(timing.get_time_for_beat_exact(0.0)));
-        crate::set_compile_song_runtime_values(
-            lua,
-            beat as f32,
-            ((music - origin) / f64::from(song_music_rate(context))) as f32,
-        )?;
+        crate::set_compile_song_runtime_values(lua, beat as f32,
+            ((music - origin) / f64::from(song_music_rate(context))) as f32)?;
     }
     Ok(())
 }
@@ -13822,18 +12972,13 @@ pub(crate) fn run_actor_startup_commands(
     for child in actor_direct_children(lua, root)? {
         // Native Background keeps its cached actors outside the screen's
         // propagated command children. Foreground actors receive Begin.
-        if child
-            .raw_get::<Option<f32>>("__songlua_background_start_beat")?
-            .is_some()
-        {
+        if child.raw_get::<Option<f32>>("__songlua_background_start_beat")?.is_some() {
             continue;
         }
         run_actor_named_command(lua, &child, "BeginCommand")?;
         run_named_command_on_children_recursively(lua, &child, "BeginCommand", None)?;
     }
-    if let Some(screen) = lua
-        .globals()
-        .raw_get::<Option<Table>>("__songlua_top_screen")?
+    if let Some(screen) = lua.globals().raw_get::<Option<Table>>("__songlua_top_screen")?
         && let Some(transition) = actor_children(lua, &screen)?.raw_get::<Option<Table>>("In")?
     {
         start_actor_transition(lua, &transition)?;
@@ -13876,9 +13021,7 @@ pub(crate) fn run_actor_startup_commands(
         // ActorTweenReplays already owns the native Init/On queue. No future
         // command discovery, closure rewinding or timeline baking is allowed.
         return Ok(SongLuaStartupCapture {
-            updates: initial_updates,
-            options,
-            broadcasts,
+            updates: initial_updates, options, broadcasts,
             ..SongLuaStartupCapture::default()
         });
     }
@@ -14010,9 +13153,7 @@ enum SongLuaCompileParentDelta {
 
 #[derive(Clone)]
 enum SongLuaCompileUpdateJob {
-    Transition {
-        actor: Table,
-    },
+    Transition { actor: Table },
     PlayerFeedback {
         actor: Table,
     },
@@ -14055,43 +13196,26 @@ struct CompileUpdateSlots {
 impl SongLuaCompileUpdatePlan {
     fn new(jobs: Vec<SongLuaCompileUpdateJob>) -> Self {
         let mut actors = FxHashMap::default();
-        let slots = jobs
-            .iter()
-            .map(|job| {
-                let actor = match job {
-                    SongLuaCompileUpdateJob::Enter { actor, .. }
-                    | SongLuaCompileUpdateJob::Advance { actor, .. }
-                    | SongLuaCompileUpdateJob::Recurring { actor, .. }
-                    | SongLuaCompileUpdateJob::Callback { actor, .. }
-                    | SongLuaCompileUpdateJob::Texture { actor }
-                    | SongLuaCompileUpdateJob::PlayerFeedback { actor }
-                    | SongLuaCompileUpdateJob::Transition { actor } => actor,
-                };
-                // Aliases and repeated visits retain the same delta slot, just as
-                // the pointer-keyed map did. Only the immutable plan resolves IDs.
-                let next = actors.len();
-                let actor = *actors.entry(actor.to_pointer() as usize).or_insert(next);
-                let parent = if let SongLuaCompileUpdateJob::Enter {
-                    parent: Some(parent),
-                    ..
-                } = job
-                {
-                    Some(
-                        *actors
-                            .get(&(parent.to_pointer() as usize))
-                            .expect("parent entered before child"),
-                    )
-                } else {
-                    None
-                };
-                CompileUpdateSlots { actor, parent }
-            })
-            .collect::<Vec<_>>();
-        Self {
-            jobs: jobs.into(),
-            slots: slots.into(),
-            actor_count: actors.len(),
-        }
+        let slots = jobs.iter().map(|job| {
+            let actor = match job {
+                SongLuaCompileUpdateJob::Enter { actor, .. }
+                | SongLuaCompileUpdateJob::Advance { actor, .. }
+                | SongLuaCompileUpdateJob::Recurring { actor, .. }
+                | SongLuaCompileUpdateJob::Callback { actor, .. }
+                | SongLuaCompileUpdateJob::Texture { actor }
+                | SongLuaCompileUpdateJob::PlayerFeedback { actor }
+                | SongLuaCompileUpdateJob::Transition { actor } => actor,
+            };
+            // Aliases and repeated visits retain the same delta slot, just as
+            // the pointer-keyed map did. Only the immutable plan resolves IDs.
+            let next = actors.len();
+            let actor = *actors.entry(actor.to_pointer() as usize).or_insert(next);
+            let parent = if let SongLuaCompileUpdateJob::Enter { parent: Some(parent), .. } = job {
+                Some(*actors.get(&(parent.to_pointer() as usize)).expect("parent entered before child"))
+            } else { None };
+            CompileUpdateSlots { actor, parent }
+        }).collect::<Vec<_>>();
+        Self { jobs: jobs.into(), slots: slots.into(), actor_count: actors.len() }
     }
 
     fn iter(&self) -> std::slice::Iter<'_, SongLuaCompileUpdateJob> {
@@ -14111,15 +13235,9 @@ fn collect_compile_update_jobs(
     jobs: &mut Vec<SongLuaCompileUpdateJob>,
     order: &mut usize,
 ) -> mlua::Result<()> {
-    let canonical = lua
-        .app_data_mut::<CanonicalLiveActorHandles>()
-        .map(|mut cache| {
-            cache
-                .0
-                .entry(actor.to_pointer() as usize)
-                .or_insert_with(|| actor.clone())
-                .clone()
-        });
+    let canonical = lua.app_data_mut::<CanonicalLiveActorHandles>()
+        .map(|mut cache| cache.0.entry(actor.to_pointer() as usize)
+            .or_insert_with(|| actor.clone()).clone());
     let actor = canonical.as_ref().unwrap_or(actor);
 
     collect_compile_update_self_jobs(lua, actor, parent, delta_source, jobs, order)?;
@@ -14128,29 +13246,13 @@ fn collect_compile_update_jobs(
             continue;
         };
         adopt_actor_child(actor, &child)?;
-        collect_compile_update_jobs(
-            lua,
-            &child,
-            Some(actor),
-            SongLuaCompileParentDelta::Children,
-            jobs,
-            order,
-        )?;
+        collect_compile_update_jobs(lua, &child, Some(actor), SongLuaCompileParentDelta::Children, jobs, order)?;
     }
     if let Some(stream) = song_meter_stream_child(lua, actor)? {
-        collect_compile_update_jobs(
-            lua,
-            &stream,
-            Some(actor),
-            SongLuaCompileParentDelta::Children,
-            jobs,
-            order,
-        )?;
+        collect_compile_update_jobs(lua, &stream, Some(actor), SongLuaCompileParentDelta::Children, jobs, order)?;
     }
     if crate::model_texture::contains(lua, actor) {
-        jobs.push(SongLuaCompileUpdateJob::Texture {
-            actor: actor.clone(),
-        });
+        jobs.push(SongLuaCompileUpdateJob::Texture { actor: actor.clone() });
     }
     // ActorFrame checks its current update function after its children. On
     // (or an earlier actor) can install one after this frame's plan is built.
@@ -14164,14 +13266,8 @@ fn collect_compile_update_jobs(
     // ActorFrame's update rate and hibernation gate, and are not its children.
     if let Some(columns) = actor.raw_get::<Option<Table>>("__songlua_note_columns")? {
         for column in columns.sequence_values::<Table>() {
-            collect_compile_update_jobs(
-                lua,
-                &column?,
-                Some(actor),
-                SongLuaCompileParentDelta::NoteColumns,
-                jobs,
-                order,
-            )?;
+            collect_compile_update_jobs(lua, &column?, Some(actor),
+                SongLuaCompileParentDelta::NoteColumns, jobs, order)?;
         }
     }
     Ok(())
@@ -14196,14 +13292,7 @@ fn collect_compile_update_self_jobs(
     // receives its owner's delta, before ActorFrame's child update rate.
     if let Some(wrappers) = actor.get::<Option<Table>>("__songlua_wrappers")? {
         for wrapper in wrappers.sequence_values::<Table>() {
-            collect_compile_update_jobs(
-                lua,
-                &wrapper?,
-                Some(actor),
-                SongLuaCompileParentDelta::Wrappers,
-                jobs,
-                order,
-            )?;
+            collect_compile_update_jobs(lua, &wrapper?, Some(actor), SongLuaCompileParentDelta::Wrappers, jobs, order)?;
         }
     }
     *order += 1;
@@ -14228,13 +13317,8 @@ fn collect_compile_update_self_jobs(
             order: *order,
         });
     }
-    if actor
-        .raw_get::<Option<u8>>("__songlua_transition_state")?
-        .is_some()
-    {
-        jobs.push(SongLuaCompileUpdateJob::Transition {
-            actor: actor.clone(),
-        });
+    if actor.raw_get::<Option<u8>>("__songlua_transition_state")?.is_some() {
+        jobs.push(SongLuaCompileUpdateJob::Transition { actor: actor.clone() });
     }
     Ok(())
 }
@@ -14248,33 +13332,17 @@ fn compile_update_jobs(lua: &Lua, root: &Table) -> mlua::Result<SongLuaCompileUp
         // roots. Their own tween queues still advance every screen Update.
         // GetChild returns this same owner; adding a later tween must not keep
         // an earlier completed tween in its queue.
-        if let Some(screen) = lua
-            .globals()
-            .raw_get::<Option<Table>>("__songlua_top_screen")?
-        {
+        if let Some(screen) = lua.globals().raw_get::<Option<Table>>("__songlua_top_screen")? {
             // Screen's own Actor queue precedes its children. The song and
             // theme owners are visited separately below, each exactly once.
-            collect_compile_update_self_jobs(
-                lua,
-                &screen,
-                None,
-                SongLuaCompileParentDelta::Children,
-                &mut jobs,
-                &mut order,
-            )?;
+            collect_compile_update_self_jobs(lua, &screen, None,
+                SongLuaCompileParentDelta::Children, &mut jobs, &mut order)?;
             let children = actor_children(lua, &screen)?;
             // SongBackground's entries are already visited through the song
             // root below; traversing its child aliases would update them twice.
             for name in ["Underlay", "Overlay", "Debug"] {
                 if let Some(actor) = children.raw_get::<Option<Table>>(name)? {
-                    collect_compile_update_jobs(
-                        lua,
-                        &actor,
-                        None,
-                        SongLuaCompileParentDelta::Children,
-                        &mut jobs,
-                        &mut order,
-                    )?;
+                    collect_compile_update_jobs(lua, &actor, None, SongLuaCompileParentDelta::Children, &mut jobs, &mut order)?;
                 }
             }
             // ScreenGameplay sorts SongForeground at OVERLAY + 1 and the
@@ -14287,35 +13355,15 @@ fn compile_update_jobs(lua: &Lua, root: &Table) -> mlua::Result<SongLuaCompileUp
             }
             for actor in screen.sequence_values::<Table>() {
                 let actor = actor?;
-                if actor
-                    .raw_get::<Option<String>>("__songlua_screen_actor_role")?
-                    .is_some()
-                {
-                    collect_compile_update_jobs(
-                        lua,
-                        &actor,
-                        None,
-                        SongLuaCompileParentDelta::Children,
-                        &mut jobs,
-                        &mut order,
-                    )?;
+                if actor.raw_get::<Option<String>>("__songlua_screen_actor_role")?.is_some() {
+                    collect_compile_update_jobs(lua, &actor, None, SongLuaCompileParentDelta::Children, &mut jobs, &mut order)?;
                 }
             }
         }
-        for key in [
-            "__songlua_top_screen_player_1",
-            "__songlua_top_screen_player_2",
-        ] {
+        for key in ["__songlua_top_screen_player_1", "__songlua_top_screen_player_2"] {
             // Player actors advance native time even without NoteField wrappers.
             if let Some(player) = lua.globals().raw_get::<Option<Table>>(key)? {
-                collect_compile_update_jobs(
-                    lua,
-                    &player,
-                    None,
-                    SongLuaCompileParentDelta::Children,
-                    &mut jobs,
-                    &mut order,
-                )?;
+                collect_compile_update_jobs(lua, &player, None, SongLuaCompileParentDelta::Children, &mut jobs, &mut order)?;
                 // Player::Update runs ActorFrame::Update first, then emits
                 // Judgment while processing rows. Song callbacks follow it.
                 if crate::live::active(lua) {
@@ -14323,32 +13371,12 @@ fn compile_update_jobs(lua: &Lua, root: &Table) -> mlua::Result<SongLuaCompileUp
                 }
             }
         }
-        collect_compile_update_jobs(
-            lua,
-            root,
-            None,
-            SongLuaCompileParentDelta::Children,
-            &mut jobs,
-            &mut order,
-        )?;
+        collect_compile_update_jobs(lua, root, None, SongLuaCompileParentDelta::Children, &mut jobs, &mut order)?;
         for actor in after_song {
-            collect_compile_update_jobs(
-                lua,
-                &actor,
-                None,
-                SongLuaCompileParentDelta::Children,
-                &mut jobs,
-                &mut order,
-            )?;
+            collect_compile_update_jobs(lua, &actor, None, SongLuaCompileParentDelta::Children, &mut jobs, &mut order)?;
         }
-        if let Some(screen) = lua
-            .globals()
-            .raw_get::<Option<Table>>("__songlua_top_screen")?
-        {
-            jobs.push(SongLuaCompileUpdateJob::Callback {
-                actor: screen,
-                order,
-            });
+        if let Some(screen) = lua.globals().raw_get::<Option<Table>>("__songlua_top_screen")? {
+            jobs.push(SongLuaCompileUpdateJob::Callback { actor: screen, order });
         }
         lua.set_app_data(SongLuaCompileUpdatePlan::new(jobs));
     }
@@ -14360,93 +13388,45 @@ fn compile_update_jobs(lua: &Lua, root: &Table) -> mlua::Result<SongLuaCompileUp
 
 /// Copy only the authored root's existing traversal, without executing lookups
 /// or rebuilding a plan that authored code may have invalidated.
-pub(crate) fn callback_update_jobs(
-    lua: &Lua,
-    root: &Value,
-) -> Option<Vec<crate::actor_input::update::SourceJob>> {
+pub(crate) fn callback_update_jobs(lua: &Lua, root: &Value) -> Option<Vec<crate::actor_input::update::SourceJob>> {
     use crate::actor_input::update::SourceJob;
     use mlua::InspectionValue;
-    let Value::Table(root) = root else {
-        return None;
-    };
+    let Value::Table(root) = root else { return None; };
     let plan = lua.app_data_ref::<SongLuaCompileUpdatePlan>()?;
     let first = plan.jobs.iter().position(|job| matches!(job, SongLuaCompileUpdateJob::Enter { actor, parent: None, .. } if actor == root))?;
-    let last = first
-        + plan.jobs[first..].iter().position(
-            |job| matches!(job, SongLuaCompileUpdateJob::Callback { actor, .. } if actor == root),
-        )?;
+    let last = first + plan.jobs[first..].iter().position(|job| matches!(job, SongLuaCompileUpdateJob::Callback { actor, .. } if actor == root))?;
     let mut slots = FxHashMap::default();
     let mut result = Vec::new();
     for job in &plan.jobs[first..=last] {
         match job {
-            SongLuaCompileUpdateJob::Enter {
-                actor,
-                parent,
-                delta_source,
-            } => {
+            SongLuaCompileUpdateJob::Enter { actor, parent, delta_source } => {
                 let index = slots.len();
-                if slots.insert(actor.to_pointer() as usize, index).is_some() {
-                    return None;
-                }
-                let parent = match parent {
-                    Some(parent) => Some(*slots.get(&(parent.to_pointer() as usize))?),
-                    None => None,
-                };
+                if slots.insert(actor.to_pointer() as usize, index).is_some() { return None; }
+                let parent = match parent { Some(parent) => Some(*slots.get(&(parent.to_pointer() as usize))?), None => None };
                 let wrappers = match delta_source {
                     SongLuaCompileParentDelta::Children => false,
                     SongLuaCompileParentDelta::Wrappers => true,
                     SongLuaCompileParentDelta::NoteColumns => return None,
                 };
-                result.push(SourceJob::Enter {
-                    actor: actor.clone(),
-                    parent,
-                    wrappers,
-                });
+                result.push(SourceJob::Enter { actor: actor.clone(), parent, wrappers });
             }
-            SongLuaCompileUpdateJob::Advance {
-                actor,
-                recurring: false,
-                ..
-            } => {
-                if lua
-                    .app_data_ref::<ActorTweenReplays>()
-                    .is_some_and(|replays| {
-                        replays
-                            .0
-                            .get(&(actor.to_pointer() as usize))
-                            .is_some_and(|replay| !replay.queue.is_empty())
-                    })
-                {
-                    return None;
-                }
+            SongLuaCompileUpdateJob::Advance { actor, recurring: false, .. } => {
+                if lua.app_data_ref::<ActorTweenReplays>().is_some_and(|replays| replays.0.get(&(actor.to_pointer() as usize)).is_some_and(|replay| !replay.queue.is_empty())) { return None; }
                 for key in ["__songlua_command_queue", "__songlua_state_spin"] {
                     match actor.raw_get::<InspectionValue>(key).ok()? {
-                        InspectionValue::Nil => {}
-                        InspectionValue::Table(table)
-                            if key == "__songlua_command_queue" && table.raw_len() == 0 => {}
+                        InspectionValue::Nil => {},
+                        InspectionValue::Table(table) if key == "__songlua_command_queue" && table.raw_len() == 0 => {},
                         _ => return None,
                     }
                 }
-                match actor
-                    .raw_get::<InspectionValue>("__songlua_state_effect_mode")
-                    .ok()?
-                {
-                    InspectionValue::Nil => {}
-                    InspectionValue::Bytes(mode) if mode.as_ref() == b"none" => {}
+                match actor.raw_get::<InspectionValue>("__songlua_state_effect_mode").ok()? {
+                    InspectionValue::Nil => {},
+                    InspectionValue::Bytes(mode) if mode.as_ref() == b"none" => {},
                     _ => return None,
                 }
-                if actor
-                    .raw_get::<Option<bool>>("__songlua_state_rainbow")
-                    .ok()?
-                    .unwrap_or(false)
-                {
-                    return None;
-                }
+                if actor.raw_get::<Option<bool>>("__songlua_state_rainbow").ok()?.unwrap_or(false) { return None; }
             }
-            SongLuaCompileUpdateJob::Callback { actor, .. } => result.push(SourceJob::Callback {
-                actor: actor.clone(),
-                slot: *slots.get(&(actor.to_pointer() as usize))?,
-            }),
+            SongLuaCompileUpdateJob::Callback { actor, .. } => result.push(SourceJob::Callback { actor: actor.clone(), slot: *slots.get(&(actor.to_pointer() as usize))? }),
             _ => return None,
         }
     }
@@ -14468,19 +13448,13 @@ pub(crate) fn prepare_live_actor_handle_cache(
     lua: &Lua,
     actors: impl IntoIterator<Item = Table>,
 ) -> mlua::Result<Vec<Table>> {
-    let mut canonical = actors
-        .into_iter()
+    let mut canonical = actors.into_iter()
         .map(|actor| (actor.to_pointer() as usize, actor))
         .collect::<FxHashMap<_, _>>();
     let mut registry = Vec::new();
     for actor in song_lua_actor_registry(lua)?.sequence_values::<Table>() {
         let actor = actor?;
-        registry.push(
-            canonical
-                .entry(actor.to_pointer() as usize)
-                .or_insert(actor)
-                .clone(),
-        );
+        registry.push(canonical.entry(actor.to_pointer() as usize).or_insert(actor).clone());
     }
     lua.set_app_data(CanonicalLiveActorHandles(canonical));
     Ok(registry)
@@ -14514,22 +13488,13 @@ pub(crate) fn actor_tree_update_only(lua: &Lua, root: &Value, name: &str) -> mlu
     for job in jobs.iter() {
         if matches!(
             job,
-            SongLuaCompileUpdateJob::Advance { .. }
-                | SongLuaCompileUpdateJob::Enter { .. }
-                | SongLuaCompileUpdateJob::Texture { .. }
-                | SongLuaCompileUpdateJob::PlayerFeedback { .. }
+            SongLuaCompileUpdateJob::Advance { .. } | SongLuaCompileUpdateJob::Enter { .. }
+                | SongLuaCompileUpdateJob::Texture { .. } | SongLuaCompileUpdateJob::PlayerFeedback { .. }
                 | SongLuaCompileUpdateJob::Transition { .. }
-        ) {
-            continue;
-        }
+        ) { continue; }
         if let SongLuaCompileUpdateJob::Callback { actor, .. } = job
-            && actor
-                .get::<Option<Function>>("__songlua_update_function")?
-                .is_none()
-            && actor
-                .get::<Option<Function>>("__songlua_update_previous")?
-                .is_none()
-        {
+            && actor.get::<Option<Function>>("__songlua_update_function")?.is_none()
+            && actor.get::<Option<Function>>("__songlua_update_previous")?.is_none() {
             continue;
         }
         active_jobs.push(job);
@@ -14556,9 +13521,7 @@ fn queue_spin_tween(
     duration: f64,
     easing: Option<&str>,
 ) -> mlua::Result<()> {
-    if has_tween_replay(lua, actor) {
-        return Ok(());
-    }
+    if has_tween_replay(lua, actor) { return Ok(()); }
     let Some(pose) = actor.raw_get::<Option<Table>>("__songlua_state_spin")? else {
         return Ok(());
     };
@@ -14631,10 +13594,7 @@ fn advance_motion_clock(lua: &Lua, actor: &Table, delta_seconds: f64) -> mlua::R
     } else {
         let kind = actor.raw_get::<Option<String>>("__songlua_state_effect_clock")?;
         let units = if kind.as_deref() == Some("beat")
-            && actor
-                .raw_get::<Option<bool>>("__songlua_state_effect_no_offset")?
-                .unwrap_or(false)
-        {
+            && actor.raw_get::<Option<bool>>("__songlua_state_effect_no_offset")?.unwrap_or(false) {
             let runtime = lua.globals().get::<Table>(crate::SONG_LUA_RUNTIME_KEY)?;
             let seconds = f32::from_lua(crate::runtime::song_music_seconds(lua, &runtime)?, lua)?;
             lua.app_data_ref::<crate::runtime::SongLuaNoOffsetClock>()
@@ -14662,16 +13622,13 @@ mod actor_clock_tests {
     fn effect_clock_timer_preserves_itgmania_single_subtraction_and_getters() {
         for native in [false, true] {
             let lua = Lua::new();
-            if native {
-                lua.set_app_data(LiveActorPlayback);
-            }
+            if native { lua.set_app_data(LiveActorPlayback); }
             let actor = lua.create_table().unwrap();
             install_actor_effect_time_getter_methods(&lua, &actor).unwrap();
             let units = actor.get::<Function>("GetSecsIntoEffect").unwrap();
             let delta = actor.get::<Function>("GetEffectDelta").unwrap();
             // Actor.cpp uses >, not >=, and subtracts the period only once.
-            for (elapsed, expected) in [(0.5, 0.5), (0.5, 1.0), (0.0, 1.0), (2.5, 2.5), (-0.5, 1.0)]
-            {
+            for (elapsed, expected) in [(0.5, 0.5), (0.5, 1.0), (0.0, 1.0), (2.5, 2.5), (-0.5, 1.0)] {
                 advance_motion_clock(&lua, &actor, elapsed).unwrap();
                 assert_eq!(units.call::<f32>(()).unwrap(), expected);
                 assert_eq!(delta.call::<f32>(()).unwrap(), elapsed as f32);
@@ -14679,9 +13636,7 @@ mod actor_clock_tests {
             actor.raw_set("__songlua_state_effect_period", 0.0).unwrap();
             advance_motion_clock(&lua, &actor, 2.0).unwrap();
             assert_eq!(units.call::<f32>(()).unwrap(), 3.0);
-            actor
-                .raw_set("__songlua_state_effect_period", -1.0)
-                .unwrap();
+            actor.raw_set("__songlua_state_effect_period", -1.0).unwrap();
             advance_motion_clock(&lua, &actor, 0.0).unwrap();
             assert_eq!(units.call::<f32>(()).unwrap(), 4.0);
         }
@@ -14733,18 +13688,10 @@ pub(crate) fn effect_render_time(
     ]))
 }
 
-pub(crate) fn sync_motion_restart(
-    lua: &Lua,
-    actor: &Table,
-    epoch: f32,
-    seconds: f32,
-) -> mlua::Result<()> {
+pub(crate) fn sync_motion_restart(lua: &Lua, actor: &Table, epoch: f32, seconds: f32) -> mlua::Result<()> {
     // Global clocks replace the timer on every update. A startup effect reset
     // must not overwrite that frame's beat/music clock with elapsed seconds.
-    if !actor
-        .raw_get::<Option<bool>>("__songlua_state_effect_timer")?
-        .unwrap_or(true)
-    {
+    if !actor.raw_get::<Option<bool>>("__songlua_state_effect_timer")?.unwrap_or(true) {
         return Ok(());
     }
     let Some(clock) = actor.raw_get::<Option<Table>>("__songlua_state_motion_clock")? else {
@@ -14753,10 +13700,7 @@ pub(crate) fn sync_motion_restart(
     if clock.get::<Option<f32>>("replay_epoch")? != Some(epoch) {
         clock.set("replay_epoch", epoch)?;
         let units = (seconds - epoch).max(0.0);
-        if lua
-            .app_data_ref::<SongLuaCompileFrames>()
-            .is_none_or(|frames| frames.frame == 0)
-        {
+        if lua.app_data_ref::<SongLuaCompileFrames>().is_none_or(|frames| frames.frame == 0) {
             // Init/On precede the first Actor::UpdateInternal. Reset now so the
             // first positive delta still advances the timer; deferring this
             // reset would discard that delta and leave bob/bounce a frame late.
@@ -14789,26 +13733,12 @@ fn advance_spin_pose(lua: &Lua, actor: &Table, delta_seconds: f64) -> mlua::Resu
         queue.clear()?;
         pose.set("head", 1usize)?;
         pose.set("tail", 0usize)?;
-        if actor
-            .raw_get::<Option<String>>("__songlua_state_effect_mode")?
-            .as_deref()
-            == Some("spin")
-        {
+        if actor.raw_get::<Option<String>>("__songlua_state_effect_mode")?.as_deref() == Some("spin") {
             let magnitude = actor_effect_magnitude(actor)?;
             let mut replays = lua.app_data_mut::<ActorTweenReplays>().unwrap();
-            let current = &mut replays
-                .0
-                .get_mut(&(actor.to_pointer() as usize))
-                .unwrap()
-                .current;
-            for (angle, speed) in [
-                &mut current.rot_x_deg,
-                &mut current.rot_y_deg,
-                &mut current.rot_z_deg,
-            ]
-            .into_iter()
-            .zip(magnitude)
-            {
+            let current = &mut replays.0.get_mut(&(actor.to_pointer() as usize)).unwrap().current;
+            for (angle, speed) in [&mut current.rot_x_deg, &mut current.rot_y_deg, &mut current.rot_z_deg]
+                .into_iter().zip(magnitude) {
                 *angle = (*angle + elapsed * speed).rem_euclid(360.0);
             }
         }
@@ -14983,10 +13913,7 @@ pub(crate) fn run_actor_compile_update_functions_with_entry(
     // Retain the immutable plan without borrowing app data across callbacks:
     // callbacks can invalidate the plan while this frame finishes its jobs.
     let jobs = compile_update_jobs(lua, root)?;
-    let mut deltas = lua
-        .remove_app_data::<CompileUpdateDeltaScratch>()
-        .unwrap_or_default()
-        .0;
+    let mut deltas = lua.remove_app_data::<CompileUpdateDeltaScratch>().unwrap_or_default().0;
     deltas.resize(jobs.actor_count, ActorCompileUpdateDeltas::default());
     deltas.fill(ActorCompileUpdateDeltas::default());
     if lua.app_data_ref::<SongLuaCompileUpdatePhase>().is_none() {
@@ -15009,8 +13936,7 @@ pub(crate) fn run_actor_compile_update_functions_with_entry(
                 if current.children.0.is_some() {
                     if actor.raw_get::<u8>("__songlua_transition_state")? != 1 {
                         current.children.0 = None;
-                    } else if let Some(child) =
-                        actor.raw_get::<Option<Table>>("__songlua_transition_child")?
+                    } else if let Some(child) = actor.raw_get::<Option<Table>>("__songlua_transition_child")?
                         && actor_tween_time_left(lua, &child)? == 0.0
                     {
                         actor.raw_set("__songlua_transition_state", 2)?;
@@ -15048,15 +13974,10 @@ pub(crate) fn run_actor_compile_update_functions_with_entry(
                     };
                     // A scheduled foreground's whole subtree uses its native
                     // music delta. Dormant/finished layers receive no updates.
-                    if actor
-                        .raw_get::<Option<bool>>("__songlua_live_inactive")?
-                        .unwrap_or(false)
-                    {
+                    if actor.raw_get::<Option<bool>>("__songlua_live_inactive")?.unwrap_or(false) {
                         incoming = None;
                         span = None;
-                    } else if let Some(delta) =
-                        actor.raw_get::<Option<f64>>("__songlua_live_delta")?
-                    {
+                    } else if let Some(delta) = actor.raw_get::<Option<f64>>("__songlua_live_delta")? {
                         incoming = Some(delta);
                         span = Some(delta as f32);
                     }
@@ -15076,32 +13997,22 @@ pub(crate) fn run_actor_compile_update_functions_with_entry(
                         _ => None,
                     };
                     deltas[slots.actor] = ActorCompileUpdateDeltas {
-                        input,
-                        wrappers: (delta, span),
-                        children: (None, None),
+                        input, wrappers: (delta, span), children: (None, None),
                     };
                     continue;
                 }
                 SongLuaCompileUpdateJob::Advance { actor, order, .. }
                 | SongLuaCompileUpdateJob::Recurring { actor, order, .. }
                 | SongLuaCompileUpdateJob::Callback { actor, order, .. } => (actor, *order),
-                SongLuaCompileUpdateJob::Texture { .. }
-                | SongLuaCompileUpdateJob::PlayerFeedback { .. }
-                | SongLuaCompileUpdateJob::Transition { .. } => {
-                    unreachable!("host jobs handled above")
-                }
+                SongLuaCompileUpdateJob::Texture { .. } | SongLuaCompileUpdateJob::PlayerFeedback { .. }
+                | SongLuaCompileUpdateJob::Transition { .. } => unreachable!("host jobs handled above"),
             };
             let current = &mut deltas[slots.actor];
             if matches!(job, SongLuaCompileUpdateJob::Advance { .. }) {
                 // Wrappers may have changed the owner's rate since Enter.
                 let rate = actor_update_rate(actor)? as f32;
-                current.children = (
-                    current
-                        .wrappers
-                        .0
-                        .map(|delta| f64::from(delta as f32 * rate)),
-                    current.wrappers.1,
-                );
+                current.children = (current.wrappers.0.map(|delta| f64::from(delta as f32 * rate)),
+                    current.wrappers.1);
             }
             let (delta, span) = current.children;
             let Some(delta_seconds) = delta else {
@@ -15122,12 +14033,7 @@ pub(crate) fn run_actor_compile_update_functions_with_entry(
                 } => {
                     advance_motion_clock(lua, actor, delta_seconds)?;
                     advance_spin_pose(lua, actor, delta_seconds)?;
-                    advance_tween_replay(
-                        lua,
-                        actor,
-                        delta_seconds,
-                        span.unwrap_or(delta_seconds as f32),
-                    )?;
+                    advance_tween_replay(lua, actor, delta_seconds, span.unwrap_or(delta_seconds as f32))?;
                     advance_capture_position(lua, actor)?;
                     let ready = lua
                         .app_data_ref::<SongLuaCompileFrames>()
@@ -15190,12 +14096,9 @@ pub(crate) fn run_actor_compile_update_functions_with_entry(
                     #[cfg(feature = "test-support")]
                     crate::live::observe_overlay_stage(lua, actor)?;
                 }
-                SongLuaCompileUpdateJob::Enter { .. }
-                | SongLuaCompileUpdateJob::Texture { .. }
-                | SongLuaCompileUpdateJob::PlayerFeedback { .. }
-                | SongLuaCompileUpdateJob::Transition { .. } => {
-                    unreachable!("actor entry handled above")
-                }
+                SongLuaCompileUpdateJob::Enter { .. } | SongLuaCompileUpdateJob::Texture { .. }
+                | SongLuaCompileUpdateJob::PlayerFeedback { .. } | SongLuaCompileUpdateJob::Transition { .. }
+                    => unreachable!("actor entry handled above"),
             }
         }
         Ok(())
@@ -15445,14 +14348,10 @@ fn run_update_callback(lua: &Lua, actor: &Table, delta_seconds: f64) -> mlua::Re
         return Ok(());
     };
     let observed = crate::live::observes_song_callback(&update);
-    if observed {
-        crate::live::callback_phase(lua, true);
-    }
+    if observed { crate::live::callback_phase(lua, true); }
     let update_result =
         call_actor_function(lua, actor, &update, Some(Value::Number(delta_seconds)));
-    if observed {
-        crate::live::callback_phase(lua, false);
-    }
+    if observed { crate::live::callback_phase(lua, false); }
     let drain_result = drain_actor_command_queue(lua, actor);
     if let Err(err) = update_result {
         report_update_error(lua, actor, UPDATE_FN_ERROR_KEY, "update function", &err)?;
@@ -15479,10 +14378,7 @@ fn run_actor_update_functions_for_table_inner(
 ) -> mlua::Result<()> {
     // Foreground::Update also skips dormant layers during ScreenGameplay's
     // preparation Update(0), including their descendants and callbacks.
-    if actor
-        .raw_get::<Option<bool>>("__songlua_live_inactive")?
-        .unwrap_or(false)
-    {
+    if actor.raw_get::<Option<bool>>("__songlua_live_inactive")?.unwrap_or(false) {
         return Ok(());
     }
     let Some(parent_delta_seconds) = advance_hibernation(lua, actor, parent_delta_seconds)? else {
@@ -15503,17 +14399,12 @@ fn run_actor_update_functions_for_table_inner(
     // its child getters and callback. Chronological replay must not add a second
     // callback at time zero. Actor::UpdateTweening still needs positive delta.
     let effect = actor.raw_get::<Option<String>>("__songlua_state_effect_mode")?;
-    let music_clock = actor
-        .raw_get::<Option<String>>("__songlua_state_effect_clock")?
-        .as_deref()
-        == Some("time")
+    let music_clock = actor.raw_get::<Option<String>>("__songlua_state_effect_clock")?
+        .as_deref() == Some("time")
         && actor.raw_get::<Option<bool>>("__songlua_state_effect_timer")? == Some(false);
     if delta_seconds == 0.0
-        && (music_clock
-            || effect.as_deref().is_some_and(|mode| mode != "none")
-            || actor
-                .raw_get::<Option<bool>>("__songlua_state_rainbow")?
-                .unwrap_or(false))
+        && (music_clock || effect.as_deref().is_some_and(|mode| mode != "none")
+            || actor.raw_get::<Option<bool>>("__songlua_state_rainbow")?.unwrap_or(false))
     {
         advance_motion_clock(lua, actor, delta_seconds)?;
         advance_spin_pose(lua, actor, delta_seconds)?;
@@ -15673,19 +14564,10 @@ pub fn actor_is_bitmap_text(actor: &Table) -> mlua::Result<bool> {
     Ok(actor
         .get::<Option<LuaFieldText<32>>>("__songlua_actor_type")?
         .is_some_and(|kind| {
-            [
-                "BitmapText",
-                "RollingNumbers",
-                "BPMDisplay",
-                "HelpDisplay",
-                "ActiveAttackList",
-                "ScoreDisplayAliveTime",
-                "ScoreDisplayCalories",
-                "DeviceList",
-                "InputList",
-            ]
-            .iter()
-            .any(|name| kind.as_str().eq_ignore_ascii_case(name))
+            ["BitmapText", "RollingNumbers", "BPMDisplay", "HelpDisplay",
+                "ActiveAttackList", "ScoreDisplayAliveTime", "ScoreDisplayCalories",
+                "DeviceList", "InputList"]
+                .iter().any(|name| kind.as_str().eq_ignore_ascii_case(name))
         }))
 }
 
@@ -15715,58 +14597,36 @@ pub fn create_named_text_actor(
 
 fn load_native_combo_milestone(lua: &Lua, thousand: bool) -> mlua::Result<Value> {
     let (name, source) = if thousand {
-        (
-            "Combo 1000milestone",
-            include_str!("../assets/simply-love/Graphics/Combo 1000milestone/default.lua"),
-        )
+        ("Combo 1000milestone", include_str!("../assets/simply-love/Graphics/Combo 1000milestone/default.lua"))
     } else {
-        (
-            "Combo 100milestone",
-            include_str!("../assets/simply-love/Graphics/Combo 100milestone/default.lua"),
-        )
+        ("Combo 100milestone", include_str!("../assets/simply-love/Graphics/Combo 100milestone/default.lua"))
     };
     let environment = lua.create_table()?;
     let mt = lua.create_table()?;
     mt.raw_set("__index", lua.globals())?;
     environment.set_metatable(Some(mt))?;
-    environment.raw_set(
-        "LoadActor",
-        lua.create_function(|lua, path: String| {
-            if path == "../Combo 100milestone" {
-                return load_native_combo_milestone(lua, false);
-            }
-            let key = if path == "explosion.png" {
-                "Combo 100milestone/explosion.png"
-            } else {
-                path.strip_prefix(crate::SONG_LUA_THEME_PATH_PREFIX)
-                    .and_then(|path| path.strip_prefix("G/"))
-                    .unwrap_or(&path)
-            };
-            let definition = lua.create_table()?;
-            definition.raw_set("Texture", load_native_gameplay_in_bitmap(key)?)?;
-            lua.globals()
-                .get::<Table>("Def")?
-                .get::<Function>("Sprite")?
-                .call::<Value>(definition)
-        })?,
-    )?;
-    lua.load(source)
-        .set_environment(environment)
-        .set_name(format!("@theme:/Graphics/{name}/default.lua"))
-        .eval()
+    environment.raw_set("LoadActor", lua.create_function(|lua, path: String| {
+        if path == "../Combo 100milestone" {
+            return load_native_combo_milestone(lua, false);
+        }
+        let key = if path == "explosion.png" {
+            "Combo 100milestone/explosion.png"
+        } else {
+            path.strip_prefix(crate::SONG_LUA_THEME_PATH_PREFIX)
+                .and_then(|path| path.strip_prefix("G/")).unwrap_or(&path)
+        };
+        let definition = lua.create_table()?;
+        definition.raw_set("Texture", load_native_gameplay_in_bitmap(key)?)?;
+        lua.globals().get::<Table>("Def")?.get::<Function>("Sprite")?.call::<Value>(definition)
+    })?)?;
+    lua.load(source).set_environment(environment)
+        .set_name(format!("@theme:/Graphics/{name}/default.lua")).eval()
 }
 
-fn create_native_combo_milestone(
-    lua: &Lua,
-    name: &str,
-    thousand: bool,
-    install_methods: Option<fn(&Lua, &Table) -> mlua::Result<()>>,
-) -> mlua::Result<Table> {
-    let install = install_methods
-        .or_else(|| {
-            lua.app_data_ref::<ActorDefinitionHost>()
-                .map(|host| host.install_methods)
-        })
+fn create_native_combo_milestone(lua: &Lua, name: &str, thousand: bool,
+    install_methods: Option<fn(&Lua, &Table) -> mlua::Result<()>>) -> mlua::Result<Table> {
+    let install = install_methods.or_else(|| lua.app_data_ref::<ActorDefinitionHost>()
+        .map(|host| host.install_methods))
         .ok_or_else(|| mlua::Error::runtime("combo milestone requires its actor host"))?;
     let definition = load_native_combo_milestone(lua, thousand)?;
     let Value::Table(actor) = own_actor_root(lua, definition, install)? else {
@@ -15778,29 +14638,20 @@ fn create_native_combo_milestone(
     Ok(actor)
 }
 
-pub(crate) fn install_native_gameplay_combo(
-    lua: &Lua,
-    install_methods: Option<fn(&Lua, &Table) -> mlua::Result<()>>,
-) -> mlua::Result<()> {
+pub(crate) fn install_native_gameplay_combo(lua: &Lua,
+    install_methods: Option<fn(&Lua, &Table) -> mlua::Result<()>>) -> mlua::Result<()> {
     let globals = lua.globals();
     let sl = globals.get::<Table>("SL")?;
     for index in 1..=2 {
         let player = globals.get::<Table>(format!("__songlua_top_screen_player_{index}"))?;
         let combo = actor_children(lua, &player)?.get::<Table>("Combo")?;
-        let mods = sl
-            .get::<Table>(format!("P{index}"))?
-            .get::<Table>("ActiveModifiers")?;
-        if !actor_type_is(&combo, "ActorFrame")?
-            || truthy(&mods.get::<Value>("HideComboExplosions")?)
-        {
+        let mods = sl.get::<Table>(format!("P{index}"))?.get::<Table>("ActiveModifiers")?;
+        if !actor_type_is(&combo, "ActorFrame")? || truthy(&mods.get::<Value>("HideComboExplosions")?) {
             continue;
         }
         let children = actor_children(lua, &combo)?;
         let number = children.get::<Table>("Number")?;
-        for (ordinal, name, thousand) in [
-            (1, "OneHundredMilestone", false),
-            (2, "OneThousandMilestone", true),
-        ] {
+        for (ordinal, name, thousand) in [(1, "OneHundredMilestone", false), (2, "OneThousandMilestone", true)] {
             let child = create_native_combo_milestone(lua, name, thousand, install_methods)?;
             child.raw_set("__songlua_parent", combo.clone())?;
             combo.raw_set(ordinal, child.clone())?;
@@ -15850,13 +14701,9 @@ pub fn create_named_child_actor(
         } else if name.eq_ignore_ascii_case("Combo") {
             // Player combo.lua returns an invisible leaf when hidden or when
             // GetComboFonts finds no valid assets in the current theme.
-            let fonts = lua
-                .globals()
-                .get::<Function>("GetComboFonts")?
-                .call::<Table>(())?;
+            let fonts = lua.globals().get::<Function>("GetComboFonts")?.call::<Table>(())?;
             let sl = lua.globals().get::<Table>("SL")?;
-            let mods = sl
-                .get::<Table>(format!("P{}", player_index + 1))?
+            let mods = sl.get::<Table>(format!("P{}", player_index + 1))?
                 .get::<Table>("ActiveModifiers")?;
             if truthy(&mods.get::<Value>("HideCombo")?) || fonts.raw_len() == 0 {
                 let actor = create_named_actor(lua, "Actor", name, create_dummy_actor)?;
@@ -15947,511 +14794,93 @@ struct NativeGameplayInBitmap {
 }
 
 static NATIVE_GAMEPLAY_IN_BITMAPS: [NativeGameplayInBitmap; 57] = [
-    NativeGameplayInBitmap {
-        key: "Combo 100milestone/explosion",
-        filename: "Combo 100milestone/explosion.png",
-        bytes: include_bytes!("../assets/simply-love/Graphics/Combo 100milestone/explosion.png"),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Arrows/Combo 1000milestone swoosh",
-        filename: "_VisualStyles/Arrows/Combo 1000milestone swoosh.png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Arrows/Combo 1000milestone swoosh.png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Arrows/Combo 100milestone minisplode",
-        filename: "_VisualStyles/Arrows/Combo 100milestone minisplode (doubleres).png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Arrows/Combo 100milestone minisplode (doubleres).png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Arrows/Combo 100milestone splode",
-        filename: "_VisualStyles/Arrows/Combo 100milestone splode (doubleres).png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Arrows/Combo 100milestone splode (doubleres).png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Bears/Combo 1000milestone swoosh",
-        filename: "_VisualStyles/Bears/Combo 1000milestone swoosh.png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Bears/Combo 1000milestone swoosh.png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Bears/Combo 100milestone minisplode",
-        filename: "_VisualStyles/Bears/Combo 100milestone minisplode (doubleres).png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Bears/Combo 100milestone minisplode (doubleres).png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Bears/Combo 100milestone splode",
-        filename: "_VisualStyles/Bears/Combo 100milestone splode (doubleres).png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Bears/Combo 100milestone splode (doubleres).png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Cats/Combo 1000milestone swoosh",
-        filename: "_VisualStyles/Cats/Combo 1000milestone swoosh.png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Cats/Combo 1000milestone swoosh.png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Cats/Combo 100milestone minisplode",
-        filename: "_VisualStyles/Cats/Combo 100milestone minisplode (doubleres).png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Cats/Combo 100milestone minisplode (doubleres).png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Cats/Combo 100milestone splode",
-        filename: "_VisualStyles/Cats/Combo 100milestone splode.png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Cats/Combo 100milestone splode.png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Ducks/Combo 1000milestone swoosh",
-        filename: "_VisualStyles/Ducks/Combo 1000milestone swoosh.png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Ducks/Combo 1000milestone swoosh.png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Ducks/Combo 100milestone minisplode",
-        filename: "_VisualStyles/Ducks/Combo 100milestone minisplode (doubleres).png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Ducks/Combo 100milestone minisplode (doubleres).png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Ducks/Combo 100milestone splode",
-        filename: "_VisualStyles/Ducks/Combo 100milestone splode (doubleres).png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Ducks/Combo 100milestone splode (doubleres).png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Gay/Combo 1000milestone swoosh",
-        filename: "_VisualStyles/Gay/Combo 1000milestone swoosh.png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Gay/Combo 1000milestone swoosh.png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Gay/Combo 100milestone minisplode",
-        filename: "_VisualStyles/Gay/Combo 100milestone minisplode.png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Gay/Combo 100milestone minisplode.png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Gay/Combo 100milestone splode",
-        filename: "_VisualStyles/Gay/Combo 100milestone splode.png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Gay/Combo 100milestone splode.png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Hearts/Combo 1000milestone swoosh",
-        filename: "_VisualStyles/Hearts/Combo 1000milestone swoosh.png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Hearts/Combo 1000milestone swoosh.png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Hearts/Combo 100milestone minisplode",
-        filename: "_VisualStyles/Hearts/Combo 100milestone minisplode.png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Hearts/Combo 100milestone minisplode.png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Hearts/Combo 100milestone splode",
-        filename: "_VisualStyles/Hearts/Combo 100milestone splode.png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Hearts/Combo 100milestone splode.png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Spooky/Combo 1000milestone swoosh",
-        filename: "_VisualStyles/Spooky/Combo 1000milestone swoosh.png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Spooky/Combo 1000milestone swoosh.png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Spooky/Combo 100milestone minisplode",
-        filename: "_VisualStyles/Spooky/Combo 100milestone minisplode (doubleres).png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Spooky/Combo 100milestone minisplode (doubleres).png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Spooky/Combo 100milestone splode",
-        filename: "_VisualStyles/Spooky/Combo 100milestone splode (doubleres).png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Spooky/Combo 100milestone splode (doubleres).png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/SRPG10/Combo 1000milestone swoosh",
-        filename: "_VisualStyles/SRPG10/Combo 1000milestone swoosh.png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/SRPG10/Combo 1000milestone swoosh.png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/SRPG10/Combo 100milestone minisplode",
-        filename: "_VisualStyles/SRPG10/Combo 100milestone minisplode.png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/SRPG10/Combo 100milestone minisplode.png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/SRPG10/Combo 100milestone splode",
-        filename: "_VisualStyles/SRPG10/Combo 100milestone splode.png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/SRPG10/Combo 100milestone splode.png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Stars/Combo 1000milestone swoosh",
-        filename: "_VisualStyles/Stars/Combo 1000milestone swoosh.png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Stars/Combo 1000milestone swoosh.png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Stars/Combo 100milestone minisplode",
-        filename: "_VisualStyles/Stars/Combo 100milestone minisplode (doubleres).png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Stars/Combo 100milestone minisplode (doubleres).png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Stars/Combo 100milestone splode",
-        filename: "_VisualStyles/Stars/Combo 100milestone splode (doubleres).png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Stars/Combo 100milestone splode (doubleres).png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Technique/Combo 1000milestone swoosh",
-        filename: "_VisualStyles/Technique/Combo 1000milestone swoosh.png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Technique/Combo 1000milestone swoosh.png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Technique/Combo 100milestone minisplode",
-        filename: "_VisualStyles/Technique/Combo 100milestone minisplode (doubleres).png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Technique/Combo 100milestone minisplode (doubleres).png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Technique/Combo 100milestone splode",
-        filename: "_VisualStyles/Technique/Combo 100milestone splode (doubleres).png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Technique/Combo 100milestone splode (doubleres).png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Thonk/Combo 1000milestone swoosh",
-        filename: "_VisualStyles/Thonk/Combo 1000milestone swoosh.png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Thonk/Combo 1000milestone swoosh.png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Thonk/Combo 100milestone minisplode",
-        filename: "_VisualStyles/Thonk/Combo 100milestone minisplode (doubleres).png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Thonk/Combo 100milestone minisplode (doubleres).png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Thonk/Combo 100milestone splode",
-        filename: "_VisualStyles/Thonk/Combo 100milestone splode (doubleres).png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Thonk/Combo 100milestone splode (doubleres).png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Arrows/GameplayIn minisplode",
-        filename: "_VisualStyles/Arrows/GameplayIn minisplode (doubleres).png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Arrows/GameplayIn minisplode (doubleres).png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Arrows/GameplayIn splode",
-        filename: "_VisualStyles/Arrows/GameplayIn splode (doubleres).png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Arrows/GameplayIn splode (doubleres).png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Bears/GameplayIn minisplode",
-        filename: "_VisualStyles/Bears/GameplayIn minisplode.png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Bears/GameplayIn minisplode.png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Bears/GameplayIn splode",
-        filename: "_VisualStyles/Bears/GameplayIn splode.png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Bears/GameplayIn splode.png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Cats/GameplayIn minisplode",
-        filename: "_VisualStyles/Cats/GameplayIn minisplode.png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Cats/GameplayIn minisplode.png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Cats/GameplayIn splode",
-        filename: "_VisualStyles/Cats/GameplayIn splode.png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Cats/GameplayIn splode.png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Ducks/GameplayIn minisplode",
-        filename: "_VisualStyles/Ducks/GameplayIn minisplode (doubleres).png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Ducks/GameplayIn minisplode (doubleres).png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Ducks/GameplayIn splode",
-        filename: "_VisualStyles/Ducks/GameplayIn splode (doubleres).png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Ducks/GameplayIn splode (doubleres).png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Gay/GameplayIn minisplode",
-        filename: "_VisualStyles/Gay/GameplayIn minisplode.png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Gay/GameplayIn minisplode.png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Gay/GameplayIn splode",
-        filename: "_VisualStyles/Gay/GameplayIn splode.png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Gay/GameplayIn splode.png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Hearts/GameplayIn minisplode",
-        filename: "_VisualStyles/Hearts/GameplayIn minisplode.png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Hearts/GameplayIn minisplode.png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Hearts/GameplayIn splode",
-        filename: "_VisualStyles/Hearts/GameplayIn splode.png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Hearts/GameplayIn splode.png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Spooky/ExtraSpooky/Bats",
-        filename: "_VisualStyles/Spooky/ExtraSpooky/Bats (doubleres) 2x1.png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Spooky/ExtraSpooky/Bats (doubleres) 2x1.png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Spooky/GameplayIn minisplode",
-        filename: "_VisualStyles/Spooky/GameplayIn minisplode (doubleres).png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Spooky/GameplayIn minisplode (doubleres).png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Spooky/GameplayIn splode",
-        filename: "_VisualStyles/Spooky/GameplayIn splode (doubleres).png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Spooky/GameplayIn splode (doubleres).png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/SRPG10/GameplayIn minisplode",
-        filename: "_VisualStyles/SRPG10/GameplayIn minisplode.png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/SRPG10/GameplayIn minisplode.png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/SRPG10/GameplayIn splode",
-        filename: "_VisualStyles/SRPG10/GameplayIn splode.png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/SRPG10/GameplayIn splode.png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Stars/GameplayIn minisplode",
-        filename: "_VisualStyles/Stars/GameplayIn minisplode (doubleres).png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Stars/GameplayIn minisplode (doubleres).png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Stars/GameplayIn splode",
-        filename: "_VisualStyles/Stars/GameplayIn splode (doubleres).png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Stars/GameplayIn splode (doubleres).png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Technique/GameplayIn minisplode",
-        filename: "_VisualStyles/Technique/GameplayIn minisplode (doubleres).png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Technique/GameplayIn minisplode (doubleres).png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Technique/GameplayIn splode",
-        filename: "_VisualStyles/Technique/GameplayIn splode (doubleres).png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Technique/GameplayIn splode (doubleres).png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Thonk/GameplayIn minisplode",
-        filename: "_VisualStyles/Thonk/GameplayIn minisplode (doubleres).png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Thonk/GameplayIn minisplode (doubleres).png"
-        ),
-        prepared: OnceLock::new(),
-    },
-    NativeGameplayInBitmap {
-        key: "_VisualStyles/Thonk/GameplayIn splode",
-        filename: "_VisualStyles/Thonk/GameplayIn splode (doubleres).png",
-        bytes: include_bytes!(
-            "../assets/simply-love/Graphics/_VisualStyles/Thonk/GameplayIn splode (doubleres).png"
-        ),
-        prepared: OnceLock::new(),
-    },
-];
+    NativeGameplayInBitmap { key: "Combo 100milestone/explosion", filename: "Combo 100milestone/explosion.png", bytes: include_bytes!("../assets/simply-love/Graphics/Combo 100milestone/explosion.png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Arrows/Combo 1000milestone swoosh", filename: "_VisualStyles/Arrows/Combo 1000milestone swoosh.png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Arrows/Combo 1000milestone swoosh.png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Arrows/Combo 100milestone minisplode", filename: "_VisualStyles/Arrows/Combo 100milestone minisplode (doubleres).png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Arrows/Combo 100milestone minisplode (doubleres).png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Arrows/Combo 100milestone splode", filename: "_VisualStyles/Arrows/Combo 100milestone splode (doubleres).png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Arrows/Combo 100milestone splode (doubleres).png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Bears/Combo 1000milestone swoosh", filename: "_VisualStyles/Bears/Combo 1000milestone swoosh.png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Bears/Combo 1000milestone swoosh.png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Bears/Combo 100milestone minisplode", filename: "_VisualStyles/Bears/Combo 100milestone minisplode (doubleres).png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Bears/Combo 100milestone minisplode (doubleres).png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Bears/Combo 100milestone splode", filename: "_VisualStyles/Bears/Combo 100milestone splode (doubleres).png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Bears/Combo 100milestone splode (doubleres).png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Cats/Combo 1000milestone swoosh", filename: "_VisualStyles/Cats/Combo 1000milestone swoosh.png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Cats/Combo 1000milestone swoosh.png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Cats/Combo 100milestone minisplode", filename: "_VisualStyles/Cats/Combo 100milestone minisplode (doubleres).png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Cats/Combo 100milestone minisplode (doubleres).png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Cats/Combo 100milestone splode", filename: "_VisualStyles/Cats/Combo 100milestone splode.png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Cats/Combo 100milestone splode.png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Ducks/Combo 1000milestone swoosh", filename: "_VisualStyles/Ducks/Combo 1000milestone swoosh.png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Ducks/Combo 1000milestone swoosh.png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Ducks/Combo 100milestone minisplode", filename: "_VisualStyles/Ducks/Combo 100milestone minisplode (doubleres).png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Ducks/Combo 100milestone minisplode (doubleres).png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Ducks/Combo 100milestone splode", filename: "_VisualStyles/Ducks/Combo 100milestone splode (doubleres).png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Ducks/Combo 100milestone splode (doubleres).png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Gay/Combo 1000milestone swoosh", filename: "_VisualStyles/Gay/Combo 1000milestone swoosh.png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Gay/Combo 1000milestone swoosh.png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Gay/Combo 100milestone minisplode", filename: "_VisualStyles/Gay/Combo 100milestone minisplode.png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Gay/Combo 100milestone minisplode.png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Gay/Combo 100milestone splode", filename: "_VisualStyles/Gay/Combo 100milestone splode.png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Gay/Combo 100milestone splode.png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Hearts/Combo 1000milestone swoosh", filename: "_VisualStyles/Hearts/Combo 1000milestone swoosh.png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Hearts/Combo 1000milestone swoosh.png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Hearts/Combo 100milestone minisplode", filename: "_VisualStyles/Hearts/Combo 100milestone minisplode.png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Hearts/Combo 100milestone minisplode.png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Hearts/Combo 100milestone splode", filename: "_VisualStyles/Hearts/Combo 100milestone splode.png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Hearts/Combo 100milestone splode.png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Spooky/Combo 1000milestone swoosh", filename: "_VisualStyles/Spooky/Combo 1000milestone swoosh.png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Spooky/Combo 1000milestone swoosh.png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Spooky/Combo 100milestone minisplode", filename: "_VisualStyles/Spooky/Combo 100milestone minisplode (doubleres).png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Spooky/Combo 100milestone minisplode (doubleres).png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Spooky/Combo 100milestone splode", filename: "_VisualStyles/Spooky/Combo 100milestone splode (doubleres).png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Spooky/Combo 100milestone splode (doubleres).png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/SRPG10/Combo 1000milestone swoosh", filename: "_VisualStyles/SRPG10/Combo 1000milestone swoosh.png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/SRPG10/Combo 1000milestone swoosh.png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/SRPG10/Combo 100milestone minisplode", filename: "_VisualStyles/SRPG10/Combo 100milestone minisplode.png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/SRPG10/Combo 100milestone minisplode.png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/SRPG10/Combo 100milestone splode", filename: "_VisualStyles/SRPG10/Combo 100milestone splode.png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/SRPG10/Combo 100milestone splode.png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Stars/Combo 1000milestone swoosh", filename: "_VisualStyles/Stars/Combo 1000milestone swoosh.png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Stars/Combo 1000milestone swoosh.png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Stars/Combo 100milestone minisplode", filename: "_VisualStyles/Stars/Combo 100milestone minisplode (doubleres).png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Stars/Combo 100milestone minisplode (doubleres).png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Stars/Combo 100milestone splode", filename: "_VisualStyles/Stars/Combo 100milestone splode (doubleres).png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Stars/Combo 100milestone splode (doubleres).png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Technique/Combo 1000milestone swoosh", filename: "_VisualStyles/Technique/Combo 1000milestone swoosh.png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Technique/Combo 1000milestone swoosh.png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Technique/Combo 100milestone minisplode", filename: "_VisualStyles/Technique/Combo 100milestone minisplode (doubleres).png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Technique/Combo 100milestone minisplode (doubleres).png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Technique/Combo 100milestone splode", filename: "_VisualStyles/Technique/Combo 100milestone splode (doubleres).png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Technique/Combo 100milestone splode (doubleres).png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Thonk/Combo 1000milestone swoosh", filename: "_VisualStyles/Thonk/Combo 1000milestone swoosh.png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Thonk/Combo 1000milestone swoosh.png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Thonk/Combo 100milestone minisplode", filename: "_VisualStyles/Thonk/Combo 100milestone minisplode (doubleres).png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Thonk/Combo 100milestone minisplode (doubleres).png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Thonk/Combo 100milestone splode", filename: "_VisualStyles/Thonk/Combo 100milestone splode (doubleres).png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Thonk/Combo 100milestone splode (doubleres).png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Arrows/GameplayIn minisplode", filename: "_VisualStyles/Arrows/GameplayIn minisplode (doubleres).png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Arrows/GameplayIn minisplode (doubleres).png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Arrows/GameplayIn splode", filename: "_VisualStyles/Arrows/GameplayIn splode (doubleres).png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Arrows/GameplayIn splode (doubleres).png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Bears/GameplayIn minisplode", filename: "_VisualStyles/Bears/GameplayIn minisplode.png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Bears/GameplayIn minisplode.png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Bears/GameplayIn splode", filename: "_VisualStyles/Bears/GameplayIn splode.png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Bears/GameplayIn splode.png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Cats/GameplayIn minisplode", filename: "_VisualStyles/Cats/GameplayIn minisplode.png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Cats/GameplayIn minisplode.png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Cats/GameplayIn splode", filename: "_VisualStyles/Cats/GameplayIn splode.png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Cats/GameplayIn splode.png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Ducks/GameplayIn minisplode", filename: "_VisualStyles/Ducks/GameplayIn minisplode (doubleres).png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Ducks/GameplayIn minisplode (doubleres).png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Ducks/GameplayIn splode", filename: "_VisualStyles/Ducks/GameplayIn splode (doubleres).png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Ducks/GameplayIn splode (doubleres).png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Gay/GameplayIn minisplode", filename: "_VisualStyles/Gay/GameplayIn minisplode.png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Gay/GameplayIn minisplode.png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Gay/GameplayIn splode", filename: "_VisualStyles/Gay/GameplayIn splode.png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Gay/GameplayIn splode.png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Hearts/GameplayIn minisplode", filename: "_VisualStyles/Hearts/GameplayIn minisplode.png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Hearts/GameplayIn minisplode.png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Hearts/GameplayIn splode", filename: "_VisualStyles/Hearts/GameplayIn splode.png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Hearts/GameplayIn splode.png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Spooky/ExtraSpooky/Bats", filename: "_VisualStyles/Spooky/ExtraSpooky/Bats (doubleres) 2x1.png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Spooky/ExtraSpooky/Bats (doubleres) 2x1.png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Spooky/GameplayIn minisplode", filename: "_VisualStyles/Spooky/GameplayIn minisplode (doubleres).png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Spooky/GameplayIn minisplode (doubleres).png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Spooky/GameplayIn splode", filename: "_VisualStyles/Spooky/GameplayIn splode (doubleres).png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Spooky/GameplayIn splode (doubleres).png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/SRPG10/GameplayIn minisplode", filename: "_VisualStyles/SRPG10/GameplayIn minisplode.png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/SRPG10/GameplayIn minisplode.png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/SRPG10/GameplayIn splode", filename: "_VisualStyles/SRPG10/GameplayIn splode.png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/SRPG10/GameplayIn splode.png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Stars/GameplayIn minisplode", filename: "_VisualStyles/Stars/GameplayIn minisplode (doubleres).png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Stars/GameplayIn minisplode (doubleres).png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Stars/GameplayIn splode", filename: "_VisualStyles/Stars/GameplayIn splode (doubleres).png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Stars/GameplayIn splode (doubleres).png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Technique/GameplayIn minisplode", filename: "_VisualStyles/Technique/GameplayIn minisplode (doubleres).png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Technique/GameplayIn minisplode (doubleres).png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Technique/GameplayIn splode", filename: "_VisualStyles/Technique/GameplayIn splode (doubleres).png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Technique/GameplayIn splode (doubleres).png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Thonk/GameplayIn minisplode", filename: "_VisualStyles/Thonk/GameplayIn minisplode (doubleres).png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Thonk/GameplayIn minisplode (doubleres).png"), prepared: OnceLock::new() },
+    NativeGameplayInBitmap { key: "_VisualStyles/Thonk/GameplayIn splode", filename: "_VisualStyles/Thonk/GameplayIn splode (doubleres).png", bytes: include_bytes!("../assets/simply-love/Graphics/_VisualStyles/Thonk/GameplayIn splode (doubleres).png"), prepared: OnceLock::new() },
+ ];
 
 pub(crate) fn native_gameplay_in_bitmap_filename(name: &str) -> Option<&'static str> {
-    NATIVE_GAMEPLAY_IN_BITMAPS
-        .iter()
-        .find(|bitmap| bitmap.key == name || bitmap.filename == name)
+    NATIVE_GAMEPLAY_IN_BITMAPS.iter().find(|bitmap| bitmap.key == name || bitmap.filename == name)
         .map(|bitmap| bitmap.filename)
 }
 
 fn load_native_gameplay_in_bitmap(name: &str) -> mlua::Result<String> {
-    let bitmap = NATIVE_GAMEPLAY_IN_BITMAPS
-        .iter()
+    let bitmap = NATIVE_GAMEPLAY_IN_BITMAPS.iter()
         .find(|bitmap| bitmap.key == name || bitmap.filename == name)
-        .ok_or_else(|| {
-            mlua::Error::runtime(format!("missing native gameplay-in bitmap: {name}"))
-        })?;
-    bitmap
-        .prepared
-        .get_or_init(|| {
-            let decoded =
-                image::load_from_memory_with_format(bitmap.bytes, image::ImageFormat::Png)
-                    .map_err(|error| error.to_string())?;
-            let mut image = decoded.into_rgba8();
-            let source_size = [image.width(), image.height()];
-            let mut hints = deadlib_assets::parse_texture_hints(bitmap.filename);
-            hints.min_size = Some(8);
-            hints.max_size = Some(2048);
-            let size = deadlib_assets::texture_image_size(source_size, &hints)
-                .map_err(|error| error.to_string())?;
-            if size != source_size {
-                image = image::imageops::resize(
-                    &image,
-                    size[0],
-                    size[1],
-                    image::imageops::FilterType::Triangle,
-                );
-            }
-            deadlib_assets::apply_texture_hints(&mut image, &hints);
-            deadlib_assets::fix_hidden_alpha(&mut image);
-            let path = format!("{}G/{}", crate::SONG_LUA_THEME_PATH_PREFIX, bitmap.filename);
-            deadlib_assets::register_prepared_generated_texture(
-                &path,
-                image,
-                source_size,
-                hints.sampler_desc(),
-            );
-            Ok(path)
-        })
-        .as_ref()
-        .cloned()
-        .map_err(|error| mlua::Error::external(error.clone()))
+        .ok_or_else(|| mlua::Error::runtime(format!("missing native gameplay-in bitmap: {name}")))?;
+    bitmap.prepared.get_or_init(|| {
+        let decoded = image::load_from_memory_with_format(bitmap.bytes, image::ImageFormat::Png)
+            .map_err(|error| error.to_string())?;
+        let mut image = decoded.into_rgba8();
+        let source_size = [image.width(), image.height()];
+        let mut hints = deadlib_assets::parse_texture_hints(bitmap.filename);
+        hints.min_size = Some(8);
+        hints.max_size = Some(2048);
+        let size = deadlib_assets::texture_image_size(source_size, &hints)
+            .map_err(|error| error.to_string())?;
+        if size != source_size {
+            image = image::imageops::resize(&image, size[0], size[1], image::imageops::FilterType::Triangle);
+        }
+        deadlib_assets::apply_texture_hints(&mut image, &hints);
+        deadlib_assets::fix_hidden_alpha(&mut image);
+        let path = format!("{}G/{}", crate::SONG_LUA_THEME_PATH_PREFIX, bitmap.filename);
+        deadlib_assets::register_prepared_generated_texture(&path, image, source_size, hints.sampler_desc());
+        Ok(path)
+    }).as_ref().cloned().map_err(|error| mlua::Error::external(error.clone()))
 }
 
 pub(crate) const NATIVE_BLANK_TEXTURE_PATH: &str = "Themes/_fallback/Graphics/_blank.png";
@@ -16460,41 +14889,26 @@ fn load_native_blank_texture() -> mlua::Result<&'static str> {
     // Bundled native bitmap, decoded/prepared once at screen construction.
     // The generated registry carries real pixels to ordinary renderer prewarm.
     static PREPARED: OnceLock<Result<(), String>> = OnceLock::new();
-    PREPARED
-        .get_or_init(|| {
-            let decoded = image::load_from_memory_with_format(
-                include_bytes!("../assets/itgmania/_blank.png"),
-                image::ImageFormat::Png,
-            )
+    PREPARED.get_or_init(|| {
+        let decoded = image::load_from_memory_with_format(
+            include_bytes!("../assets/itgmania/_blank.png"), image::ImageFormat::Png,
+        ).map_err(|error| error.to_string())?;
+        let mut bitmap = decoded.into_rgba8();
+        let source_size = [bitmap.width(), bitmap.height()];
+        let hints = deadlib_assets::TextureHints {
+            min_size: Some(8), max_size: Some(2048), ..Default::default()
+        };
+        let upload = deadlib_assets::texture_image_size(source_size, &hints)
             .map_err(|error| error.to_string())?;
-            let mut bitmap = decoded.into_rgba8();
-            let source_size = [bitmap.width(), bitmap.height()];
-            let hints = deadlib_assets::TextureHints {
-                min_size: Some(8),
-                max_size: Some(2048),
-                ..Default::default()
-            };
-            let upload = deadlib_assets::texture_image_size(source_size, &hints)
-                .map_err(|error| error.to_string())?;
-            if upload != source_size {
-                bitmap = image::imageops::resize(
-                    &bitmap,
-                    upload[0],
-                    upload[1],
-                    image::imageops::FilterType::Triangle,
-                );
-            }
-            deadlib_assets::fix_hidden_alpha(&mut bitmap);
-            deadlib_assets::register_prepared_generated_texture(
-                NATIVE_BLANK_TEXTURE_PATH,
-                bitmap,
-                source_size,
-                hints.sampler_desc(),
-            );
-            Ok(())
-        })
-        .as_ref()
-        .map(|_| NATIVE_BLANK_TEXTURE_PATH)
+        if upload != source_size {
+            bitmap = image::imageops::resize(&bitmap, upload[0], upload[1], image::imageops::FilterType::Triangle);
+        }
+        deadlib_assets::fix_hidden_alpha(&mut bitmap);
+        deadlib_assets::register_prepared_generated_texture(
+            NATIVE_BLANK_TEXTURE_PATH, bitmap, source_size, hints.sampler_desc(),
+        );
+        Ok(())
+    }).as_ref().map(|_| NATIVE_BLANK_TEXTURE_PATH)
         .map_err(|error| mlua::Error::external(error.clone()))
 }
 
@@ -16506,9 +14920,7 @@ fn create_lyric_display_actor(
     let actor = create_named_actor(lua, "ActorFrame", name, create_dummy_actor)?;
     // LyricDisplay.cpp loads the inherited font and Changed command for each
     // text layer before Init clears both strings. ScreenGameplay owns position.
-    let commands: Table = lua
-        .load(
-            r#"
+    let commands: Table = lua.load(r#"
 return {
     Back = function(self) self:LyricCommand('Back') end,
     Front = function(self) self:LyricCommand('Front') end,
@@ -16516,24 +14928,16 @@ return {
     SetReverseCommand = function(self) self:x(SCREEN_CENTER_X):y(SCREEN_CENTER_Y - 140) end,
     SetOneReverseCommand = function(self) self:x(SCREEN_CENTER_X):y(SCREEN_CENTER_Y - 205) end,
 }
-"#,
-        )
-        .set_name("@theme:/metrics.ini:LyricDisplay")
-        .eval()?;
+"#).set_name("@theme:/metrics.ini:LyricDisplay").eval()?;
     for (name, side) in [("LyricBack", "Back"), ("LyricFront", "Front")] {
-        let text =
-            create_named_text_actor(lua, "BitmapText", name, String::new(), create_dummy_actor)?;
+        let text = create_named_text_actor(lua, "BitmapText", name, String::new(), create_dummy_actor)?;
         text.raw_set("Font", "Common Normal")?;
         text.raw_set("ChangedCommand", commands.raw_get::<Function>(side)?)?;
         text.raw_set("__songlua_parent", actor.clone())?;
         push_sequence_child_once(&actor, text.clone())?;
         actor_children(lua, &actor)?.set(name, text)?;
     }
-    for name in [
-        "SetNoReverseCommand",
-        "SetReverseCommand",
-        "SetOneReverseCommand",
-    ] {
+    for name in ["SetNoReverseCommand", "SetReverseCommand", "SetOneReverseCommand"] {
         actor.raw_set(name, commands.raw_get::<Function>(name)?)?;
     }
     let initial: String = lua.load(r#"
@@ -16547,59 +14951,39 @@ return allReverse and 'SetReverse' or anyReverse and 'SetOneReverse' or 'SetNoRe
 "#).set_name("@theme:/ScreenGameplay:LyricDisplayPosition").eval()?;
     // This is ScreenGameplay's constructor initialization, before authored
     // command capture. Calling the public dispatcher would emit song events.
-    commands
-        .raw_get::<Function>(format!("{initial}Command"))?
-        .call::<()>(actor.clone())?;
+    commands.raw_get::<Function>(format!("{initial}Command"))?.call::<()>(actor.clone())?;
     Ok(actor)
 }
 
 // StepsDisplay.cpp::Load/SetInternal and the pinned StepsDisplayGameplay metrics.
 fn create_native_steps_display(
-    lua: &Lua,
-    name: &str,
+    lua: &Lua, name: &str,
     create_dummy_actor: fn(&Lua, &'static str) -> mlua::Result<Table>,
 ) -> mlua::Result<Table> {
     let display = create_named_actor(lua, "StepsDisplay", name, create_dummy_actor)?;
     display.raw_set("__songlua_owned_child_lookup", true)?;
-    for (name, kind) in [
-        ("Frame", "Sprite"),
-        ("Meter", "BitmapText"),
-        ("Description", "BitmapText"),
-        ("Autogen", "Sprite"),
-    ] {
+    for (name, kind) in [("Frame", "Sprite"), ("Meter", "BitmapText"),
+        ("Description", "BitmapText"), ("Autogen", "Sprite")] {
         let child = create_named_actor(lua, kind, name, create_dummy_actor)?;
-        if kind == "Sprite" {
-            set_actor_texture_from_path(&child, load_native_blank_texture()?)?;
-        } else {
-            child.raw_set("Font", "Common Normal")?;
-            child.raw_set("Text", "")?;
-        }
+        if kind == "Sprite" { set_actor_texture_from_path(&child, load_native_blank_texture()?)?; }
+        else { child.raw_set("Font", "Common Normal")?; child.raw_set("Text", "")?; }
         child.raw_set("__songlua_parent", display.clone())?;
         push_sequence_child_once(&display, child.clone())?;
         actor_children(lua, &display)?.raw_set(name, child)?;
     }
     for (name, trail) in [("SetFromSteps", false), ("SetFromTrail", true)] {
-        display.set(
-            name,
-            lua.create_function(move |lua, (display, value): (Table, Option<Table>)| {
-                if let Some(value) = value {
-                    native_steps_display_set(lua, &display, Some(value), trail)?;
-                } else {
-                    native_steps_display_visibility(lua, &display, false)?;
-                }
-                note_song_lua_side_effect(lua)?;
-                Ok(display)
-            })?,
-        )?;
-    }
-    display.set(
-        "SetFromGameState",
-        lua.create_function(|lua, (display, player): (Table, Value)| {
-            native_steps_display_from_game_state(lua, &display, player)?;
+        display.set(name, lua.create_function(move |lua, (display, value): (Table, Option<Table>)| {
+            if let Some(value) = value { native_steps_display_set(lua, &display, Some(value), trail)?; }
+            else { native_steps_display_visibility(lua, &display, false)?; }
             note_song_lua_side_effect(lua)?;
             Ok(display)
-        })?,
-    )?;
+        })?)?;
+    }
+    display.set("SetFromGameState", lua.create_function(|lua, (display, player): (Table, Value)| {
+        native_steps_display_from_game_state(lua, &display, player)?;
+        note_song_lua_side_effect(lua)?;
+        Ok(display)
+    })?)?;
     Ok(display)
 }
 
@@ -16609,34 +14993,15 @@ fn native_steps_display_visibility(lua: &Lua, actor: &Table, visible: bool) -> m
     capture_immediate_bool(lua, actor, "visible", visible)
 }
 
-fn native_steps_display_set(
-    lua: &Lua,
-    display: &Table,
-    value: Option<Table>,
-    trail: bool,
-) -> mlua::Result<()> {
+fn native_steps_display_set(lua: &Lua, display: &Table, value: Option<Table>, trail: bool) -> mlua::Result<()> {
     let (difficulty, steps_type, meter) = if let Some(value) = &value {
-        (
-            value
-                .get::<Function>("GetDifficulty")?
-                .call::<String>(value.clone())?,
-            value
-                .get::<Function>("GetStepsType")?
-                .call::<String>(value.clone())?,
-            value
-                .get::<Function>("GetMeter")?
-                .call::<i32>(value.clone())?,
-        )
+        (value.get::<Function>("GetDifficulty")?.call::<String>(value.clone())?,
+         value.get::<Function>("GetStepsType")?.call::<String>(value.clone())?,
+         value.get::<Function>("GetMeter")?.call::<i32>(value.clone())?)
     } else {
-        (
-            display.raw_get::<String>("__songlua_preferred_difficulty")?,
-            "StepsType_Invalid".into(),
-            0,
-        )
+        (display.raw_get::<String>("__songlua_preferred_difficulty")?, "StepsType_Invalid".into(), 0)
     };
-    let short = difficulty
-        .strip_prefix("Difficulty_")
-        .unwrap_or(&difficulty);
+    let short = difficulty.strip_prefix("Difficulty_").unwrap_or(&difficulty);
     // Difficulty.cpp's matching CustomDifficulty entries in the fallback theme.
     let custom = match (steps_type.as_str(), short) {
         ("StepsType_Pump_Single", "Hard") => "Crazy",
@@ -16648,89 +15013,47 @@ fn native_steps_display_set(
     };
     let description = if !trail && short == "Edit" && value.is_some() {
         let steps = value.as_ref().unwrap();
-        steps
-            .get::<Function>("GetDescription")?
-            .call::<String>(steps.clone())?
+        steps.get::<Function>("GetDescription")?.call::<String>(steps.clone())?
     } else {
         // _fallback/Languages/en.ini [CustomDifficulty], inherited by Simply Love.
-        match custom {
-            "Beginner" => "Novice",
-            "Challenge" => "Expert",
-            _ => custom,
-        }
-        .into()
+        match custom { "Beginner" => "Novice", "Challenge" => "Expert", _ => custom }.into()
     };
     let params = lua.create_table()?;
     params.raw_set("CustomDifficulty", custom)?;
     params.raw_set("DisplayDescription", description.clone())?;
     params.raw_set("Meter", meter)?;
     params.raw_set("StepsType", steps_type)?;
-    if let Some(value) = &value {
-        params.raw_set(if trail { "Trail" } else { "Steps" }, value.clone())?;
-    }
+    if let Some(value) = &value { params.raw_set(if trail { "Trail" } else { "Steps" }, value.clone())?; }
     let params = Some(Value::Table(params));
     native_steps_display_visibility(lua, display, true)?;
     let children = actor_children(lua, display)?;
     let frame = children.raw_get::<Table>("Frame")?;
     run_actor_message_with_params(lua, &frame, "SetCommand", params.clone())?;
     let text = children.raw_get::<Table>("Meter")?;
-    text.raw_set(
-        "Text",
-        if meter == 0 {
-            "?".into()
-        } else {
-            meter.to_string()
-        },
-    )?;
-    if meter != 0 {
-        run_actor_message_with_params(lua, &text, "SetCommand", params.clone())?;
-    }
+    text.raw_set("Text", if meter == 0 { "?".into() } else { meter.to_string() })?;
+    if meter != 0 { run_actor_message_with_params(lua, &text, "SetCommand", params.clone())?; }
     let text = children.raw_get::<Table>("Description")?;
     text.raw_set("Text", description)?;
     run_actor_message_with_params(lua, &text, "SetCommand", params.clone())?;
     let autogen = children.raw_get::<Table>("Autogen")?;
     run_actor_message_with_params(lua, &autogen, "SetCommand", params.clone())?;
-    let is_autogen = !trail
-        && value
-            .as_ref()
-            .map(|steps| {
-                steps
-                    .get::<Function>("IsAutogen")?
-                    .call::<bool>(steps.clone())
-            })
-            .transpose()?
-            .unwrap_or(false);
+    let is_autogen = !trail && value.as_ref().map(|steps| {
+        steps.get::<Function>("IsAutogen")?.call::<bool>(steps.clone())
+    }).transpose()?.unwrap_or(false);
     native_steps_display_visibility(lua, &autogen, is_autogen)?;
     // ActorFrame::HandleMessage forwards a direct message, even when command
     // propagation is disabled. SetInternal therefore visits these children twice.
-    run_actor_named_command_with_drain_and_params(
-        lua,
-        display,
-        "SetCommand",
-        true,
-        params.clone(),
-    )?;
+    run_actor_named_command_with_drain_and_params(lua, display, "SetCommand", true, params.clone())?;
     for child in actor_direct_children(lua, display)? {
         run_actor_message_with_params(lua, &child, "SetCommand", params.clone())?;
     }
     Ok(())
 }
 
-fn native_steps_display_from_game_state(
-    lua: &Lua,
-    display: &Table,
-    player: Value,
-) -> mlua::Result<()> {
+fn native_steps_display_from_game_state(lua: &Lua, display: &Table, player: Value) -> mlua::Result<()> {
     let game = lua.globals().get::<Table>("GAMESTATE")?;
-    let course = game
-        .get::<Function>("IsCourseMode")?
-        .call::<bool>(game.clone())?;
-    let value = game
-        .get::<Function>(if course {
-            "GetCurrentTrail"
-        } else {
-            "GetCurrentSteps"
-        })?
+    let course = game.get::<Function>("IsCourseMode")?.call::<bool>(game.clone())?;
+    let value = game.get::<Function>(if course { "GetCurrentTrail" } else { "GetCurrentSteps" })?
         .call::<Option<Table>>((game, player))?;
     native_steps_display_set(lua, display, value, course)
 }
@@ -16748,24 +15071,14 @@ return {
 }
 "#).set_name("@theme:/metrics.ini:StepsDisplayGameplay").eval::<Table>()?;
     for index in 0..LUA_PLAYERS {
-        let Some(display) = actor_children(lua, screen)?
-            .raw_get::<Option<Table>>(format!("StepsDisplayP{}", index + 1))?
-        else {
-            continue;
-        };
-        for (name, x, y) in [
-            ("Frame", 0.0, 0.0),
-            ("Meter", 30.0, 0.0),
-            ("Description", -265.0, 0.0),
-            ("Autogen", 40.0, 0.0),
-        ] {
+        let Some(display) = actor_children(lua, screen)?.raw_get::<Option<Table>>(format!("StepsDisplayP{}", index + 1))? else { continue; };
+        for (name, x, y) in [("Frame", 0.0, 0.0), ("Meter", 30.0, 0.0),
+            ("Description", -265.0, 0.0), ("Autogen", 40.0, 0.0)] {
             let child = actor_children(lua, &display)?.raw_get::<Table>(name)?;
             capture_block_set_f32(lua, &child, "x", x)?;
             capture_block_set_f32(lua, &child, "y", y)?;
             for command in ["Load", "On", "Set"] {
-                if let Some(callback) =
-                    commands.raw_get::<Option<Function>>(format!("{name}{command}Command"))?
-                {
+                if let Some(callback) = commands.raw_get::<Option<Function>>(format!("{name}{command}Command"))? {
                     child.raw_set(format!("{command}Command"), callback)?;
                 }
             }
@@ -16773,27 +15086,14 @@ return {
         }
         let player = Value::String(lua.create_string(player_number_name(index))?);
         let params = lua.create_table()?;
-        params.raw_set(
-            "PlayerState",
-            game.get::<Function>("GetPlayerState")?
-                .call::<Table>((game.clone(), player.clone()))?,
-        )?;
+        params.raw_set("PlayerState", game.get::<Function>("GetPlayerState")?.call::<Table>((game.clone(), player.clone()))?)?;
         for child in actor_direct_children(lua, &display)? {
-            run_actor_message_with_params(
-                lua,
-                &child,
-                "LoadCommand",
-                Some(Value::Table(params.clone())),
-            )?;
+            run_actor_message_with_params(lua, &child, "LoadCommand", Some(Value::Table(params.clone())))?;
         }
         native_steps_display_visibility(lua, &display, false)?;
         // ScreenGameplay::LoadNextSong calls SetFromSteps on each display.
-        let steps = game
-            .get::<Function>("GetCurrentSteps")?
-            .call::<Option<Table>>((game.clone(), player))?;
-        if let Some(steps) = steps {
-            native_steps_display_set(lua, &display, Some(steps), false)?;
-        }
+        let steps = game.get::<Function>("GetCurrentSteps")?.call::<Option<Table>>((game.clone(), player))?;
+        if let Some(steps) = steps { native_steps_display_set(lua, &display, Some(steps), false)?; }
     }
     Ok(())
 }
@@ -16808,10 +15108,7 @@ pub fn create_top_screen_theme_actor(
     if name.eq_ignore_ascii_case("LyricDisplay") {
         return create_lyric_display_actor(lua, name, create_dummy_actor).map(Some);
     }
-    if ["In", "Out", "Cancel"]
-        .iter()
-        .any(|known| name.eq_ignore_ascii_case(known))
-    {
+    if ["In", "Out", "Cancel"].iter().any(|known| name.eq_ignore_ascii_case(known)) {
         let actor = create_named_actor(lua, "ActorFrame", name, create_dummy_actor)?;
         actor.raw_set("__songlua_transition_state", 0_u8)?;
         if name.eq_ignore_ascii_case("In") {
@@ -16825,39 +15122,18 @@ pub fn create_top_screen_theme_actor(
             let visuals = create_named_actor(lua, "ActorFrame", "", create_dummy_actor)?;
             visuals.raw_set("__songlua_parent", child.clone())?;
             push_sequence_child_once(&child, visuals.clone())?;
-            let reload = lua
-                .globals()
-                .get::<Table>("SL")?
-                .get::<Table>("Global")?
+            let reload = lua.globals().get::<Table>("SL")?.get::<Table>("Global")?
                 .get::<bool>("GameplayReloadCheck")?;
-            visuals.raw_set(
-                "HideCommand",
-                lua.create_function(|lua, actor: Table| {
-                    actor
-                        .get::<Function>("visible")?
-                        .call::<()>((actor.clone(), false))?;
-                    lua.globals()
-                        .get::<Table>("SL")?
-                        .get::<Table>("Global")?
-                        .raw_set("GameplayReloadCheck", true)
-                })?,
-            )?;
-            visuals.raw_set(
-                "OffCommand",
-                lua.create_function(|lua, _: Table| {
-                    lua.globals()
-                        .get::<Table>("SL")?
-                        .get::<Table>("Global")?
-                        .raw_set("GameplayReloadCheck", false)
-                })?,
-            )?;
+            visuals.raw_set("HideCommand", lua.create_function(|lua, actor: Table| {
+                actor.get::<Function>("visible")?.call::<()>((actor.clone(), false))?;
+                lua.globals().get::<Table>("SL")?.get::<Table>("Global")?.raw_set("GameplayReloadCheck", true)
+            })?)?;
+            visuals.raw_set("OffCommand", lua.create_function(|lua, _: Table| {
+                lua.globals().get::<Table>("SL")?.get::<Table>("Global")?.raw_set("GameplayReloadCheck", false)
+            })?)?;
             if !reload {
-                visuals
-                    .get::<Function>("sleep")?
-                    .call::<()>((visuals.clone(), 2.0))?;
-                visuals
-                    .get::<Function>("queuecommand")?
-                    .call::<()>((visuals.clone(), "Hide"))?;
+                visuals.get::<Function>("sleep")?.call::<()>((visuals.clone(), 2.0))?;
+                visuals.get::<Function>("queuecommand")?.call::<()>((visuals.clone(), "Hide"))?;
                 let commands = lua.load(r#"
 return {
     { InitCommand=function(self) self:diffuse(Color.Black):Center():FullScreen() end,
@@ -16870,99 +15146,39 @@ return {
       OnCommand=function(self) self:sleep(0.4):decelerate(0.8):rotationz(0):zoom(0.9):diffusealpha(0) end },
 }
 "#).set_name("@theme:/BGAnimations/ScreenGameplay in/default.lua").eval::<Table>()?;
-                let style = lua
-                    .globals()
-                    .get::<Table>("ThemePrefs")?
-                    .get::<Function>("Get")?
-                    .call::<String>("VisualStyle")?;
-                let spooky = lua
-                    .globals()
-                    .get::<Function>("IsSpooky")?
-                    .call::<bool>(())?;
-                let color = lua
-                    .globals()
-                    .get::<Function>("GetCurrentColor")?
-                    .call::<Table>(true)?;
+                let style = lua.globals().get::<Table>("ThemePrefs")?
+                    .get::<Function>("Get")?.call::<String>("VisualStyle")?;
+                let spooky = lua.globals().get::<Function>("IsSpooky")?.call::<bool>(())?;
+                let color = lua.globals().get::<Function>("GetCurrentColor")?.call::<Table>(true)?;
                 for index in 0..4 {
-                    let sprite = create_named_actor(
-                        lua,
-                        if index == 0 { "Quad" } else { "Sprite" },
-                        "",
-                        create_dummy_actor,
-                    )?;
+                    let sprite = create_named_actor(lua, if index == 0 { "Quad" } else { "Sprite" }, "", create_dummy_actor)?;
                     sprite.raw_set("__songlua_parent", visuals.clone())?;
                     let handlers = commands.raw_get::<Table>(index + 1)?;
                     for command in ["InitCommand", "OnCommand"] {
                         sprite.raw_set(command, handlers.raw_get::<Function>(command)?)?;
                     }
-                    sprite
-                        .get::<Function>("Center")?
-                        .call::<()>(sprite.clone())?;
+                    sprite.get::<Function>("Center")?.call::<()>(sprite.clone())?;
                     if index == 0 {
-                        sprite
-                            .get::<Function>("FullScreen")?
-                            .call::<()>(sprite.clone())?;
-                        sprite.get::<Function>("diffuse")?.call::<()>((
-                            sprite.clone(),
-                            0.0,
-                            0.0,
-                            0.0,
-                            1.0,
-                        ))?;
-                        sprite
-                            .get::<Function>("sleep")?
-                            .call::<()>((sprite.clone(), 1.4))?;
-                        sprite
-                            .get::<Function>("accelerate")?
-                            .call::<()>((sprite.clone(), 0.6))?;
+                        sprite.get::<Function>("FullScreen")?.call::<()>(sprite.clone())?;
+                        sprite.get::<Function>("diffuse")?.call::<()>((sprite.clone(), 0.0, 0.0, 0.0, 1.0))?;
+                        sprite.get::<Function>("sleep")?.call::<()>((sprite.clone(), 1.4))?;
+                        sprite.get::<Function>("accelerate")?.call::<()>((sprite.clone(), 0.6))?;
                     } else {
-                        let asset = if spooky {
-                            "_VisualStyles/Spooky/ExtraSpooky/Bats".to_string()
-                        } else {
-                            format!(
-                                "_VisualStyles/{style}/GameplayIn {}",
-                                if index == 3 { "minisplode" } else { "splode" }
-                            )
-                        };
-                        set_actor_texture_from_path(
-                            &sprite,
-                            &load_native_gameplay_in_bitmap(&asset)?,
-                        )?;
-                        sprite
-                            .get::<Function>("diffuse")?
-                            .call::<()>((sprite.clone(), color.clone()))?;
-                        sprite
-                            .get::<Function>("rotationz")?
-                            .call::<()>((sprite.clone(), if index == 2 { -10.0 } else { 10.0 }))?;
-                        if index == 2 {
-                            sprite
-                                .get::<Function>("rotationy")?
-                                .call::<()>((sprite.clone(), 180.0))?;
-                        }
-                        sprite
-                            .get::<Function>("zoom")?
-                            .call::<()>((sprite.clone(), 0.0))?;
-                        if index != 3 {
-                            sprite
-                                .get::<Function>("diffusealpha")?
-                                .call::<()>((sprite.clone(), if index == 1 { 0.9 } else { 0.8 }))?;
-                        }
-                        sprite
-                            .get::<Function>("sleep")?
-                            .call::<()>((sprite.clone(), 0.4))?;
-                        sprite
-                            .get::<Function>(if index == 1 { "linear" } else { "decelerate" })?
+                        let asset = if spooky { "_VisualStyles/Spooky/ExtraSpooky/Bats".to_string() }
+                            else { format!("_VisualStyles/{style}/GameplayIn {}", if index == 3 { "minisplode" } else { "splode" }) };
+                        set_actor_texture_from_path(&sprite, &load_native_gameplay_in_bitmap(&asset)?)?;
+                        sprite.get::<Function>("diffuse")?.call::<()>((sprite.clone(), color.clone()))?;
+                        sprite.get::<Function>("rotationz")?.call::<()>((sprite.clone(), if index == 2 { -10.0 } else { 10.0 }))?;
+                        if index == 2 { sprite.get::<Function>("rotationy")?.call::<()>((sprite.clone(), 180.0))?; }
+                        sprite.get::<Function>("zoom")?.call::<()>((sprite.clone(), 0.0))?;
+                        if index != 3 { sprite.get::<Function>("diffusealpha")?.call::<()>((sprite.clone(), if index == 1 { 0.9 } else { 0.8 }))?; }
+                        sprite.get::<Function>("sleep")?.call::<()>((sprite.clone(), 0.4))?;
+                        sprite.get::<Function>(if index == 1 { "linear" } else { "decelerate" })?
                             .call::<()>((sprite.clone(), if index == 3 { 0.8 } else { 0.6 }))?;
-                        sprite
-                            .get::<Function>("rotationz")?
-                            .call::<()>((sprite.clone(), 0.0))?;
-                        sprite
-                            .get::<Function>("zoom")?
-                            .call::<()>((sprite.clone(), [0.0, 1.1, 1.3, 0.9][index]))?;
+                        sprite.get::<Function>("rotationz")?.call::<()>((sprite.clone(), 0.0))?;
+                        sprite.get::<Function>("zoom")?.call::<()>((sprite.clone(), [0.0, 1.1, 1.3, 0.9][index]))?;
                     }
-                    sprite
-                        .get::<Function>("diffusealpha")?
-                        .call::<()>((sprite.clone(), 0.0))?;
+                    sprite.get::<Function>("diffusealpha")?.call::<()>((sprite.clone(), 0.0))?;
                     push_sequence_child_once(&visuals, sprite)?;
                 }
                 // ScreenGameplay in/default.lua labels the current stage even
@@ -16977,22 +15193,15 @@ else
     return THEME:GetString("Stage", "Stage") .. " " .. tostring(GAMESTATE:GetCurrentStageIndex() + 1)
 end
 "#).set_name("@theme:/BGAnimations/ScreenGameplay in/default.lua").eval::<String>()?;
-                let text =
-                    create_named_text_actor(lua, "BitmapText", "", stage_text, create_dummy_actor)?;
+                let text = create_named_text_actor(lua, "BitmapText", "", stage_text, create_dummy_actor)?;
                 text.raw_set("__songlua_parent", child.clone())?;
-                text.get::<Function>("accelerate")?
-                    .call::<()>((text.clone(), 0.5))?;
-                text.get::<Function>("diffusealpha")?
-                    .call::<()>((text.clone(), 1.0))?;
-                text.get::<Function>("sleep")?
-                    .call::<()>((text.clone(), 0.66))?;
-                text.get::<Function>("accelerate")?
-                    .call::<()>((text.clone(), 0.33))?;
+                text.get::<Function>("accelerate")?.call::<()>((text.clone(), 0.5))?;
+                text.get::<Function>("diffusealpha")?.call::<()>((text.clone(), 1.0))?;
+                text.get::<Function>("sleep")?.call::<()>((text.clone(), 0.66))?;
+                text.get::<Function>("accelerate")?.call::<()>((text.clone(), 0.33))?;
                 push_sequence_child_once(&child, text)?;
             } else {
-                visuals
-                    .get::<Function>("playcommand")?
-                    .call::<()>((visuals, "Hide"))?;
+                visuals.get::<Function>("playcommand")?.call::<()>((visuals, "Hide"))?;
             }
         } else if name.eq_ignore_ascii_case("Out") {
             // Transition::Load adopts the returned Quad directly. Retain the
@@ -17061,16 +15270,11 @@ return {
             }
             // Initialize before authored observation, as for the other native
             // actors. Keep the Lua handlers for subsequent command dispatch.
-            quad.get::<Function>("FullScreen")?
-                .call::<()>(quad.clone())?;
-            quad.get::<Function>("diffuse")?
-                .call::<()>((quad.clone(), 0.0, 0.0, 0.0, 0.0))?;
-            quad.get::<Function>("sleep")?
-                .call::<()>((quad.clone(), 0.5))?;
-            quad.get::<Function>("linear")?
-                .call::<()>((quad.clone(), 1.0))?;
-            quad.get::<Function>("diffusealpha")?
-                .call::<()>((quad.clone(), 1.0))?;
+            quad.get::<Function>("FullScreen")?.call::<()>(quad.clone())?;
+            quad.get::<Function>("diffuse")?.call::<()>((quad.clone(), 0.0, 0.0, 0.0, 0.0))?;
+            quad.get::<Function>("sleep")?.call::<()>((quad.clone(), 0.5))?;
+            quad.get::<Function>("linear")?.call::<()>((quad.clone(), 1.0))?;
+            quad.get::<Function>("diffusealpha")?.call::<()>((quad.clone(), 1.0))?;
             actor.raw_set("__songlua_transition_child", quad.clone())?;
             push_sequence_child_once(&actor, quad)?;
         } else {
@@ -17078,21 +15282,13 @@ return {
             // Love's gameplay-cancel redirects to _fade out normal.lua.
             let quad = create_named_actor(lua, "Quad", "", create_dummy_actor)?;
             quad.raw_set("__songlua_parent", actor.clone())?;
-            quad.get::<Function>("FullScreen")?
-                .call::<()>(quad.clone())?;
-            quad.get::<Function>("diffuse")?
-                .call::<()>((quad.clone(), 0.0, 0.0, 0.0, 0.0))?;
-            quad.raw_set(
-                "StartTransitioningCommand",
-                lua.create_function(|_, quad: Table| {
-                    quad.get::<Function>("sleep")?
-                        .call::<()>((quad.clone(), 0.1))?;
-                    quad.get::<Function>("linear")?
-                        .call::<()>((quad.clone(), 0.4))?;
-                    quad.get::<Function>("diffusealpha")?
-                        .call::<()>((quad.clone(), 1.0))
-                })?,
-            )?;
+            quad.get::<Function>("FullScreen")?.call::<()>(quad.clone())?;
+            quad.get::<Function>("diffuse")?.call::<()>((quad.clone(), 0.0, 0.0, 0.0, 0.0))?;
+            quad.raw_set("StartTransitioningCommand", lua.create_function(|_, quad: Table| {
+                quad.get::<Function>("sleep")?.call::<()>((quad.clone(), 0.1))?;
+                quad.get::<Function>("linear")?.call::<()>((quad.clone(), 0.4))?;
+                quad.get::<Function>("diffusealpha")?.call::<()>((quad.clone(), 1.0))
+            })?)?;
             actor.raw_set("__songlua_transition_child", quad.clone())?;
             push_sequence_child_once(&actor, quad)?;
         }
@@ -17101,16 +15297,13 @@ return {
     if name.eq_ignore_ascii_case("Debug") {
         // ScreenGameplay::Init owns this BitmapText. Simply Love inherits
         // these Debug metrics from _fallback, including OnCommand's zoom.
-        let actor =
-            create_named_text_actor(lua, "BitmapText", name, String::new(), create_dummy_actor)?;
+        let actor = create_named_text_actor(lua, "BitmapText", name, String::new(), create_dummy_actor)?;
         for (method, value) in [
             ("x", lua.globals().get::<f32>("SCREEN_CENTER_X")?),
             ("y", lua.globals().get::<f32>("SCREEN_BOTTOM")? - 116.0),
             ("zoom", 0.75),
         ] {
-            actor
-                .get::<Function>(method)?
-                .call::<()>((actor.clone(), value))?;
+            actor.get::<Function>(method)?.call::<()>((actor.clone(), value))?;
         }
         return Ok(Some(actor));
     }
@@ -17126,30 +15319,20 @@ return {
         if name.eq_ignore_ascii_case("Underlay") {
             copy_dummy_actor_tags(parent, &actor)?;
             actor.set("__songlua_top_screen_child_name", "Underlay")?;
-            install_underlay_theme_children(
-                lua,
-                &actor,
-                create_dummy_actor,
-                create_named_child_actor,
-            )?;
+            install_underlay_theme_children(lua, &actor, create_dummy_actor, create_named_child_actor)?;
         }
         return Ok(Some(actor));
     }
     if top_screen_steps_display_index(name).is_some() {
         return create_native_steps_display(lua, name, create_dummy_actor).map(Some);
     }
-    if name.starts_with("StepsDescription")
-        || name.starts_with("PlayerOptions")
-        || name.starts_with("ActiveAttackList")
-        || name == "SongOptions"
+    if name.starts_with("StepsDescription") || name.starts_with("PlayerOptions")
+        || name.starts_with("ActiveAttackList") || name == "SongOptions"
     {
-        let actor =
-            create_named_text_actor(lua, "BitmapText", name, String::new(), create_dummy_actor)?;
+        let actor = create_named_text_actor(lua, "BitmapText", name, String::new(), create_dummy_actor)?;
         // These engine displays are hidden by the inherited gameplay metrics.
         // StepsDescription additionally hibernates in Simply Love's On.
-        actor
-            .get::<Function>("visible")?
-            .call::<()>((actor.clone(), false))?;
+        actor.get::<Function>("visible")?.call::<()>((actor.clone(), false))?;
         return Ok(Some(actor));
     }
     if name.starts_with("OniGameOver") {
@@ -17173,8 +15356,7 @@ return {
 }
 
 fn create_native_song_background(
-    lua: &Lua,
-    create_dummy_actor: fn(&Lua, &'static str) -> mlua::Result<Table>,
+    lua: &Lua, create_dummy_actor: fn(&Lua, &'static str) -> mlua::Result<Table>,
 ) -> mlua::Result<Table> {
     let background = create_named_actor(lua, "ActorFrame", "SongBackground", create_dummy_actor)?;
     let implementation = create_named_actor(lua, "ActorFrame", "", create_dummy_actor)?;
@@ -17184,18 +15366,12 @@ fn create_native_song_background(
     let height = lua.globals().get::<f32>("SCREEN_HEIGHT")?;
     // BackgroundImpl::Init owns four border Quads and BrightnessOverlay.
     // _fallback's Background metrics use the full logical screen rectangle.
-    for (left, top, right, bottom) in [
-        (0.0, 0.0, 0.0, height),
-        (0.0, 0.0, width, 0.0),
-        (width, 0.0, width, height),
-        (0.0, height, width, height),
-    ] {
+    for (left, top, right, bottom) in [(0.0, 0.0, 0.0, height), (0.0, 0.0, width, 0.0),
+        (width, 0.0, width, height), (0.0, height, width, height)] {
         let quad = create_named_actor(lua, "Quad", "", create_dummy_actor)?;
         quad.raw_set("__songlua_parent", implementation.clone())?;
-        quad.get::<Function>("stretchto")?
-            .call::<()>((quad.clone(), left, top, right, bottom))?;
-        quad.get::<Function>("diffuse")?
-            .call::<()>((quad.clone(), 0.0, 0.0, 0.0, 1.0))?;
+        quad.get::<Function>("stretchto")?.call::<()>((quad.clone(), left, top, right, bottom))?;
+        quad.get::<Function>("diffuse")?.call::<()>((quad.clone(), 0.0, 0.0, 0.0, 1.0))?;
         push_sequence_child_once(&implementation, quad)?;
     }
     let brightness = create_named_actor(lua, "ActorFrame", "", create_dummy_actor)?;
@@ -17204,16 +15380,12 @@ fn create_native_song_background(
     // BrightnessOverlay in Background.cpp uses a 40-pixel center band.
     let side = width / 2.0 - 20.0;
     let prefs = lua.globals().raw_get::<Table>("PREFSMAN")?;
-    let level = prefs
-        .get::<Function>("GetPreference")?
-        .call::<f32>((prefs, "BGBrightness"))?;
+    let level = prefs.get::<Function>("GetPreference")?.call::<f32>((prefs, "BGBrightness"))?;
     for (left, right) in [(0.0, side), (width - side, width), (side, width - side)] {
         let quad = create_named_actor(lua, "Quad", "BrightnessOverlay", create_dummy_actor)?;
         quad.raw_set("__songlua_parent", brightness.clone())?;
-        quad.get::<Function>("stretchto")?
-            .call::<()>((quad.clone(), left, 0.0, right, height))?;
-        quad.get::<Function>("diffuse")?
-            .call::<()>((quad.clone(), 0.0, 0.0, 0.0, 1.0 - level))?;
+        quad.get::<Function>("stretchto")?.call::<()>((quad.clone(), left, 0.0, right, height))?;
+        quad.get::<Function>("diffuse")?.call::<()>((quad.clone(), 0.0, 0.0, 0.0, 1.0 - level))?;
         push_sequence_child_once(&brightness, quad)?;
     }
     native_step_statistics_lookup(lua, &background)?;
@@ -17238,16 +15410,13 @@ pub fn create_underlay_theme_actor(
     if name.eq_ignore_ascii_case("Header") {
         let actor = create_named_actor(lua, "Quad", "Header", create_dummy_actor)?;
         actor.raw_set("__songlua_parent", parent.clone())?;
-        let commands = lua
-            .load(
-                r#"return {
+        let commands = lua.load(r#"return {
 	Name="Header",
 	InitCommand=function(self)
 		self:diffuse(0,0,0,0.85):valign(0):xy( _screen.cx, 0 )
 		self:zoomtowidth(_screen.w):zoomtoheight(80)
 	end
-}"#,
-            )
+}"#)
             .set_name("@theme:/BGAnimations/ScreenGameplay underlay/Shared/Header.lua")
             .eval::<Table>()?;
         let init = commands.raw_get::<Function>("InitCommand")?;
@@ -17375,21 +15544,13 @@ pub fn create_top_screen_player_actor(
     actor.set("__songlua_player_index", player_index as i64)?;
     actor.set("__songlua_style_name", style_name)?;
     actor.set("__songlua_visible", true)?;
-    actor.set(
-        "get_oitg_zoom_mode",
-        lua.create_function(|_, actor: Table| {
-            Ok(actor
-                .raw_get::<Option<bool>>("__songlua_oitg_zoom_mode")?
-                .unwrap_or(false))
-        })?,
-    )?;
-    actor.set(
-        "set_oitg_zoom_mode",
-        lua.create_function(|_, (actor, value): (Table, Value)| {
-            actor.raw_set("__songlua_oitg_zoom_mode", truthy(&value))?;
-            Ok(actor)
-        })?,
-    )?;
+    actor.set("get_oitg_zoom_mode", lua.create_function(|_, actor: Table| {
+        Ok(actor.raw_get::<Option<bool>>("__songlua_oitg_zoom_mode")?.unwrap_or(false))
+    })?)?;
+    actor.set("set_oitg_zoom_mode", lua.create_function(|_, (actor, value): (Table, Value)| {
+        actor.raw_set("__songlua_oitg_zoom_mode", truthy(&value))?;
+        Ok(actor)
+    })?)?;
     // Player constructs this unnamed ActorFrame before Init adds its visible
     // parts. AttackDisplay has no child Sprite in the host's regular play mode.
     let attack = create_named_actor(lua, "ActorFrame", "", create_dummy_actor)?;
@@ -17440,56 +15601,28 @@ pub fn install_top_screen_theme_children(
     for &name in TOP_SCREEN_THEME_CHILD_NAMES {
         // ScreenGameplay::Init creates score and difficulty displays only
         // for enabled players; Simply Love hibernates those engine actors.
-        let player = top_screen_score_index(name)
-            .or_else(|| top_screen_steps_display_index(name))
-            .or_else(|| {
-                ["StepsDescription", "PlayerOptions", "OniGameOver"]
-                    .iter()
-                    .find_map(|prefix| {
-                        name.strip_prefix(prefix).and_then(|side| match side {
-                            "P1" => Some(0),
-                            "P2" => Some(1),
-                            _ => None,
-                        })
-                    })
-            });
+        let player = top_screen_score_index(name).or_else(|| top_screen_steps_display_index(name))
+            .or_else(|| ["StepsDescription", "PlayerOptions", "OniGameOver"].iter()
+                .find_map(|prefix| name.strip_prefix(prefix)
+                    .and_then(|side| match side { "P1" => Some(0), "P2" => Some(1), _ => None })));
         if player.is_some_and(|index| !players[index].enabled) {
             continue;
         }
         let child = create_named_child_actor(lua, top_screen, name)?;
-        if top_screen_score_index(name).is_some()
-            || top_screen_steps_display_index(name).is_some()
-            || name.starts_with("StepsDescription")
-            || matches!(name, "Header" | "Footer")
-        {
+        if top_screen_score_index(name).is_some() || top_screen_steps_display_index(name).is_some()
+            || name.starts_with("StepsDescription") || matches!(name, "Header" | "Footer") {
             child.raw_set("__songlua_theme_hibernating", true)?;
         }
         if let Some(index) = top_screen_steps_display_index(name) {
-            child.raw_set(
-                "__songlua_preferred_difficulty",
-                players[index].difficulty.sm_name(),
-            )?;
+            child.raw_set("__songlua_preferred_difficulty", players[index].difficulty.sm_name())?;
         }
         children.set(name, child)?;
     }
     // ActorFrame traverses its ordered actor tree. Named lookup aliases must
     // not let Lua hash order place foreground Off before the theme overlay.
-    for name in [
-        "SongBackground",
-        "Underlay",
-        "PlayerP1",
-        "PlayerP2",
-        "LifeP1",
-        "LifeP2",
-        "ScoreP1",
-        "ScoreP2",
-        "StepsDisplayP1",
-        "StepsDisplayP2",
-        "Overlay",
-        "SongForeground",
-        "In",
-        "Debug",
-    ] {
+    for name in ["SongBackground", "Underlay", "PlayerP1", "PlayerP2", "LifeP1", "LifeP2",
+        "ScoreP1", "ScoreP2", "StepsDisplayP1", "StepsDisplayP2",
+        "Overlay", "SongForeground", "In", "Debug"] {
         if let Some(child) = children.raw_get::<Option<Table>>(name)? {
             push_sequence_child_once(top_screen, child)?;
         }
@@ -17503,9 +15636,7 @@ pub fn install_top_screen_theme_children(
 }
 
 fn create_underlay_background_filter(
-    lua: &Lua,
-    underlay: &Table,
-    player: usize,
+    lua: &Lua, underlay: &Table, player: usize,
     create_dummy_actor: fn(&Lua, &'static str) -> mlua::Result<Table>,
 ) -> mlua::Result<Option<Table>> {
     let commands = lua.load(r#"
@@ -17549,22 +15680,15 @@ return {
 }
 "#).set_name("@theme:/BGAnimations/ScreenGameplay underlay/PerPlayer/BackgroundFilter.lua")
         .call::<Option<Table>>(player_number_name(player))?;
-    let Some(commands) = commands else {
-        return Ok(None);
-    };
+    let Some(commands) = commands else { return Ok(None); };
     let sl = lua.globals().get::<Table>("SL")?;
-    let mods = sl
-        .get::<Table>(format!("P{}", player + 1))?
-        .get::<Table>("ActiveModifiers")?;
+    let mods = sl.get::<Table>(format!("P{}", player + 1))?.get::<Table>("ActiveModifiers")?;
     let filter = mods.get::<Value>("BackgroundFilter")?;
     let alpha = match filter {
         Value::Integer(value) => value as f32 / 100.0,
         Value::Number(value) => value as f32 / 100.0,
         Value::String(name) => {
-            let values = lua
-                .globals()
-                .get::<Function>("BackgroundFilterValues")?
-                .call::<Table>(())?;
+            let values = lua.globals().get::<Function>("BackgroundFilterValues")?.call::<Table>(())?;
             values.get::<f32>(name)? / 100.0
         }
         _ => return Err(mlua::Error::runtime("invalid initial BackgroundFilter")),
@@ -17575,31 +15699,17 @@ return {
         actor.raw_set(command, commands.raw_get::<Function>(command)?)?;
     }
     // Constructor initialization occurs before authored observation.
-    let x = lua
-        .globals()
-        .get::<Function>("GetNotefieldX")?
-        .call::<f32>(player_number_name(player))?;
-    let width = lua
-        .globals()
-        .get::<Function>("GetNotefieldWidth")?
-        .call::<f32>(())?;
+    let x = lua.globals().get::<Function>("GetNotefieldX")?.call::<f32>(player_number_name(player))?;
+    let width = lua.globals().get::<Function>("GetNotefieldWidth")?.call::<f32>(())?;
     let height = lua.globals().get::<f32>("SCREEN_HEIGHT")?;
-    actor
-        .get::<Function>("xy")?
-        .call::<()>((actor.clone(), x, height * 0.5))?;
-    actor
-        .get::<Function>("diffuse")?
-        .call::<()>((actor.clone(), 0.0, 0.0, 0.0, alpha))?;
-    actor
-        .get::<Function>("zoomto")?
-        .call::<()>((actor.clone(), width, height))?;
+    actor.get::<Function>("xy")?.call::<()>((actor.clone(), x, height * 0.5))?;
+    actor.get::<Function>("diffuse")?.call::<()>((actor.clone(), 0.0, 0.0, 0.0, alpha))?;
+    actor.get::<Function>("zoomto")?.call::<()>((actor.clone(), width, height))?;
     Ok(Some(actor))
 }
 
 fn create_underlay_difficulty_meter(
-    lua: &Lua,
-    underlay: &Table,
-    player: usize,
+    lua: &Lua, underlay: &Table, player: usize,
     create_dummy_actor: fn(&Lua, &'static str) -> mlua::Result<Table>,
 ) -> mlua::Result<Table> {
     let commands = lua.load(r#"
@@ -17652,25 +15762,18 @@ return {
     frame.raw_set("__songlua_parent", underlay.clone())?;
     frame.raw_set("InitCommand", commands.raw_get::<Function>("InitCommand")?)?;
     // Native LoadActor runs Init before Screen::BeginScreen propagates Begin.
-    commands
-        .raw_get::<Function>("InitCommand")?
-        .call::<()>(frame.clone())?;
+    commands.raw_get::<Function>("InitCommand")?.call::<()>(frame.clone())?;
     let quad = create_named_actor(lua, "Quad", "", create_dummy_actor)?;
     let text = create_named_text_actor(lua, "BitmapText", "", String::new(), create_dummy_actor)?;
     text.raw_set("Font", "Common Bold")?;
     let unnamed = create_actor_child_group(lua)?;
     for (index, actor) in [(1, quad.clone()), (2, text.clone())] {
         let part = commands.raw_get::<Table>(index)?;
-        for command in [
-            "InitCommand",
-            "BeginCommand",
-            "CurrentSongChangedMessageCommand",
-        ] {
+        for command in ["InitCommand", "BeginCommand", "CurrentSongChangedMessageCommand"] {
             actor.raw_set(command, part.raw_get::<Function>(command)?)?;
         }
         actor.raw_set("__songlua_parent", frame.clone())?;
-        part.raw_get::<Function>("InitCommand")?
-            .call::<()>(actor.clone())?;
+        part.raw_get::<Function>("InitCommand")?.call::<()>(actor.clone())?;
         push_sequence_child_once(&frame, actor.clone())?;
         unnamed.raw_set(index, actor)?;
     }
@@ -17678,22 +15781,14 @@ return {
     // Initialize from actual selected Steps, before authored query observation.
     // Calling the public command dispatcher here would record extra song events.
     let game = lua.globals().get::<Table>("GAMESTATE")?;
-    if let Some(steps) = game
-        .get::<Function>("GetCurrentSteps")?
+    if let Some(steps) = game.get::<Function>("GetCurrentSteps")?
         .call::<Option<Table>>((game, player_number_name(player)))?
     {
-        let difficulty = steps
-            .get::<Function>("GetDifficulty")?
-            .call::<String>(steps.clone())?;
-        let color = lua
-            .globals()
-            .get::<Function>("DifficultyColor")?
-            .call::<Table>(difficulty)?;
-        quad.get::<Function>("diffuse")?
-            .call::<()>((quad.clone(), color))?;
+        let difficulty = steps.get::<Function>("GetDifficulty")?.call::<String>(steps.clone())?;
+        let color = lua.globals().get::<Function>("DifficultyColor")?.call::<Table>(difficulty)?;
+        quad.get::<Function>("diffuse")?.call::<()>((quad.clone(), color))?;
         let meter = steps.get::<Function>("GetMeter")?.call::<u32>(steps)?;
-        text.get::<Function>("settext")?
-            .call::<()>((text.clone(), meter))?;
+        text.get::<Function>("settext")?.call::<()>((text.clone(), meter))?;
     }
     Ok(frame)
 }
@@ -17716,30 +15811,19 @@ fn load_native_standard_life_swoosh() -> mlua::Result<String> {
 }
 
 fn create_underlay_standard_life_meter(
-    lua: &Lua,
-    underlay: &Table,
-    player: usize,
+    lua: &Lua, underlay: &Table, player: usize,
     create_dummy_actor: fn(&Lua, &'static str) -> mlua::Result<Table>,
 ) -> mlua::Result<Option<Table>> {
     // LifeMeter/default.lua selects the actual per-player variant. Other
     // variants retain their missing implementation; never stand in for them.
     let sl = lua.globals().get::<Table>("SL")?;
-    let mods = sl
-        .get::<Table>(format!("P{}", player + 1))?
-        .get::<Table>("ActiveModifiers")?;
+    let mods = sl.get::<Table>(format!("P{}", player + 1))?.get::<Table>("ActiveModifiers")?;
     if mods.get::<bool>("HideLifebar")?
         || sl.get::<Table>("Global")?.get::<String>("GameMode")? != "ITG"
-        || mods.get::<String>("LifeMeterType")? != "Standard"
-    {
-        return Ok(None);
-    }
+        || mods.get::<String>("LifeMeterType")? != "Standard" { return Ok(None); }
     let game = lua.globals().get::<Table>("GAMESTATE")?;
-    let state = game
-        .get::<Function>("GetPlayerState")?
-        .call::<Table>((game, player_number_name(player)))?;
-    let position = state
-        .get::<Function>("GetSongPosition")?
-        .call::<Table>(state)?;
+    let state = game.get::<Function>("GetPlayerState")?.call::<Table>((game, player_number_name(player)))?;
+    let position = state.get::<Function>("GetSongPosition")?.call::<Table>(state)?;
     let commands = lua.load(r#"
 local player = ...
 
@@ -17850,80 +15934,47 @@ return meter
     for command in ["InitCommand", "OnCommand"] {
         meter.raw_set(command, commands.raw_get::<Function>(command)?)?;
     }
-    commands
-        .raw_get::<Function>("InitCommand")?
-        .call::<()>(meter.clone())?;
+    commands.raw_get::<Function>("InitCommand")?.call::<()>(meter.clone())?;
     let unnamed = create_actor_child_group(lua)?;
-    for (index, kind, name) in [
-        (1, "Quad", ""),
-        (2, "Quad", ""),
-        (3, "Quad", "MeterFill"),
-        (4, "Sprite", "MeterSwoosh"),
-    ] {
+    for (index, kind, name) in [(1, "Quad", ""), (2, "Quad", ""),
+        (3, "Quad", "MeterFill"), (4, "Sprite", "MeterSwoosh")] {
         let actor = create_named_actor(lua, kind, name, create_dummy_actor)?;
         actor.raw_set("__songlua_parent", meter.clone())?;
-        if kind == "Sprite" {
-            set_actor_texture_from_path(&actor, &load_native_standard_life_swoosh()?)?;
-        }
+        if kind == "Sprite" { set_actor_texture_from_path(&actor, &load_native_standard_life_swoosh()?)?; }
         let definition = commands.raw_get::<Table>(index)?;
-        for command in [
-            "InitCommand",
-            "OnCommand",
-            "LifeChangedMessageCommand",
-            "HealthStateChangedMessageCommand",
-        ] {
+        for command in ["InitCommand", "OnCommand", "LifeChangedMessageCommand", "HealthStateChangedMessageCommand"] {
             if let Some(callback) = definition.raw_get::<Option<Function>>(command)? {
                 actor.raw_set(command, callback)?;
             }
         }
-        definition
-            .raw_get::<Function>("InitCommand")?
-            .call::<()>(actor.clone())?;
-        if let Some(on) = definition.raw_get::<Option<Function>>("OnCommand")? {
-            on.call::<()>(actor.clone())?;
-        }
+        definition.raw_get::<Function>("InitCommand")?.call::<()>(actor.clone())?;
+        if let Some(on) = definition.raw_get::<Option<Function>>("OnCommand")? { on.call::<()>(actor.clone())?; }
         push_sequence_child_once(&meter, actor.clone())?;
-        if name.is_empty() {
-            unnamed.raw_set(unnamed.raw_len() + 1, actor)?;
-        } else {
-            actor_children(lua, &meter)?.raw_set(name, actor)?;
-        }
+        if name.is_empty() { unnamed.raw_set(unnamed.raw_len() + 1, actor)?; }
+        else { actor_children(lua, &meter)?.raw_set(name, actor)?; }
     }
     actor_children(lua, &meter)?.raw_set("", unnamed)?;
     meter.raw_set("__songlua_owned_child_lookup", true)?;
-    commands
-        .raw_get::<Function>("OnCommand")?
-        .call::<()>(meter.clone())?;
+    commands.raw_get::<Function>("OnCommand")?.call::<()>(meter.clone())?;
     Ok(Some(meter))
 }
 
 fn create_shared_bpm_node(
-    lua: &Lua,
-    parent: &Table,
-    definition: Table,
+    lua: &Lua, parent: &Table, definition: Table,
     create_dummy_actor: fn(&Lua, &'static str) -> mlua::Result<Table>,
 ) -> mlua::Result<Table> {
     let kind = definition.raw_get::<String>("__songlua_builtin_kind")?;
-    let name = definition
-        .raw_get::<Option<String>>("Name")?
-        .unwrap_or_default();
+    let name = definition.raw_get::<Option<String>>("Name")?.unwrap_or_default();
     let actor = if kind == "BitmapText" {
-        let text = definition
-            .raw_get::<Option<String>>("Text")?
-            .unwrap_or_default();
+        let text = definition.raw_get::<Option<String>>("Text")?.unwrap_or_default();
         let actor = create_named_text_actor(lua, "BitmapText", &name, text, create_dummy_actor)?;
         actor.raw_set("Font", definition.raw_get::<String>("Font")?)?;
         actor
-    } else {
-        create_named_actor(lua, "ActorFrame", &name, create_dummy_actor)?
-    };
+    } else { create_named_actor(lua, "ActorFrame", &name, create_dummy_actor)? };
     actor.raw_set("__songlua_parent", parent.clone())?;
     definition.for_each::<Value, Value>(|key, value| {
         if let (Value::String(key), Value::Function(value)) = (key, value)
-            && key.to_str()?.ends_with("Command")
-        {
-            actor.raw_set(key, value)?;
-        }
+            && key.to_str()?.ends_with("Command") { actor.raw_set(key, value)?; }
         Ok(())
     })?;
     if let Some(init) = definition.raw_get::<Option<Function>>("InitCommand")? {
@@ -17934,26 +15985,20 @@ fn create_shared_bpm_node(
         let child = create_shared_bpm_node(lua, &actor, child?, create_dummy_actor)?;
         let name = actor_name(&child)?;
         push_sequence_child_once(&actor, child.clone())?;
-        if name.is_empty() {
-            unnamed.raw_set(unnamed.raw_len() + 1, child)?;
-        } else {
-            actor_children(lua, &actor)?.set(name, child)?;
-        }
+        if name.is_empty() { unnamed.raw_set(unnamed.raw_len() + 1, child)?; }
+        else { actor_children(lua, &actor)?.set(name, child)?; }
     }
     match unnamed.raw_len() {
         0 => (),
         1 => actor_children(lua, &actor)?.raw_set("", unnamed.raw_get::<Table>(1)?)?,
         _ => actor_children(lua, &actor)?.raw_set("", unnamed)?,
     }
-    if kind == "ActorFrame" {
-        actor.raw_set("__songlua_owned_child_lookup", true)?;
-    }
+    if kind == "ActorFrame" { actor.raw_set("__songlua_owned_child_lookup", true)?; }
     Ok(actor)
 }
 
 fn create_underlay_shared_bpm(
-    lua: &Lua,
-    underlay: &Table,
+    lua: &Lua, underlay: &Table,
     create_dummy_actor: fn(&Lua, &'static str) -> mlua::Result<Table>,
 ) -> mlua::Result<Table> {
     // Keep the native Lua selectors, Init handlers and update closures intact.
@@ -18143,11 +16188,8 @@ pub fn install_underlay_theme_children(
         let player = underlay_score_index(name)
             .or_else(|| top_screen_step_stats_pane_index(name))
             .or_else(|| top_screen_danger_index(name))
-            .or_else(|| {
-                name.strip_prefix("NoteFieldContainerP")
-                    .and_then(|number| number.parse::<usize>().ok())
-                    .map(|number| number - 1)
-            });
+            .or_else(|| name.strip_prefix("NoteFieldContainerP")
+                .and_then(|number| number.parse::<usize>().ok()).map(|number| number - 1));
         if let Some(player) = player {
             let key = ["__songlua_player1_enabled", "__songlua_player2_enabled"][player];
             if underlay.raw_get::<Option<bool>>(key)? == Some(false) {
@@ -18155,9 +16197,7 @@ pub fn install_underlay_theme_children(
             }
         }
         if let Some(player) = top_screen_step_stats_pane_index(name) {
-            if let Some(filter) =
-                create_underlay_background_filter(lua, underlay, player, create_dummy_actor)?
-            {
+            if let Some(filter) = create_underlay_background_filter(lua, underlay, player, create_dummy_actor)? {
                 filter.raw_set("__songlua_underlay_role", format!("filter{player}"))?;
                 push_sequence_child_once(underlay, filter.clone())?;
                 unnamed.raw_set(unnamed.raw_len() + 1, filter)?;
@@ -18165,15 +16205,9 @@ pub fn install_underlay_theme_children(
             continue; // Native StepStatistics is loaded after its host services exist.
         }
         // Danger.lua needs GAMESTATE and Def, installed later with StepStatistics.
-        if top_screen_danger_index(name).is_some() {
-            continue;
-        }
-        if name.eq_ignore_ascii_case("SongMeter") {
-            continue;
-        } // Load the original shared actor after host services exist.
-        if name.starts_with("NoteFieldContainerP") {
-            continue;
-        } // Original per-player source loads after host services exist.
+        if top_screen_danger_index(name).is_some() { continue; }
+        if name.eq_ignore_ascii_case("SongMeter") { continue; } // Load the original shared actor after host services exist.
+        if name.starts_with("NoteFieldContainerP") { continue; } // Original per-player source loads after host services exist.
         let child = create_named_child_actor(lua, underlay, name)?;
         if name.starts_with("NoteFieldContainerP") {
             // Named lookup and screen Update share the same pane owner.
@@ -18181,14 +16215,11 @@ pub fn install_underlay_theme_children(
         }
         children.set(name, child)?;
         if let Some(player) = underlay_score_index(name) {
-            let meter =
-                create_underlay_difficulty_meter(lua, underlay, player, create_dummy_actor)?;
+            let meter = create_underlay_difficulty_meter(lua, underlay, player, create_dummy_actor)?;
             meter.raw_set("__songlua_underlay_role", format!("difficulty{player}"))?;
             push_sequence_child_once(underlay, meter.clone())?;
             unnamed.raw_set(unnamed.raw_len() + 1, meter)?;
-            if let Some(life) =
-                create_underlay_standard_life_meter(lua, underlay, player, create_dummy_actor)?
-            {
+            if let Some(life) = create_underlay_standard_life_meter(lua, underlay, player, create_dummy_actor)? {
                 life.raw_set("__songlua_underlay_role", format!("life{player}"))?;
                 push_sequence_child_once(underlay, life.clone())?;
                 unnamed.raw_set(unnamed.raw_len() + 1, life)?;
@@ -18228,10 +16259,7 @@ fn install_named_theme_children(
 }
 
 fn install_hold_judgments(
-    lua: &Lua,
-    player: &Table,
-    player_index: usize,
-    style_name: &str,
+    lua: &Lua, player: &Table, player_index: usize, style_name: &str,
     create_dummy_actor: fn(&Lua, &'static str) -> mlua::Result<Table>,
 ) -> mlua::Result<()> {
     // Player::Init adds an unnamed HoldJudgment ActorFrame for each column.
@@ -18242,18 +16270,11 @@ fn install_hold_judgments(
         unnamed.raw_set(1, attack)?;
     }
     let sl: Table = lua.globals().raw_get("SL")?;
-    let mods: Table = sl
-        .raw_get::<Table>(if player_index == 0 { "P1" } else { "P2" })?
-        .raw_get("ActiveModifiers")?;
-    let label = mods
-        .raw_get::<Option<String>>("HoldJudgment")?
-        .unwrap_or_else(|| "None 1x2.png".into());
+    let mods: Table = sl.raw_get::<Table>(if player_index == 0 { "P1" } else { "P2" })?.raw_get("ActiveModifiers")?;
+    let label = mods.raw_get::<Option<String>>("HoldJudgment")?.unwrap_or_else(|| "None 1x2.png".into());
     let theme: Table = lua.globals().raw_get("THEME")?;
-    let texture = theme.get::<Function>("GetPathG")?.call::<String>((
-        theme.clone(),
-        "",
-        format!("_HoldJudgments/{label}"),
-    ))?;
+    let texture = theme.get::<Function>("GetPathG")?.call::<String>(
+        (theme.clone(), "", format!("_HoldJudgments/{label}")))?;
     for column in 0..song_lua_style_info(style_name).columns {
         let frame = create_named_actor(lua, "HoldJudgment", "", create_dummy_actor)?;
         frame.raw_set("__songlua_parent", player.clone())?;
@@ -18261,9 +16282,7 @@ fn install_hold_judgments(
         sprite.raw_set("__songlua_parent", frame.clone())?;
         sprite.raw_set("__songlua_sprite_animate", false)?;
         set_actor_texture_from_path(&sprite, &texture)?;
-        sprite
-            .get::<Function>("diffusealpha")?
-            .call::<()>((sprite.clone(), 0.0))?;
+        sprite.get::<Function>("diffusealpha")?.call::<()>((sprite.clone(), 0.0))?;
         push_sequence_child_once(&frame, sprite.clone())?;
         actor_children(lua, &frame)?.set("HoldJudgment", sprite)?;
         frames.raw_set(column + 1, frame.clone())?;
@@ -18289,9 +16308,7 @@ pub fn create_life_meter_table(
         lua.create_function({
             let actor = actor.clone();
             move |lua, _args: IgnoredArgs| {
-                if let Some(life) =
-                    player_index.and_then(|player| crate::live::player_life(lua, player))
-                {
+                if let Some(life) = player_index.and_then(|player| crate::live::player_life(lua, player)) {
                     return Ok(life);
                 }
                 Ok(actor
@@ -18392,9 +16409,7 @@ pub fn create_note_field_actor(
     )?;
     capture_block_set_f32(lua, &actor, "x", 0.0_f32)?;
     capture_block_set_f32(
-        lua,
-        &actor,
-        "y",
+        lua, &actor, "y",
         f32::midpoint(THEME_RECEPTOR_Y_STD, THEME_RECEPTOR_Y_REV),
     )?;
     capture_block_set_f32(lua, &actor, "z", 0.0_f32)?;
@@ -18483,19 +16498,9 @@ pub fn create_top_screen_table(
         player_actor.set("__songlua_parent", top_screen.clone())?;
         // Player retains its life meter while its screen dispatches End.
         player_actor.raw_set("__songlua_life_meter", life_meters[player_index].clone())?;
-        install_named_theme_children(
-            lua,
-            player_actor,
-            &["Combo", "Judgment"],
-            create_named_child_actor,
-        )?;
-        install_hold_judgments(
-            lua,
-            player_actor,
-            player_index,
-            &context.style_name,
-            create_dummy_actor,
-        )?;
+        install_named_theme_children(lua, player_actor, &["Combo", "Judgment"],
+            create_named_child_actor)?;
+        install_hold_judgments(lua, player_actor, player_index, &context.style_name, create_dummy_actor)?;
         install_named_theme_children(lua, player_actor, &["NoteField"], create_named_child_actor)?;
     }
     for (player_index, life_meter) in life_meters.iter().enumerate() {
@@ -18533,9 +16538,7 @@ pub fn create_top_screen_table(
     let source_output = lua.remove_app_data::<LiveSourceBroadcasts>();
     let loaded_life = (|| -> mlua::Result<()> {
         for (player, life_meter) in life_meters.iter().enumerate() {
-            if !players[player].enabled {
-                continue;
-            }
+            if !players[player].enabled { continue; }
             let params = lua.create_table()?;
             params.raw_set("Player", player_number_name(player))?;
             params.raw_set("LifeMeter", life_meter.clone())?;
@@ -18543,12 +16546,8 @@ pub fn create_top_screen_table(
         }
         Ok(())
     })();
-    if let Some(song_output) = song_output {
-        lua.set_app_data(song_output);
-    }
-    if let Some(source_output) = source_output {
-        lua.set_app_data(source_output);
-    }
+    if let Some(song_output) = song_output { lua.set_app_data(song_output); }
+    if let Some(source_output) = source_output { lua.set_app_data(source_output); }
     loaded_life?;
     // ScreenGameplay.h declares all five unnamed owners as Transition.
     // Keep the duplicate-name group as lookup aliases of the same actor tree.
@@ -18559,63 +16558,27 @@ pub fn create_top_screen_table(
         actor.raw_set("__songlua_parent", top_screen.clone())?;
         actor.raw_set("__songlua_screen_actor_role", role)?;
         if role == "Toasty" {
-            actor
-                .get::<Function>("visible")?
-                .call::<()>((actor.clone(), false))?;
+            actor.get::<Function>("visible")?.call::<()>((actor.clone(), false))?;
         }
         unnamed.raw_set(unnamed.raw_len() + 1, actor.clone())?;
         push_sequence_child_once(&top_screen, actor)?;
     }
     children.set("", unnamed)?;
     top_screen.raw_set("__songlua_owned_child_lookup", true)?;
-    let mut ordered = top_screen
-        .sequence_values::<Table>()
+    let mut ordered = top_screen.sequence_values::<Table>()
         .collect::<mlua::Result<Vec<_>>>()?;
     // ScreenWithMenuElements adopts Header/Footer before gameplay creates its
     // player displays. Stable draw sorting preserves this construction order
     // among the default-order actors (ActorFrame.cpp). ScreenGameplay first
     // adopts every Player, then adopts their OniGameOver actors in a second loop.
-    let construction_names = [
-        "Underlay",
-        "Overlay",
-        "Header",
-        "Footer",
-        "In",
-        "Out",
-        "Cancel",
-        "SongBackground",
-        "SongForeground",
-        "Toasty",
-        "PlayerP1",
-        "PlayerP2",
-        "OniGameOverP1",
-        "OniGameOverP2",
-        "NextSong",
-        "LifeP1",
-        "LifeP2",
-        "ScoreP1",
-        "ScoreP2",
-        "StepsDescriptionP1",
-        "PlayerOptionsP1",
-        "StepsDisplayP1",
-        "StepsDescriptionP2",
-        "PlayerOptionsP2",
-        "StepsDisplayP2",
-        "SongOptions",
-        "ActiveAttackListP1",
-        "ActiveAttackListP2",
-        "LyricDisplay",
-        "Ready",
-        "Go",
-        "Failed",
-        "Debug",
-    ];
+    let construction_names = ["Underlay", "Overlay", "Header", "Footer", "In", "Out", "Cancel",
+        "SongBackground", "SongForeground", "Toasty", "PlayerP1", "PlayerP2", "OniGameOverP1", "OniGameOverP2",
+        "NextSong", "LifeP1", "LifeP2", "ScoreP1", "ScoreP2", "StepsDescriptionP1", "PlayerOptionsP1",
+        "StepsDisplayP1", "StepsDescriptionP2", "PlayerOptionsP2", "StepsDisplayP2", "SongOptions",
+        "ActiveAttackListP1", "ActiveAttackListP2", "LyricDisplay", "Ready", "Go", "Failed", "Debug"];
     ordered.sort_by_key(|actor| {
-        let name = actor
-            .raw_get::<Option<String>>("__songlua_screen_actor_role")
-            .ok()
-            .flatten()
-            .or_else(|| actor_name(actor).ok());
+        let name = actor.raw_get::<Option<String>>("__songlua_screen_actor_role")
+            .ok().flatten().or_else(|| actor_name(actor).ok());
         name.and_then(|name| construction_names.iter().position(|known| *known == name))
             .unwrap_or(construction_names.len())
     });
@@ -18627,21 +16590,14 @@ pub fn create_top_screen_table(
             "SongForeground" => 101,
             "Debug" => 199,
             "In" | "Out" | "Cancel" => 200,
-            _ => match actor
-                .raw_get::<Option<String>>("__songlua_screen_actor_role")?
-                .as_deref()
-            {
+            _ => match actor.raw_get::<Option<String>>("__songlua_screen_actor_role")?.as_deref() {
                 Some("NextSong" | "Failed") => 199,
                 _ => 0,
             },
         };
         actor.raw_set("__songlua_state_draw_order", order)?;
     }
-    ordered.sort_by_key(|actor| {
-        actor
-            .raw_get::<i32>("__songlua_state_draw_order")
-            .unwrap_or(0)
-    });
+    ordered.sort_by_key(|actor| actor.raw_get::<i32>("__songlua_state_draw_order").unwrap_or(0));
     for (index, actor) in ordered.into_iter().enumerate() {
         top_screen.raw_set(index + 1, actor)?;
     }
@@ -18716,25 +16672,11 @@ pub fn create_top_screen_table(
             move |lua, args: MultiValue| {
                 note_song_lua_side_effect(lua)?;
                 if crate::live::active(lua) {
-                    let message = method_arg(&args, 0)
-                        .cloned()
-                        .and_then(read_string)
-                        .ok_or_else(|| {
-                            mlua::Error::runtime("expected a screen transition message")
-                        })?;
-                    crate::live::capture_source_request(
-                        lua,
-                        crate::live::SongLuaLiveRequest::Transition(message.clone()),
-                    )?;
-                    run_named_command_on_children_recursively(
-                        lua,
-                        &top_screen,
-                        "OffCommand",
-                        None,
-                    )?;
-                    if let Some(transition) =
-                        actor_children(lua, &top_screen)?.raw_get::<Option<Table>>("Out")?
-                    {
+                    let message = method_arg(&args, 0).cloned().and_then(read_string)
+                        .ok_or_else(|| mlua::Error::runtime("expected a screen transition message"))?;
+                    crate::live::capture_source_request(lua, crate::live::SongLuaLiveRequest::Transition(message.clone()))?;
+                    run_named_command_on_children_recursively(lua, &top_screen, "OffCommand", None)?;
+                    if let Some(transition) = actor_children(lua, &top_screen)?.raw_get::<Option<Table>>("Out")? {
                         start_actor_transition(lua, &transition)?;
                     }
                     lua.set_app_data(crate::live::TransitionRequest(message));
@@ -19061,8 +17003,7 @@ fn create_cubic_spline_table(lua: &Lua) -> mlua::Result<Table> {
         lua.create_function({
             let spline = spline.clone();
             move |lua, args: MultiValue| {
-                let t = lua
-                    .coerce_number(args.get(1).cloned().unwrap_or(Value::Nil))?
+                let t = lua.coerce_number(args.get(1).cloned().unwrap_or(Value::Nil))?
                     .ok_or_else(|| mlua::Error::runtime("Spline evaluation requires a number"))?;
                 eval_spline_table(lua, &spline, t as f32)
             }
@@ -19210,10 +17151,7 @@ fn solve_spline_table(lua: &Lua, spline: &Table) -> mlua::Result<()> {
     for (index, point) in coefficients.iter().enumerate() {
         let axes = lua.create_table()?;
         for (axis, values) in point.iter().enumerate() {
-            axes.raw_set(
-                axis + 1,
-                lua.create_sequence_from(values[1..].iter().copied())?,
-            )?;
+            axes.raw_set(axis + 1, lua.create_sequence_from(values[1..].iter().copied())?)?;
         }
         table.raw_set(index + 1, axes)?;
     }
@@ -19229,9 +17167,7 @@ fn eval_spline_table(lua: &Lua, spline: &Table, t: f32) -> mlua::Result<Table> {
         let index = t as i32;
         let (index, fraction) = if spline.get::<bool>("__songlua_spline_loop")? {
             let mut wrapped = t % size as f32;
-            if wrapped < 0.0 {
-                wrapped += size as f32;
-            }
+            if wrapped < 0.0 { wrapped += size as f32; }
             (wrapped as usize, wrapped - wrapped.trunc())
         } else if index < 0 {
             (0, 0.0)
@@ -19431,7 +17367,8 @@ pub fn note_column_pos_offset_y(actor: &Table) -> Result<Option<f32>, String> {
     let mut first_y = None::<f32>;
     let mut valid = true;
     for index in 1..=size {
-        let [x, point_y, _] = read_spline_point(&points, index).map_err(|err| err.to_string())?;
+        let [x, point_y, _] = read_spline_point(&points, index)
+            .map_err(|err| err.to_string())?;
         // Keep reading after a geometric mismatch: a later malformed table
         // must still produce the same lookup error as the collecting path.
         // NCSplineHandler's Offset adds each axis independently. A nonzero
@@ -19576,11 +17513,9 @@ fn read_position_spline(
     let points = &mut scratch.points;
     points.clear();
     points.reserve_exact(size);
-    let looping = spline
-        .get::<bool>("__songlua_spline_loop")
-        .map_err(|err| err.to_string())?;
-    let mut unchanged = previous
-        .is_some_and(|spline| spline.coefficients.len() == size && spline.looping == looping);
+    let looping = spline.get::<bool>("__songlua_spline_loop").map_err(|err| err.to_string())?;
+    let mut unchanged = previous.is_some_and(|spline|
+        spline.coefficients.len() == size && spline.looping == looping);
     for index in 1..=size {
         let values = read_spline_point(&table, index).map_err(|err| err.to_string())?;
         if values.iter().any(|value| !value.is_finite()) {
@@ -19787,9 +17722,8 @@ fn note_column_handler_uniform_component(
         return Ok(Some(baseline));
     }
     if !offset_mode {
-        return Ok(Some(
-            read_spline_point(&points, 1).map_err(|err| err.to_string())?[component as usize - 1],
-        ));
+        return Ok(Some(read_spline_point(&points, 1).map_err(|err| err.to_string())?
+            [component as usize - 1]));
     }
     // Compile-session, single-thread hint: one index per XYZ component, warmed
     // by the first scan and destroyed with the Lua spline. Re-read both points
@@ -19884,8 +17818,8 @@ fn note_column_pos_spline(
         .map_err(|err| err.to_string())?;
     let mut out = [(PositionEnabled, 0.0); 10];
     for point in 0..2u8 {
-        let values =
-            read_spline_point(&points, usize::from(point) + 1).map_err(|err| err.to_string())?;
+        let values = read_spline_point(&points, usize::from(point) + 1)
+            .map_err(|err| err.to_string())?;
         for axis in 0..3u8 {
             let value = values[usize::from(axis)];
             if !value.is_finite() {
@@ -20285,7 +18219,8 @@ pub fn classify_function_ease_probe(calls: &Table) -> mlua::Result<Option<SongLu
     for value in calls.sequence_values::<LuaFieldText<32>>() {
         let value = value?;
         let value = value.as_str();
-        let (target_kind, method_name) = value.split_once('.').unwrap_or(("player", value));
+        let (target_kind, method_name) =
+            value.split_once('.').unwrap_or(("player", value));
         if !matches!(target_kind, "player" | "overlay") {
             return Ok(None);
         }
@@ -20764,10 +18699,7 @@ fn snapshot_function_action_tables(
     let snapshots = lua.create_table()?;
     snapshots.raw_set(1, snapshot_function_action_table(lua, globals)?)?;
     for target in targets.sequence_values::<Table>() {
-        snapshots.raw_set(
-            snapshots.raw_len() + 1,
-            snapshot_function_action_table(lua, target?)?,
-        )?;
+        snapshots.raw_set(snapshots.raw_len() + 1, snapshot_function_action_table(lua, target?)?)?;
     }
     snapshot_function_locals(lua, functions, snapshots)
 }
@@ -20800,19 +18732,15 @@ fn snapshot_function_locals(
         pending_count -= 1;
         match value {
             Value::Function(function) => {
-                let Some(environment) = function.environment() else {
-                    continue;
-                };
-                if !seen.insert(function.to_pointer() as usize) {
-                    continue;
-                }
+                let Some(environment) = function.environment() else { continue; };
+                if !seen.insert(function.to_pointer() as usize) { continue; }
                 let chunk = function.dump(true);
                 let globals = lua.globals();
                 let environment = environment
                     .raw_get::<Option<Table>>("__songlua_env_target")?
                     .unwrap_or(environment);
-                let environment =
-                    (environment.to_pointer() != globals.to_pointer()).then_some(environment);
+                let environment = (environment.to_pointer() != globals.to_pointer())
+                    .then_some(environment);
                 for namespace in [Some(globals), environment].into_iter().flatten() {
                     namespace.for_each::<Value, Value>(|key, value| {
                         if let Value::String(name) = key
@@ -20915,10 +18843,7 @@ fn read_function_upvalue(
     }
 }
 
-fn restore_function_action_tables(
-    _lua: &Lua,
-    snapshot: FunctionActionSnapshot,
-) -> mlua::Result<()> {
+fn restore_function_action_tables(_lua: &Lua, snapshot: FunctionActionSnapshot) -> mlua::Result<()> {
     for cell in snapshot.cells.sequence_values::<Table>() {
         let cell = cell?;
         let function = cell.raw_get::<Function>(1)?;
@@ -20932,10 +18857,7 @@ fn restore_function_action_tables(
         table.clear()?;
         let entries = row.raw_get::<Table>(2)?;
         for index in (2..=entries.raw_len()).step_by(2) {
-            table.raw_set(
-                entries.raw_get::<Value>(index - 1)?,
-                entries.raw_get::<Value>(index)?,
-            )?;
+            table.raw_set(entries.raw_get::<Value>(index - 1)?, entries.raw_get::<Value>(index)?)?;
         }
     }
     Ok(())
@@ -21598,24 +19520,17 @@ fn capture_reset_keys(lua: &Lua) -> mlua::Result<Table> {
         return Ok(keys.0.clone());
     }
     let keys = lua.create_sequence_from([
-        "__songlua_capture_cursor",
-        "__songlua_capture_duration",
-        "__songlua_capture_tween_time_left",
-        "__songlua_startup_queue_seconds",
-        "__songlua_capture_easing",
-        "__songlua_capture_opt1",
-        "__songlua_capture_opt2",
-        "__songlua_capture_block",
-        "__songlua_capture_immediate_block",
+        "__songlua_capture_cursor", "__songlua_capture_duration",
+        "__songlua_capture_tween_time_left", "__songlua_startup_queue_seconds",
+        "__songlua_capture_easing", "__songlua_capture_opt1", "__songlua_capture_opt2",
+        "__songlua_capture_block", "__songlua_capture_immediate_block",
     ])?;
     lua.set_app_data(CaptureResetKeys(keys.clone()));
     Ok(keys)
 }
 
 pub fn reset_actor_capture(lua: &Lua, actor: &Table) -> mlua::Result<()> {
-    if live_actor_playback(lua) {
-        return Ok(());
-    }
+    if live_actor_playback(lua) { return Ok(()); }
     if crate::live::active(lua) {
         let keys = capture_reset_keys(lua)?;
         // These are private audit fields, not actor commands. Reset them under
@@ -21688,12 +19603,9 @@ pub fn flush_actor_capture(actor: &Table) -> mlua::Result<()> {
 pub fn actor_tween_time_left(lua: &Lua, actor: &Table) -> mlua::Result<f32> {
     if let Some(state) = actor.raw_get::<Option<u8>>("__songlua_transition_state")? {
         return if state == 1 {
-            actor
-                .raw_get::<Option<Table>>("__songlua_transition_child")?
+            actor.raw_get::<Option<Table>>("__songlua_transition_child")?
                 .map_or(Ok(0.0), |child| actor_tween_time_left(lua, &child))
-        } else {
-            Ok(0.0)
-        };
+        } else { Ok(0.0) };
     }
     let hibernate = if actor
         .raw_get::<Option<bool>>("__songlua_theme_hibernating")?
@@ -21757,16 +19669,14 @@ pub fn hurry_actor_tweening(lua: &Lua, actor: &Table, factor: f32) -> mlua::Resu
     // preserving the current interpolation fraction. Hibernation is separate.
     let scale = factor;
     if let Some(mut replays) = lua.app_data_mut::<ActorTweenReplays>()
-        && let Some(replay) = replays.0.get_mut(&(actor.to_pointer() as usize))
-    {
+        && let Some(replay) = replays.0.get_mut(&(actor.to_pointer() as usize)) {
         for step in &mut replay.queue {
             step.duration *= scale;
             step.left *= scale;
         }
     }
     if let Some(mut frames) = lua.app_data_mut::<SongLuaCompileFrames>()
-        && let Some(clock) = frames.clocks.get_mut(&(actor.to_pointer() as usize))
-    {
+        && let Some(clock) = frames.clocks.get_mut(&(actor.to_pointer() as usize)) {
         for seconds in clock.steps.iter_mut().flatten() {
             *seconds = f64::from(*seconds as f32 * scale);
         }
@@ -21806,10 +19716,7 @@ pub fn hurry_actor_tweening(lua: &Lua, actor: &Table, factor: f32) -> mlua::Resu
     scale_actor_capture_f32(actor, "__songlua_capture_cursor", scale)?;
     scale_actor_capture_f32(actor, "__songlua_capture_duration", scale)?;
     scale_actor_capture_f32(actor, "__songlua_capture_tween_time_left", scale)?;
-    for key in [
-        "__songlua_recurring_update_exact_interval",
-        "__songlua_recurring_update_time_left",
-    ] {
+    for key in ["__songlua_recurring_update_exact_interval", "__songlua_recurring_update_time_left"] {
         if let Some(value) = actor.raw_get::<Option<f64>>(key)? {
             actor.raw_set(key, value * f64::from(scale))?;
         }
@@ -21838,9 +19745,7 @@ fn is_capture_block_meta_key(key: &str) -> bool {
 pub fn finish_actor_tweening(lua: &Lua, actor: &Table) -> mlua::Result<()> {
     flush_actor_capture(actor)?;
     finish_pending_tweens(lua, actor)?;
-    if live_actor_playback(lua) {
-        return Ok(());
-    }
+    if live_actor_playback(lua) { return Ok(()); }
     let final_block = lua.create_table()?;
     let mut has_changes = false;
     if let Some(blocks) = actor.get::<Option<Table>>("__songlua_capture_blocks")? {
@@ -22078,12 +19983,8 @@ pub fn read_actor_capture_blocks(actor: &Table) -> Result<Vec<SongLuaOverlayComm
                 rot_z_deg: block
                     .get::<Option<f32>>("rot_z_deg")
                     .map_err(|err| err.to_string())?,
-                base_alpha: block
-                    .get::<Option<f32>>("base_alpha")
-                    .map_err(|err| err.to_string())?,
-                quaternion: block
-                    .get::<Option<Table>>("quaternion")
-                    .map_err(|err| err.to_string())?
+                base_alpha: block.get::<Option<f32>>("base_alpha").map_err(|err| err.to_string())?,
+                quaternion: block.get::<Option<Table>>("quaternion").map_err(|err| err.to_string())?
                     .and_then(|value| table_vec4(&value)),
                 base_rotation: block
                     .get::<Option<Table>>("base_rotation")
@@ -22347,12 +20248,8 @@ fn actor_scalar_keys(lua: &Lua) -> mlua::Result<Table> {
     if let Some(keys) = lua.app_data_ref::<ActorScalarKeys>() {
         return Ok(keys.0.clone());
     }
-    let keys = lua.create_sequence_from(
-        ActorNumberField::KEYS
-            .iter()
-            .chain(ActorFlagField::KEYS)
-            .copied(),
-    )?;
+    let keys = lua.create_sequence_from(ActorNumberField::KEYS.iter()
+        .chain(ActorFlagField::KEYS).copied())?;
     lua.set_app_data(ActorScalarKeys(keys.clone()));
     Ok(keys)
 }
@@ -22364,29 +20261,13 @@ pub(crate) fn actor_overlay_state_batched(
     actor_overlay_state_with_pose(lua, actor, None, None, None)
 }
 
-pub(crate) fn live_actor_overlay_state(
-    lua: &Lua,
-    actor: &Table,
-) -> Result<SongLuaOverlayState, String> {
-    if !crate::live::active(lua) {
-        return actor_overlay_state_batched(lua, actor);
-    }
-    let state = lua.app_data_ref::<ActorTweenReplays>().and_then(|replays| {
-        replays.0.get(&(actor.to_pointer() as usize)).map(|replay| {
-            (
-                replay.current,
-                replay.render_flags,
-                replay.base_transform.as_deref().copied(),
-            )
-        })
-    });
-    actor_overlay_state_with_pose(
-        lua,
-        actor,
-        state.map(|state| state.0),
-        state.and_then(|state| state.1),
-        state.and_then(|state| state.2),
-    )
+pub(crate) fn live_actor_overlay_state(lua: &Lua, actor: &Table) -> Result<SongLuaOverlayState, String> {
+    if !crate::live::active(lua) { return actor_overlay_state_batched(lua, actor); }
+    let state = lua.app_data_ref::<ActorTweenReplays>().and_then(|replays|
+        replays.0.get(&(actor.to_pointer() as usize))
+            .map(|replay| (replay.current, replay.render_flags, replay.base_transform.as_deref().copied())));
+    actor_overlay_state_with_pose(lua, actor, state.map(|state| state.0),
+        state.and_then(|state| state.1), state.and_then(|state| state.2))
 }
 
 fn actor_overlay_state_with_pose(
@@ -22435,10 +20316,7 @@ fn actor_overlay_state_with_pose(
             (ActorFlagField::DepthTest, RenderFlag::DepthTest),
             (ActorFlagField::DepthWrite, RenderFlag::DepthWrite),
             (ActorFlagField::DepthTestOnFail, RenderFlag::DepthTestOnFail),
-            (
-                ActorFlagField::TextureFiltering,
-                RenderFlag::TextureFiltering,
-            ),
+            (ActorFlagField::TextureFiltering, RenderFlag::TextureFiltering),
             (ActorFlagField::TextureWrapping, RenderFlag::TextureWrapping),
         ] {
             flags[field as usize] = Some(native.get(flag));
@@ -22450,42 +20328,34 @@ fn actor_overlay_state_with_pose(
     // neither allocate Lua objects nor call authored code or metamethods.
     unsafe {
         crate::raw_vm::with_read_stack(lua, 4, |raw, base| {
-            let state = raw.state();
-            raw.push(actor)?;
-            raw.push(keys)?;
-            for index in 0..ActorNumberField::KEYS.len() {
-                if matches!(numbers[index], ActorNumberValue::Value(_)) {
-                    continue;
+                let state = raw.state();
+                raw.push(actor)?;
+                raw.push(keys)?;
+                for index in 0..ActorNumberField::KEYS.len() {
+                    if matches!(numbers[index], ActorNumberValue::Value(_)) { continue; }
+                    ffi::lua_rawgeti(state, base + 2, (index + 1) as ffi::lua_Integer);
+                    ffi::lua_rawget(state, base + 1);
+                    numbers[index] = if ffi::lua_type(state, -1) == ffi::LUA_TNIL {
+                        ActorNumberValue::Value(None)
+                    } else if ffi::lua_isnumber(state, -1) != 0 {
+                        ActorNumberValue::Value(Some(ffi::lua_tonumber(state, -1) as f32))
+                    } else {
+                        // Preserve the standard reader's exact type error, and
+                        // only raise it if the decoder actually reads this key.
+                        ActorNumberValue::Fallback
+                    };
+                    ffi::lua_pop(state, 1);
                 }
-                ffi::lua_rawgeti(state, base + 2, (index + 1) as ffi::lua_Integer);
-                ffi::lua_rawget(state, base + 1);
-                numbers[index] = if ffi::lua_type(state, -1) == ffi::LUA_TNIL {
-                    ActorNumberValue::Value(None)
-                } else if ffi::lua_isnumber(state, -1) != 0 {
-                    ActorNumberValue::Value(Some(ffi::lua_tonumber(state, -1) as f32))
-                } else {
-                    // Preserve the standard reader's exact type error, and
-                    // only raise it if the decoder actually reads this key.
-                    ActorNumberValue::Fallback
-                };
-                ffi::lua_pop(state, 1);
-            }
-            for index in 0..ActorFlagField::KEYS.len() {
-                if flags[index].is_some() {
-                    continue;
+                for index in 0..ActorFlagField::KEYS.len() {
+                    if flags[index].is_some() { continue; }
+                    ffi::lua_rawgeti(state, base + 2, (ActorNumberField::KEYS.len() + index + 1) as ffi::lua_Integer);
+                    ffi::lua_rawget(state, base + 1);
+                    if ffi::lua_type(state, -1) != ffi::LUA_TNIL {
+                        flags[index] = Some(ffi::lua_toboolean(state, -1) != 0);
+                    }
+                    ffi::lua_pop(state, 1);
                 }
-                ffi::lua_rawgeti(
-                    state,
-                    base + 2,
-                    (ActorNumberField::KEYS.len() + index + 1) as ffi::lua_Integer,
-                );
-                ffi::lua_rawget(state, base + 1);
-                if ffi::lua_type(state, -1) != ffi::LUA_TNIL {
-                    flags[index] = Some(ffi::lua_toboolean(state, -1) != 0);
-                }
-                ffi::lua_pop(state, 1);
-            }
-            Ok(())
+                Ok(())
         })
         .map_err(|error| error.to_string())?;
     }
@@ -22511,48 +20381,30 @@ mod actor_state_read_tests {
     fn native_render_flag_promotion_avoids_authored_reads_and_retains_model_defaults() {
         let lua = Lua::new();
         begin_live_runtime(&lua).unwrap();
-        let actor = lua
-            .load(
-                r#"
+        let actor = lua.load(r#"
 TEXTURE_READS = 0
 return setmetatable({__songlua_actor_type='Sprite'}, {
     __index=function(_, key)
         if key == 'Texture' then TEXTURE_READS=TEXTURE_READS+1 end
     end,
 })
-"#,
-            )
-            .eval::<Table>()
-            .unwrap();
+"#).eval::<Table>().unwrap();
         ensure_tween_replay(&lua, &actor).unwrap();
         let reads: u32 = lua.globals().get("TEXTURE_READS").unwrap();
         assert!(reads > 0);
         begin_live_actor_playback(&lua, &[actor]).unwrap();
         assert_eq!(lua.globals().get::<u32>("TEXTURE_READS").unwrap(), reads);
 
-        let model = lua
-            .load("{__songlua_actor_type='Model'}")
-            .eval::<Table>()
-            .unwrap();
+        let model = lua.load("{__songlua_actor_type='Model'}").eval::<Table>().unwrap();
         ensure_tween_replay(&lua, &model).unwrap();
         let state = live_actor_overlay_state(&lua, &model).unwrap();
-        assert!(
-            state.depth_test
-                && state.depth_write
-                && state.texture_wrapping
-                && state.texture_filtering
-        );
+        assert!(state.depth_test && state.depth_write && state.texture_wrapping && state.texture_filtering);
         capture_block_set_bool(&lua, &model, "depth_test", false).unwrap();
         capture_block_set_bool(&lua, &model, "texture_wrapping", false).unwrap();
         assert!(!live_actor_overlay_state(&lua, &model).unwrap().depth_test);
         init_actor_native_state(&lua, &model).unwrap();
         let state = live_actor_overlay_state(&lua, &model).unwrap();
-        assert!(
-            state.depth_test
-                && state.depth_write
-                && state.texture_wrapping
-                && state.texture_filtering
-        );
+        assert!(state.depth_test && state.depth_write && state.texture_wrapping && state.texture_filtering);
     }
 
     fn vector_bits<const N: usize>(value: Option<[f32; N]>) -> Option<[u32; N]> {
@@ -22560,55 +20412,32 @@ return setmetatable({__songlua_actor_type='Sprite'}, {
     }
 
     fn compare_vectors(table: &Table) {
-        assert_eq!(
-            vector_bits(table_vec2(table)),
-            vector_bits(draw_state_baseline::table_vec2(table))
-        );
-        assert_eq!(
-            vector_bits(table_vec3(table)),
-            vector_bits(draw_state_baseline::table_vec3(table))
-        );
-        assert_eq!(
-            vector_bits(table_vec4(table)),
-            vector_bits(draw_state_baseline::table_vec4(table))
-        );
-        assert_eq!(
-            vector_bits(table_vec5(table)),
-            vector_bits(draw_state_baseline::table_vec5(table))
-        );
+        assert_eq!(vector_bits(table_vec2(table)), vector_bits(draw_state_baseline::table_vec2(table)));
+        assert_eq!(vector_bits(table_vec3(table)), vector_bits(draw_state_baseline::table_vec3(table)));
+        assert_eq!(vector_bits(table_vec4(table)), vector_bits(draw_state_baseline::table_vec4(table)));
+        assert_eq!(vector_bits(table_vec5(table)), vector_bits(draw_state_baseline::table_vec5(table)));
     }
 
     #[test]
     fn vector_batches_preserve_bits_coercions_holes_and_raw_lookup() {
         let lua = Lua::new();
         let table = lua.create_sequence_from([1.0, 2.0, 3.0, 4.0, 5.0]).unwrap();
-        for value in [
-            Value::Nil,
-            Value::Boolean(false),
-            Value::Table(lua.create_table().unwrap()),
+        for value in [Value::Nil, Value::Boolean(false), Value::Table(lua.create_table().unwrap()),
             Value::String(lua.create_string(" -0.0 ").unwrap()),
             Value::String(lua.create_string("0x10").unwrap()),
             Value::String(lua.create_string("not a number").unwrap()),
-            Value::String(lua.create_string([b'1', 0, b'x']).unwrap()),
+            Value::String(lua.create_string([b'1',0,b'x']).unwrap()),
             Value::String(lua.create_string([0xff]).unwrap()),
-            Value::Number(f64::INFINITY),
-            Value::Number(f64::NEG_INFINITY),
-            Value::Number(f64::from_bits(0xfff8_2468_0000_1234)),
-            Value::Number(-0.0),
-        ] {
+            Value::Number(f64::INFINITY), Value::Number(f64::NEG_INFINITY),
+            Value::Number(f64::from_bits(0xfff8_2468_0000_1234)), Value::Number(-0.0)] {
             for position in 1..=6 {
                 table.raw_set(position, value.clone()).unwrap();
                 compare_vectors(&table);
                 table.raw_set(position, position as f32).unwrap();
             }
         }
-        let missing = lua
-            .load(
-                r#"lookups=0; return setmetatable({}, {__index=function()
-            lookups=lookups+1; error('raw reads must not call __index') end})"#,
-            )
-            .eval::<Table>()
-            .unwrap();
+        let missing = lua.load(r#"lookups=0; return setmetatable({}, {__index=function()
+            lookups=lookups+1; error('raw reads must not call __index') end})"#).eval::<Table>().unwrap();
         compare_vectors(&missing);
         assert_eq!(lua.globals().get::<i32>("lookups").unwrap(), 0);
         let bad = lua.create_sequence_from([false]).unwrap();
@@ -22621,63 +20450,34 @@ return setmetatable({__songlua_actor_type='Sprite'}, {
             assert_eq!(ffi::lua_gettop(raw.state()), top);
             assert_eq!(raw.pop::<i32>().unwrap(), 77);
         });
-        lua.globals()
-            .set(
-                "read_vector",
-                lua.create_function(|_, table: Table| Ok(table_vec4(&table)))
-                    .unwrap(),
-            )
-            .unwrap();
+        lua.globals().set("read_vector", lua.create_function(|_, table: Table| Ok(table_vec4(&table))).unwrap()).unwrap();
         let (ok, result): (bool, Table) = lua.load("return coroutine.resume(coroutine.create(function() return read_vector{1,2,3,4} end))").eval().unwrap();
         assert!(ok);
-        assert_eq!(table_vec4(&result), Some([1.0, 2.0, 3.0, 4.0]));
+        assert_eq!(table_vec4(&result), Some([1.0,2.0,3.0,4.0]));
     }
 
     #[test]
     fn color_batches_preserve_nested_failures_aliases_and_stack() {
         let lua = Lua::new();
-        let row = lua
-            .create_sequence_from([1.0, 0.5, 0.25, 0.75, 99.0])
-            .unwrap();
-        let colors = lua
-            .create_sequence_from([
-                row.clone(),
-                row.clone(),
-                row.clone(),
-                row.clone(),
-                row.clone(),
-            ])
-            .unwrap();
+        let row = lua.create_sequence_from([1.0, 0.5, 0.25, 0.75, 99.0]).unwrap();
+        let colors = lua.create_sequence_from([row.clone(),row.clone(),row.clone(),row.clone(),row.clone()]).unwrap();
         let compare = || {
-            let bits =
-                |v: Option<[[f32; 4]; 4]>| v.map(|rows| rows.map(|items| items.map(f32::to_bits)));
-            assert_eq!(
-                bits(table_vertex_colors(&colors)),
-                bits(draw_state_baseline::table_vertex_colors(&colors))
-            );
+            let bits = |v: Option<[[f32;4];4]>| v.map(|rows| rows.map(|items| items.map(f32::to_bits)));
+            assert_eq!(bits(table_vertex_colors(&colors)), bits(draw_state_baseline::table_vertex_colors(&colors)));
         };
         compare();
         for position in 1..=5 {
-            for value in [
-                Value::Nil,
-                Value::Boolean(false),
-                Value::Number(2.0),
-                Value::Table(lua.create_table().unwrap()),
-            ] {
+            for value in [Value::Nil, Value::Boolean(false), Value::Number(2.0),
+                Value::Table(lua.create_table().unwrap())] {
                 colors.raw_set(position, value).unwrap();
                 compare();
             }
             colors.raw_set(position, row.clone()).unwrap();
         }
         for position in 1..=5 {
-            for value in [
-                Value::Nil,
-                Value::Boolean(true),
+            for value in [Value::Nil, Value::Boolean(true),
                 Value::String(lua.create_string(" 0.25 ").unwrap()),
-                Value::Number(f64::NAN),
-                Value::Number(f64::INFINITY),
-                Value::Number(-0.0),
-            ] {
+                Value::Number(f64::NAN), Value::Number(f64::INFINITY), Value::Number(-0.0)] {
                 row.raw_set(position, value).unwrap();
                 compare();
             }
@@ -22690,48 +20490,32 @@ return setmetatable({__songlua_actor_type='Sprite'}, {
             let top = ffi::lua_gettop(raw.state());
             compare();
             assert_eq!(ffi::lua_gettop(raw.state()), top);
-            assert_eq!(raw.pop::<i32>().unwrap(), 42);
+            assert_eq!(raw.pop::<i32>().unwrap(),42);
         });
-        lua.globals().set("color_lookups", 0).unwrap();
-        let missing = lua
-            .load(
-                r#"return setmetatable({}, {__index=function()
-            color_lookups=color_lookups+1; error('unexpected color lookup') end})"#,
-            )
-            .eval::<Table>()
-            .unwrap();
-        assert_eq!(
-            table_vertex_colors(&missing),
-            draw_state_baseline::table_vertex_colors(&missing)
-        );
-        colors.raw_set(3, missing).unwrap();
+        lua.globals().set("color_lookups",0).unwrap();
+        let missing=lua.load(r#"return setmetatable({}, {__index=function()
+            color_lookups=color_lookups+1; error('unexpected color lookup') end})"#).eval::<Table>().unwrap();
+        assert_eq!(table_vertex_colors(&missing),draw_state_baseline::table_vertex_colors(&missing));
+        colors.raw_set(3,missing).unwrap();
         compare();
-        assert_eq!(lua.globals().get::<i32>("color_lookups").unwrap(), 0);
-        assert_eq!(lua.load("return 6*7").eval::<i32>().unwrap(), 42);
+        assert_eq!(lua.globals().get::<i32>("color_lookups").unwrap(),0);
+        assert_eq!(lua.load("return 6*7").eval::<i32>().unwrap(),42);
     }
 
     #[test]
     fn state_class_and_texture_reads_match_frozen_decoder() {
         let lua = Lua::new();
         for field in ["__songlua_actor_type", "Texture"] {
-            for value in [
-                Value::Nil,
-                Value::String(lua.create_string("Model").unwrap()),
+            for value in [Value::Nil, Value::String(lua.create_string("Model").unwrap()),
                 Value::String(lua.create_string("Sprite").unwrap()),
                 Value::String(lua.create_string("x".repeat(200)).unwrap()),
                 Value::String(lua.create_string([0xff, 0xfe]).unwrap()),
-                Value::Integer(42),
-                Value::Number(1.5),
-                Value::Boolean(false),
-                Value::Table(lua.create_table().unwrap()),
-            ] {
+                Value::Integer(42), Value::Number(1.5), Value::Boolean(false),
+                Value::Table(lua.create_table().unwrap())] {
                 let actor = lua.create_table().unwrap();
                 actor.raw_set("__songlua_actor_type", "Sprite").unwrap();
                 actor.raw_set(field, value).unwrap();
-                assert_eq!(
-                    actor_overlay_initial_state(&actor),
-                    draw_state_baseline::initial_state(&actor)
-                );
+                assert_eq!(actor_overlay_initial_state(&actor), draw_state_baseline::initial_state(&actor));
             }
         }
     }
@@ -22739,9 +20523,7 @@ return setmetatable({__songlua_actor_type='Sprite'}, {
     #[test]
     fn compile_update_slots_preserve_alias_visits_and_plan_rebuilds() {
         let lua = Lua::new();
-        let root = lua
-            .load(
-                r#"
+        let root = lua.load(r#"
             events = {}
             local function update(_, delta) events[#events+1] = delta end
             local shared = { __songlua_update_function = update }
@@ -22750,69 +20532,35 @@ return setmetatable({__songlua_actor_type='Sprite'}, {
                 { shared, __songlua_update_rate = 3 },
             }
             return root
-        "#,
-            )
-            .eval::<Table>()
-            .unwrap();
-        run_actor_compile_update_functions_with_delta(&lua, &Value::Table(root.clone()), 1.0)
-            .unwrap();
-        let events: Vec<f64> = lua
-            .globals()
-            .get::<Table>("events")
-            .unwrap()
-            .sequence_values()
-            .collect::<mlua::Result<_>>()
-            .unwrap();
-        assert_eq!(
-            events,
-            [2.0, 3.0],
-            "shared actors retain each parent's chronological delta"
-        );
-        let new_actor = lua
-            .load(
-                r#"return { __songlua_update_function = function(_, delta)
+        "#).eval::<Table>().unwrap();
+        run_actor_compile_update_functions_with_delta(&lua, &Value::Table(root.clone()), 1.0).unwrap();
+        let events: Vec<f64> = lua.globals().get::<Table>("events").unwrap()
+            .sequence_values().collect::<mlua::Result<_>>().unwrap();
+        assert_eq!(events, [2.0, 3.0], "shared actors retain each parent's chronological delta");
+        let new_actor = lua.load(r#"return { __songlua_update_function = function(_, delta)
             events[#events+1] = delta
-        end, __songlua_update_rate = 5 }"#,
-            )
-            .eval::<Table>()
-            .unwrap();
+        end, __songlua_update_rate = 5 }"#).eval::<Table>().unwrap();
         root.raw_set(3, new_actor).unwrap();
         invalidate_compile_update_plan(&lua);
         run_actor_compile_update_functions_with_delta(&lua, &Value::Table(root), 0.5).unwrap();
-        let events: Vec<f64> = lua
-            .globals()
-            .get::<Table>("events")
-            .unwrap()
-            .sequence_values()
-            .collect::<mlua::Result<_>>()
-            .unwrap();
-        assert_eq!(
-            events,
-            [2.0, 3.0, 1.0, 1.5, 2.5],
-            "rebuilds resize scratch without retaining old deltas"
-        );
+        let events: Vec<f64> = lua.globals().get::<Table>("events").unwrap()
+            .sequence_values().collect::<mlua::Result<_>>().unwrap();
+        assert_eq!(events, [2.0, 3.0, 1.0, 1.5, 2.5], "rebuilds resize scratch without retaining old deltas");
     }
 
     #[test]
     fn short_class_fields_keep_string_coercions_spills_and_errors() {
         let lua = Lua::new();
         let actor = lua.create_table().unwrap();
-        for value in [
-            Value::Nil,
-            Value::String(lua.create_string("ActorFrame").unwrap()),
+        for value in [Value::Nil, Value::String(lua.create_string("ActorFrame").unwrap()),
             Value::String(lua.create_string("x".repeat(200)).unwrap()),
             Value::String(lua.create_string([0xff, 0xfe]).unwrap()),
-            Value::Integer(42),
-            Value::Number(1.5),
-            Value::Boolean(false),
-            Value::Table(lua.create_table().unwrap()),
-        ] {
+            Value::Integer(42), Value::Number(1.5), Value::Boolean(false),
+            Value::Table(lua.create_table().unwrap())] {
             actor.raw_set("__songlua_actor_type", value).unwrap();
-            let expected = actor
-                .raw_get::<Option<String>>("__songlua_actor_type")
+            let expected = actor.raw_get::<Option<String>>("__songlua_actor_type")
                 .map_err(|err| err.to_string());
-            let actual = actor
-                .raw_get::<Option<LuaFieldText<64>>>("__songlua_actor_type")
+            let actual = actor.raw_get::<Option<LuaFieldText<64>>>("__songlua_actor_type")
                 .map(|value| value.map(|value| value.as_str().to_owned()))
                 .map_err(|err| err.to_string());
             assert_eq!(actual, expected);
@@ -22824,54 +20572,30 @@ return setmetatable({__songlua_actor_type='Sprite'}, {
         let lua = Lua::new();
         let actor = lua.create_table().unwrap();
         let blocks = lua.create_sequence_from([42]).unwrap();
-        actor
-            .raw_set("__songlua_capture_blocks", blocks.clone())
-            .unwrap();
+        actor.raw_set("__songlua_capture_blocks", blocks.clone()).unwrap();
         actor.raw_set("__songlua_capture_cursor", 3.0).unwrap();
-        actor
-            .raw_set("__songlua_capture_block", blocks.clone())
-            .unwrap();
+        actor.raw_set("__songlua_capture_block", blocks.clone()).unwrap();
         reset_actor_capture(&lua, &actor).unwrap();
-        assert_eq!(
-            blocks.raw_get::<i32>(1).unwrap(),
-            42,
-            "saved compiler captures retain their data"
-        );
+        assert_eq!(blocks.raw_get::<i32>(1).unwrap(), 42, "saved compiler captures retain their data");
         let fresh = actor.raw_get::<Table>("__songlua_capture_blocks").unwrap();
         assert_ne!(fresh, blocks);
-        assert_eq!(
-            actor.raw_get::<f32>("__songlua_capture_cursor").unwrap(),
-            0.0
-        );
-        assert!(
-            actor
-                .raw_get::<Value>("__songlua_capture_block")
-                .unwrap()
-                .is_nil()
-        );
+        assert_eq!(actor.raw_get::<f32>("__songlua_capture_cursor").unwrap(), 0.0);
+        assert!(actor.raw_get::<Value>("__songlua_capture_block").unwrap().is_nil());
         fresh.raw_set(1, 17).unwrap();
         lua.set_app_data(crate::live::LiveMode(1));
         reset_actor_capture(&lua, &actor).unwrap();
-        assert_eq!(
-            actor.raw_get::<Table>("__songlua_capture_blocks").unwrap(),
-            fresh
-        );
+        assert_eq!(actor.raw_get::<Table>("__songlua_capture_blocks").unwrap(), fresh);
         assert_eq!(fresh.raw_len(), 0);
         actor.raw_set("__songlua_capture_blocks", false).unwrap();
-        assert!(
-            reset_actor_capture(&lua, &actor).is_err(),
-            "live reset retains type validation"
-        );
+        assert!(reset_actor_capture(&lua, &actor).is_err(), "live reset retains type validation");
     }
 
     #[test]
     fn native_pose_definition_clones_keep_destination_and_independence() {
         let lua = Lua::new();
         begin_live_runtime(&lua).unwrap();
-        let actor = lua
-            .load("{__songlua_actor_type='Quad', authored={score=17}}")
-            .eval::<Table>()
-            .unwrap();
+        let actor = lua.load("{__songlua_actor_type='Quad', authored={score=17}}")
+            .eval::<Table>().unwrap();
         ensure_tween_replay(&lua, &actor).unwrap();
         begin_live_actor_playback(&lua, &[actor.clone()]).unwrap();
         queue_replay_tween(&lua, &actor, 1.0, Some("linear"));
@@ -22883,85 +20607,37 @@ return setmetatable({__songlua_actor_type='Sprite'}, {
         capture_block_set_f32(&lua, &actor, "basezoom", 2.0).unwrap();
         capture_block_set_f32(&lua, &actor, "basezoom_x", 1.0).unwrap();
         capture_block_set_f32(&lua, &actor, "halign", 0.25).unwrap();
-        for (key, value) in [
-            ("x", 12.0),
-            ("zoom_y", 3.0),
-            ("skew_x", 0.25),
-            ("fadeleft", 0.5),
-        ] {
+        for (key, value) in [("x",12.0), ("zoom_y",3.0), ("skew_x",0.25), ("fadeleft",0.5)] {
             capture_block_set_f32(&lua, &actor, key, value).unwrap();
         }
         let Value::Table(generic) = clone_lua_value(&lua, Value::Table(actor.clone())).unwrap()
-        else {
-            panic!("table clone");
-        };
+            else { panic!("table clone"); };
         let definition = clone_actor_def(&lua, &actor, |_, _| Ok(()), false).unwrap();
         capture_block_set_color(&lua, &actor, [0.0; 4]).unwrap();
         capture_block_set_f32(&lua, &actor, "x", 24.0).unwrap();
         capture_block_set_bool(&lua, &actor, "depth_test", false).unwrap();
         for copy in [generic, definition] {
-            assert_eq!(
-                actor_overlay_initial_state(&copy).unwrap().diffuse,
-                [0.25, 0.5, 0.75, 1.0]
-            );
+            assert_eq!(actor_overlay_initial_state(&copy).unwrap().diffuse, [0.25, 0.5, 0.75, 1.0]);
             assert_eq!(actor_glow(&lua, &copy).unwrap(), [1.0, 0.75, 0.5, 0.25]);
             assert_eq!(actor_vertex_colors(&lua, &copy).unwrap(), [[0.5; 4]; 4]);
             let pose = actor_overlay_initial_state(&copy).unwrap();
             assert!(pose.depth_test && !pose.texture_filtering);
-            assert_eq!(
-                (pose.basezoom, pose.basezoom_x, pose.halign),
-                (2.0, 1.0, 0.25)
-            );
-            assert_eq!(
-                (pose.x, pose.zoom_y, pose.skew_x, pose.fadeleft),
-                (12.0, 3.0, 0.25, 0.5)
-            );
-            assert_eq!(
-                copy.get::<Table>("authored")
-                    .unwrap()
-                    .get::<u32>("score")
-                    .unwrap(),
-                17
-            );
+            assert_eq!((pose.basezoom,pose.basezoom_x,pose.halign), (2.0,1.0,0.25));
+            assert_eq!((pose.x,pose.zoom_y,pose.skew_x,pose.fadeleft), (12.0,3.0,0.25,0.5));
+            assert_eq!(copy.get::<Table>("authored").unwrap().get::<u32>("score").unwrap(), 17);
             ensure_tween_replay(&lua, &copy).unwrap();
             assert!(!live_actor_overlay_state(&lua, &actor).unwrap().depth_test);
             assert!(live_actor_overlay_state(&lua, &copy).unwrap().depth_test);
-            assert!(
-                copy.raw_get::<Value>("__songlua_state_depth_test")
-                    .unwrap()
-                    .is_nil()
-            );
-            assert!(
-                copy.raw_get::<Value>("__songlua_state_basezoom_x")
-                    .unwrap()
-                    .is_nil()
-            );
-            assert_eq!(
-                actor_base_zoom_axis(&lua, &copy, "__songlua_state_basezoom_x").unwrap(),
-                1.0
-            );
-            assert_eq!(
-                actor_base_zoom_axis(&lua, &copy, "__songlua_state_basezoom_y").unwrap(),
-                2.0
-            );
+            assert!(copy.raw_get::<Value>("__songlua_state_depth_test").unwrap().is_nil());
+            assert!(copy.raw_get::<Value>("__songlua_state_basezoom_x").unwrap().is_nil());
+            assert_eq!(actor_base_zoom_axis(&lua, &copy, "__songlua_state_basezoom_x").unwrap(), 1.0);
+            assert_eq!(actor_base_zoom_axis(&lua, &copy, "__songlua_state_basezoom_y").unwrap(), 2.0);
             capture_block_set_f32(&lua, &copy, "halign", 0.75).unwrap();
             assert_eq!(actor_halign(&lua, &actor).unwrap(), 0.25);
-            set_actor_overlay_update_getter_value(
-                &lua,
-                &copy,
-                SongLuaOverlayUpdateTarget::BaseZoomX,
-                &SongLuaOverlayUpdateValue::F32(5.0),
-            )
-            .unwrap();
-            assert_eq!(
-                actor_base_zoom_axis(&lua, &copy, "__songlua_state_basezoom_x").unwrap(),
-                5.0
-            );
-            assert!(
-                copy.raw_get::<Value>("__songlua_state_basezoom_x")
-                    .unwrap()
-                    .is_nil()
-            );
+            set_actor_overlay_update_getter_value(&lua, &copy,
+                SongLuaOverlayUpdateTarget::BaseZoomX, &SongLuaOverlayUpdateValue::F32(5.0)).unwrap();
+            assert_eq!(actor_base_zoom_axis(&lua, &copy, "__songlua_state_basezoom_x").unwrap(), 5.0);
+            assert!(copy.raw_get::<Value>("__songlua_state_basezoom_x").unwrap().is_nil());
             capture_block_set_color(&lua, &copy, [0.75; 4]).unwrap();
             capture_block_set_f32(&lua, &copy, "x", 36.0).unwrap();
             assert_eq!(actor_diffuse(&lua, &actor).unwrap(), [0.0; 4]);
@@ -22976,75 +20652,43 @@ return setmetatable({__songlua_actor_type='Sprite'}, {
         let run = |live| {
             let lua = Lua::new();
             begin_live_runtime(&lua).unwrap();
-            let actor = lua
-                .load("{__songlua_actor_type='Quad'}")
-                .eval::<Table>()
-                .unwrap();
+            let actor = lua.load("{__songlua_actor_type='Quad'}").eval::<Table>().unwrap();
             ensure_tween_replay(&lua, &actor).unwrap();
-            if live {
-                begin_live_actor_playback(&lua, &[actor.clone()]).unwrap();
-            }
+            if live { begin_live_actor_playback(&lua, &[actor.clone()]).unwrap(); }
             begin_overlay_update_capture_from_indices(&lua, [(actor.to_pointer() as usize, 0)]);
             let sample = || {
                 let capture = lua.app_data_ref::<SongLuaOverlayUpdateCapture>().unwrap();
                 let samples = &capture.writes[&(0, SongLuaOverlayUpdateTarget::VertexColors)];
                 assert_eq!(samples.len(), 1);
-                let SongLuaOverlayUpdateValue::VertexColors(colors) = &samples[0].value else {
-                    panic!("owned vertex color observation");
-                };
+                let SongLuaOverlayUpdateValue::VertexColors(colors) = &samples[0].value
+                    else { panic!("owned vertex color observation"); };
                 colors.clone()
             };
             capture_block_set_vertex_colors(&lua, &actor, [[0.25; 4]; 4]).unwrap();
             let first = sample();
             queue_replay_tween(&lua, &actor, 1.0, Some("linear"));
             capture_block_set_vertex_colors(&lua, &actor, [[0.5; 4]; 4]).unwrap();
-            assert_eq!(
-                *sample(),
-                *first,
-                "same-beat queued writes retain the earlier observation"
-            );
+            assert_eq!(*sample(), *first, "same-beat queued writes retain the earlier observation");
             clear_replay_tweens(&lua, &actor, false).unwrap();
-            let args = MultiValue::from_vec(vec![
-                Value::Table(actor.clone()),
-                Value::Number(1.0),
-                Value::Number(0.75),
-                Value::Number(0.5),
-                Value::Number(0.25),
-            ]);
+            let args = MultiValue::from_vec(vec![Value::Table(actor.clone()), Value::Number(1.0),
+                Value::Number(0.75), Value::Number(0.5), Value::Number(0.25)]);
             capture_actor_vertex_diffuse(&lua, &actor, &args, 3).unwrap();
             let second = sample();
             assert_eq!(second[0], [1.0, 0.75, 0.5, 0.25]);
-            assert_eq!(
-                *first, [[0.25; 4]; 4],
-                "later writes cannot mutate an owned sample"
-            );
-            lua.app_data_mut::<SongLuaOverlayUpdateCapture>()
-                .unwrap()
-                .queued_depth = 1;
+            assert_eq!(*first, [[0.25; 4]; 4], "later writes cannot mutate an owned sample");
+            lua.app_data_mut::<SongLuaOverlayUpdateCapture>().unwrap().queued_depth = 1;
             capture_block_set_vertex_colors(&lua, &actor, [[0.75; 4]; 4]).unwrap();
-            assert_eq!(
-                *sample(),
-                *second,
-                "ordinary queued commands are not update samples"
-            );
-            lua.app_data_mut::<SongLuaOverlayUpdateCapture>()
-                .unwrap()
-                .update_command = true;
+            assert_eq!(*sample(), *second, "ordinary queued commands are not update samples");
+            lua.app_data_mut::<SongLuaOverlayUpdateCapture>().unwrap().update_command = true;
             capture_block_set_vertex_colors(&lua, &actor, [[1.0; 4]; 4]).unwrap();
             let third = sample();
             assert_eq!(*third, [[1.0; 4]; 4]);
-            lua.app_data_mut::<SongLuaOverlayUpdateCapture>()
-                .unwrap()
-                .active_broadcast = Some("Tint".into());
+            lua.app_data_mut::<SongLuaOverlayUpdateCapture>().unwrap().active_broadcast = Some("Tint".into());
             capture_block_set_vertex_colors(&lua, &actor, [[0.0; 4]; 4]).unwrap();
             assert_eq!(*sample(), *third, "broadcast writes are not update samples");
             [*first, *second, *third]
         };
-        assert_eq!(
-            run(true),
-            run(false),
-            "live mutation retains capture-backed observation rules"
-        );
+        assert_eq!(run(true), run(false), "live mutation retains capture-backed observation rules");
     }
 
     #[test]
@@ -23143,23 +20787,23 @@ fn read_actor_overlay_state(
     state.aux = number(ActorNumberField::Aux)
         .map_err(|err| err.to_string())?
         .unwrap_or(0.0);
-    state.sprite_texture =
-        match flag(ActorFlagField::SpriteTexture).map_err(|err| err.to_string())? {
-            Some(value) => value,
-            None => {
-                !actor
-                    .raw_get::<Option<LuaFieldText<32>>>("__songlua_actor_type")
+    state.sprite_texture = match flag(ActorFlagField::SpriteTexture)
+        .map_err(|err| err.to_string())? {
+        Some(value) => value,
+        None => {
+            !actor
+                .raw_get::<Option<LuaFieldText<32>>>("__songlua_actor_type")
+                .map_err(|err| err.to_string())?
+                .is_some_and(|kind| kind.as_str().eq_ignore_ascii_case("Sprite"))
+                || actor
+                    .get::<Option<LuaFieldText<64>>>("Texture")
                     .map_err(|err| err.to_string())?
-                    .is_some_and(|kind| kind.as_str().eq_ignore_ascii_case("Sprite"))
-                    || actor
-                        .get::<Option<LuaFieldText<64>>>("Texture")
-                        .map_err(|err| err.to_string())?
-                        .is_some()
-                    || actor_aft_capture_name(actor)
-                        .map_err(|err| err.to_string())?
-                        .is_some()
-            }
-        };
+                    .is_some()
+                || actor_aft_capture_name(actor)
+                    .map_err(|err| err.to_string())?
+                    .is_some()
+        }
+    };
     if let Some(visible) = flag(ActorFlagField::Visible).map_err(|err| err.to_string())? {
         state.visible = visible;
     }
@@ -23329,11 +20973,8 @@ fn read_actor_overlay_state(
     if let Some(value) = number(ActorNumberField::BaseAlpha).map_err(|err| err.to_string())? {
         state.base_alpha = value;
     }
-    if let Some(value) = actor
-        .raw_get::<Option<ActorVectorValue<4>>>("__songlua_state_quaternion")
-        .map_err(|err| err.to_string())?
-        .and_then(|value| value.0)
-    {
+    if let Some(value) = actor.raw_get::<Option<ActorVectorValue<4>>>("__songlua_state_quaternion")
+        .map_err(|err| err.to_string())?.and_then(|value| value.0) {
         state.quaternion = value;
     }
     if let Some(value) = number(ActorNumberField::RotXDeg).map_err(|err| err.to_string())? {
@@ -23534,20 +21175,15 @@ fn read_actor_overlay_state(
             // Preserve replay_tween_pose's translation from the destination
             // rectangle to current XY, including its float operation order.
             let (x, y) = (state.x, state.y);
-            if let Some([dest_x, dest_y]) =
-                lua.and_then(|lua| live_destination_value(lua, actor, |dest| [dest.x, dest.y]))
-            {
+            if let Some([dest_x, dest_y]) = lua.and_then(|lua|
+                live_destination_value(lua, actor, |dest| [dest.x, dest.y])) {
                 state.x = dest_x;
                 state.y = dest_y;
             } else {
-                state.x = actor
-                    .raw_get::<Option<f32>>("__songlua_state_x")
-                    .map_err(|err| err.to_string())?
-                    .unwrap_or(0.0);
-                state.y = actor
-                    .raw_get::<Option<f32>>("__songlua_state_y")
-                    .map_err(|err| err.to_string())?
-                    .unwrap_or(0.0);
+                state.x = actor.raw_get::<Option<f32>>("__songlua_state_x")
+                    .map_err(|err| err.to_string())?.unwrap_or(0.0);
+                state.y = actor.raw_get::<Option<f32>>("__songlua_state_y")
+                    .map_err(|err| err.to_string())?.unwrap_or(0.0);
             }
             crate::move_overlay(&mut state, x, y);
         }
@@ -23612,11 +21248,7 @@ pub fn set_actor_overlay_getter_state(
         set!("__songlua_state_basezoom_z", state.basezoom_z);
     }
     set!("__songlua_state_base_alpha", state.base_alpha);
-    set!(
-        "__songlua_state_quaternion",
-        lua.create_sequence_from(state.quaternion)
-            .map_err(|err| err.to_string())?
-    );
+    set!("__songlua_state_quaternion", lua.create_sequence_from(state.quaternion).map_err(|err| err.to_string())?);
     set!("__songlua_state_rot_x_deg", state.rot_x_deg);
     set!("__songlua_state_rot_y_deg", state.rot_y_deg);
     set!("__songlua_state_rot_z_deg", state.rot_z_deg);
@@ -23740,9 +21372,7 @@ pub fn set_actor_overlay_update_getter_value(
     };
     match value {
         UpdateValue::F32(value) if !key.is_empty() => {
-            if set_live_base_field(lua, actor, key, *value) {
-                return Ok(());
-            }
+            if set_live_base_field(lua, actor, key, *value) { return Ok(()); }
             let current_key = match target {
                 Target::Aux => Some("__songlua_aux"),
                 Target::X => Some("__songlua_current_x"),
@@ -23767,13 +21397,8 @@ pub fn set_actor_overlay_update_getter_value(
                 .map_err(|err| err.to_string())?;
             set_actor_capture_state(actor, "visible", *value).map_err(|err| err.to_string())
         }
-        UpdateValue::Quaternion(value) => actor
-            .raw_set(
-                "__songlua_state_quaternion",
-                lua.create_sequence_from(*value)
-                    .map_err(|err| err.to_string())?,
-            )
-            .map_err(|err| err.to_string()),
+        UpdateValue::Quaternion(value) => actor.raw_set("__songlua_state_quaternion",
+            lua.create_sequence_from(*value).map_err(|err| err.to_string())?).map_err(|err| err.to_string()),
         UpdateValue::Vec4(value) if target == Target::Diffuse => {
             let diffuse = make_color_table(lua, *value).map_err(|err| err.to_string())?;
             actor
@@ -23871,17 +21496,11 @@ pub fn install_song_meter_display_children(lua: &Lua, actor: &Table) -> mlua::Re
         // before its Init commands and then assigns its engine-owned name.
         let host = lua.app_data_ref::<ActorDefinitionHost>().map(|host| *host);
         let stream = if let Some(host) = host {
-            let Value::Table(stream) =
-                own_actor_root(lua, Value::Table(stream), host.install_methods)?
-            else {
-                return Err(mlua::Error::runtime(
-                    "SongMeterDisplay Stream must load an actor",
-                ));
+            let Value::Table(stream) = own_actor_root(lua, Value::Table(stream), host.install_methods)? else {
+                return Err(mlua::Error::runtime("SongMeterDisplay Stream must load an actor"));
             };
             stream
-        } else {
-            stream
-        };
+        } else { stream };
         stream.set("Name", "Stream")?;
         stream.set("__songlua_parent", actor.clone())?;
         actor.raw_set("Stream", stream.clone())?;
@@ -24034,17 +21653,12 @@ pub(crate) fn live_multi_vertex_texture_path(actor: &Table) -> mlua::Result<Opti
         const KEY: &str = "__songlua_native_default_texture.png";
         static PREPARED: OnceLock<()> = OnceLock::new();
         PREPARED.get_or_init(|| {
-            deadlib_assets::register_prepared_generated_texture(
-                KEY,
+            deadlib_assets::register_prepared_generated_texture(KEY,
                 image::RgbaImage::from_pixel(1, 1, image::Rgba([255; 4])),
-                [1, 1],
-                Default::default(),
-            );
+                [1, 1], Default::default());
         });
         Ok(Some(PathBuf::from(KEY)))
-    } else {
-        actor_texture_path(actor)
-    }
+    } else { actor_texture_path(actor) }
 }
 
 pub fn read_model_paths(actor: &Table) -> Result<Option<[PathBuf; 3]>, String> {
@@ -24386,14 +22000,9 @@ where
         &read_noteskin_tap_actor_slots,
         &mut on_skipped_message_capture,
     )?;
-    if !out.iter().any(|overlay| {
-        matches!(
-            overlay.actor.kind,
-            SongLuaOverlayKind::ActorProxy {
-                target: SongLuaProxyTarget::Actor { .. }
-            }
-        )
-    }) {
+    if !out.iter().any(|overlay| matches!(overlay.actor.kind,
+        SongLuaOverlayKind::ActorProxy { target: SongLuaProxyTarget::Actor { .. } }))
+    {
         return Ok(out);
     }
     let actor_indices = out
@@ -24549,8 +22158,7 @@ where
 
     let kind = if actor_type.eq_ignore_ascii_case("Actor") {
         // A referenced plain Actor can drive other actors through tween getters.
-        if !context.live
-            && name.is_none()
+        if !context.live && name.is_none()
             && initial_state == SongLuaOverlayState::default()
             && message_commands.is_empty()
             && message_sounds.is_empty()
@@ -24567,8 +22175,7 @@ where
             .get::<Option<Function>>("__songlua_draw_function")
             .map_err(|err| err.to_string())?
             .is_some();
-        if !context.live
-            && parent_index.is_none()
+        if !context.live && parent_index.is_none()
             && name.is_none()
             && initial_state == SongLuaOverlayState::default()
             && message_commands.is_empty()
@@ -24590,8 +22197,7 @@ where
             overlay_index: usize::MAX,
         });
         SongLuaOverlayKind::ActorProxy { target }
-    } else if actor_type.eq_ignore_ascii_case("Sprite") || actor_type.eq_ignore_ascii_case("Banner")
-    {
+    } else if actor_type.eq_ignore_ascii_case("Sprite") || actor_type.eq_ignore_ascii_case("Banner") {
         if let Some(capture_name) = actor
             .get::<Option<String>>("__songlua_aft_capture_name")
             .map_err(|err| err.to_string())?
@@ -24685,10 +22291,10 @@ where
         };
         let texture_path = if context.live {
             live_multi_vertex_texture_path(actor).map_err(|error| error.to_string())?
-        } else {
-            read_actor_multi_vertex_texture_path(actor, aft_capture_names)?
-        };
-        let texture_key = texture_path.as_ref().map(|path| texture_path_key(path));
+        } else { read_actor_multi_vertex_texture_path(actor, aft_capture_names)? };
+        let texture_key = texture_path
+            .as_ref()
+            .map(|path| texture_path_key(path));
         SongLuaOverlayKind::ActorMultiVertex {
             vertices,
             texture_path,
@@ -24702,10 +22308,7 @@ where
         }
     } else if actor_type.eq_ignore_ascii_case("Model") {
         if let Some(slots) = read_noteskin_tap_actor_slots(actor, context)? {
-            SongLuaOverlayKind::NoteskinActor {
-                slots,
-                texture_samples: Arc::from([]),
-            }
+            SongLuaOverlayKind::NoteskinActor { slots, texture_samples: Arc::from([]) }
         } else {
             let Some(layers) = read_model_layers(actor)? else {
                 return Ok(None);
@@ -24767,9 +22370,9 @@ pub(crate) fn sync_sprite_states(
     visit_sprite_states(actor, |state| {
         if let Some(values) = &mut replacement {
             values.push(state);
-        } else if states.get(index).is_none_or(|old| {
-            old.frame != state.frame || old.delay.to_bits() != state.delay.to_bits()
-        }) {
+        } else if states.get(index).is_none_or(|old|
+            old.frame != state.frame || old.delay.to_bits() != state.delay.to_bits())
+        {
             let mut values = Vec::with_capacity(states.len().max(index + 1));
             values.extend_from_slice(&states[..index]);
             values.push(state);
@@ -24778,11 +22381,8 @@ pub(crate) fn sync_sprite_states(
         index += 1;
     })?;
     // Publish only after a successful read; old draw snapshots keep their Arc.
-    if let Some(values) = replacement {
-        *states = values.into();
-    } else if index != states.len() {
-        *states = Arc::from(&states[..index]);
-    }
+    if let Some(values) = replacement { *states = values.into(); }
+    else if index != states.len() { *states = Arc::from(&states[..index]); }
     Ok(())
 }
 
@@ -24859,10 +22459,7 @@ mod sprite_state_publication_tests {
     #[test]
     fn native_sprite_array_reuses_unchanged_values_and_preserves_old_snapshots() {
         let lua = Lua::new();
-        let actor: Table = lua
-            .load("return {Frames={{Frame=2,Delay='0.25'},{Delay=0.5}}}")
-            .eval()
-            .unwrap();
+        let actor: Table = lua.load("return {Frames={{Frame=2,Delay='0.25'},{Delay=0.5}}}").eval().unwrap();
         let mut states: Arc<[_]> = Arc::from([]);
         assert_fresh(&actor, &mut states);
         let original = states.clone();
@@ -24871,38 +22468,22 @@ mod sprite_state_publication_tests {
         let frames = actor.raw_get::<Table>("Frames").unwrap();
         frames.raw_get::<Table>(1).unwrap().set("Frame", 3).unwrap();
         assert_fresh(&actor, &mut states);
-        assert_eq!(
-            states.iter().map(|state| state.frame).collect::<Vec<_>>(),
-            [3, 3]
-        );
-        assert_eq!(
-            original.iter().map(|state| state.frame).collect::<Vec<_>>(),
-            [2, 2]
-        );
+        assert_eq!(states.iter().map(|state| state.frame).collect::<Vec<_>>(), [3, 3]);
+        assert_eq!(original.iter().map(|state| state.frame).collect::<Vec<_>>(), [2, 2]);
         assert!(!Arc::ptr_eq(&original, &states));
-        frames
-            .raw_set(3, lua.load("return {Frame=7}").eval::<Table>().unwrap())
-            .unwrap();
+        frames.raw_set(3, lua.load("return {Frame=7}").eval::<Table>().unwrap()).unwrap();
         assert_fresh(&actor, &mut states);
         assert_eq!(states.len(), 3);
         frames.raw_set(2, Value::Nil).unwrap();
         assert_fresh(&actor, &mut states);
-        assert_eq!(
-            states.len(),
-            1,
-            "sequence traversal stops at the first hole"
-        );
-        actor
-            .raw_set("__songlua_state_sprite_default_states", true)
-            .unwrap();
+        assert_eq!(states.len(), 1, "sequence traversal stops at the first hole");
+        actor.raw_set("__songlua_state_sprite_default_states", true).unwrap();
         assert_fresh(&actor, &mut states);
         assert!(states.is_empty());
         let empty = states.clone();
         assert_fresh(&actor, &mut states);
         assert!(Arc::ptr_eq(&empty, &states));
-        actor
-            .raw_set("__songlua_state_sprite_default_states", false)
-            .unwrap();
+        actor.raw_set("__songlua_state_sprite_default_states", false).unwrap();
         assert_fresh(&actor, &mut states);
         assert_eq!(states.len(), 1);
         actor.raw_set("Frames", Value::Nil).unwrap();
@@ -24918,9 +22499,7 @@ mod sprite_state_publication_tests {
     #[test]
     fn native_sprite_publication_visits_getters_once_and_keeps_last_good_array_on_error() {
         let lua = Lua::new();
-        let actor: Table = lua
-            .load(
-                r#"
+        let actor: Table = lua.load(r#"
 reads, frame, bad = 0, 4, false
 return setmetatable({}, {__index=function(_, key)
     reads=reads+1
@@ -24928,10 +22507,7 @@ return setmetatable({}, {__index=function(_, key)
     if key=='Delay0000' then return '0.5' end
     if key=='Frame0001' and bad then return {} end
 end})
-"#,
-            )
-            .eval()
-            .unwrap();
+"#).eval().unwrap();
         let mut states: Arc<[_]> = Arc::from([]);
         for frame in [4, 4, 8] {
             lua.globals().set("reads", 0).unwrap();
@@ -24949,24 +22525,14 @@ end})
         let error = sync_sprite_states(&actor, &mut states).unwrap_err();
         assert_eq!(lua.globals().get::<u32>("reads").unwrap(), 3);
         assert_eq!(error, read_sprite_states(&actor).unwrap_err());
-        assert!(
-            Arc::ptr_eq(&previous, &states),
-            "a partial read must not publish"
-        );
+        assert!(Arc::ptr_eq(&previous, &states), "a partial read must not publish");
     }
 
     #[test]
     fn native_sprite_publication_compares_delay_bits() {
         let lua = Lua::new();
-        let actor: Table = lua
-            .load("return {Frames={{Frame=0,Delay=0}}}")
-            .eval()
-            .unwrap();
-        let entry = actor
-            .raw_get::<Table>("Frames")
-            .unwrap()
-            .raw_get::<Table>(1)
-            .unwrap();
+        let actor: Table = lua.load("return {Frames={{Frame=0,Delay=0}}}").eval().unwrap();
+        let entry = actor.raw_get::<Table>("Frames").unwrap().raw_get::<Table>(1).unwrap();
         let mut states: Arc<[_]> = Arc::from([]);
         sync_sprite_states(&actor, &mut states).unwrap();
         let positive_zero = states.clone();
@@ -24979,10 +22545,7 @@ end})
         assert!(states[0].delay.is_nan());
         let nan = states.clone();
         sync_sprite_states(&actor, &mut states).unwrap();
-        assert!(
-            Arc::ptr_eq(&nan, &states),
-            "unchanged NaNs should not force allocations"
-        );
+        assert!(Arc::ptr_eq(&nan, &states), "unchanged NaNs should not force allocations");
     }
 }
 
@@ -25200,12 +22763,7 @@ fn read_actor_multi_vertex_point(
     };
     Ok(Some(SongLuaActorMultiVertexPoint {
         pos: [x, y],
-        z: read_actor_scalar_f32(
-            position
-                .raw_get::<Value>(3)
-                .map_err(|err| err.to_string())?,
-        )
-        .unwrap_or(0.0),
+        z: read_actor_scalar_f32(position.raw_get::<Value>(3).map_err(|err| err.to_string())?).unwrap_or(0.0),
         color,
         uv,
     }))
@@ -25403,34 +22961,20 @@ const fn actor_multi_vertex_mesh_vertex(
 }
 
 fn actor_base_zoom_axis(lua: &Lua, actor: &Table, key: &str) -> mlua::Result<f32> {
-    if let Some(field) = key
-        .strip_prefix("__songlua_state_")
-        .and_then(BaseField::from_key)
-        && let Some(base) = live_base_transform(lua, actor)
-    {
+    if let Some(field) = key.strip_prefix("__songlua_state_").and_then(BaseField::from_key)
+        && let Some(base) = live_base_transform(lua, actor) {
         return Ok(base.zoom_axis(field));
     }
-    Ok(actor
-        .get::<Option<f32>>(key)?
-        .or(actor.get::<Option<f32>>("__songlua_state_basezoom")?)
-        .unwrap_or(1.0))
+    Ok(actor.get::<Option<f32>>(key)?
+        .or(actor.get::<Option<f32>>("__songlua_state_basezoom")?).unwrap_or(1.0))
 }
 
-pub fn actor_zoom_axis(
-    lua: &Lua,
-    actor: &Table,
-    zoom_key: &str,
-    basezoom_key: &str,
-) -> mlua::Result<f32> {
-    let zoom = match zoom_key
-        .strip_prefix("__songlua_state_")
-        .and_then(|key| live_destination_scalar(lua, actor, key))
-    {
+pub fn actor_zoom_axis(lua: &Lua, actor: &Table, zoom_key: &str, basezoom_key: &str) -> mlua::Result<f32> {
+    let zoom = match zoom_key.strip_prefix("__songlua_state_")
+        .and_then(|key| live_destination_scalar(lua, actor, key)) {
         Some(value) => value,
-        None => actor
-            .get::<Option<f32>>(zoom_key)?
-            .or(actor.get::<Option<f32>>("__songlua_state_zoom")?)
-            .unwrap_or(1.0),
+        None => actor.get::<Option<f32>>(zoom_key)?
+            .or(actor.get::<Option<f32>>("__songlua_state_zoom")?).unwrap_or(1.0),
     };
     let basezoom = actor_base_zoom_axis(lua, actor, basezoom_key)?;
     Ok(basezoom * zoom)
@@ -25670,8 +23214,7 @@ pub(crate) fn read_bitmap_text_attribute(entry: &Table) -> Result<Option<TextAtt
     let color = match entry.raw_get::<Value>("color") {
         Ok(Value::Table(color)) => table_vec4(&color),
         _ => None,
-    }
-    .unwrap_or([1.0, 1.0, 1.0, 1.0]);
+    }.unwrap_or([1.0, 1.0, 1.0, 1.0]);
     let vertex_colors = match entry.raw_get::<Value>("vertex_colors") {
         Ok(Value::Table(colors)) => table_vertex_colors(&colors),
         _ => None,
@@ -25744,9 +23287,7 @@ pub fn read_actor_color_field(actor: &Table, key: &str) -> Result<Option<[f32; 4
 }
 
 pub fn actor_diffuse(lua: &Lua, actor: &Table) -> mlua::Result<[f32; 4]> {
-    if let Some(diffuse) = live_destination_value(lua, actor, |dest| dest.diffuse) {
-        return Ok(diffuse);
-    }
+    if let Some(diffuse) = live_destination_value(lua, actor, |dest| dest.diffuse) { return Ok(diffuse); }
     Ok(actor
         .get::<Option<Table>>("__songlua_diffuse")?
         .and_then(|value| table_vec4(&value))
@@ -25801,9 +23342,7 @@ pub fn text_attribute_value(params: &Table, keys: &[&str]) -> mlua::Result<Optio
 }
 
 pub fn actor_glow(lua: &Lua, actor: &Table) -> mlua::Result<[f32; 4]> {
-    if let Some(glow) = live_destination_value(lua, actor, |dest| dest.glow) {
-        return Ok(glow);
-    }
+    if let Some(glow) = live_destination_value(lua, actor, |dest| dest.glow) { return Ok(glow); }
     Ok(actor
         .get::<Option<Table>>("__songlua_state_glow")?
         .and_then(|value| table_vec4(&value))
@@ -26347,10 +23886,7 @@ pub fn make_color_table(lua: &Lua, rgba: [f32; 4]) -> mlua::Result<Table> {
 // SAFETY: index must be a positive index of a rooted table in the locked VM,
 // with one spare stack slot. Numeric conversion neither allocates Lua objects
 // nor invokes metamethods. Each component is popped before returning.
-unsafe fn stack_vector<const N: usize>(
-    state: *mut ffi::lua_State,
-    index: c_int,
-) -> Option<[f32; N]> {
+unsafe fn stack_vector<const N: usize>(state: *mut ffi::lua_State, index: c_int) -> Option<[f32; N]> {
     let mut out = [0.0; N];
     for (component, dest) in out.iter_mut().enumerate() {
         unsafe {
@@ -26358,9 +23894,7 @@ unsafe fn stack_vector<const N: usize>(
             let mut numeric = 0;
             let value = ffi::lua_tonumberx(state, -1, &mut numeric);
             ffi::lua_pop(state, 1);
-            if numeric == 0 {
-                return None;
-            }
+            if numeric == 0 { return None; }
             *dest = value as f32;
         }
     }
@@ -26375,24 +23909,14 @@ pub(crate) fn table_vector<const N: usize>(table: &Table) -> Option<[f32; N]> {
         crate::raw_vm::with_read_stack(&lua, 3, |raw, base| {
             raw.push(table)?;
             Ok(stack_vector(raw.state(), base + 1))
-        })
-        .ok()
-        .flatten()
+        }).ok().flatten()
     }
 }
 
-pub fn table_vec2(table: &Table) -> Option<[f32; 2]> {
-    table_vector(table)
-}
-pub fn table_vec3(table: &Table) -> Option<[f32; 3]> {
-    table_vector(table)
-}
-pub fn table_vec4(table: &Table) -> Option<[f32; 4]> {
-    table_vector(table)
-}
-pub fn table_vec5(table: &Table) -> Option<[f32; 5]> {
-    table_vector(table)
-}
+pub fn table_vec2(table: &Table) -> Option<[f32; 2]> { table_vector(table) }
+pub fn table_vec3(table: &Table) -> Option<[f32; 3]> { table_vector(table) }
+pub fn table_vec4(table: &Table) -> Option<[f32; 4]> { table_vector(table) }
+pub fn table_vec5(table: &Table) -> Option<[f32; 5]> { table_vector(table) }
 
 pub fn table_vertex_colors(table: &Table) -> Option<[[f32; 4]; 4]> {
     let lua = table.weak_lua().upgrade();
@@ -26406,19 +23930,13 @@ pub fn table_vertex_colors(table: &Table) -> Option<[[f32; 4]; 4]> {
             let mut out = [[0.0; 4]; 4];
             for (row, dest) in out.iter_mut().enumerate() {
                 ffi::lua_rawgeti(state, base + 1, (row + 1) as ffi::lua_Integer);
-                if ffi::lua_type(state, -1) != ffi::LUA_TTABLE {
-                    return Ok(None);
-                }
-                let Some(value) = stack_vector(state, base + 2) else {
-                    return Ok(None);
-                };
+                if ffi::lua_type(state, -1) != ffi::LUA_TTABLE { return Ok(None); }
+                let Some(value) = stack_vector(state, base + 2) else { return Ok(None); };
                 *dest = value;
                 ffi::lua_pop(state, 1);
             }
             Ok(Some(out))
-        })
-        .ok()
-        .flatten()
+        }).ok().flatten()
     }
 }
 
@@ -26576,31 +24094,20 @@ mod snapshot_tests {
 
     fn large_live_actor_snapshot(lua: &Lua, message: bool) -> (Table, Vec<Table>) {
         let root = lua.create_table().unwrap();
-        let command = lua
-            .load("return function(self) SEEN[#SEEN + 1] = self.ordinal end")
-            .eval::<Function>()
-            .unwrap();
-        lua.globals()
-            .set("SEEN", lua.create_table().unwrap())
-            .unwrap();
+        let command = lua.load("return function(self) SEEN[#SEEN + 1] = self.ordinal end")
+            .eval::<Function>().unwrap();
+        lua.globals().set("SEEN", lua.create_table().unwrap()).unwrap();
         for ordinal in 1..=6000 {
             let actor = lua.create_table().unwrap();
             actor.raw_set("Name", format!("Child{ordinal}")).unwrap();
             actor.raw_set("ordinal", ordinal).unwrap();
-            if message {
-                actor.raw_set("GoMessageCommand", command.clone()).unwrap();
-            }
+            if message { actor.raw_set("GoMessageCommand", command.clone()).unwrap(); }
             root.raw_set(ordinal, actor).unwrap();
         }
         actor_named_children(lua, &root).unwrap();
-        let actors = root
-            .sequence_values::<Table>()
-            .collect::<mlua::Result<Vec<_>>>()
-            .unwrap();
+        let actors = root.sequence_values::<Table>().collect::<mlua::Result<Vec<_>>>().unwrap();
         let registry = lua.create_sequence_from(actors.iter().cloned()).unwrap();
-        lua.globals()
-            .raw_set("__songlua_actor_registry", registry)
-            .unwrap();
+        lua.globals().raw_set("__songlua_actor_registry", registry).unwrap();
         prepare_live_actor_handle_cache(lua, actors.iter().cloned()).unwrap();
         (root, actors)
     }
@@ -26627,10 +24134,7 @@ mod snapshot_tests {
         let seen: Table = lua.globals().get("SEEN").unwrap();
         assert_eq!(seen.raw_len(), actors.len());
         for (index, actor) in actors.iter().enumerate() {
-            assert_eq!(
-                seen.raw_get::<usize>(index + 1).unwrap(),
-                actor.raw_get::<usize>("ordinal").unwrap()
-            );
+            assert_eq!(seen.raw_get::<usize>(index + 1).unwrap(), actor.raw_get::<usize>("ordinal").unwrap());
         }
     }
 
@@ -26640,10 +24144,8 @@ mod snapshot_tests {
         let root = lua.create_table().expect("actor tree");
         let calls = lua.create_table().expect("Begin observations");
         lua.globals().set("BEGIN_CALLS", calls.clone()).unwrap();
-        let begin = lua
-            .load("return function(self) BEGIN_CALLS[#BEGIN_CALLS + 1] = self.ordinal end")
-            .eval::<Function>()
-            .expect("authored Begin command");
+        let begin = lua.load("return function(self) BEGIN_CALLS[#BEGIN_CALLS + 1] = self.ordinal end")
+            .eval::<Function>().expect("authored Begin command");
         for ordinal in 1..=2800 {
             let child = lua.create_table().expect("child actor");
             child.raw_set("ordinal", ordinal).unwrap();
@@ -26652,10 +24154,8 @@ mod snapshot_tests {
         }
         // Scene preparation keeps initial actor states while Begin traverses
         // the same tree. Those independent handles must remain usable.
-        let initial_actors = root
-            .sequence_values::<Table>()
-            .collect::<mlua::Result<Vec<_>>>()
-            .expect("initial actor states");
+        let initial_actors = root.sequence_values::<Table>()
+            .collect::<mlua::Result<Vec<_>>>().expect("initial actor states");
         // Named-child queries can initialize every actor's child registry
         // before the screen broadcasts Begin, as authored scene scanners do.
         for actor in &initial_actors {
@@ -26668,11 +24168,8 @@ mod snapshot_tests {
         for (index, actor) in initial_actors.iter().enumerate() {
             let ordinal = index + 1;
             assert_eq!(actor.raw_get::<usize>("ordinal").unwrap(), ordinal);
-            assert_eq!(
-                calls.raw_get::<usize>(ordinal).unwrap(),
-                ordinal,
-                "Begin runs once per actor in child order"
-            );
+            assert_eq!(calls.raw_get::<usize>(ordinal).unwrap(), ordinal,
+                "Begin runs once per actor in child order");
         }
     }
 
@@ -26684,42 +24181,16 @@ mod snapshot_tests {
         let params = lua.create_table().unwrap();
         params.raw_set("TapNoteScore", "TapNoteScore_W1").unwrap();
         for index in 1..=10_000 {
-            params
-                .raw_set("TapNoteOffset", index as f32 / 1000.0)
-                .unwrap();
-            notes
-                .raw_set(index, create_tap_note_table(&lua, &params, None).unwrap())
-                .unwrap();
+            params.raw_set("TapNoteOffset", index as f32 / 1000.0).unwrap();
+            notes.raw_set(index, create_tap_note_table(&lua, &params, None).unwrap()).unwrap();
         }
         for index in [1, 5000, 10_000] {
             let note = notes.raw_get::<Table>(index).unwrap();
-            let result = note
-                .get::<Function>("GetTapNoteResult")
-                .unwrap()
-                .call::<Table>(note.clone())
-                .unwrap();
-            let hold = note
-                .get::<Function>("GetHoldNoteResult")
-                .unwrap()
-                .call::<Table>(note.clone())
-                .unwrap();
+            let result = note.get::<Function>("GetTapNoteResult").unwrap().call::<Table>(note.clone()).unwrap();
+            let hold = note.get::<Function>("GetHoldNoteResult").unwrap().call::<Table>(note.clone()).unwrap();
             assert_eq!(result.to_pointer(), hold.to_pointer());
-            assert_eq!(
-                result
-                    .get::<Function>("GetTapNoteOffset")
-                    .unwrap()
-                    .call::<f32>(result.clone())
-                    .unwrap(),
-                index as f32 / 1000.0
-            );
-            assert_eq!(
-                result
-                    .get::<Function>("GetTapNoteScore")
-                    .unwrap()
-                    .call::<String>(result)
-                    .unwrap(),
-                "TapNoteScore_W1"
-            );
+            assert_eq!(result.get::<Function>("GetTapNoteOffset").unwrap().call::<f32>(result.clone()).unwrap(), index as f32 / 1000.0);
+            assert_eq!(result.get::<Function>("GetTapNoteScore").unwrap().call::<String>(result).unwrap(), "TapNoteScore_W1");
         }
         lua.gc_restart();
     }
@@ -26727,9 +24198,7 @@ mod snapshot_tests {
     #[test]
     fn large_snapshot_restores_aliases_and_cells() {
         let lua = Lua::new();
-        let functions = lua
-            .load(
-                r#"
+        let functions = lua.load(r#"
 local graph = {}
 for i = 1, 10000 do graph[i] = {value = i} end
 local original = graph
@@ -26750,79 +24219,42 @@ local function verify()
     for i = 1, 10000 do assert(graph[i].value == i) end
 end
 return {mutate, verify}
-"#,
-            )
-            .eval::<Table>()
-            .expect("large aliased graph");
+"#).eval::<Table>().expect("large aliased graph");
         let mutate = functions.raw_get::<Function>(1).expect("mutation");
         let verify = functions.raw_get::<Function>(2).expect("verification");
-        let snapshot =
-            snapshot_function_locals(&lua, &functions, lua.create_table().expect("snapshot rows"))
-                .expect("large snapshot must fit the unmodified native Lua stack limit");
+        let snapshot = snapshot_function_locals(&lua, &functions, lua.create_table().expect("snapshot rows"))
+            .expect("large snapshot must fit the unmodified native Lua stack limit");
         mutate.call::<()>(()).expect("mutate saved locals");
         restore_function_action_tables(&lua, snapshot).expect("restore saved locals");
-        verify
-            .call::<()>(())
-            .expect("restore identities, values, aliases and replaced upvalue cells");
+        verify.call::<()>(()).expect("restore identities, values, aliases and replaced upvalue cells");
     }
 }
 
-fn load_native_gameplay_overlay(
-    lua: &Lua,
-    environment: &Table,
-    path: &str,
-    args: MultiValue,
-) -> mlua::Result<Value> {
+
+fn load_native_gameplay_overlay(lua: &Lua, environment: &Table, path: &str, args: MultiValue) -> mlua::Result<Value> {
     let name = path.strip_prefix("./").unwrap_or(path);
     let source = match name {
-        "default.lua" => {
-            include_str!("../assets/simply-love/BGAnimations/ScreenGameplay overlay/default.lua")
-        }
-        "WhoIsCurrentlyWinning.lua" => include_str!(
-            "../assets/simply-love/BGAnimations/ScreenGameplay overlay/WhoIsCurrentlyWinning.lua"
-        ),
-        "FailOnHoldStart.lua" => include_str!(
-            "../assets/simply-love/BGAnimations/ScreenGameplay overlay/FailOnHoldStart.lua"
-        ),
-        "TrackTimeSpentInGameplay.lua" => include_str!(
-            "../assets/simply-love/BGAnimations/ScreenGameplay overlay/TrackTimeSpentInGameplay.lua"
-        ),
-        "JudgmentOffsetTracking.lua" => include_str!(
-            "../assets/simply-love/BGAnimations/ScreenGameplay overlay/JudgmentOffsetTracking.lua"
-        ),
-        "TrackExScoreJudgments.lua" => include_str!(
-            "../assets/simply-love/BGAnimations/ScreenGameplay overlay/TrackExScoreJudgments.lua"
-        ),
-        "TrackFailTime.lua" => include_str!(
-            "../assets/simply-love/BGAnimations/ScreenGameplay overlay/TrackFailTime.lua"
-        ),
-        "PerColumnJudgmentTracking.lua" => include_str!(
-            "../assets/simply-love/BGAnimations/ScreenGameplay overlay/PerColumnJudgmentTracking.lua"
-        ),
-        _ => {
-            return Err(mlua::Error::runtime(format!(
-                "unknown native Overlay resource {path}"
-            )));
-        }
+        "default.lua" => include_str!("../assets/simply-love/BGAnimations/ScreenGameplay overlay/default.lua"),
+        "WhoIsCurrentlyWinning.lua" => include_str!("../assets/simply-love/BGAnimations/ScreenGameplay overlay/WhoIsCurrentlyWinning.lua"),
+        "FailOnHoldStart.lua" => include_str!("../assets/simply-love/BGAnimations/ScreenGameplay overlay/FailOnHoldStart.lua"),
+        "TrackTimeSpentInGameplay.lua" => include_str!("../assets/simply-love/BGAnimations/ScreenGameplay overlay/TrackTimeSpentInGameplay.lua"),
+        "JudgmentOffsetTracking.lua" => include_str!("../assets/simply-love/BGAnimations/ScreenGameplay overlay/JudgmentOffsetTracking.lua"),
+        "TrackExScoreJudgments.lua" => include_str!("../assets/simply-love/BGAnimations/ScreenGameplay overlay/TrackExScoreJudgments.lua"),
+        "TrackFailTime.lua" => include_str!("../assets/simply-love/BGAnimations/ScreenGameplay overlay/TrackFailTime.lua"),
+        "PerColumnJudgmentTracking.lua" => include_str!("../assets/simply-love/BGAnimations/ScreenGameplay overlay/PerColumnJudgmentTracking.lua"),
+        _ => return Err(mlua::Error::runtime(format!("unknown native Overlay resource {path}"))),
     };
-    lua.load(source)
-        .set_environment(environment.clone())
-        .set_name(format!(
-            "@theme:/BGAnimations/ScreenGameplay overlay/{name}"
-        ))
+    lua.load(source).set_environment(environment.clone())
+        .set_name(format!("@theme:/BGAnimations/ScreenGameplay overlay/{name}"))
         .call(args)
 }
 
 pub(crate) fn install_native_gameplay_overlay(
-    lua: &Lua,
-    install_methods: Option<fn(&Lua, &Table) -> mlua::Result<()>>,
+    lua: &Lua, install_methods: Option<fn(&Lua, &Table) -> mlua::Result<()>>,
     context: &SongLuaCompileContext,
 ) -> mlua::Result<()> {
-    let install_methods = install_methods
-        .or_else(|| {
-            lua.app_data_ref::<ActorDefinitionHost>()
-                .map(|host| host.install_methods)
-        })
+    let install_methods = install_methods.or_else(|| lua.app_data_ref::<ActorDefinitionHost>()
+        .map(|host| host.install_methods))
         .ok_or_else(|| mlua::Error::runtime("Overlay requires its actor host"))?;
     let globals = lua.globals();
     let environment = lua.create_table()?;
@@ -26831,27 +24263,14 @@ pub(crate) fn install_native_gameplay_overlay(
     mt.raw_set("__newindex", globals.clone())?;
     environment.set_metatable(Some(mt))?;
     globals.raw_set("__songlua_overlay_environment", environment.clone())?;
-    environment.raw_set(
-        "LoadActor",
-        lua.create_function(|lua, args: MultiValue| {
-            let path = args
-                .front()
-                .cloned()
-                .and_then(read_string)
-                .ok_or_else(|| mlua::Error::runtime("native LoadActor requires a path"))?;
-            let environment = lua
-                .globals()
-                .raw_get::<Table>("__songlua_overlay_environment")?;
-            load_native_gameplay_overlay(
-                lua,
-                &environment,
-                &path,
-                MultiValue::from_vec(args.into_iter().skip(1).collect()),
-            )
-        })?,
-    )?;
-    let definition =
-        load_native_gameplay_overlay(lua, &environment, "default.lua", MultiValue::new())?;
+    environment.raw_set("LoadActor", lua.create_function(|lua, args: MultiValue| {
+        let path = args.front().cloned().and_then(read_string)
+            .ok_or_else(|| mlua::Error::runtime("native LoadActor requires a path"))?;
+        let environment = lua.globals().raw_get::<Table>("__songlua_overlay_environment")?;
+        load_native_gameplay_overlay(lua, &environment, &path,
+            MultiValue::from_vec(args.into_iter().skip(1).collect()))
+    })?)?;
+    let definition = load_native_gameplay_overlay(lua, &environment, "default.lua", MultiValue::new())?;
     let Value::Table(theme) = own_actor_root(lua, definition, install_methods)? else {
         return Err(mlua::Error::runtime("native Overlay must load an actor"));
     };
@@ -26874,15 +24293,10 @@ pub(crate) fn install_native_gameplay_overlay(
         // Replacing the placeholder must retain its engine-layer identity for
         // explicit Draw and proxies, just as naming the native loaded actor.
         theme.raw_set("__songlua_top_screen_child_name", "Overlay")?;
-        let order = overlay
-            .raw_get::<Option<i32>>("__songlua_state_draw_order")?
-            .unwrap_or(0);
+        let order = overlay.raw_get::<Option<i32>>("__songlua_state_draw_order")?.unwrap_or(0);
         theme.raw_set("__songlua_state_draw_order", order)?;
         for index in 1..=screen.raw_len() {
-            if screen
-                .raw_get::<Option<Table>>(index)?
-                .is_some_and(|known| known.to_pointer() == overlay.to_pointer())
-            {
+            if screen.raw_get::<Option<Table>>(index)?.is_some_and(|known| known.to_pointer() == overlay.to_pointer()) {
                 screen.raw_set(index, theme.clone())?;
             }
         }
@@ -26896,15 +24310,9 @@ pub(crate) fn install_native_gameplay_overlay(
     // Reproduce that observable input tree only in diagnostic replay profiles.
     #[cfg(feature = "test-support")]
     if context.capture_overlay_probe {
-        let host = lua
-            .app_data_ref::<ActorDefinitionHost>()
+        let host = lua.app_data_ref::<ActorDefinitionHost>()
             .ok_or_else(|| mlua::Error::runtime("Overlay requires its actor host"))?;
-        let probe = create_named_actor(
-            lua,
-            "ActorFrame",
-            "ITGmaniaHarnessTraceProbe",
-            host.create_dummy_actor,
-        )?;
+        let probe = create_named_actor(lua, "ActorFrame", "ITGmaniaHarnessTraceProbe", host.create_dummy_actor)?;
         drop(host);
         probe.raw_set("__songlua_parent", overlay.clone())?;
         push_sequence_child_once(&overlay, probe.clone())?;
@@ -26916,14 +24324,10 @@ pub(crate) fn install_native_gameplay_overlay(
 }
 
 pub(crate) fn install_native_gameplay_decorations(
-    lua: &Lua,
-    install_methods: Option<fn(&Lua, &Table) -> mlua::Result<()>>,
+    lua: &Lua, install_methods: Option<fn(&Lua, &Table) -> mlua::Result<()>>,
 ) -> mlua::Result<()> {
-    let install_methods = install_methods
-        .or_else(|| {
-            lua.app_data_ref::<ActorDefinitionHost>()
-                .map(|host| host.install_methods)
-        })
+    let install_methods = install_methods.or_else(|| lua.app_data_ref::<ActorDefinitionHost>()
+        .map(|host| host.install_methods))
         .ok_or_else(|| mlua::Error::runtime("decorations require their actor host"))?;
     let globals = lua.globals();
     let screen = globals.raw_get::<Table>("__songlua_top_screen")?;
@@ -26932,30 +24336,14 @@ pub(crate) fn install_native_gameplay_decorations(
     let mt = lua.create_table()?;
     mt.raw_set("__index", globals.clone())?;
     environment.set_metatable(Some(mt))?;
-    environment.raw_set(
-        "ScreenString",
-        lua.create_function(move |lua, key: String| {
-            lua.create_string(crate::theme_string(&screen_name, &key))
-        })?,
-    )?;
+    environment.raw_set("ScreenString", lua.create_function(move |lua, key: String|
+        lua.create_string(crate::theme_string(&screen_name, &key)))?)?;
     for (name, source) in [
-        (
-            "Header",
-            include_str!("../assets/simply-love/Graphics/_header.lua"),
-        ),
-        (
-            "Footer",
-            include_str!("../assets/simply-love/Graphics/_footer.lua"),
-        ),
+        ("Header", include_str!("../assets/simply-love/Graphics/_header.lua")),
+        ("Footer", include_str!("../assets/simply-love/Graphics/_footer.lua")),
     ] {
-        let definition = lua
-            .load(source)
-            .set_environment(environment.clone())
-            .set_name(format!(
-                "@theme:/Graphics/_{}.lua",
-                name.to_ascii_lowercase()
-            ))
-            .eval::<Value>()?;
+        let definition = lua.load(source).set_environment(environment.clone())
+            .set_name(format!("@theme:/Graphics/_{}.lua", name.to_ascii_lowercase())).eval::<Value>()?;
         let Value::Table(actor) = own_actor_root(lua, definition, install_methods)? else {
             return Err(mlua::Error::runtime("native decoration must load an actor"));
         };
@@ -26966,16 +24354,11 @@ pub(crate) fn install_native_gameplay_decorations(
         run_actor_init_commands_for_table(lua, &actor)?;
         // StandardDecorationFromFile merges ScreenGameplay's metric command.
         // Both decorations remain present while hibernating, including children.
-        let on = lua
-            .load("return function(self) self:hibernate(math.huge) end")
-            .set_name("@theme:/metrics/ScreenGameplay.lua")
-            .eval::<Function>()?;
+        let on = lua.load("return function(self) self:hibernate(math.huge) end")
+            .set_name("@theme:/metrics/ScreenGameplay.lua").eval::<Function>()?;
         actor.raw_set("OnCommand", on)?;
         for index in 1..=screen.raw_len() {
-            if screen
-                .raw_get::<Option<Table>>(index)?
-                .is_some_and(|known| known.to_pointer() == previous.to_pointer())
-            {
+            if screen.raw_get::<Option<Table>>(index)?.is_some_and(|known| known.to_pointer() == previous.to_pointer()) {
                 screen.raw_set(index, actor.clone())?;
             }
         }
@@ -26985,14 +24368,8 @@ pub(crate) fn install_native_gameplay_decorations(
     }
     // Replacements have now run their real Init commands. BeginScreen's
     // native stable sort sees Footer's90 rather than its placeholder's0.
-    let mut ordered = screen
-        .sequence_values::<Table>()
-        .collect::<mlua::Result<Vec<_>>>()?;
-    ordered.sort_by_key(|actor| {
-        actor
-            .raw_get::<i32>("__songlua_state_draw_order")
-            .unwrap_or(0)
-    });
+    let mut ordered = screen.sequence_values::<Table>().collect::<mlua::Result<Vec<_>>>()?;
+    ordered.sort_by_key(|actor| actor.raw_get::<i32>("__songlua_state_draw_order").unwrap_or(0));
     for (index, actor) in ordered.into_iter().enumerate() {
         screen.raw_set(index + 1, actor)?;
     }
@@ -27000,31 +24377,19 @@ pub(crate) fn install_native_gameplay_decorations(
 }
 
 pub(crate) fn install_native_gameplay_transitions(
-    lua: &Lua,
-    install_methods: Option<fn(&Lua, &Table) -> mlua::Result<()>>,
+    lua: &Lua, install_methods: Option<fn(&Lua, &Table) -> mlua::Result<()>>,
 ) -> mlua::Result<()> {
-    let install_methods = install_methods
-        .or_else(|| {
-            lua.app_data_ref::<ActorDefinitionHost>()
-                .map(|host| host.install_methods)
-        })
+    let install_methods = install_methods.or_else(|| lua.app_data_ref::<ActorDefinitionHost>()
+        .map(|host| host.install_methods))
         .ok_or_else(|| mlua::Error::runtime("transitions require their actor host"))?;
     let screen = lua.globals().raw_get::<Table>("__songlua_top_screen")?;
     for wrapper in actor_direct_children(lua, &screen)? {
-        let Some(role) = wrapper.raw_get::<Option<String>>("__songlua_screen_actor_role")? else {
-            continue;
-        };
+        let Some(role) = wrapper.raw_get::<Option<String>>("__songlua_screen_actor_role")? else { continue; };
         let (source, path) = match role.as_str() {
-            "Toasty" => (
-                include_str!("../assets/simply-love/BGAnimations/ScreenGameplay toasty.lua"),
-                "@theme:/BGAnimations/ScreenGameplay toasty.lua",
-            ),
-            "NextSong" => (
-                include_str!(
-                    "../assets/simply-love/BGAnimations/ScreenGameplay next course song/default.lua"
-                ),
-                "@theme:/BGAnimations/ScreenGameplay next course song/default.lua",
-            ),
+            "Toasty" => (include_str!("../assets/simply-love/BGAnimations/ScreenGameplay toasty.lua"),
+                "@theme:/BGAnimations/ScreenGameplay toasty.lua"),
+            "NextSong" => (include_str!("../assets/simply-love/BGAnimations/ScreenGameplay next course song/default.lua"),
+                "@theme:/BGAnimations/ScreenGameplay next course song/default.lua"),
             "Ready" | "Go" | "Failed" => ("return Def.Actor{};", "@theme:/BGAnimations/_blank.lua"),
             _ => continue,
         };
@@ -27037,66 +24402,34 @@ pub(crate) fn install_native_gameplay_transitions(
         wrapper.raw_set("__songlua_transition_child", child.clone())?;
         push_sequence_child_once(&wrapper, child.clone())?;
         actor_children(lua, &wrapper)?.raw_set("", child.clone())?;
-        wrapper
-            .get::<Function>("visible")?
-            .call::<()>((wrapper.clone(), true))?;
+        wrapper.get::<Function>("visible")?.call::<()>((wrapper.clone(), true))?;
         native_step_statistics_lookup(lua, &wrapper)?;
         run_actor_init_commands_for_table(lua, &child)?;
     }
     Ok(())
 }
 
-fn load_native_step_statistics(
-    lua: &Lua,
-    environment: &Table,
-    path: &str,
-    args: MultiValue,
-) -> mlua::Result<Value> {
+fn load_native_step_statistics(lua: &Lua, environment: &Table, path: &str, args: MultiValue) -> mlua::Result<Value> {
     let name = path.strip_prefix("./").unwrap_or(path);
     let source = match name {
-        "default.lua" => include_str!(
-            "../assets/simply-love/BGAnimations/ScreenGameplay underlay/PerPlayer/StepStatistics/default.lua"
-        ),
-        "Banner.lua" => include_str!(
-            "../assets/simply-love/BGAnimations/ScreenGameplay underlay/PerPlayer/StepStatistics/Banner.lua"
-        ),
-        "DarkBackground.lua" => include_str!(
-            "../assets/simply-love/BGAnimations/ScreenGameplay underlay/PerPlayer/StepStatistics/DarkBackground.lua"
-        ),
-        "DensityGraph.lua" => include_str!(
-            "../assets/simply-love/BGAnimations/ScreenGameplay underlay/PerPlayer/StepStatistics/DensityGraph.lua"
-        ),
-        "HoldsMinesRolls.lua" => include_str!(
-            "../assets/simply-love/BGAnimations/ScreenGameplay underlay/PerPlayer/StepStatistics/HoldsMinesRolls.lua"
-        ),
-        "Scorebox.lua" => include_str!(
-            "../assets/simply-love/BGAnimations/ScreenGameplay underlay/PerPlayer/StepStatistics/Scorebox.lua"
-        ),
-        "TapNoteJudgments.lua" => include_str!(
-            "../assets/simply-love/BGAnimations/ScreenGameplay underlay/PerPlayer/StepStatistics/TapNoteJudgments.lua"
-        ),
-        "Time.lua" => include_str!(
-            "../assets/simply-love/BGAnimations/ScreenGameplay underlay/PerPlayer/StepStatistics/Time.lua"
-        ),
-        _ => {
-            return Err(mlua::Error::runtime(format!(
-                "unknown native StepStatistics resource {path}"
-            )));
-        }
+        "default.lua" => include_str!("../assets/simply-love/BGAnimations/ScreenGameplay underlay/PerPlayer/StepStatistics/default.lua"),
+        "Banner.lua" => include_str!("../assets/simply-love/BGAnimations/ScreenGameplay underlay/PerPlayer/StepStatistics/Banner.lua"),
+        "DarkBackground.lua" => include_str!("../assets/simply-love/BGAnimations/ScreenGameplay underlay/PerPlayer/StepStatistics/DarkBackground.lua"),
+        "DensityGraph.lua" => include_str!("../assets/simply-love/BGAnimations/ScreenGameplay underlay/PerPlayer/StepStatistics/DensityGraph.lua"),
+        "HoldsMinesRolls.lua" => include_str!("../assets/simply-love/BGAnimations/ScreenGameplay underlay/PerPlayer/StepStatistics/HoldsMinesRolls.lua"),
+        "Scorebox.lua" => include_str!("../assets/simply-love/BGAnimations/ScreenGameplay underlay/PerPlayer/StepStatistics/Scorebox.lua"),
+        "TapNoteJudgments.lua" => include_str!("../assets/simply-love/BGAnimations/ScreenGameplay underlay/PerPlayer/StepStatistics/TapNoteJudgments.lua"),
+        "Time.lua" => include_str!("../assets/simply-love/BGAnimations/ScreenGameplay underlay/PerPlayer/StepStatistics/Time.lua"),
+        _ => return Err(mlua::Error::runtime(format!("unknown native StepStatistics resource {path}"))),
     };
-    lua.load(source)
-        .set_environment(environment.clone())
-        .set_name(format!(
-            "@theme:/BGAnimations/ScreenGameplay underlay/PerPlayer/StepStatistics/{name}"
-        ))
+    lua.load(source).set_environment(environment.clone())
+        .set_name(format!("@theme:/BGAnimations/ScreenGameplay underlay/PerPlayer/StepStatistics/{name}"))
         .call(args)
 }
 
 fn native_step_statistics_environment(lua: &Lua) -> mlua::Result<Table> {
     let globals = lua.globals();
-    if let Some(environment) =
-        globals.raw_get::<Option<Table>>("__songlua_step_statistics_environment")?
-    {
+    if let Some(environment) = globals.raw_get::<Option<Table>>("__songlua_step_statistics_environment")? {
         return Ok(environment);
     }
     let environment = lua.create_table()?;
@@ -27105,38 +24438,20 @@ fn native_step_statistics_environment(lua: &Lua) -> mlua::Result<Table> {
     mt.raw_set("__newindex", globals.clone())?;
     environment.set_metatable(Some(mt))?;
     globals.raw_set("__songlua_step_statistics_environment", environment.clone())?;
-    environment.raw_set(
-        "LoadActor",
-        lua.create_function(|lua, args: MultiValue| {
-            let path = args
-                .front()
-                .cloned()
-                .and_then(read_string)
-                .ok_or_else(|| mlua::Error::runtime("native LoadActor requires a path"))?;
-            let environment = lua
-                .globals()
-                .raw_get::<Table>("__songlua_step_statistics_environment")?;
-            load_native_step_statistics(
-                lua,
-                &environment,
-                &path,
-                MultiValue::from_vec(args.into_iter().skip(1).collect()),
-            )
-        })?,
-    )?;
-    lua.load(include_str!(
-        "../assets/simply-love/Scripts/SL-Histogram.lua"
-    ))
-    .set_environment(environment.clone())
-    .set_name("@theme:/Scripts/SL-Histogram.lua")
-    .exec()?;
+    environment.raw_set("LoadActor", lua.create_function(|lua, args: MultiValue| {
+        let path = args.front().cloned().and_then(read_string)
+            .ok_or_else(|| mlua::Error::runtime("native LoadActor requires a path"))?;
+        let environment = lua.globals().raw_get::<Table>("__songlua_step_statistics_environment")?;
+        load_native_step_statistics(lua, &environment, &path,
+            MultiValue::from_vec(args.into_iter().skip(1).collect()))
+    })?)?;
+    lua.load(include_str!("../assets/simply-love/Scripts/SL-Histogram.lua"))
+        .set_environment(environment.clone()).set_name("@theme:/Scripts/SL-Histogram.lua").exec()?;
     Ok(environment)
 }
 
 fn native_step_statistics_command(lua: &Lua, actor: &Table, command: &str) -> mlua::Result<()> {
-    if let Some(callback) = actor.raw_get::<Option<Function>>(command)? {
-        callback.call::<()>(actor.clone())?;
-    }
+    if let Some(callback) = actor.raw_get::<Option<Function>>(command)? { callback.call::<()>(actor.clone())?; }
     for child in actor_direct_children(lua, actor)? {
         native_step_statistics_command(lua, &child, command)?;
     }
@@ -27144,52 +24459,24 @@ fn native_step_statistics_command(lua: &Lua, actor: &Table, command: &str) -> ml
 }
 
 fn native_step_statistics_lookup(lua: &Lua, actor: &Table) -> mlua::Result<()> {
-    if actor_type_is(actor, "ActorFrame")? {
-        actor.raw_set("__songlua_owned_child_lookup", true)?;
-    }
-    for child in actor_direct_children(lua, actor)? {
-        native_step_statistics_lookup(lua, &child)?;
-    }
+    if actor_type_is(actor, "ActorFrame")? { actor.raw_set("__songlua_owned_child_lookup", true)?; }
+    for child in actor_direct_children(lua, actor)? { native_step_statistics_lookup(lua, &child)?; }
     Ok(())
 }
 
 fn load_native_note_field(lua: &Lua, name: &str, args: MultiValue) -> mlua::Result<Value> {
     let source = match name {
-        "ColumnCues.lua" => include_str!(
-            "../assets/simply-love/BGAnimations/ScreenGameplay underlay/PerPlayer/NoteField/ColumnCues.lua"
-        ),
-        "ColumnFlashOnMiss.lua" => include_str!(
-            "../assets/simply-love/BGAnimations/ScreenGameplay underlay/PerPlayer/NoteField/ColumnFlashOnMiss.lua"
-        ),
-        "default.lua" => include_str!(
-            "../assets/simply-love/BGAnimations/ScreenGameplay underlay/PerPlayer/NoteField/default.lua"
-        ),
-        "DisplayMods.lua" => include_str!(
-            "../assets/simply-love/BGAnimations/ScreenGameplay underlay/PerPlayer/NoteField/DisplayMods.lua"
-        ),
-        "ErrorBar/Colorful.lua" => include_str!(
-            "../assets/simply-love/BGAnimations/ScreenGameplay underlay/PerPlayer/NoteField/ErrorBar/Colorful.lua"
-        ),
-        "ErrorBar/default.lua" => include_str!(
-            "../assets/simply-love/BGAnimations/ScreenGameplay underlay/PerPlayer/NoteField/ErrorBar/default.lua"
-        ),
-        "ErrorBar/Monochrome.lua" => include_str!(
-            "../assets/simply-love/BGAnimations/ScreenGameplay underlay/PerPlayer/NoteField/ErrorBar/Monochrome.lua"
-        ),
-        "ErrorBar/Text.lua" => include_str!(
-            "../assets/simply-love/BGAnimations/ScreenGameplay underlay/PerPlayer/NoteField/ErrorBar/Text.lua"
-        ),
-        "MeasureCounter.lua" => include_str!(
-            "../assets/simply-love/BGAnimations/ScreenGameplay underlay/PerPlayer/NoteField/MeasureCounter.lua"
-        ),
-        "SubtractiveScoring.lua" => include_str!(
-            "../assets/simply-love/BGAnimations/ScreenGameplay underlay/PerPlayer/NoteField/SubtractiveScoring.lua"
-        ),
-        _ => {
-            return Err(mlua::Error::runtime(format!(
-                "unknown native NoteField actor {name}"
-            )));
-        }
+        "ColumnCues.lua" => include_str!("../assets/simply-love/BGAnimations/ScreenGameplay underlay/PerPlayer/NoteField/ColumnCues.lua"),
+        "ColumnFlashOnMiss.lua" => include_str!("../assets/simply-love/BGAnimations/ScreenGameplay underlay/PerPlayer/NoteField/ColumnFlashOnMiss.lua"),
+        "default.lua" => include_str!("../assets/simply-love/BGAnimations/ScreenGameplay underlay/PerPlayer/NoteField/default.lua"),
+        "DisplayMods.lua" => include_str!("../assets/simply-love/BGAnimations/ScreenGameplay underlay/PerPlayer/NoteField/DisplayMods.lua"),
+        "ErrorBar/Colorful.lua" => include_str!("../assets/simply-love/BGAnimations/ScreenGameplay underlay/PerPlayer/NoteField/ErrorBar/Colorful.lua"),
+        "ErrorBar/default.lua" => include_str!("../assets/simply-love/BGAnimations/ScreenGameplay underlay/PerPlayer/NoteField/ErrorBar/default.lua"),
+        "ErrorBar/Monochrome.lua" => include_str!("../assets/simply-love/BGAnimations/ScreenGameplay underlay/PerPlayer/NoteField/ErrorBar/Monochrome.lua"),
+        "ErrorBar/Text.lua" => include_str!("../assets/simply-love/BGAnimations/ScreenGameplay underlay/PerPlayer/NoteField/ErrorBar/Text.lua"),
+        "MeasureCounter.lua" => include_str!("../assets/simply-love/BGAnimations/ScreenGameplay underlay/PerPlayer/NoteField/MeasureCounter.lua"),
+        "SubtractiveScoring.lua" => include_str!("../assets/simply-love/BGAnimations/ScreenGameplay underlay/PerPlayer/NoteField/SubtractiveScoring.lua"),
+        _ => return Err(mlua::Error::runtime(format!("unknown native NoteField actor {name}"))),
     };
     let environment = lua.create_table()?;
     let globals = lua.globals();
@@ -27197,50 +24484,31 @@ fn load_native_note_field(lua: &Lua, name: &str, args: MultiValue) -> mlua::Resu
     metatable.raw_set("__index", globals.clone())?;
     metatable.raw_set("__newindex", globals)?;
     environment.set_metatable(Some(metatable))?;
-    let directory = name
-        .rsplit_once('/')
-        .map_or_else(String::new, |(parent, _)| format!("{parent}/"));
-    environment.raw_set(
-        "LoadActor",
-        lua.create_function(move |lua, args: MultiValue| {
-            let child = args.front().cloned().and_then(read_string).ok_or_else(|| {
-                mlua::Error::runtime("native NoteField LoadActor requires a path")
-            })?;
-            let path = format!("{}{}", directory, child.trim_start_matches("./"));
-            load_native_note_field(
-                lua,
-                &path,
-                MultiValue::from_vec(args.into_iter().skip(1).collect()),
-            )
-        })?,
-    )?;
-    lua.load(source)
-        .set_environment(environment)
-        .set_name(format!(
-            "@theme:/BGAnimations/ScreenGameplay underlay/PerPlayer/NoteField/{name}"
-        ))
+    let directory = name.rsplit_once('/').map_or_else(String::new, |(parent,_)| format!("{parent}/"));
+    environment.raw_set("LoadActor", lua.create_function(move |lua, args: MultiValue| {
+        let child = args.front().cloned().and_then(read_string)
+            .ok_or_else(|| mlua::Error::runtime("native NoteField LoadActor requires a path"))?;
+        let path = format!("{}{}", directory, child.trim_start_matches("./"));
+        load_native_note_field(lua, &path, MultiValue::from_vec(args.into_iter().skip(1).collect()))
+    })?)?;
+    lua.load(source).set_environment(environment)
+        .set_name(format!("@theme:/BGAnimations/ScreenGameplay underlay/PerPlayer/NoteField/{name}"))
         .call(args)
 }
 
 pub(crate) fn install_native_gameplay_underlay(
-    lua: &Lua,
-    install_methods: Option<fn(&Lua, &Table) -> mlua::Result<()>>,
+    lua: &Lua, install_methods: Option<fn(&Lua, &Table) -> mlua::Result<()>>,
 ) -> mlua::Result<()> {
     // The native theme loads before song Foreground and query observation.
     // SCREENMAN, message services, late helpers and Def must already exist.
     let environment = native_step_statistics_environment(lua)?;
-    let install_methods = install_methods
-        .or_else(|| {
-            lua.app_data_ref::<ActorDefinitionHost>()
-                .map(|host| host.install_methods)
-        })
+    let install_methods = install_methods.or_else(|| lua.app_data_ref::<ActorDefinitionHost>()
+        .map(|host| host.install_methods))
         .ok_or_else(|| mlua::Error::runtime("StepStatistics requires its actor host"))?;
     let screen = lua.globals().raw_get::<Table>("__songlua_top_screen")?;
     let underlay = actor_children(lua, &screen)?.raw_get::<Table>("Underlay")?;
     let game = lua.globals().get::<Table>("GAMESTATE")?;
-    let players = game
-        .get::<Function>("GetHumanPlayers")?
-        .call::<Table>(game)?;
+    let players = game.get::<Function>("GetHumanPlayers")?.call::<Table>(game)?;
     // Native QueueCommand appends a tween; theme Init and song-change queues
     // wait for the screen update along with the later authored startup queues.
     if lua.app_data_ref::<SongLuaStartupQueues>().is_none() {
@@ -27252,29 +24520,19 @@ pub(crate) fn install_native_gameplay_underlay(
     let source_output = lua.remove_app_data::<LiveSourceBroadcasts>();
     let result = (|| -> mlua::Result<()> {
         lua.load(include_str!("../assets/simply-love/Scripts/utf8.lua"))
-            .set_name("@theme:/Scripts/utf8.lua")
-            .exec()?;
-        lua.load(include_str!(
-            "../assets/simply-love/Scripts/SL-Helpers-Text.lua"
-        ))
-        .set_name("@theme:/Scripts/SL-Helpers-Text.lua")
-        .exec()?;
+            .set_name("@theme:/Scripts/utf8.lua").exec()?;
+        lua.load(include_str!("../assets/simply-love/Scripts/SL-Helpers-Text.lua"))
+            .set_name("@theme:/Scripts/SL-Helpers-Text.lua").exec()?;
         initialize_native_steps_displays(lua, &screen)?;
         // ScreenGameplay::LoadNextSong populates these hidden engine displays
         // from current options before authored foreground construction.
         for player in players.clone().sequence_values::<Value>() {
             let player = player?;
-            let Some(index) = player_index_from_value(&player) else {
-                continue;
-            };
-            let child = actor_children(lua, &screen)?
-                .raw_get::<Table>(format!("PlayerOptionsP{}", index + 1))?;
+            let Some(index) = player_index_from_value(&player) else { continue; };
+            let child = actor_children(lua, &screen)?.raw_get::<Table>(format!("PlayerOptionsP{}", index + 1))?;
             let game = lua.globals().get::<Table>("GAMESTATE")?;
-            let state = game
-                .get::<Function>("GetPlayerState")?
-                .call::<Table>((game, player))?;
-            let text = state
-                .get::<Function>("GetPlayerOptionsString")?
+            let state = game.get::<Function>("GetPlayerState")?.call::<Table>((game, player))?;
+            let text = state.get::<Function>("GetPlayerOptionsString")?
                 .call::<String>((state, "ModsLevel_Current"))?;
             child.raw_set("Text", text)?;
         }
@@ -27294,19 +24552,11 @@ pub(crate) fn install_native_gameplay_underlay(
                 push_sequence_child_once(&underlay, danger.clone())?;
                 panes.push(danger);
             }
-            let definition = load_native_step_statistics(
-                lua,
-                &environment,
-                "default.lua",
-                MultiValue::from_vec(vec![player.clone()]),
-            )?;
+            let definition = load_native_step_statistics(lua, &environment, "default.lua",
+                MultiValue::from_vec(vec![player.clone()]))?;
             if !definition.is_nil() {
                 let pane = own_actor_root(lua, definition, install_methods)?;
-                let Value::Table(pane) = pane else {
-                    return Err(mlua::Error::runtime(
-                        "native StepStatistics must load an actor",
-                    ));
-                };
+                let Value::Table(pane) = pane else { return Err(mlua::Error::runtime("native StepStatistics must load an actor")); };
                 pane.raw_set("__songlua_parent", underlay.clone())?;
                 run_actor_init_commands_for_table(lua, &pane)?;
                 native_step_statistics_lookup(lua, &pane)?;
@@ -27315,15 +24565,10 @@ pub(crate) fn install_native_gameplay_underlay(
                 push_sequence_child_once(&underlay, pane.clone())?;
                 panes.push(pane);
             }
-            let definition = load_native_note_field(
-                lua,
-                "default.lua",
-                MultiValue::from_vec(vec![player.clone()]),
-            )?;
+            let definition = load_native_note_field(lua, "default.lua",
+                MultiValue::from_vec(vec![player.clone()]))?;
             let Value::Table(container) = own_actor_root(lua, definition, install_methods)? else {
-                return Err(mlua::Error::runtime(
-                    "native NoteField must load its container actor",
-                ));
+                return Err(mlua::Error::runtime("native NoteField must load its container actor"));
             };
             container.raw_set("__songlua_parent", underlay.clone())?;
             run_actor_init_commands_for_table(lua, &container)?;
@@ -27332,16 +24577,11 @@ pub(crate) fn install_native_gameplay_underlay(
             push_sequence_child_once(&underlay, container.clone())?;
             panes.push(container);
         }
-        let definition = lua
-            .load(include_str!(
-                "../assets/simply-love/BGAnimations/ScreenGameplay underlay/Shared/SongInfoBar.lua"
-            ))
+        let definition = lua.load(include_str!("../assets/simply-love/BGAnimations/ScreenGameplay underlay/Shared/SongInfoBar.lua"))
             .set_name("@theme:/BGAnimations/ScreenGameplay underlay/Shared/SongInfoBar.lua")
             .eval::<Value>()?;
         let Value::Table(song_meter) = own_actor_root(lua, definition, install_methods)? else {
-            return Err(mlua::Error::runtime(
-                "native SongInfoBar must load an actor",
-            ));
+            return Err(mlua::Error::runtime("native SongInfoBar must load an actor"));
         };
         song_meter.raw_set("__songlua_parent", underlay.clone())?;
         run_actor_init_commands_for_table(lua, &song_meter)?;
@@ -27354,55 +24594,23 @@ pub(crate) fn install_native_gameplay_underlay(
         let mut children = actor_direct_children(lua, &underlay)?;
         children.sort_by_key(|actor| {
             let name = actor_name(actor).unwrap_or_default();
-            let role = actor
-                .raw_get::<Option<String>>("__songlua_underlay_role")
-                .ok()
-                .flatten()
-                .unwrap_or(name);
-            [
-                "DangerP1",
-                "StepStatsPaneP1",
-                "filter0",
-                "DangerP2",
-                "StepStatsPaneP2",
-                "filter1",
-                "Header",
-                "SongMeter",
-                "P1Score",
-                "difficulty0",
-                "life0",
-                "NoteFieldContainerP1",
-                "P2Score",
-                "difficulty1",
-                "life1",
-                "NoteFieldContainerP2",
-                "bpm",
-            ]
-            .iter()
-            .position(|&name| name == role)
-            .unwrap_or(99)
+            let role = actor.raw_get::<Option<String>>("__songlua_underlay_role").ok().flatten().unwrap_or(name);
+            ["DangerP1","StepStatsPaneP1","filter0","DangerP2","StepStatsPaneP2","filter1",
+                "Header","SongMeter","P1Score","difficulty0","life0","NoteFieldContainerP1",
+                "P2Score","difficulty1","life1","NoteFieldContainerP2","bpm"]
+                .iter().position(|&name| name == role).unwrap_or(99)
         });
-        for (index, child) in children.into_iter().enumerate() {
-            underlay.raw_set(index + 1, child)?;
-        }
+        for (index, child) in children.into_iter().enumerate() { underlay.raw_set(index + 1, child)?; }
         underlay.raw_set("__songlua_owned_child_lookup", true)?;
-        for pane in &panes {
-            native_step_statistics_command(lua, pane, "BeginCommand")?;
-        }
-        for pane in &panes {
-            native_step_statistics_command(lua, pane, "OnCommand")?;
-        }
+        for pane in &panes { native_step_statistics_command(lua, pane, "BeginCommand")?; }
+        for pane in &panes { native_step_statistics_command(lua, pane, "OnCommand")?; }
         // LoadNextSong sets m_pCurSong before authored Foreground is loaded.
         // Theme handlers use real Steps/timing and retain their normal messages.
         broadcast_native_song_lua_message(lua, "CurrentSongChanged", None)?;
         Ok(())
     })();
-    if let Some(song_output) = song_output {
-        lua.set_app_data(song_output);
-    }
-    if let Some(source_output) = source_output {
-        lua.set_app_data(source_output);
-    }
+    if let Some(song_output) = song_output { lua.set_app_data(song_output); }
+    if let Some(source_output) = source_output { lua.set_app_data(source_output); }
     result
 }
 

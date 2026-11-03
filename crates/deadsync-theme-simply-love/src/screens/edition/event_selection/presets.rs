@@ -17,11 +17,7 @@ impl State {
             self.status = i18n::tr("Edition", "SelectionPresetsHelp");
         }
     }
-    pub(in crate::screens::edition) fn selection_presets_key(
-        &mut self,
-        index: usize,
-        code: KeyCode,
-    ) {
+    pub(in crate::screens::edition) fn selection_presets_key(&mut self, index: usize, code: KeyCode) {
         let Some(mut settings) = self.event_selection.take() else {
             return;
         };
@@ -106,11 +102,7 @@ impl State {
         }
         self.event_selection = Some(settings);
     }
-    pub(in crate::screens::edition) fn selection_presets_label(
-        &self,
-        index: usize,
-        key: &str,
-    ) -> std::sync::Arc<str> {
+    pub(in crate::screens::edition) fn selection_presets_label(&self, index: usize, key: &str) -> std::sync::Arc<str> {
         let Some(draft) = self
             .event_selection
             .as_ref()

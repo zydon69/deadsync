@@ -85,11 +85,9 @@ impl Draft {
     pub fn capture(session: &Session, chart: usize, scope: Scope) -> Result<Self, Error> {
         let target = Target::capture(session, chart, scope)?;
 
-        let current = Scrolls::parse(&super::resident::text(
-            session.document(),
-            target.origin(),
-            "SCROLLS",
-        )?)?;
+        let current = Scrolls::parse(
+            &super::resident::text(session.document(),target.origin(),"SCROLLS")?,
+        )?;
         Ok(Self {
             target,
             original: current.clone(),

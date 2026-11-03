@@ -380,7 +380,6 @@ fn expression_summary(s: &mut State) -> String {
     press(s, KeyCode::Escape);
     summary
 }
-
 fn delete_original(s: &mut State) {
     open(s);
     press(s, KeyCode::F9);

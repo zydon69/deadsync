@@ -247,18 +247,9 @@ pub struct SongBackgroundLuaActivation {
 
 impl SongBackgroundLuaChange {
     pub fn new(start_beat: f32, path: PathBuf) -> Self {
-        Self {
-            start_beat,
-            path,
-            effect: String::new(),
-            color1: None,
-            layer: 0,
-            activations: vec![SongBackgroundLuaActivation {
-                start_beat,
-                rate: 1.0,
-                transition: String::new(),
-            }],
-        }
+        Self { start_beat, path, effect: String::new(), color1: None, layer: 0, activations: vec![SongBackgroundLuaActivation {
+            start_beat, rate: 1.0, transition: String::new(),
+        }] }
     }
 }
 

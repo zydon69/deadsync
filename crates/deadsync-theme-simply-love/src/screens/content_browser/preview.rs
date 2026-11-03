@@ -388,9 +388,12 @@ pub(super) fn sync(state: &mut State) {
     }
     match snapshot.phase {
         PreviewPhase::Error => {
-            state.preview_message = Some(snapshot.message.clone().unwrap_or_else(|| {
-                crate::i18n::tr("ContentBrowser", "MessageNoSampleForThisSong").to_string()
-            }));
+            state.preview_message = Some(
+                snapshot
+                    .message
+                    .clone()
+                    .unwrap_or_else(|| crate::i18n::tr("ContentBrowser", "MessageNoSampleForThisSong").to_string()),
+            );
             if let Some(preview) = state.preview.as_mut() {
                 preview.closing = true;
             }
@@ -532,14 +535,7 @@ pub(super) fn sample_label(state: &State) -> Option<Cow<'static, str>> {
     }
     Some(
         match snapshot_for(state, preview).and_then(|snapshot| snapshot.progress) {
-            Some(fraction) => Cow::Owned(
-                crate::i18n::tr_fmt(
-                    "ContentBrowser",
-                    "MessageLoadingSample0",
-                    &[("arg0", &format!("{:.0}", fraction.clamp(0.0, 1.0) * 100.0))],
-                )
-                .to_string(),
-            ),
+            Some(fraction) => Cow::Owned(crate::i18n::tr_fmt("ContentBrowser", "MessageLoadingSample0", &[("arg0", &format!("{:.0}", fraction.clamp(0.0, 1.0) * 100.0))]).to_string()),
             None => Cow::Borrowed("loading sample..."),
         },
     )
@@ -576,66 +572,17 @@ fn reloaded(state: &State, install: &SongInstall) -> bool {
 pub(super) fn song_install_line(state: &State, install: &SongInstall) -> Option<String> {
     let title = &install.title;
     Some(match install.phase {
-        SongInstallPhase::Queued => crate::i18n::tr_fmt(
-            "ContentBrowser",
-            "MessageGettingTitle",
-            &[("title", &(title).to_string())],
-        )
-        .to_string(),
+        SongInstallPhase::Queued => crate::i18n::tr_fmt("ContentBrowser", "MessageGettingTitle", &[("title", &(title).to_string())]).to_string(),
         SongInstallPhase::Downloading => match install.total_bytes.filter(|total| *total > 0) {
-            Some(total) => crate::i18n::tr_fmt(
-                "ContentBrowser",
-                "MessageGettingTitle0",
-                &[
-                    ("title", &(title).to_string()),
-                    (
-                        "arg0",
-                        &format!(
-                            "{:.0}",
-                            install.downloaded_bytes as f64 * 100.0 / total as f64
-                        ),
-                    ),
-                ],
-            )
-            .to_string(),
-            None => crate::i18n::tr_fmt(
-                "ContentBrowser",
-                "MessageGettingTitle1MBSoFar",
-                &[
-                    ("title", &(title).to_string()),
-                    (
-                        "arg0",
-                        &format!("{:.1}", install.downloaded_bytes as f64 / (1024.0 * 1024.0)),
-                    ),
-                ],
-            )
-            .to_string(),
+            Some(total) => crate::i18n::tr_fmt("ContentBrowser", "MessageGettingTitle0", &[("title", &(title).to_string()), ("arg0", &format!("{:.0}", install.downloaded_bytes as f64 * 100.0 / total as f64))]).to_string(),
+            None => crate::i18n::tr_fmt("ContentBrowser", "MessageGettingTitle1MBSoFar", &[("title", &(title).to_string()), ("arg0", &format!("{:.1}", install.downloaded_bytes as f64 / (1024.0 * 1024.0)))]).to_string(),
         },
-        SongInstallPhase::Extracting => crate::i18n::tr_fmt(
-            "ContentBrowser",
-            "MessageUnpackingTitle",
-            &[("title", &(title).to_string())],
-        )
-        .to_string(),
+        SongInstallPhase::Extracting => crate::i18n::tr_fmt("ContentBrowser", "MessageUnpackingTitle", &[("title", &(title).to_string())]).to_string(),
         SongInstallPhase::Installed if reloaded(state, install) => return None,
-        SongInstallPhase::Installed => crate::i18n::tr_fmt(
-            "ContentBrowser",
-            "MessageAddedTitleReloadSongsWhenYouLeaveToPlay",
-            &[("title", &(title).to_string())],
-        )
-        .to_string(),
-        SongInstallPhase::Error => crate::i18n::tr_fmt(
-            "ContentBrowser",
-            "MessageCouldNotGetTitle",
-            &[
-                ("title", &(title).to_string()),
-                (
-                    "arg0",
-                    &(install.message.as_deref().unwrap_or("unknown error")).to_string(),
-                ),
-            ],
-        )
-        .to_string(),
+        SongInstallPhase::Installed => {
+            crate::i18n::tr_fmt("ContentBrowser", "MessageAddedTitleReloadSongsWhenYouLeaveToPlay", &[("title", &(title).to_string())]).to_string()
+        }
+        SongInstallPhase::Error => crate::i18n::tr_fmt("ContentBrowser", "MessageCouldNotGetTitle", &[("title", &(title).to_string()), ("arg0", &(install.message.as_deref().unwrap_or("unknown error")).to_string())]).to_string(),
     })
 }
 

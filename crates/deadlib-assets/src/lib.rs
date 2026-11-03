@@ -29,8 +29,8 @@ pub use builtin::{
 pub use choice::TextureChoice;
 pub use context::{METADATA_TEXTURE_CONTEXT, MetadataTextureContext};
 pub use decode::{
-    DecodedTexture, TextureAssetSpec, TextureDecodeJob, decode_texture, decode_texture_image,
-    texture_asset, texture_image_size, texture_source_size,
+    DecodedTexture, TextureAssetSpec, TextureDecodeJob, decode_texture, decode_texture_image, texture_asset, texture_image_size,
+    texture_source_size,
 };
 pub use error::AssetError;
 pub use font::{
@@ -43,8 +43,8 @@ pub use manager::AssetManager;
 pub use present_dsl::SpriteBuilder;
 pub use registry::{
     GeneratedTexture, TexMeta, generated_texture, generated_texture_shared_key,
-    register_generated_texture, register_prepared_generated_texture, register_texture_dims,
-    sprite_sheet_dims, texture_dims, texture_registry_generation,
+    register_generated_texture, register_prepared_generated_texture, register_texture_dims, sprite_sheet_dims, texture_dims,
+    texture_registry_generation,
 };
 pub use texture_store::{BoundTexture, TextureStore};
 pub use upload::TextureUploadImage;
@@ -978,9 +978,11 @@ mod tests {
             ("gray16-strip", (8, 8)),
             ("gray-alpha16-strip", (8, 8)),
         ] {
-            let image =
-                decode_texture_image(&root.join(format!("{name}.png")), &TextureHints::default())
-                    .expect("decode native PNG16 file");
+            let image = decode_texture_image(
+                &root.join(format!("{name}.png")),
+                &TextureHints::default(),
+            )
+            .expect("decode native PNG16 file");
             let native = std::fs::read(root.join(format!("{name}.rgba")))
                 .expect("pinned native PNG file-loader output");
             assert_eq!(image.dimensions(), dimensions, "{name}");

@@ -1,42 +1,18 @@
 //! Canonical native publication for the non-file Waveform/MiniMap history action.
 use super::*;
-use deadsync_editor::{
-    Error,
-    visual_preferences::{MiniMap, Snapshot},
-};
+use deadsync_editor::{Error, visual_preferences::{MiniMap, Snapshot}};
 impl State {
-    pub(super) fn retry_preferences_durability(&mut self) -> bool {
-        if self.auto_recovery.is_pending() {
-            self.status = i18n::tr("Edition", "FileBusy");
-            return false;
-        }
-        if let Err(error) = self.workspace.file().retry_recovery_durability() {
-            self.status = i18n::tr_fmt(
-                "Edition",
-                "RecoveryDurabilityPending",
-                &[("error", &i18n::editor_error(&error))],
-            );
-            return false;
-        }
-        match deadsync_editor::audio_preferences::durability::retry_all() {
-            Ok(()) => true,
-            Err(error) => {
-                self.status = i18n::tr_fmt(
-                    "Edition",
-                    "PreferencesSyncRetryFailed",
-                    &[("error", &i18n::editor_error(&error))],
-                );
-                false
-            }
+    pub(super) fn retry_preferences_durability(&mut self)->bool {
+        if self.auto_recovery.is_pending(){self.status=i18n::tr("Edition","FileBusy");return false;}
+        if let Err(error)=self.workspace.file().retry_recovery_durability(){self.status=i18n::tr_fmt("Edition","RecoveryDurabilityPending",&[("error",&i18n::editor_error(&error))]);return false;}
+        match deadsync_editor::audio_preferences::durability::retry_all(){
+            Ok(())=>true,
+            Err(error)=>{self.status=i18n::tr_fmt("Edition","PreferencesSyncRetryFailed",&[("error",&i18n::editor_error(&error))]);false}
         }
     }
-    pub(super) fn preferences_durability_actors(&self, actors: &mut Vec<Actor>) {
-        if let Some(error) = self.workspace.file().recovery_durability_warning() {
-            actors.push(act!(text:font("miso"):settext(i18n::tr_fmt("Edition","RecoveryDurabilityPending",&[("error",&error)])):xy(screen_width()*0.5,screen_height()-48.):zoom(0.5):maxwidth((screen_width()-32.).max(1.)):diffuse(1.,0.72,0.25,1.):z(8500)));
-        }
-        if !deadsync_editor::audio_preferences::durability::has_pending_publications() {
-            return;
-        }
+    pub(super) fn preferences_durability_actors(&self,actors:&mut Vec<Actor>){
+        if let Some(error)=self.workspace.file().recovery_durability_warning(){actors.push(act!(text:font("miso"):settext(i18n::tr_fmt("Edition","RecoveryDurabilityPending",&[("error",&error)])):xy(screen_width()*0.5,screen_height()-48.):zoom(0.5):maxwidth((screen_width()-32.).max(1.)):diffuse(1.,0.72,0.25,1.):z(8500)));}
+        if !deadsync_editor::audio_preferences::durability::has_pending_publications(){return;}
         actors.push(act!(text:font("miso"):settext(i18n::tr("Edition","PreferencesSyncPending")):xy(screen_width() * 0.5,screen_height()-24.0):zoom(0.55):maxwidth((screen_width()-32.0).max(1.0)):diffuse(1.0,0.72,0.25,1.0):z(8500)));
     }
     pub(super) fn visual_minimap(&self) -> MiniMap {

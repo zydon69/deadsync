@@ -86,18 +86,12 @@ fn transform_workflow_saves_and_reopens_sustains_and_has_one_undo_per_gesture() 
     assert_eq!(editor.file().session.serialize().unwrap(), SSC);
     let output = fs::read(&path).unwrap();
     let saved = Document::parse(output, Format::Ssc).unwrap();
-    assert_eq!(
-        saved.value(saved.charts()[0].notes.clone()),
-        b"\n2000\n0000\n3000\n0000\n"
-    );
-    let metadata: serde_json::Value =
-        serde_json::from_str(&saved.text(None, "GASongData").unwrap()).unwrap();
-    assert_eq!(
-        metadata,
-        serde_json::json!({
-            "SyncOffset": 0.009, "DefaultChartType": "dance_single", "DefaultChartIndex": 0
-        })
-    );
+    assert_eq!(saved.value(saved.charts()[0].notes.clone()), b"\n2000\n0000\n3000\n0000\n");
+    let metadata: serde_json::Value = serde_json::from_str(
+        &saved.text(None, "GASongData").unwrap()).unwrap();
+    assert_eq!(metadata, serde_json::json!({
+        "SyncOffset": 0.009, "DefaultChartType": "dance_single", "DefaultChartIndex": 0
+    }));
     assert_eq!(saved.text(None, "GASongDataVersion").as_deref(), Some("1"));
     let reopened = Workspace::open(&path, 0).unwrap();
     assert_eq!(reopened.grid(), editor.grid());

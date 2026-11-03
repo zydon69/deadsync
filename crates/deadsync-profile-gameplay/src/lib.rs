@@ -426,18 +426,12 @@ fn song_lua_compile_player_screen_x(
     center_1player_notefield: bool,
 ) -> f32 {
     let style = song_lua_compile_play_style(play_style);
-    let centered = num_players == 1
-        && (style == deadsync_gameplay::SongLuaCompilePlayStyle::Double
-            || (style == deadsync_gameplay::SongLuaCompilePlayStyle::Single
-                && center_1player_notefield));
-    if centered {
-        return viewport.center_x();
-    }
+    let centered = num_players == 1 && (style == deadsync_gameplay::SongLuaCompilePlayStyle::Double
+        || (style == deadsync_gameplay::SongLuaCompilePlayStyle::Single && center_1player_notefield));
+    if centered { return viewport.center_x(); }
     let p2 = if num_players == 1 {
         deadsync_gameplay::gameplay_is_single_p2_side(play_style, player_side)
-    } else {
-        player_index == 1
-    };
+    } else { player_index == 1 };
     // _fallback GameplayMargins uses a fake width of 272 to recover the
     // legacy Simply Love X metrics. GameplayHelpers::GetNotefieldMargins
     // truncates the outer and combined center margins via SafeFArg<int>,
@@ -451,46 +445,26 @@ fn song_lua_compile_player_screen_x(
     let mut p2_left = p2_center - 136.0;
     let mut p2_right = half_screen - p2_center - 136.0;
     if num_players == 1 {
-        if p2 {
-            p1_left = p2_right;
-            p1_right = p2_left;
-        } else {
-            p2_left = p1_right;
-            p2_right = p1_left;
-        }
+        if p2 { p1_left = p2_right; p1_right = p2_left; }
+        else { p2_left = p1_right; p2_right = p1_left; }
     }
     let center_margin = (p1_right + p2_left).trunc() * 0.5;
     let (edge, left, right) = if p2 {
         (half_screen, center_margin, p2_right.trunc())
-    } else {
-        (0.0, p1_left.trunc(), center_margin)
-    };
+    } else { (0.0, p1_left.trunc(), center_margin) };
     let offset_sign = if p2 { 1.0 } else { -1.0 };
-    edge + left
-        + (half_screen - left - right) * 0.5
+    edge + left + (half_screen - left - right) * 0.5
         + offset_sign * (profile.note_field_offset_x as f32).clamp(0.0, 50.0)
 }
 
 /// Resolve native catalog note times using the preferences at catalog loading.
 /// Later game-mode preference changes do not alter Song's stored bounds.
 #[must_use]
-pub fn song_lua_catalog_note_bounds(
-    song: &deadsync_chart::SongData,
-    offset: f32,
-    rate: f32,
-    sync_offset: f32,
-) -> [f32; 2] {
-    let specified_last = if song.last_second_hint > 0.0 {
-        song.last_second_hint
-    } else {
-        -1.0
-    };
+pub fn song_lua_catalog_note_bounds(song: &deadsync_chart::SongData, offset: f32, rate: f32, sync_offset: f32) -> [f32; 2] {
+    let specified_last = if song.last_second_hint > 0.0 { song.last_second_hint } else { -1.0 };
     let first = (song.precise_first_second() - sync_offset) - rate * offset;
-    let last = song
-        .precise_note_last_second_seconds
-        .map(|seconds| (seconds - sync_offset) - rate * offset)
-        .unwrap_or(-1.0)
-        .max(specified_last);
+    let last = song.precise_note_last_second_seconds
+        .map(|seconds| (seconds - sync_offset) - rate * offset).unwrap_or(-1.0).max(specified_last);
     [if first < last { first } else { 0.0 }, last]
 }
 
@@ -516,18 +490,12 @@ pub fn song_lua_compile_context(
             .unwrap_or_default(),
         song.title.clone(),
     );
-    context.song_steps = song
-        .charts
-        .iter()
-        .map(deadsync_song_lua::SongLuaStep::from)
-        .collect();
+    context.song_steps = song.charts.iter().map(deadsync_song_lua::SongLuaStep::from).collect();
     context.song_banner_path.clone_from(&song.banner_path);
     context.player_step_indices = std::array::from_fn(|player| {
-        song.charts.iter().position(|chart| {
-            chart.chart_type == charts[player].chart_type
-                && chart.difficulty == charts[player].difficulty
-                && chart.description == charts[player].description
-        })
+        song.charts.iter().position(|chart| chart.chart_type == charts[player].chart_type
+            && chart.difficulty == charts[player].difficulty
+            && chart.description == charts[player].description)
     });
     context.song_display_bpms = song.display_bpm_pair_or(
         charts.first().map(std::convert::AsRef::as_ref),
@@ -546,12 +514,7 @@ pub fn song_lua_compile_context(
     context.music_length_seconds = song.music_length_seconds.max(song.precise_last_second());
     // The scan applies native chart eligibility and includes hold tails.
     // Neither audio EOF nor its rounded display length defines these bounds.
-    context.song_note_bounds = Some(song_lua_catalog_note_bounds(
-        song,
-        machine_global_offset_seconds,
-        1.0,
-        0.0,
-    ));
+    context.song_note_bounds = Some(song_lua_catalog_note_bounds(song, machine_global_offset_seconds, 1.0, 0.0));
     context.style_name = match play_style {
         deadsync_gameplay::GameplayInputPlayStyle::Single => "single",
         deadsync_gameplay::GameplayInputPlayStyle::Versus => "versus",
@@ -593,9 +556,7 @@ pub fn song_lua_compile_context(
         },
         mini: if player < num_players {
             player_profiles[player].mini_percent as f32 / 100.0
-        } else {
-            0.0
-        },
+        } else { 0.0 },
         noteskin_name: if player < num_players {
             player_profiles[player].noteskin.to_string()
         } else {
@@ -621,19 +582,13 @@ pub fn song_lua_compile_context(
         column_cues: player < num_players && player_profiles[player].column_cues,
         background_filter_percent: if player < num_players {
             player_profiles[player].background_filter.percent()
-        } else {
-            0
-        },
+        } else { 0 },
         hide_lifebar: player >= num_players || player_profiles[player].hide_lifebar,
         hide_danger: player_profiles[player].hide_danger,
         life_meter_type: player_profiles[player].lifemeter_type.to_string(),
         nps_graph_at_top: player < num_players && player_profiles[player].nps_graph_at_top,
-        step_statistics_enabled: player < num_players
-            && !player_profiles[player].step_statistics.is_empty(),
-        timing_windows: player_profiles[player]
-            .timing_windows
-            .disabled_windows()
-            .map(|disabled| !disabled),
+        step_statistics_enabled: player < num_players && !player_profiles[player].step_statistics.is_empty(),
+        timing_windows: player_profiles[player].timing_windows.disabled_windows().map(|disabled| !disabled),
     });
     context
 }
@@ -679,19 +634,10 @@ pub fn song_lua_play_context(
     // Match runtime_init's settings without substituting selected chart timing
     // for the global SongPosition maintained by ITGmania.
     let sync_offset = if config.machine_pack_ini_offsets {
-        deadsync_chart::song::sync_pref_offset(
-            gameplay_pack_data(song, None, None).sync_pref,
-            config.machine_default_sync_pref,
-        )
-    } else {
-        0.0
-    };
-    context.song_note_bounds = Some(song_lua_catalog_note_bounds(
-        song,
-        config.global_offset_seconds,
-        1.0,
-        sync_offset,
-    ));
+        deadsync_chart::song::sync_pref_offset(gameplay_pack_data(song, None, None).sync_pref,
+            config.machine_default_sync_pref)
+    } else { 0.0 };
+    context.song_note_bounds = Some(song_lua_catalog_note_bounds(song, config.global_offset_seconds, 1.0, sync_offset));
     if let Some(timing) = &mut context.song_timing {
         timing.shift_group_offset_seconds(sync_offset);
         timing.set_global_offset_seconds(config.global_offset_seconds);
@@ -702,20 +648,17 @@ pub fn song_lua_play_context(
         } else {
             player
         };
-        context.players[player].enabled.then(|| {
-            let mut value = timing[source].clone();
-            value.shift_group_offset_seconds(sync_offset);
-            let player_offset = if config.machine_allow_per_player_global_offsets {
-                runtime_profiles[player]
-                    .global_offset_shift_ms
-                    .clamp(-100, 100) as f32
-                    / 1000.0
-            } else {
-                0.0
-            };
-            value.set_global_offset_seconds(config.global_offset_seconds + player_offset);
-            value
-        })
+        context.players[player]
+            .enabled
+            .then(|| {
+                let mut value = timing[source].clone();
+                value.shift_group_offset_seconds(sync_offset);
+                let player_offset = if config.machine_allow_per_player_global_offsets {
+                    runtime_profiles[player].global_offset_shift_ms.clamp(-100, 100) as f32 / 1000.0
+                } else { 0.0 };
+                value.set_global_offset_seconds(config.global_offset_seconds + player_offset);
+                value
+            })
     });
     context.display_width = display_width as f32;
     context.display_height = display_height as f32;

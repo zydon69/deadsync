@@ -39,11 +39,7 @@ impl State {
                 state.begin_entry_open(song.file.clone(), Some(song))
             }
             Err(error) => {
-                state.status = i18n::tr_fmt(
-                    "Edition",
-                    "Error",
-                    &[("message", &crate::i18n::editor_error(&error))],
-                )
+                state.status = i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))])
             }
         }
         Ok(state)

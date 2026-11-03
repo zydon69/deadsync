@@ -5,9 +5,9 @@ use deadsync_editor::{
     song_properties::Draft,
     song_text::Field,
 };
+use std::path::Path;
 #[cfg(unix)]
 use std::collections::BTreeSet;
-use std::path::Path;
 const FIELDS: [(Field, &str); 7] = [
     (Field::Background, "BackgroundPath"),
     (Field::Banner, "BannerPath"),

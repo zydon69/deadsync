@@ -1,5 +1,5 @@
 use super::*;
-use deadsync_editor::scroll_preferences::Preferences;
+use deadsync_editor::{scroll_preferences::Preferences};
 impl State {
     pub fn scroll_preferences(&self) -> Preferences {
         self.scroll_preferences
@@ -14,12 +14,8 @@ impl State {
             .scroll_preferences_draft
             .unwrap_or(self.scroll_preferences);
         if key == "ScrollWheelTimeValue" || key == "ScrollWheelRowValue" {
-            let value = if key == "ScrollWheelTimeValue" {
-                format!("{:.6}", settings.wheel_time())
-            } else {
-                settings.wheel_rows().to_string()
-            };
-            return i18n::tr_fmt("Edition", key, &[("value", &value)]);
+            let value=if key=="ScrollWheelTimeValue"{format!("{:.6}",settings.wheel_time())}else{settings.wheel_rows().to_string()};
+            return i18n::tr_fmt("Edition",key,&[("value",&value)]);
         }
         let stop = if key == "ScrollStopDragging" {
             settings.stop_playback_when_dragging()
@@ -30,14 +26,8 @@ impl State {
         i18n::tr_fmt("Edition", key, &[("value", &value)])
     }
     pub(super) fn scroll_settings_key(&mut self, index: usize, code: KeyCode) {
-        if code == KeyCode::F11 {
-            self.open_scroll_modifiers();
-            return;
-        }
-        if code == KeyCode::F12 {
-            self.open_scroll_values();
-            return;
-        }
+        if code==KeyCode::F11{self.open_scroll_modifiers();return;}
+        if code==KeyCode::F12{self.open_scroll_values();return;}
         let enter = matches!(code, KeyCode::Enter | KeyCode::NumpadEnter);
         if code == KeyCode::Escape || (index == 4 && enter) {
             self.scroll_preferences_draft = None;
@@ -55,38 +45,11 @@ impl State {
             ));
             return;
         }
-        if index >= 5
-            && matches!(
-                code,
-                KeyCode::ArrowLeft | KeyCode::ArrowRight | KeyCode::Home
-            )
-        {
-            if let Some(draft) = self.scroll_preferences_draft.as_mut() {
-                let default = Preferences::default();
-                let delta = if code == KeyCode::ArrowLeft {
-                    -1.0
-                } else {
-                    1.0
-                };
-                if index == 5 {
-                    let value = if code == KeyCode::Home {
-                        default.wheel_time()
-                    } else {
-                        (draft.wheel_time() + delta * if self.shift { 0.000001 } else { 0.001 })
-                            .clamp(0.0, 10.0)
-                    };
-                    let _ = draft.set_wheel_time(value);
-                } else {
-                    let value = if code == KeyCode::Home {
-                        default.wheel_rows()
-                    } else {
-                        draft
-                            .wheel_rows()
-                            .saturating_add(delta as i32)
-                            .clamp(0, 384)
-                    };
-                    let _ = draft.set_wheel_rows(value);
-                }
+        if index >= 5 && matches!(code,KeyCode::ArrowLeft|KeyCode::ArrowRight|KeyCode::Home) {
+            if let Some(draft)=self.scroll_preferences_draft.as_mut(){
+                let default=Preferences::default();let delta=if code==KeyCode::ArrowLeft{-1.0}else{1.0};
+                if index==5{let value=if code==KeyCode::Home{default.wheel_time()}else{(draft.wheel_time()+delta*if self.shift{0.000001}else{0.001}).clamp(0.0,10.0)};let _=draft.set_wheel_time(value);}
+                else{let value=if code==KeyCode::Home{default.wheel_rows()}else{draft.wheel_rows().saturating_add(delta as i32).clamp(0,384)};let _=draft.set_wheel_rows(value);}
             }
             return;
         }
@@ -141,11 +104,7 @@ impl State {
                 self.status = i18n::tr("Edition", "ScrollSettingsSaved");
             }
             Err(error) => {
-                self.status = i18n::tr_fmt(
-                    "Edition",
-                    "Error",
-                    &[("message", &crate::i18n::editor_error(&error))],
-                )
+                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))])
             }
         }
     }

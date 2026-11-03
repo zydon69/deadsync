@@ -26,21 +26,23 @@ impl<T> Default for Controller<T> {
     }
 }
 impl<T> Controller<T> {
-    pub(super) fn is_action(&self, predicate: impl FnOnce(&T) -> bool) -> bool {
-        self.pending
-            .as_ref()
-            .is_some_and(|pending| predicate(&pending.action))
+    pub(super) fn is_action(&self,predicate:impl FnOnce(&T)->bool)->bool {
+        self.pending.as_ref().is_some_and(|pending|predicate(&pending.action))
     }
     #[cfg(test)]
     pub(super) fn begin(&mut self, action: T, file: &FileSession) {
-        self.begin_with_unsaved(action, file, file.has_unsaved_document());
+        self.begin_with_unsaved(action,file,file.has_unsaved_document());
     }
-    pub(super) fn begin_with_unsaved(&mut self, action: T, file: &FileSession, unsaved: bool) {
+    pub(super) fn begin_with_unsaved(&mut self,action:T,file:&FileSession,unsaved:bool){
         self.pending = Some(Pending {
             action,
             guard: IntentGuard::capture(&file.session),
             policy_revision: file.output_policy_revision(),
-            phase: if unsaved { Phase::Review } else { Phase::Ready },
+            phase: if unsaved {
+                Phase::Review
+            } else {
+                Phase::Ready
+            },
         });
     }
     pub(super) fn phase(&self) -> Option<Phase> {
@@ -164,24 +166,13 @@ impl<T> Controller<T> {
     }
     /// Reclassify a ready action only after the same currentness checks as
     /// publication. A transform cannot bypass the source review/receipt chain.
-    pub(super) fn map_ready(
-        &mut self,
-        file: &FileSession,
-        transform: impl FnOnce(&mut T) -> Result<(), Error>,
-    ) -> Result<(), Error> {
-        let result = (|| {
-            let pending = self.current(file)?;
-            if pending.phase != Phase::Ready {
-                return Err(Error::InvalidEdit(
-                    "File action is not ready for publication".into(),
-                ));
-            }
+    pub(super) fn map_ready(&mut self,file:&FileSession,transform:impl FnOnce(&mut T)->Result<(),Error>)->Result<(),Error>{
+        let result=(||{
+            let pending=self.current(file)?;
+            if pending.phase!=Phase::Ready{return Err(Error::InvalidEdit("File action is not ready for publication".into()));}
             transform(&mut pending.action)
         })();
-        if result.is_err() {
-            self.cancel();
-        }
-        result
+        if result.is_err(){self.cancel();}result
     }
     /// All native Pack/job/pending-durability guards must still pass immediately
     /// before publication. False retains the intention for an explicit retry.

@@ -37,7 +37,8 @@ mod tests {
         } else {
             "song.ssc"
         });
-        let header = "#VERSION:0.83;#TITLE:stream;#BPMS:0=120;#GASongDataVersion:1;#GASongData:{\"SyncOffset\":0};";
+        let header =
+            "#VERSION:0.83;#TITLE:stream;#BPMS:0=120;#GASongDataVersion:1;#GASongData:{\"SyncOffset\":0};";
         let chart = if format == Format::Sm {
             "#NOTES:dance-single:manual:Hard:9::1000\n0100\n0010\n0001;"
         } else {

@@ -216,43 +216,18 @@ mod tests {
             let columns = deadsync_editor::notes::layout_columns(layout).unwrap();
             for lane in 0..columns {
                 let source = graphic(layout, lane).unwrap();
-                let hold = super::super::hold_render::graphics::graphic(layout, lane, false, false)
-                    .unwrap();
+                let hold = super::super::hold_render::graphics::graphic(layout, lane, false, false).unwrap();
                 assert_eq!(source.rotation, hold.head_rotation, "{layout}/{lane}");
                 let mut receptors = Vec::new();
-                sprite(
-                    &mut receptors,
-                    source.base,
-                    100.,
-                    160.,
-                    48.,
-                    source.rotation,
-                    [1.; 4],
-                    8001,
-                );
-                let notes = super::super::short_note_render::render(
-                    super::super::short_note_render::Request {
-                        layout,
-                        lane,
-                        kind: super::super::short_note_render::Kind::Tap,
-                        selected: false,
-                        fake: false,
-                        center: [100., 160.],
-                        width: 48.,
-                        fill: [255; 4],
-                        alpha: 1.,
-                    },
-                )
-                .unwrap();
+                sprite(&mut receptors, source.base, 100., 160., 48., source.rotation, [1.;4], 8001);
+                let notes = super::super::short_note_render::render(super::super::short_note_render::Request {
+                    layout, lane, kind: super::super::short_note_render::Kind::Tap,
+                    selected: false, fake: false, center: [100.,160.], width:48., fill:[255;4], alpha:1.,
+                }).unwrap();
                 for actor in receptors.iter().chain(notes.iter()) {
-                    let Actor::Sprite {
-                        rot_z_deg, offset, ..
-                    } = actor
-                    else {
-                        panic!("sprite");
-                    };
-                    assert_eq!(*rot_z_deg, -source.rotation, "{layout}/{lane}");
-                    assert_eq!(*offset, [100., 160.]);
+                    let Actor::Sprite {rot_z_deg,offset,..}=actor else {panic!("sprite");};
+                    assert_eq!(*rot_z_deg,-source.rotation,"{layout}/{lane}");
+                    assert_eq!(*offset,[100.,160.]);
                 }
             }
         }
@@ -312,9 +287,9 @@ mod tests {
                 // Base atlas arrow points down. Apply the actual native world
                 // rotation, then project world Y back to screen Y.
                 let screen_tip = [angle.sin(), angle.cos()];
-                let expected = [[-1.0, 0.0], [0.0, 1.0], [0.0, -1.0], [1.0, 0.0]][lane];
-                assert!((screen_tip[0] - expected[0]).abs() < 1e-5);
-                assert!((screen_tip[1] - expected[1]).abs() < 1e-5);
+                let expected = [[-1.0,0.0],[0.0,1.0],[0.0,-1.0],[1.0,0.0]][lane];
+                assert!((screen_tip[0]-expected[0]).abs()<1e-5);
+                assert!((screen_tip[1]-expected[1]).abs()<1e-5);
                 assert_eq!(*z, [8001, 8009, 8010][layer]);
                 assert!(
                     uv_rect

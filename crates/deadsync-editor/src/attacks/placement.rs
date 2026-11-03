@@ -70,8 +70,8 @@ impl Timeline {
         } else {
             None
         };
-        let source = super::property::read(session.document(), origin)?;
-        let raw = source.as_deref().unwrap_or_default();
+        let source=super::property::read(session.document(),origin)?;
+        let raw=source.as_deref().unwrap_or_default();
         if use_resident {
             if let Some(events) = super::resident::read(session, chart, origin.is_some(), raw)? {
                 let markers = events
@@ -258,10 +258,7 @@ fn file_inputs(session: &Session, chart: usize) -> Result<Vec<Input>, Error> {
     let grid = if let Some(grid) = session.loaded_grid(chart) {
         grid
     } else {
-        parsed = Grid::parse_layout(
-            document.value(descriptor.notes.clone()),
-            &descriptor.steps_type,
-        )?;
+        parsed = Grid::parse_layout(document.value(descriptor.notes.clone()), &descriptor.steps_type)?;
         &parsed
     };
     let timing = GenerationTiming::from_document(document, chart)?;

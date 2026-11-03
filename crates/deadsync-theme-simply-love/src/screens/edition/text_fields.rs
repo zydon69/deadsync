@@ -28,9 +28,7 @@ impl Target {
         match self {
             Self::Chart(ChartField::Music) => Some(deadsync_editor::music_file::Kind::Audio),
             Self::Song(field) => field.file_kind(),
-            Self::Pack(super::pack_properties::Field::Banner) => {
-                Some(deadsync_editor::music_file::Kind::Image)
-            }
+            Self::Pack(super::pack_properties::Field::Banner)=>Some(deadsync_editor::music_file::Kind::Image),
             _ => None,
         }
     }
@@ -51,11 +49,11 @@ impl Target {
     }
     fn key(self) -> &'static str {
         match self {
-            Self::Audio(_) => "AudioValue",
-            Self::PreferenceNumeric => "PreferenceNumericValue",
-            Self::SourcePreferencesPath => "SourcePreferencesPath",
-            Self::FileOpenPath => "FileOpenPath",
-            Self::SaveAsDestination => "SaveAsDestinationValue",
+            Self::Audio(_)=>"AudioValue",
+            Self::PreferenceNumeric=>"PreferenceNumericValue",
+            Self::SourcePreferencesPath=>"SourcePreferencesPath",
+            Self::FileOpenPath=>"FileOpenPath",
+            Self::SaveAsDestination=>"SaveAsDestinationValue",
             Self::Attack(index) => super::attacks::FIELD_KEYS[index],
             Self::Pack(field) => field.key(),
             Self::Note(NoteField::Head) => "NoteAttributesHead",
@@ -96,16 +94,10 @@ impl Target {
 impl State {
     fn field_at(&self, index: usize) -> Option<Target> {
         match self.panel {
-            Some(Panel::AudioSettings(1)) if index == 1 && self.audio_numeric_text.is_some() => {
-                Some(Target::Audio(
-                    deadsync_editor::audio_preferences::Field::ALL[self.audio_field],
-                ))
-            }
-            Some(Panel::SourcePreferencesImport(_)) if index == 0 => {
-                Some(Target::SourcePreferencesPath)
-            }
-            Some(Panel::FileOpen(_)) if index == 0 => Some(Target::FileOpenPath),
-            Some(Panel::SaveAsDestination(_)) if index == 0 => Some(Target::SaveAsDestination),
+            Some(Panel::AudioSettings(1)) if index==1 && self.audio_numeric_text.is_some()=>Some(Target::Audio(deadsync_editor::audio_preferences::Field::ALL[self.audio_field])),
+            Some(Panel::SourcePreferencesImport(_)) if index==0=>Some(Target::SourcePreferencesPath),
+            Some(Panel::FileOpen(_)) if index==0=>Some(Target::FileOpenPath),
+            Some(Panel::SaveAsDestination(_)) if index==0=>Some(Target::SaveAsDestination),
             Some(Panel::Attacks(_)) if (3..8).contains(&index) => Some(Target::Attack(index - 3)),
             Some(Panel::NoteAttributes(_)) if self.note_attribute_typed => match index {
                 4 => Some(Target::NoteReserved),
@@ -117,10 +109,7 @@ impl State {
                 2 => Some(Target::Note(NoteField::Tail)),
                 _ => None,
             },
-            Some(Panel::PackProperties) => super::pack_properties::Field::ALL
-                .get(index)
-                .copied()
-                .map(Target::Pack),
+            Some(Panel::PackProperties) => super::pack_properties::Field::ALL.get(index).copied().map(Target::Pack),
             Some(Panel::ChartText(_)) => ChartField::ALL.get(index).copied().map(Target::Chart),
             Some(Panel::SongText(_)) => SongField::ALL.get(index).copied().map(Target::Song),
             _ => None,
@@ -128,61 +117,34 @@ impl State {
     }
     fn field_value(&self, target: Target) -> Option<std::borrow::Cow<'_, str>> {
         match target {
-            Target::Audio(_) => self.audio_numeric_text.as_deref().map(Into::into),
-            Target::PreferenceNumeric => self
-                .preference_numeric
-                .as_ref()
-                .map(|edit| edit.text.as_str().into()),
-            Target::SourcePreferencesPath => {
-                Some(self.source_preferences_import.path.as_str().into())
-            }
-            Target::FileOpenPath => Some(self.file_menu.destination.as_str().into()),
-            Target::SaveAsDestination => Some(self.save_as.destination.as_str().into()),
-            Target::Pack(field) => self
-                .pack_properties
-                .as_ref()
-                .map(|settings| settings.text(field)),
-            Target::NoteReserved => self
-                .note_attributes
-                .as_ref()
+            Target::Audio(_)=>self.audio_numeric_text.as_deref().map(Into::into),
+            Target::PreferenceNumeric=>self.preference_numeric.as_ref().map(|edit|edit.text.as_str().into()),
+            Target::SourcePreferencesPath=>Some(self.source_preferences_import.path.as_str().into()),
+            Target::FileOpenPath=>Some(self.file_menu.destination.as_str().into()),
+            Target::SaveAsDestination=>Some(self.save_as.destination.as_str().into()),
+            Target::Pack(field) => self.pack_properties.as_ref().map(|settings| settings.text(field)),
+            Target::NoteReserved => self.note_attributes.as_ref()
                 .and_then(|draft| self.note_attribute_inspector.attributes(draft).ok())
                 .map(|attributes| std::borrow::Cow::Owned(attributes.reserved.to_string())),
-            Target::Attack(index) => self
-                .attacks
-                .as_ref()
-                .map(|d| d.fields[index].as_str().into()),
-            Target::Note(f) | Target::NoteRaw(f) => {
-                self.note_attributes.as_ref().map(|d| d.text(f).into())
-            }
+            Target::Attack(index) => self.attacks.as_ref().map(|d| d.fields[index].as_str().into()),
+            Target::Note(f) | Target::NoteRaw(f) => self.note_attributes.as_ref().map(|d| d.text(f).into()),
             Target::Chart(f) => self.chart_properties.as_ref().map(|d| d.text(f).into()),
             Target::Song(f) => self.song_properties.as_ref().map(|d| d.text(f).into()),
         }
     }
     fn field_supported(&self, target: Target) -> bool {
         match target {
-            Target::PreferenceNumeric => self.preference_numeric_is_current(),
-            Target::Audio(field) => {
-                self.audio_numeric_text.is_some()
-                    && field == deadsync_editor::audio_preferences::Field::ALL[self.audio_field]
-                    && matches!(self.panel, Some(Panel::AudioSettings(1)))
-            }
-            Target::SourcePreferencesPath => {
-                matches!(self.panel, Some(Panel::SourcePreferencesImport(_)))
-            }
-            Target::FileOpenPath => matches!(self.panel, Some(Panel::FileOpen(_))),
-            Target::SaveAsDestination => matches!(self.panel, Some(Panel::SaveAsDestination(_))),
+            Target::PreferenceNumeric=>self.preference_numeric_is_current(),
+            Target::Audio(field)=>self.audio_numeric_text.is_some() && field==deadsync_editor::audio_preferences::Field::ALL[self.audio_field] && matches!(self.panel,Some(Panel::AudioSettings(1))),
+            Target::SourcePreferencesPath=>matches!(self.panel,Some(Panel::SourcePreferencesImport(_))),
+            Target::FileOpenPath=>matches!(self.panel,Some(Panel::FileOpen(_))),
+            Target::SaveAsDestination=>matches!(self.panel,Some(Panel::SaveAsDestination(_))),
             Target::Pack(_) => self.pack_text_current(),
-            Target::NoteReserved => self
-                .note_attributes
-                .as_ref()
+            Target::NoteReserved => self.note_attributes.as_ref()
                 .is_some_and(|draft| self.note_attribute_inspector.attributes(draft).is_ok()),
-            Target::Attack(index) => self
-                .attacks
-                .as_ref()
+            Target::Attack(index) => self.attacks.as_ref()
                 .is_some_and(|d| d.can_edit_field(index)),
-            Target::Note(f) | Target::NoteRaw(f) => self
-                .note_attributes
-                .as_ref()
+            Target::Note(f) | Target::NoteRaw(f) => self.note_attributes.as_ref()
                 .is_some_and(|d| f == NoteField::Head || d.note().end.is_some()),
             Target::Chart(f) => self
                 .chart_properties
@@ -202,121 +164,55 @@ impl State {
         let missing = || deadsync_editor::Error::InvalidEdit("No property draft is active".into());
         match target {
             Target::PreferenceNumeric => {
-                if value.len() > 256 || value.chars().any(char::is_control) {
-                    return Err(deadsync_editor::Error::InvalidEdit(
-                        "Invalid numeric text".into(),
-                    ));
-                }
-                if !self.preference_numeric_is_current() {
-                    return Err(deadsync_editor::Error::ExternalChange);
-                }
-                self.preference_numeric.as_mut().ok_or_else(missing)?.text = value.to_owned();
+                if value.len()>256 || value.chars().any(char::is_control){return Err(deadsync_editor::Error::InvalidEdit("Invalid numeric text".into()));}
+                if !self.preference_numeric_is_current(){return Err(deadsync_editor::Error::ExternalChange);}
+                self.preference_numeric.as_mut().ok_or_else(missing)?.text=value.to_owned();
                 Ok(())
             }
             Target::Audio(_) => {
-                if value.len() > 256 || value.chars().any(char::is_control) {
-                    return Err(deadsync_editor::Error::InvalidEdit(
-                        "Invalid numeric text".into(),
-                    ));
-                }
-                self.audio_numeric_text = Some(value.to_owned());
-                Ok(())
+                if value.len()>256 || value.chars().any(char::is_control) {return Err(deadsync_editor::Error::InvalidEdit("Invalid numeric text".into()));}
+                self.audio_numeric_text=Some(value.to_owned());Ok(())
             }
-            Target::SourcePreferencesPath => {
-                if value.len() > 4096 || value.chars().any(char::is_control) {
-                    return Err(deadsync_editor::Error::InvalidEdit(
-                        "Invalid preference import path text".into(),
-                    ));
-                }
-                self.source_preferences_import.path = value.to_owned();
-                self.source_preferences_import.draft = None;
-                Ok(())
+            Target::SourcePreferencesPath=>{
+                if value.len()>4096||value.chars().any(char::is_control){return Err(deadsync_editor::Error::InvalidEdit("Invalid preference import path text".into()));}
+                self.source_preferences_import.path=value.to_owned();self.source_preferences_import.draft=None;Ok(())
             }
-            Target::FileOpenPath => {
-                if value.len() > 4096 || value.chars().any(char::is_control) {
-                    return Err(deadsync_editor::Error::InvalidEdit(
-                        "Invalid open path text".into(),
-                    ));
-                }
-                self.file_menu.destination = value.to_owned();
-                Ok(())
+            Target::FileOpenPath=>{
+                if value.len()>4096||value.chars().any(char::is_control){return Err(deadsync_editor::Error::InvalidEdit("Invalid open path text".into()));}
+                self.file_menu.destination=value.to_owned();Ok(())
             }
-            Target::SaveAsDestination => {
-                if value.len() > 4096 || value.chars().any(char::is_control) {
-                    return Err(deadsync_editor::Error::InvalidEdit(
-                        "Invalid destination text".into(),
-                    ));
-                }
-                self.save_as.destination = value.to_owned();
-                Ok(())
+            Target::SaveAsDestination=>{
+                if value.len()>4096 || value.chars().any(char::is_control) {return Err(deadsync_editor::Error::InvalidEdit("Invalid destination text".into()));}
+                self.save_as.destination=value.to_owned();Ok(())
             }
             Target::Pack(field) => {
-                if !self.pack_text_current() {
-                    return Err(missing());
-                }
-                self.pack_properties
-                    .as_mut()
-                    .ok_or_else(missing)?
-                    .set_text(field, value)
+                if !self.pack_text_current() { return Err(missing()); }
+                self.pack_properties.as_mut().ok_or_else(missing)?.set_text(field, value)
             }
-            Target::NoteReserved => self
-                .note_attribute_inspector
-                .set_reserved(self.note_attributes.as_mut().ok_or_else(missing)?, value),
+            Target::NoteReserved => self.note_attribute_inspector.set_reserved(
+                self.note_attributes.as_mut().ok_or_else(missing)?, value,
+            ),
             Target::Attack(index) => {
-                if value.chars().any(char::is_control) {
-                    return Err(deadsync_editor::Error::InvalidEdit(
-                        "Attack fields must occupy one line".into(),
-                    ));
-                }
+                if value.chars().any(char::is_control) { return Err(deadsync_editor::Error::InvalidEdit("Attack fields must occupy one line".into())); }
                 self.attacks.as_mut().ok_or_else(missing)?.fields[index] = value.into();
                 Ok(())
             }
-            Target::Note(f) | Target::NoteRaw(f) => self
-                .note_attributes
-                .as_mut()
-                .ok_or_else(missing)?
-                .set_text(f, value),
+            Target::Note(f) | Target::NoteRaw(f) => self.note_attributes.as_mut().ok_or_else(missing)?.set_text(f, value),
             Target::Chart(f) => self
                 .chart_properties
                 .as_mut()
                 .ok_or_else(missing)?
                 .set_text(f, value),
-            Target::Song(f) => {
-                self.song_properties
-                    .as_mut()
-                    .ok_or_else(missing)?
-                    .set_text(f, value)?;
-                if f == SongField::PreviewMusic {
-                    self.refresh_sample_region();
-                } else {
-                    self.refresh_misc_draft_widgets();
-                }
-                Ok(())
-            }
+            Target::Song(f) => {self.song_properties.as_mut().ok_or_else(missing)?.set_text(f,value)?;if f==SongField::PreviewMusic{self.refresh_sample_region();}else{self.refresh_misc_draft_widgets();}Ok(())},
         }
     }
     pub(super) fn text_target(&self) -> Option<Target> {
-        if self.preference_numeric_is_current() {
-            return Some(Target::PreferenceNumeric);
-        }
+        if self.preference_numeric_is_current(){return Some(Target::PreferenceNumeric);}
         if matches!(self.panel, Some(Panel::PackProperties)) {
-            return if self.pack_text_current() {
-                self.pack_properties.as_ref()?.field().map(Target::Pack)
-            } else {
-                None
-            };
+            return if self.pack_text_current() { self.pack_properties.as_ref()?.field().map(Target::Pack) } else { None };
         }
         let index = match self.panel {
-            Some(
-                Panel::AudioSettings(i)
-                | Panel::SourcePreferencesImport(i)
-                | Panel::FileOpen(i)
-                | Panel::SaveAsDestination(i)
-                | Panel::ChartText(i)
-                | Panel::SongText(i)
-                | Panel::NoteAttributes(i)
-                | Panel::Attacks(i),
-            ) => i,
+            Some(Panel::AudioSettings(i) | Panel::SourcePreferencesImport(i) | Panel::FileOpen(i) | Panel::SaveAsDestination(i) | Panel::ChartText(i) | Panel::SongText(i) | Panel::NoteAttributes(i) | Panel::Attacks(i)) => i,
             _ => return None,
         };
         self.field_at(index)
@@ -350,9 +246,7 @@ impl State {
     }
     pub(super) fn focus_text(&mut self) {
         self.text_edit_serial = self.text_edit_serial.wrapping_add(1);
-        if matches!(self.text_target(), Some(Target::Pack(_))) {
-            self.begin_pack_field();
-        }
+        if matches!(self.text_target(),Some(Target::Pack(_))){self.begin_pack_field();}
         self.text_buffer = self.text_target().and_then(|target| {
             self.field_value(target)
                 .map(|value| Buffer::new(value.as_ref(), true))
@@ -370,25 +264,16 @@ impl State {
             return true;
         }
         let value = buffer.value().to_owned();
-        if let Err(error) = self.set_field_value(target, &value) {
-            if matches!(target, Target::Pack(_))
-                && !matches!(&error,deadsync_editor::Error::InvalidEdit(message) if message=="Invalid pack property value")
-            {
-                self.status = i18n::editor_error(&error).into();
-                return false;
+        if let Err(error)=self.set_field_value(target, &value) {
+            if matches!(target,Target::Pack(_)) && !matches!(&error,deadsync_editor::Error::InvalidEdit(message) if message=="Invalid pack property value") {
+                self.status=i18n::editor_error(&error).into();return false;
             }
-            self.status = i18n::tr(
-                "Edition",
-                if matches!(target, Target::NoteReserved) {
-                    "NoteAttributesReservedInvalid"
-                } else if matches!(target, Target::Pack(super::pack_properties::Field::Year)) {
-                    "PackInvalidYear"
-                } else if matches!(target, Target::Pack(_)) {
-                    "PackInvalidText"
-                } else {
-                    "ChartTextSingleLine"
-                },
-            );
+            self.status = i18n::tr("Edition", if matches!(target, Target::NoteReserved) {
+                "NoteAttributesReservedInvalid"
+            } else if matches!(target, Target::Pack(super::pack_properties::Field::Year)) {
+                "PackInvalidYear"
+            } else if matches!(target, Target::Pack(_)) { "PackInvalidText"
+            } else { "ChartTextSingleLine" });
             return false;
         }
         true
@@ -431,9 +316,8 @@ impl State {
             self.queue_text_clipboard(code);
             return;
         }
-        if !note
-            && (code == KeyCode::Escape
-                || (index == count && matches!(code, KeyCode::Enter | KeyCode::NumpadEnter)))
+        if !note && (code == KeyCode::Escape
+            || (index == count && matches!(code, KeyCode::Enter | KeyCode::NumpadEnter)))
         {
             let accepted = self.sync_text();
             self.label_preedit.clear();
@@ -454,16 +338,14 @@ impl State {
             );
             return;
         }
-        if !note
-            && matches!(
-                code,
-                KeyCode::ArrowUp
-                    | KeyCode::ArrowDown
-                    | KeyCode::Tab
-                    | KeyCode::PageUp
-                    | KeyCode::PageDown
-            )
-        {
+        if !note && matches!(
+            code,
+            KeyCode::ArrowUp
+                | KeyCode::ArrowDown
+                | KeyCode::Tab
+                | KeyCode::PageUp
+                | KeyCode::PageDown
+        ) {
             if !self.sync_text() {
                 return;
             }
@@ -550,7 +432,11 @@ impl State {
                     unsupported
                 )
             };
-            return i18n::tr_fmt("Edition", target.key(), &[("value", &value)]);
+            return i18n::tr_fmt(
+                "Edition",
+                target.key(),
+                &[("value", &value)],
+            );
         }
         let mut value = if self.text_target() == Some(target) {
             self.text_buffer
@@ -714,59 +600,28 @@ mod chart_authoring_tests {
     fn effective_music_and_offset_changes_keep_main_and_retarget_current_row() {
         i18n::init_for_tests();
         let (root, mut state) = audio_state("");
-        let mut ack = deadsync_gameplay::GameplayAudioSnapshot::default();
-        ack.editor.owner = state.editor_asset_owner();
-        ack.editor.output.available = true;
-        ack.editor.output.leased = true;
-        ack.editor.output.period_control = deadsync_gameplay::EditorBufferControl::Adjustable;
-        ack.editor.output.requested_period = Some(512);
-        ack.editor.output.negotiated_period = Some(512);
-        state.update_audio(ack);
+        let mut ack=deadsync_gameplay::GameplayAudioSnapshot::default();
+        ack.editor.owner=state.editor_asset_owner();ack.editor.output.available=true;ack.editor.output.leased=true;
+        ack.editor.output.period_control=deadsync_gameplay::EditorBufferControl::Adjustable;ack.editor.output.requested_period=Some(512);ack.editor.output.negotiated_period=Some(512);state.update_audio(ack);state.take_audio_commands();
+        state.toggle_audio();assert!(state.chart_transport_is_playing());
         state.take_audio_commands();
-        state.toggle_audio();
-        assert!(state.chart_transport_is_playing());
-        state.take_audio_commands();
-        let before = state.capture_song_property_presentation().unwrap();
+        let before=state.capture_song_property_presentation().unwrap();
         state.open_chart_properties();
-        state
-            .chart_properties
-            .as_mut()
-            .unwrap()
-            .set_text(ChartField::Music, "alternate.wav")
-            .unwrap();
+        state.chart_properties.as_mut().unwrap().set_text(ChartField::Music,"alternate.wav").unwrap();
         state.apply_chart_properties();
         assert!(state.chart_transport_is_playing());
-        assert_eq!(
-            state.transport_music_time().unwrap().to_bits(),
-            before.music_time().to_bits()
-        );
-        let commands = state.take_audio_commands();
+        assert_eq!(state.transport_music_time().unwrap().to_bits(),before.music_time().to_bits());
+        let commands=state.take_audio_commands();
         assert!(commands.iter().any(|command|matches!(command,deadsync_gameplay::GameplayAudioCommand::EditorSwapMusicAsset{path,..}if *path==root.path().join("alternate.wav").canonicalize().unwrap())));
-        assert!(!commands.iter().any(|command| matches!(
-            command,
-            deadsync_gameplay::GameplayAudioCommand::EditorPauseMusic { .. }
-                | deadsync_gameplay::GameplayAudioCommand::EditorStopMusic { .. }
-                | deadsync_gameplay::GameplayAudioCommand::EditorStartMusic { .. }
-        )));
-        state.navigate_exact_position(60.5, true);
-        state.take_audio_commands();
-        state.open_chart_properties();
-        let draft = state.chart_properties.as_mut().unwrap();
-        draft.set_use_chart_offset(true);
-        draft.set_music_offset(0.25).unwrap();
-        state.apply_chart_properties();
-        assert!(state.chart_transport_is_playing());
-        let focus = state.focus_position.as_ref().unwrap();
-        assert!(focus.is_current(&state.workspace));
-        assert_eq!(focus.row(), 60.5);
-        let seconds = focus.music_time() + state.audio_preferences.effective().offset;
-        let commands = state.take_audio_commands();
+        assert!(!commands.iter().any(|command|matches!(command,deadsync_gameplay::GameplayAudioCommand::EditorPauseMusic{..}|deadsync_gameplay::GameplayAudioCommand::EditorStopMusic{..}|deadsync_gameplay::GameplayAudioCommand::EditorStartMusic{..})));
+        state.navigate_exact_position(60.5, true);state.take_audio_commands();
+        state.open_chart_properties();let draft=state.chart_properties.as_mut().unwrap();
+        draft.set_use_chart_offset(true);draft.set_music_offset(0.25).unwrap();
+        state.apply_chart_properties();assert!(state.chart_transport_is_playing());
+        let focus=state.focus_position.as_ref().unwrap();assert!(focus.is_current(&state.workspace));assert_eq!(focus.row(),60.5);
+        let seconds=focus.music_time()+state.audio_preferences.effective().offset;
+        let commands=state.take_audio_commands();
         assert!(commands.iter().any(|command|matches!(command,deadsync_gameplay::GameplayAudioCommand::EditorSeekMusic{seconds:actual,..}if actual.to_bits()==seconds.to_bits())));
-        assert!(!commands.iter().any(|command| matches!(
-            command,
-            deadsync_gameplay::GameplayAudioCommand::EditorPauseMusic { .. }
-                | deadsync_gameplay::GameplayAudioCommand::EditorStopMusic { .. }
-                | deadsync_gameplay::GameplayAudioCommand::EditorStartMusic { .. }
-        )));
+        assert!(!commands.iter().any(|command|matches!(command,deadsync_gameplay::GameplayAudioCommand::EditorPauseMusic{..}|deadsync_gameplay::GameplayAudioCommand::EditorStopMusic{..}|deadsync_gameplay::GameplayAudioCommand::EditorStartMusic{..})));
     }
 }

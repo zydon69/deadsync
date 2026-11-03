@@ -123,14 +123,7 @@ fn scope_guards_noop_history_and_sm_source_eligibility_preserve_original_bytes()
         .unwrap(),
     );
     let bytes = sm.serialize().unwrap();
-    assert!(
-        Draft::capture(&sm, 0, Scope::Song)
-            .unwrap()
-            .combos()
-            .values()
-            .is_empty(),
-        "original unsupported SM tag stays ignored"
-    );
+    assert!(Draft::capture(&sm, 0, Scope::Song).unwrap().combos().values().is_empty(), "original unsupported SM tag stays ignored");
     assert_eq!(sm.serialize().unwrap(), bytes);
 }
 #[test]

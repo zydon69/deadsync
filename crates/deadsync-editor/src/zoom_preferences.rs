@@ -44,22 +44,15 @@ impl Preferences {
         Ok(())
     }
     pub fn set_size_cap(&mut self, value: f64) -> Result<(), Error> {
-        let value = valid(value, MIN_ZOOM, 1.0)?;
-        if !crate::number::reference_equal(self.cap, value) {
-            self.cap = value;
-        }
+        let value=valid(value, MIN_ZOOM, 1.0)?;
+        if !crate::number::reference_equal(self.cap,value){self.cap=value;}
         Ok(())
     }
     pub fn set_limited(&mut self, value: bool) {
         self.limited = value;
     }
     /// Source Undo owns duration, multiplier and the limit flag; SizeCap is direct.
-    pub(crate) fn undoable_fields_from(self, target: Self) -> Self {
-        Self {
-            cap: self.cap,
-            ..target
-        }
-    }
+    pub(crate) fn undoable_fields_from(self,target:Self)->Self{Self{cap:self.cap,..target}}
     /// Merge only explicitly changed fields, without notifying a runtime manager.
     pub fn merge_changes(self, expected: Self, target: Self) -> Result<Self, Error> {
         let (mut current, mut before, mut after) = (Map::new(), Map::new(), Map::new());
@@ -71,10 +64,10 @@ impl Preferences {
     }
     /// Apply notifications to a clone so failure cannot partially configure a view.
     pub fn apply(self, manager: &mut Manager) -> Result<(), Error> {
-        manager.apply_preferences(self.duration, self.multiplier, self.cap, self.limited)
+        manager.apply_preferences(self.duration,self.multiplier,self.cap,self.limited)
     }
-    pub fn initialize(self, manager: &mut Manager) -> Result<(), Error> {
-        manager.initialize_preferences(self.duration, self.multiplier, self.cap, self.limited)
+    pub fn initialize(self,manager:&mut Manager)->Result<(),Error>{
+        manager.initialize_preferences(self.duration,self.multiplier,self.cap,self.limited)
     }
     pub(crate) fn read(fields: &Map<String, Value>) -> Result<Self, Error> {
         let mut value = Self::default();
@@ -90,12 +83,7 @@ impl Preferences {
                 match index {
                     0 => value.duration = finite(number)?,
                     1 => value.multiplier = finite(number)?,
-                    _ => {
-                        let cap = finite(number)?;
-                        if !crate::number::reference_equal(value.cap, cap) {
-                            value.cap = cap;
-                        }
-                    }
+                    _ => {let cap=finite(number)?;if !crate::number::reference_equal(value.cap,cap){value.cap=cap;}},
                 }
             }
         }
@@ -123,12 +111,4 @@ fn valid(value: f64, min: f64, max: f64) -> Result<f64, Error> {
     }
 }
 
-fn finite(value: f64) -> Result<f64, Error> {
-    if value.is_finite() {
-        Ok(value)
-    } else {
-        Err(Error::InvalidFormat(
-            "Zoom preference must be finite".into(),
-        ))
-    }
-}
+fn finite(value:f64)->Result<f64,Error>{if value.is_finite(){Ok(value)}else{Err(Error::InvalidFormat("Zoom preference must be finite".into()))}}

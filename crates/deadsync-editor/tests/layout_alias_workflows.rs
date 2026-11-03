@@ -131,9 +131,7 @@ fn source(format: Format, layout: &str, notes: &str) -> String {
             "#NOTEDATA:;#STEPSTYPE:\n // before\n {layout} // after\n ;#DIFFICULTY:Hard;#METER:9;#NOTES:{notes};"
         ),
     };
-    format!(
-        "#VERSION:0.83;#TITLE:Aliases;#MUSIC:music.ogg;#GASongDataVersion:1;#GASongData:{{\"SyncOffset\":0}};#BPMS:0=120;{chart}#VENDOR:raw\\:peer;"
-    )
+    format!("#VERSION:0.83;#TITLE:Aliases;#MUSIC:music.ogg;#GASongDataVersion:1;#GASongData:{{\"SyncOffset\":0}};#BPMS:0=120;{chart}#VENDOR:raw\\:peer;")
 }
 
 #[test]
@@ -193,13 +191,8 @@ fn escaped_stepf2_alias_normalization_is_reversible_after_save() {
             // Structural normalization materializes the selected timing context
             // in the resident transaction, before any disk publication.
             let changed = source_output_context::expected_with_context(
-                layout_changed.as_bytes(),
-                format,
-                source_output_context::Context {
-                    sync_offset: 0.0,
-                    chart_type: "pump_routine",
-                    chart_index: 0,
-                },
+                layout_changed.as_bytes(), format,
+                source_output_context::Context { sync_offset: 0.0, chart_type: "pump_routine", chart_index: 0 },
             );
             assert_eq!(file.session.serialize().unwrap(), changed);
             assert_eq!(std::fs::read(&path).unwrap(), original.as_bytes());

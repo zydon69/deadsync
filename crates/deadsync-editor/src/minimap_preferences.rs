@@ -131,10 +131,7 @@ impl Preferences {
         fields.insert(
             "MiniMapSpacingModeForVariable".into(),
             match self.variable_spacing {
-                VariableSpacing::Unknown(n) => crate::preference_enum::unknown_ordinal(
-                    n,
-                    fields.get("MiniMapSpacingModeForVariable"),
-                ),
+                VariableSpacing::Unknown(n) => crate::preference_enum::unknown_ordinal(n,fields.get("MiniMapSpacingModeForVariable")),
                 known => known.value(),
             },
         );

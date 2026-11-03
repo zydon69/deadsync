@@ -269,219 +269,50 @@ impl Catalog {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{
-        document::{Document, Format},
-        generation::metadata::Guid,
-        history::Session,
-    };
-    fn entry(id: u8, name: &str, config: Config) -> Entry {
-        Entry {
-            guid: format!("00000000-0000-0000-0000-{id:012}").parse().unwrap(),
-            name: Some(name.into()),
-            builtin: None,
-            config,
-            display: Some(format!("{name}: summary")),
-        }
+    use crate::{document::{Document,Format},history::Session,generation::metadata::Guid};
+    fn entry(id:u8,name:&str,config:Config)->Entry {
+        Entry{guid:format!("00000000-0000-0000-0000-{id:012}").parse().unwrap(),name:Some(name.into()),builtin:None,config,display:Some(format!("{name}: summary"))}
     }
-    fn catalog(kind: Kind, entries: Vec<Entry>) -> Catalog {
-        let session = Session::new(
-            Document::parse(
-                b"#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:0000;".as_slice(),
-                Format::Ssc,
-            )
-            .unwrap(),
-        );
-        Catalog {
-            token: session.revision_token(),
-            context: crate::generation::profile_catalog::Context::Chart(0),
-            entries: std::collections::BTreeMap::from([(kind, entries)]),
-            dependencies: Default::default(),
-            custom_profiles: Default::default(),
-            issues: Vec::new(),
-        }
+    fn catalog(kind:Kind,entries:Vec<Entry>)->Catalog {
+        let session=Session::new(Document::parse(b"#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:0000;".as_slice(),Format::Ssc).unwrap());
+        Catalog{token:session.revision_token(),context:crate::generation::profile_catalog::Context::Chart(0),entries:std::collections::BTreeMap::from([(kind,entries)]),dependencies:Default::default(),custom_profiles:Default::default(),issues:Vec::new()}
     }
-    fn ids(catalog: &Catalog, kind: Kind) -> Vec<Guid> {
-        catalog
-            .entries(kind)
-            .iter()
-            .map(|e| e.guid.clone())
-            .collect()
+    fn ids(catalog:&Catalog,kind:Kind)->Vec<Guid>{catalog.entries(kind).iter().map(|e|e.guid.clone()).collect()}
+    #[test]
+    fn explicit_name_uses_utf16_ordinal_and_guid_tie_even_descending_and_empty_specs_leave_initial_order(){
+        let config=Config::Pattern(PatternConfig::sixteenths());
+        let mut c=catalog(Kind::Pattern,vec![entry(3,"\u{e000}",config.clone()),entry(2,"\u{10000}",config.clone()),entry(1,"\u{10000}",config)]);
+        let initial=ids(&c,Kind::Pattern);c.apply_source_sort(Kind::Pattern,&[]).unwrap();assert_eq!(ids(&c,Kind::Pattern),initial);
+        c.apply_source_sort(Kind::Pattern,&[Spec{column:Column::Name,descending:false}]).unwrap();
+        assert_eq!(ids(&c,Kind::Pattern),vec![initial[2].clone(),initial[1].clone(),initial[0].clone()]);
+        c.apply_source_sort(Kind::Pattern,&[Spec{column:Column::Name,descending:true}]).unwrap();
+        assert_eq!(ids(&c,Kind::Pattern),vec![initial[0].clone(),initial[2].clone(),initial[1].clone()]);
     }
     #[test]
-    fn explicit_name_uses_utf16_ordinal_and_guid_tie_even_descending_and_empty_specs_leave_initial_order()
-     {
-        let config = Config::Pattern(PatternConfig::sixteenths());
-        let mut c = catalog(
-            Kind::Pattern,
-            vec![
-                entry(3, "\u{e000}", config.clone()),
-                entry(2, "\u{10000}", config.clone()),
-                entry(1, "\u{10000}", config),
-            ],
-        );
-        let initial = ids(&c, Kind::Pattern);
-        c.apply_source_sort(Kind::Pattern, &[]).unwrap();
-        assert_eq!(ids(&c, Kind::Pattern), initial);
-        c.apply_source_sort(
-            Kind::Pattern,
-            &[Spec {
-                column: Column::Name,
-                descending: false,
-            }],
-        )
-        .unwrap();
-        assert_eq!(
-            ids(&c, Kind::Pattern),
-            vec![initial[2].clone(), initial[1].clone(), initial[0].clone()]
-        );
-        c.apply_source_sort(
-            Kind::Pattern,
-            &[Spec {
-                column: Column::Name,
-                descending: true,
-            }],
-        )
-        .unwrap();
-        assert_eq!(
-            ids(&c, Kind::Pattern),
-            vec![initial[0].clone(), initial[2].clone(), initial[1].clone()]
-        );
+    fn pattern_normalized_weight_and_multicolumn_precedence_match_source_not_raw_weight(){
+        let mut a=PatternConfig::sixteenths();a.same_arrow_step_weight=2;a.new_arrow_step_weight=2;a.step_type_check_period=4;
+        let mut b=a.clone();b.same_arrow_step_weight=9;b.new_arrow_step_weight=9;b.step_type_check_period=2;
+        let mut c=catalog(Kind::Pattern,vec![entry(1,"a",Config::Pattern(a)),entry(2,"b",Config::Pattern(b))]);let initial=ids(&c,Kind::Pattern);
+        c.apply_source_sort(Kind::Pattern,&[Spec{column:Column::StepType,descending:false},Spec{column:Column::StepTypeCheckPeriod,descending:false}]).unwrap();
+        assert_eq!(ids(&c,Kind::Pattern),vec![initial[1].clone(),initial[0].clone()]);
+        let before=ids(&c,Kind::Pattern);assert!(c.apply_source_sort(Kind::Pattern,&[Spec{column:Column::Name,descending:false},Spec{column:Column::Name,descending:true}]).is_err());assert_eq!(ids(&c,Kind::Pattern),before);
     }
     #[test]
-    fn pattern_normalized_weight_and_multicolumn_precedence_match_source_not_raw_weight() {
-        let mut a = PatternConfig::sixteenths();
-        a.same_arrow_step_weight = 2;
-        a.new_arrow_step_weight = 2;
-        a.step_type_check_period = 4;
-        let mut b = a.clone();
-        b.same_arrow_step_weight = 9;
-        b.new_arrow_step_weight = 9;
-        b.step_type_check_period = 2;
-        let mut c = catalog(
-            Kind::Pattern,
-            vec![
-                entry(1, "a", Config::Pattern(a)),
-                entry(2, "b", Config::Pattern(b)),
-            ],
-        );
-        let initial = ids(&c, Kind::Pattern);
-        c.apply_source_sort(
-            Kind::Pattern,
-            &[
-                Spec {
-                    column: Column::StepType,
-                    descending: false,
-                },
-                Spec {
-                    column: Column::StepTypeCheckPeriod,
-                    descending: false,
-                },
-            ],
-        )
-        .unwrap();
-        assert_eq!(
-            ids(&c, Kind::Pattern),
-            vec![initial[1].clone(), initial[0].clone()]
-        );
-        let before = ids(&c, Kind::Pattern);
-        assert!(
-            c.apply_source_sort(
-                Kind::Pattern,
-                &[
-                    Spec {
-                        column: Column::Name,
-                        descending: false
-                    },
-                    Spec {
-                        column: Column::Name,
-                        descending: true
-                    }
-                ]
-            )
-            .is_err()
-        );
-        assert_eq!(ids(&c, Kind::Pattern), before);
+    fn performed_speed_preserves_source_ep1_bug_and_disabled_values_are_zero(){
+        let mut a=PerformedConfig::balanced();a.step_tightening.speed_tightening_enabled=Some(true);a.step_tightening.distance_min=9.;a.step_tightening.distance_tightening_enabled=None;
+        let mut b=a.clone();b.step_tightening.speed_min_time_seconds=0.01;b.step_tightening.distance_tightening_enabled=Some(true);b.step_tightening.distance_min=1.;
+        let mut c=catalog(Kind::Performed,vec![entry(2,"b",Config::Performed(b)),entry(1,"a",Config::Performed(a))]);let initial=ids(&c,Kind::Performed);
+        c.apply_source_sort(Kind::Performed,&[Spec{column:Column::StepSpeedMin,descending:true}]).unwrap();
+        assert_eq!(ids(&c,Kind::Performed),vec![initial[1].clone(),initial[0].clone()],"both enabled tie even with distinct speed: source ep1 appears twice");
+        c.apply_source_sort(Kind::Performed,&[Spec{column:Column::StepDistanceMin,descending:false}]).unwrap();assert_eq!(ids(&c,Kind::Performed)[0],initial[1]);
     }
     #[test]
-    fn performed_speed_preserves_source_ep1_bug_and_disabled_values_are_zero() {
-        let mut a = PerformedConfig::balanced();
-        a.step_tightening.speed_tightening_enabled = Some(true);
-        a.step_tightening.distance_min = 9.;
-        a.step_tightening.distance_tightening_enabled = None;
-        let mut b = a.clone();
-        b.step_tightening.speed_min_time_seconds = 0.01;
-        b.step_tightening.distance_tightening_enabled = Some(true);
-        b.step_tightening.distance_min = 1.;
-        let mut c = catalog(
-            Kind::Performed,
-            vec![
-                entry(2, "b", Config::Performed(b)),
-                entry(1, "a", Config::Performed(a)),
-            ],
-        );
-        let initial = ids(&c, Kind::Performed);
-        c.apply_source_sort(
-            Kind::Performed,
-            &[Spec {
-                column: Column::StepSpeedMin,
-                descending: true,
-            }],
-        )
-        .unwrap();
-        assert_eq!(
-            ids(&c, Kind::Performed),
-            vec![initial[1].clone(), initial[0].clone()],
-            "both enabled tie even with distinct speed: source ep1 appears twice"
-        );
-        c.apply_source_sort(
-            Kind::Performed,
-            &[Spec {
-                column: Column::StepDistanceMin,
-                descending: false,
-            }],
-        )
-        .unwrap();
-        assert_eq!(ids(&c, Kind::Performed)[0], initial[1]);
-    }
-    #[test]
-    fn every_source_column_is_admitted_and_sort_is_presentation_only() {
-        for (kind, config) in [
-            (Kind::Pattern, Config::Pattern(PatternConfig::sixteenths())),
-            (
-                Kind::Performed,
-                Config::Performed(PerformedConfig::balanced()),
-            ),
-        ] {
-            let mut c = catalog(
-                kind,
-                vec![entry(2, "b", config.clone()), entry(1, "a", config)],
-            );
-            let before = c
-                .entries(kind)
-                .iter()
-                .map(|entry| (entry.guid.clone(), entry.config.json().unwrap()))
-                .collect::<std::collections::BTreeMap<_, _>>();
-            for column in columns(kind) {
-                for descending in [false, true] {
-                    c.apply_source_sort(
-                        kind,
-                        &[Spec {
-                            column: *column,
-                            descending,
-                        }],
-                    )
-                    .unwrap();
-                }
-            }
-            assert_eq!(
-                c.entries(kind)
-                    .iter()
-                    .map(|entry| (entry.guid.clone(), entry.config.json().unwrap()))
-                    .collect::<std::collections::BTreeMap<_, _>>(),
-                before
-            );
-            assert!(c.dependencies.is_empty());
-            assert!(c.custom_profiles.is_empty());
+    fn every_source_column_is_admitted_and_sort_is_presentation_only(){
+        for (kind,config) in [(Kind::Pattern,Config::Pattern(PatternConfig::sixteenths())),(Kind::Performed,Config::Performed(PerformedConfig::balanced()))] {
+            let mut c=catalog(kind,vec![entry(2,"b",config.clone()),entry(1,"a",config)]);let before=c.entries(kind).iter().map(|entry|(entry.guid.clone(),entry.config.json().unwrap())).collect::<std::collections::BTreeMap<_,_>>();
+            for column in columns(kind){for descending in [false,true]{c.apply_source_sort(kind,&[Spec{column:*column,descending}]).unwrap();}}
+            assert_eq!(c.entries(kind).iter().map(|entry|(entry.guid.clone(),entry.config.json().unwrap())).collect::<std::collections::BTreeMap<_,_>>(),before);
+            assert!(c.dependencies.is_empty());assert!(c.custom_profiles.is_empty());
         }
     }
 }

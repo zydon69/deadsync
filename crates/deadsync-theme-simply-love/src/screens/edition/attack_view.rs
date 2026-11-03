@@ -139,7 +139,9 @@ impl State {
                         actors.push(act!(quad: xy(left-18.0,y): zoomto(3.0,height): diffuse(1.0,0.55,0.15,0.45): z(8002)));
                     }
                 }
+
             }
         }
+
     }
 }

@@ -36,10 +36,7 @@ pub(super) fn snapshot_function_action_tables(
     let snapshots = lua.create_table()?;
     snapshots.raw_set(1, snapshot_function_action_table(lua, globals)?)?;
     for target in targets.sequence_values::<Table>() {
-        snapshots.raw_set(
-            snapshots.raw_len() + 1,
-            snapshot_function_action_table(lua, target?)?,
-        )?;
+        snapshots.raw_set(snapshots.raw_len() + 1, snapshot_function_action_table(lua, target?)?)?;
     }
     snapshot_function_locals(lua, functions, snapshots)
 }
@@ -143,10 +140,7 @@ pub(super) fn snapshot_function_locals(
     })
 }
 
-pub(super) fn restore_function_action_tables(
-    lua: &Lua,
-    snapshot: FunctionActionSnapshot,
-) -> mlua::Result<()> {
+pub(super) fn restore_function_action_tables(lua: &Lua, snapshot: FunctionActionSnapshot) -> mlua::Result<()> {
     for cell in snapshot.cells.sequence_values::<Table>() {
         let cell = cell?;
         let function = cell.raw_get::<Function>(1)?;

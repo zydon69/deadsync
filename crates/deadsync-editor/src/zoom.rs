@@ -13,26 +13,14 @@ pub enum SpacingMode {
 impl SpacingMode {
     pub fn read(value: Option<&serde_json::Value>) -> Self {
         match value {
-            Some(serde_json::Value::String(name)) if name.eq_ignore_ascii_case("ConstantRow") => {
-                Self::ConstantRow
-            }
-            Some(serde_json::Value::String(name)) if name.eq_ignore_ascii_case("Variable") => {
-                Self::Variable
-            }
-            Some(serde_json::Value::Number(number)) if number.as_u64() == Some(1) => {
-                Self::ConstantRow
-            }
+            Some(serde_json::Value::String(name)) if name.eq_ignore_ascii_case("ConstantRow") => Self::ConstantRow,
+            Some(serde_json::Value::String(name)) if name.eq_ignore_ascii_case("Variable") => Self::Variable,
+            Some(serde_json::Value::Number(number)) if number.as_u64() == Some(1) => Self::ConstantRow,
             Some(serde_json::Value::Number(number)) if number.as_u64() == Some(2) => Self::Variable,
             _ => Self::ConstantTime,
         }
     }
-    pub const fn name(self) -> &'static str {
-        match self {
-            Self::ConstantTime => "ConstantTime",
-            Self::ConstantRow => "ConstantRow",
-            Self::Variable => "Variable",
-        }
-    }
+    pub const fn name(self) -> &'static str {match self {Self::ConstantTime=>"ConstantTime",Self::ConstantRow=>"ConstantRow",Self::Variable=>"Variable"}}
 
     /// Source OnToggleSpacingMode follows the declared enum order.
     pub const fn next(self) -> Self {
@@ -114,7 +102,7 @@ pub struct Manager {
     row: Value,
     variable: Value,
     cap: f64,
-    preference_cap: f64,
+    preference_cap:f64,
     limited: bool,
     duration: f64,
     multiplier: f64,
@@ -127,7 +115,7 @@ impl Default for Manager {
             row: Value::new(0.1, 10000.0, 2.0),
             variable: Value::new(10.0, 100000.0, 300.0),
             cap: 1.0,
-            preference_cap: 1.0,
+            preference_cap:1.0,
             limited: false,
             duration: 0.1,
             multiplier: 1.2,
@@ -136,18 +124,10 @@ impl Default for Manager {
 }
 impl Manager {
     /// Source spacing callbacks continue while unrelated preferences change.
-    pub fn spacing_is_interpolating(&self) -> bool {
-        [self.time, self.row, self.variable]
-            .into_iter()
-            .any(|value| !reference_equal(value.current, value.desired))
-    }
+    pub fn spacing_is_interpolating(&self)->bool {[self.time,self.row,self.variable].into_iter().any(|value|!reference_equal(value.current,value.desired))}
     /// Source ZoomManager outlives a loaded document. Keep only its three
     /// spacing axes; destination song view retains its own zoom/focal position.
-    pub fn inherit_spacing_animation(&mut self, source: &Self) {
-        self.time = source.time;
-        self.row = source.row;
-        self.variable = source.variable;
-    }
+    pub fn inherit_spacing_animation(&mut self,source:&Self){self.time=source.time;self.row=source.row;self.variable=source.variable;}
 
     pub fn spacing_zoom(&self) -> f64 {
         self.zoom.current
@@ -181,62 +161,26 @@ impl Manager {
         self.refresh_bounds()?;
         Ok(())
     }
-    pub fn set_limit_to_size(&mut self, value: bool) -> Result<(), Error> {
-        if value && self.cap < MIN_ZOOM {
-            return Err(Error::InvalidEdit("Source zoom bounds are inverted".into()));
-        }
+    pub fn set_limit_to_size(&mut self, value: bool)->Result<(),Error> {
+        if value&&self.cap<MIN_ZOOM{return Err(Error::InvalidEdit("Source zoom bounds are inverted".into()));}
         self.limited = value;
         self.refresh_bounds()
     }
     /// Startup follows the original constructor: the stored cap is not passed
     /// through SetSizeCap's notification clamp. The caller supplies a fresh owner.
-    pub fn initialize_preferences(
-        &mut self,
-        duration: f64,
-        multiplier: f64,
-        cap: f64,
-        limited: bool,
-    ) -> Result<(), Error> {
-        finite(duration)?;
-        finite(multiplier)?;
-        finite(cap)?;
-        if limited && cap < MIN_ZOOM {
-            return Err(Error::InvalidEdit("Source zoom bounds are inverted".into()));
-        }
-        let mut next = self.clone();
-        next.duration = duration;
-        next.multiplier = multiplier;
-        next.cap = cap;
-        next.preference_cap = cap;
-        next.limited = limited;
-        next.refresh_bounds()?;
-        *self = next;
-        Ok(())
+    pub fn initialize_preferences(&mut self,duration:f64,multiplier:f64,cap:f64,limited:bool)->Result<(),Error>{
+        finite(duration)?;finite(multiplier)?;finite(cap)?;
+        if limited&&cap<MIN_ZOOM{return Err(Error::InvalidEdit("Source zoom bounds are inverted".into()));}
+        let mut next=self.clone();next.duration=duration;next.multiplier=multiplier;next.cap=cap;next.preference_cap=cap;next.limited=limited;next.refresh_bounds()?;*self=next;Ok(())
     }
     /// Notification installation compares the raw preference witness, not the
     /// effective manager cap. Unrelated preference changes cannot reclamp it.
-    pub fn apply_preferences(
-        &mut self,
-        duration: f64,
-        multiplier: f64,
-        cap: f64,
-        limited: bool,
-    ) -> Result<(), Error> {
-        finite(duration)?;
-        finite(multiplier)?;
-        finite(cap)?;
-        let mut next = self.clone();
-        next.duration = duration;
-        next.multiplier = multiplier;
-        if !reference_equal(next.preference_cap, cap) {
-            next.set_size_cap(cap)?;
-            next.preference_cap = cap;
-        }
-        if next.limited != limited {
-            next.set_limit_to_size(limited)?;
-        }
-        *self = next;
-        Ok(())
+    pub fn apply_preferences(&mut self,duration:f64,multiplier:f64,cap:f64,limited:bool)->Result<(),Error>{
+        finite(duration)?;finite(multiplier)?;finite(cap)?;
+        let mut next=self.clone();next.duration=duration;next.multiplier=multiplier;
+        if !reference_equal(next.preference_cap,cap){next.set_size_cap(cap)?;next.preference_cap=cap;}
+        if next.limited!=limited{next.set_limit_to_size(limited)?;}
+        *self=next;Ok(())
     }
     /// External spacing notification: replace both current and desired values.
     pub fn set_spacing(&mut self, mode: SpacingMode, value: f64) -> Result<(), Error> {
@@ -269,8 +213,8 @@ impl Manager {
         if delta.abs() <= 0.0000001 || (!zoom && !spacing) {
             return Ok(false);
         }
-        let magnitude = (1.0 + f64::from(delta.abs()) * (self.multiplier - 1.0))
-            .clamp(1.0_f64.min(self.multiplier), 1.0_f64.max(self.multiplier));
+        let magnitude =
+            (1.0 + f64::from(delta.abs()) * (self.multiplier - 1.0)).clamp(1.0_f64.min(self.multiplier), 1.0_f64.max(self.multiplier));
         let multiplier = if delta < 0.0 { -magnitude } else { magnitude };
         if zoom {
             self.zoom.scroll(now, multiplier);
@@ -291,13 +235,10 @@ impl Manager {
         }
         Ok(())
     }
-    fn refresh_bounds(&mut self) -> Result<(), Error> {
-        let max = if self.limited { self.cap } else { MAX_ZOOM };
-        if max < MIN_ZOOM {
-            return Err(Error::InvalidEdit("Source zoom bounds are inverted".into()));
-        }
-        self.zoom.bounds(MIN_ZOOM, max);
-        Ok(())
+    fn refresh_bounds(&mut self)->Result<(),Error> {
+        let max=if self.limited { self.cap } else { MAX_ZOOM };
+        if max<MIN_ZOOM{return Err(Error::InvalidEdit("Source zoom bounds are inverted".into()));}
+        self.zoom.bounds(MIN_ZOOM,max);Ok(())
     }
     fn value(&self, mode: SpacingMode) -> &Value {
         match mode {

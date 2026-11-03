@@ -30,21 +30,8 @@ struct Target {
 }
 #[derive(Clone, PartialEq)]
 enum Snapshot {
-    SongMetadata(
-        [u64; 5],
-        Vec<String>,
-        deadsync_editor::song_properties::Selectable,
-        Option<usize>,
-    ),
-    ChartOffset(
-        u64,
-        bool,
-        Vec<String>,
-        deadsync_editor::generation::metadata::Guid,
-        Option<deadsync_editor::chart_identity::Difficulty>,
-        i32,
-        (deadsync_editor::display_tempo::Mode, u64, u64, bool),
-    ),
+    SongMetadata([u64; 5], Vec<String>, deadsync_editor::song_properties::Selectable, Option<usize>),
+    ChartOffset(u64, bool, Vec<String>, deadsync_editor::generation::metadata::Guid, Option<deadsync_editor::chart_identity::Difficulty>, i32, (deadsync_editor::display_tempo::Mode, u64, u64, bool)),
     Display(deadsync_editor::options_preferences::Display),
     General(deadsync_editor::options_preferences::General),
     Receptor(deadsync_editor::receptor_preferences::Preferences, [i32; 2]),
@@ -110,9 +97,7 @@ impl State {
         let (kind, field, row) = match self.panel? {
             Panel::SongProperties(i @ (0 | 4)) => (Kind::SongMetadata, usize::from(i == 4), i),
             Panel::SongSample(i @ 0..=2) => (Kind::SongMetadata, i + 2, i),
-            Panel::ChartProperties(2) if self.chart_properties.as_ref()?.uses_chart_offset() => {
-                (Kind::ChartOffset, 0, 2)
-            }
+            Panel::ChartProperties(2) if self.chart_properties.as_ref()?.uses_chart_offset() => (Kind::ChartOffset, 0, 2),
             Panel::OptionsSettings(1) if self.options_field == 6 => (Kind::Display, 6, 1),
             Panel::GeneralOptions(1)
                 if matches!(self.general_field, 0..=2)
@@ -142,7 +127,7 @@ impl State {
             Panel::ScrollValues(i @ 0..=2) if self.source_scroll_speed_enabled(i) => {
                 (Kind::Speed, i, i)
             }
-            Panel::Hotbar(7) => (Kind::Zoom, 3, 7),
+            Panel::Hotbar(7) => (Kind::Zoom,3,7),
             Panel::ZoomSettings(i @ 0..=2) => (Kind::Zoom, i, i),
             Panel::WaveformSettings(i @ (2 | 3 | 8 | 10..=12)) => (Kind::Waveform, i, i),
             Panel::WaveformColors(i @ 1..=13) if self.waveform_color_control_enabled(i) => {
@@ -173,42 +158,18 @@ impl State {
         Some(match kind {
             Kind::SongMetadata => {
                 let draft = self.song_properties.as_ref()?;
-                Snapshot::SongMetadata(
-                    [
-                        draft.sync_offset(),
-                        draft.music_offset(),
-                        draft.sample_start(),
-                        draft.sample_length(),
-                        draft.last_second_hint(),
-                    ]
-                    .map(f64::to_bits),
-                    deadsync_editor::song_text::Field::ALL
-                        .into_iter()
-                        .map(|field| draft.text(field).to_owned())
-                        .collect(),
-                    draft.selectable(),
-                    draft.timing_chart(&self.workspace.file().session).ok()?,
-                )
+                Snapshot::SongMetadata([
+                    draft.sync_offset(), draft.music_offset(), draft.sample_start(),
+                    draft.sample_length(), draft.last_second_hint(),
+                ].map(f64::to_bits),
+                    deadsync_editor::song_text::Field::ALL.into_iter().map(|field| draft.text(field).to_owned()).collect(),
+                    draft.selectable(), draft.timing_chart(&self.workspace.file().session).ok()?)
             }
             Kind::ChartOffset => {
                 let draft = self.chart_properties.as_ref()?;
-                Snapshot::ChartOffset(
-                    draft.music_offset().to_bits(),
-                    draft.uses_chart_offset(),
-                    deadsync_editor::chart_text::Field::ALL
-                        .into_iter()
-                        .map(|field| draft.text(field).to_owned())
-                        .collect(),
-                    draft.expression().clone(),
-                    draft.difficulty(),
-                    draft.rating(),
-                    (
-                        draft.display_tempo().mode(),
-                        draft.display_tempo().min().to_bits(),
-                        draft.display_tempo().max().to_bits(),
-                        draft.display_tempo().separate_max(),
-                    ),
-                )
+                Snapshot::ChartOffset(draft.music_offset().to_bits(), draft.uses_chart_offset(),
+                    deadsync_editor::chart_text::Field::ALL.into_iter().map(|field| draft.text(field).to_owned()).collect(),
+                    draft.expression().clone(), draft.difficulty(), draft.rating(), (draft.display_tempo().mode(), draft.display_tempo().min().to_bits(), draft.display_tempo().max().to_bits(), draft.display_tempo().separate_max()))
             }
             Kind::Display => Snapshot::Display(self.options_draft?),
             Kind::General => Snapshot::General(self.general_options.clone()),
@@ -224,17 +185,7 @@ impl State {
             Kind::Recent => Snapshot::Recent(self.file_menu.recent_preferences().maximum),
             Kind::Scroll => Snapshot::Scroll(self.scroll_preferences_draft?),
             Kind::Speed => Snapshot::Scroll(self.scroll_preferences),
-            Kind::Zoom => {
-                if matches!(self.panel, Some(Panel::Hotbar(7))) {
-                    Snapshot::CurrentZoom(
-                        self.spacing_zoom().to_bits(),
-                        self.zoom.size_cap().to_bits(),
-                        self.zoom.limit_to_size(),
-                    )
-                } else {
-                    Snapshot::Zoom(self.zoom_preferences_draft?)
-                }
-            }
+            Kind::Zoom => if matches!(self.panel,Some(Panel::Hotbar(7))){Snapshot::CurrentZoom(self.spacing_zoom().to_bits(),self.zoom.size_cap().to_bits(),self.zoom.limit_to_size())}else{Snapshot::Zoom(self.zoom_preferences_draft?)},
             Kind::Waveform | Kind::WaveColor => {
                 Snapshot::Waveform(self.waveform_preferences_draft?)
             }
@@ -252,21 +203,17 @@ impl State {
         let Some(edit) = self.preference_numeric.as_ref() else {
             return false;
         };
-        let current = self.numeric_snapshot(edit.target.kind);
+        let current=self.numeric_snapshot(edit.target.kind);
         // The source zoom animation may advance while typing. Its current value
         // is not an external edit; retain bounds/owner guards without cancelling
         // desired interpolation just by entering or cancelling this field.
-        let snapshot_current = match (current.as_ref(), &edit.baseline) {
-            (
-                Some(Snapshot::CurrentZoom(_, cap, limited)),
-                Snapshot::CurrentZoom(_, old_cap, old_limited),
-            ) => cap == old_cap && limited == old_limited,
-            _ => current.as_ref() == Some(&edit.baseline),
+        let snapshot_current=match (current.as_ref(),&edit.baseline) {
+            (Some(Snapshot::CurrentZoom(_,cap,limited)),Snapshot::CurrentZoom(_,old_cap,old_limited))=>cap==old_cap&&limited==old_limited,
+            _=>current.as_ref()==Some(&edit.baseline),
         };
-        edit.content.as_ref().is_none_or(|(binding, chart)| {
-            binding.is_current(&self.workspace.file().session)
-                && *chart == self.workspace.active_chart()
-        }) && edit.binding.is_current(&self.workspace.file().session)
+        edit.content.as_ref().is_none_or(|(binding, chart)|
+            binding.is_current(&self.workspace.file().session) && *chart == self.workspace.active_chart())
+            && edit.binding.is_current(&self.workspace.file().session)
             && self.numeric_target() == Some(edit.target)
             && snapshot_current
     }
@@ -366,14 +313,10 @@ impl State {
             target,
             baseline,
             binding: EditBinding::capture(&self.workspace.file().session),
-            content: matches!(target.kind, Kind::SongMetadata | Kind::ChartOffset).then(|| {
-                (
-                    deadsync_editor::chart_order::SessionBinding::capture(
-                        &self.workspace.file().session,
-                    ),
-                    self.workspace.active_chart(),
-                )
-            }),
+            content: matches!(target.kind, Kind::SongMetadata | Kind::ChartOffset).then(|| (
+                deadsync_editor::chart_order::SessionBinding::capture(&self.workspace.file().session),
+                self.workspace.active_chart(),
+            )),
             initial: text.clone(),
             text,
         });
@@ -426,11 +369,7 @@ impl State {
         let i = target.field;
         match baseline {
             Snapshot::SongMetadata(..) => {
-                let minimum = if matches!(i, 0 | 3 | 4) {
-                    0.0
-                } else {
-                    f64::MIN
-                };
+                let minimum = if matches!(i, 0 | 3 | 4) { 0.0 } else { f64::MIN };
                 let value = source_drag_double(text, minimum, f64::MAX)?;
                 let draft = self.song_properties.as_mut().ok_or_else(invalid)?;
                 match i {
@@ -444,10 +383,7 @@ impl State {
             }
             Snapshot::ChartOffset(..) => {
                 let value = source_drag_double(text, f64::MIN, f64::MAX)?;
-                self.chart_properties
-                    .as_mut()
-                    .ok_or_else(invalid)?
-                    .set_music_offset(value)?;
+                self.chart_properties.as_mut().ok_or_else(invalid)?.set_music_offset(value)?;
             }
             Snapshot::Display(mut p) => {
                 p.misc_width = integer(text)?.clamp(0, 200);
@@ -502,9 +438,7 @@ impl State {
                 }
                 self.scroll_preferences_draft = Some(p);
             }
-            Snapshot::CurrentZoom(..) => {
-                self.set_hotbar_zoom(f64::from(single(text)?))?;
-            }
+            Snapshot::CurrentZoom(..) => {self.set_hotbar_zoom(f64::from(single(text)?))?;}
             Snapshot::Zoom(mut p) => {
                 match i {
                     0 => p.set_duration(float(text)?.clamp(0.0, 1.0))?,
@@ -772,9 +706,7 @@ mod tests {
     }
     fn open(state: &mut State, kind: Kind) -> (usize, usize, &'static str) {
         match kind {
-            Kind::SongMetadata | Kind::ChartOffset => {
-                unreachable!("metadata uses its own workflow tests")
-            }
+            Kind::SongMetadata | Kind::ChartOffset => unreachable!("metadata uses its own workflow tests"),
             Kind::Display => {
                 state.open_display_options();
                 state.options_field = 6;
@@ -876,9 +808,7 @@ mod tests {
     }
     fn live(state: &State, kind: Kind) -> Snapshot {
         match kind {
-            Kind::SongMetadata | Kind::ChartOffset => {
-                unreachable!("metadata uses its own workflow tests")
-            }
+            Kind::SongMetadata | Kind::ChartOffset => unreachable!("metadata uses its own workflow tests"),
             Kind::Display => Snapshot::Display(state.display_options),
             Kind::General => Snapshot::General(state.general_options.clone()),
             Kind::Receptor => Snapshot::Receptor(
@@ -1862,30 +1792,9 @@ mod tests {
             .series
             .breakdown
         };
-        let report = deadsync_editor::density::task::Task::capture(
-            &state.workspace.file().session,
-            state.workspace.chart(),
-            state.source_density.stream,
-        )
-        .unwrap()
-        .run(&AtomicBool::new(false))
-        .unwrap();
-        assert_eq!(
-            report
-                .series
-                .measures
-                .iter()
-                .map(|m| m.steps)
-                .collect::<Vec<_>>(),
-            vec![16, 0, 16]
-        );
-        assert_eq!(
-            report.series.streams,
-            vec![
-                deadsync_editor::density::Stream { start: 0, last: 0 },
-                deadsync_editor::density::Stream { start: 2, last: 2 }
-            ]
-        );
+        let report=deadsync_editor::density::task::Task::capture(&state.workspace.file().session,state.workspace.chart(),state.source_density.stream).unwrap().run(&AtomicBool::new(false)).unwrap();
+        assert_eq!(report.series.measures.iter().map(|m|m.steps).collect::<Vec<_>>(),vec![16,0,16]);
+        assert_eq!(report.series.streams,vec![deadsync_editor::density::Stream{start:0,last:0},deadsync_editor::density::Stream{start:2,last:2}]);
         assert_eq!(breakdown(&state), Some("1-1".into()));
         state.open_stream_settings();
         state.panel = Some(Panel::StreamSettings(3));
@@ -2282,11 +2191,7 @@ mod metadata_numeric_tests {
     fn press(state: &mut State, code: KeyCode) {
         for pressed in [true, false] {
             state.raw_key(&RawKeyboardEvent {
-                code,
-                pressed,
-                repeat: false,
-                timestamp: std::time::Instant::now(),
-                host_nanos: 0,
+                code, pressed, repeat: false, timestamp: std::time::Instant::now(), host_nanos: 0,
             });
         }
     }
@@ -2300,14 +2205,7 @@ mod metadata_numeric_tests {
     }
     fn values(state: &State) -> [u64; 5] {
         let p = state.song_properties.as_ref().unwrap();
-        [
-            p.sync_offset(),
-            p.music_offset(),
-            p.sample_start(),
-            p.sample_length(),
-            p.last_second_hint(),
-        ]
-        .map(f64::to_bits)
+        [p.sync_offset(), p.music_offset(), p.sample_start(), p.sample_length(), p.last_second_hint()].map(f64::to_bits)
     }
     fn select(state: &mut State, field: usize) {
         state.panel = Some(match field {
@@ -2318,13 +2216,7 @@ mod metadata_numeric_tests {
     }
     #[test]
     fn precise_song_fields_stage_cancel_apply_undo_redo_and_actual_save_reopen_en_fr_chartless() {
-        let input = [
-            0.0123456789f64,
-            -0.1234567891,
-            -0.2345678912,
-            0.3456789123,
-            0.4567891234,
-        ];
+        let input = [0.0123456789f64, -0.1234567891, -0.2345678912, 0.3456789123, 0.4567891234];
         for language in ["en", "fr"] {
             for chartless in [false, true] {
                 let (root, mut state) = state(language);
@@ -2386,26 +2278,8 @@ mod metadata_numeric_tests {
                 let mut reopened = State::open(&root.path().join("song.ssc"), 0).unwrap();
                 reopened.open_song_properties();
                 assert_eq!(values(&reopened), input.map(f64::to_bits));
-                assert_eq!(
-                    reopened
-                        .workspace
-                        .file()
-                        .session
-                        .document()
-                        .text(None, "TITLE")
-                        .as_deref(),
-                    Some("Keep")
-                );
-                assert!(
-                    reopened
-                        .workspace
-                        .file()
-                        .session
-                        .document()
-                        .text(None, "GASongData")
-                        .unwrap()
-                        .contains("\"Vendor\":7")
-                );
+                assert_eq!(reopened.workspace.file().session.document().text(None, "TITLE").as_deref(), Some("Keep"));
+                assert!(reopened.workspace.file().session.document().text(None, "GASongData").unwrap().contains("\"Vendor\":7"));
             }
         }
     }
@@ -2414,30 +2288,13 @@ mod metadata_numeric_tests {
         for language in ["en", "fr"] {
             let (root, mut state) = state(language);
             state.open_chart_properties();
-            state
-                .chart_properties
-                .as_mut()
-                .unwrap()
-                .set_use_chart_offset(false);
+            state.chart_properties.as_mut().unwrap().set_use_chart_offset(false);
             let before = state.chart_properties.as_ref().unwrap().music_offset();
             state.panel = Some(Panel::ChartProperties(2));
-            for code in [
-                KeyCode::ArrowLeft,
-                KeyCode::ArrowRight,
-                KeyCode::Home,
-                KeyCode::Enter,
-            ] {
+            for code in [KeyCode::ArrowLeft, KeyCode::ArrowRight, KeyCode::Home, KeyCode::Enter] {
                 press(&mut state, code);
                 assert!(state.preference_numeric.is_none());
-                assert_eq!(
-                    state
-                        .chart_properties
-                        .as_ref()
-                        .unwrap()
-                        .music_offset()
-                        .to_bits(),
-                    before.to_bits()
-                );
+                assert_eq!(state.chart_properties.as_ref().unwrap().music_offset().to_bits(), before.to_bits());
             }
             press(&mut state, KeyCode::ArrowUp);
             assert!(matches!(state.panel, Some(Panel::ChartProperties(1))));
@@ -2447,70 +2304,22 @@ mod metadata_numeric_tests {
             press(&mut state, KeyCode::Enter);
             assert!(state.text_input("-0.987654321"));
             press(&mut state, KeyCode::Escape);
-            assert_eq!(
-                state
-                    .chart_properties
-                    .as_ref()
-                    .unwrap()
-                    .music_offset()
-                    .to_bits(),
-                before.to_bits()
-            );
+            assert_eq!(state.chart_properties.as_ref().unwrap().music_offset().to_bits(), before.to_bits());
             press(&mut state, KeyCode::Enter);
             assert!(state.text_input("-0.987654321"));
             press(&mut state, KeyCode::Enter);
-            assert_eq!(
-                state
-                    .chart_properties
-                    .as_ref()
-                    .unwrap()
-                    .music_offset()
-                    .to_bits(),
-                (-0.987654321f64).to_bits()
-            );
+            assert_eq!(state.chart_properties.as_ref().unwrap().music_offset().to_bits(), (-0.987654321f64).to_bits());
             state.panel = Some(Panel::ChartProperties(4));
             press(&mut state, KeyCode::Enter);
             assert!(state.chart_properties.is_none(), "{}", state.status);
-            assert_eq!(
-                state
-                    .workspace
-                    .chart_properties()
-                    .unwrap()
-                    .music_offset()
-                    .to_bits(),
-                (-0.987654321f64).to_bits()
-            );
+            assert_eq!(state.workspace.chart_properties().unwrap().music_offset().to_bits(), (-0.987654321f64).to_bits());
             state.command(Command::Undo);
-            assert_eq!(
-                state
-                    .workspace
-                    .chart_properties()
-                    .unwrap()
-                    .music_offset()
-                    .to_bits(),
-                before.to_bits()
-            );
+            assert_eq!(state.workspace.chart_properties().unwrap().music_offset().to_bits(), before.to_bits());
             state.command(Command::Redo);
-            assert_eq!(
-                state
-                    .workspace
-                    .chart_properties()
-                    .unwrap()
-                    .music_offset()
-                    .to_bits(),
-                (-0.987654321f64).to_bits()
-            );
+            assert_eq!(state.workspace.chart_properties().unwrap().music_offset().to_bits(), (-0.987654321f64).to_bits());
             state.workspace.execute(Command::Save).unwrap();
             let reopened = State::open(&root.path().join("song.ssc"), 0).unwrap();
-            assert_eq!(
-                reopened
-                    .workspace
-                    .chart_properties()
-                    .unwrap()
-                    .music_offset()
-                    .to_bits(),
-                (-0.987654321f64).to_bits()
-            );
+            assert_eq!(reopened.workspace.chart_properties().unwrap().music_offset().to_bits(), (-0.987654321f64).to_bits());
         }
     }
     #[test]
@@ -2526,28 +2335,16 @@ mod metadata_numeric_tests {
             assert_eq!(p.sync_offset(), 0.009);
             assert!(!p.can_apply_itg_offset());
             press(&mut state, KeyCode::Enter);
-            assert_eq!(
-                state.song_properties.as_ref().unwrap().music_offset(),
-                original + 0.009
-            );
+            assert_eq!(state.song_properties.as_ref().unwrap().music_offset(), original + 0.009);
             press(&mut state, KeyCode::ArrowDown);
             assert!(matches!(state.panel, Some(Panel::SongProperties(6))));
             state.panel = Some(Panel::SongProperties(1));
             press(&mut state, KeyCode::Enter);
-            assert_eq!(
-                state.workspace.song_properties().unwrap().music_offset(),
-                original + 0.009
-            );
+            assert_eq!(state.workspace.song_properties().unwrap().music_offset(), original + 0.009);
             state.command(Command::Undo);
-            assert_eq!(
-                state.workspace.song_properties().unwrap().music_offset(),
-                original
-            );
+            assert_eq!(state.workspace.song_properties().unwrap().music_offset(), original);
             state.command(Command::Redo);
-            assert_eq!(
-                state.workspace.song_properties().unwrap().music_offset(),
-                original + 0.009
-            );
+            assert_eq!(state.workspace.song_properties().unwrap().music_offset(), original + 0.009);
         }
     }
     #[test]
@@ -2564,33 +2361,19 @@ mod metadata_numeric_tests {
         assert!(state.text_input("nan"));
         press(&mut state, KeyCode::Enter);
         assert!(state.preference_numeric.is_some());
-        assert_eq!(
-            state.song_properties.as_ref().unwrap().music_offset(),
-            0.125
-        );
+        assert_eq!(state.song_properties.as_ref().unwrap().music_offset(), 0.125);
         press(&mut state, KeyCode::Escape);
         press(&mut state, KeyCode::Enter);
         assert!(state.text_input("0.7654321"));
-        state
-            .song_properties
-            .as_mut()
-            .unwrap()
-            .set_text(deadsync_editor::song_text::Field::Title, "Other draft")
-            .unwrap();
+        state.song_properties.as_mut().unwrap().set_text(deadsync_editor::song_text::Field::Title, "Other draft").unwrap();
         assert!(!state.preference_numeric_is_current());
         press(&mut state, KeyCode::Enter);
         assert!(state.preference_numeric.is_none());
-        assert_eq!(
-            state.song_properties.as_ref().unwrap().music_offset(),
-            0.125
-        );
+        assert_eq!(state.song_properties.as_ref().unwrap().music_offset(), 0.125);
         press(&mut state, KeyCode::Enter);
         assert!(state.text_input("0.7654321"));
         state.open_song_properties();
-        assert!(
-            state.preference_numeric.is_none(),
-            "replacing even an equivalent inspector closes its scratch"
-        );
+        assert!(state.preference_numeric.is_none(), "replacing even an equivalent inspector closes its scratch");
         state.panel = Some(Panel::SongProperties(4));
         press(&mut state, KeyCode::Enter);
         assert!(state.text_input("0.7654321"));

@@ -154,96 +154,27 @@ impl Index {
 /// Source EditorChart.GetEndPosition uses the final event in row/type order,
 /// excluding the preview widget, and returns that event's GetEndRow. It does
 /// not take the maximum of all region ends or only the last note.
-pub fn chart_end_position(session: &mut Session, chart: usize) -> Result<f64, Error> {
-    chart_end_position_with_selection(session, chart, None)
-}
+pub fn chart_end_position(session:&mut Session,chart:usize)->Result<f64,Error>{chart_end_position_with_selection(session,chart,None)}
 /// SelectedRows sorts before every other event at the same chart position.
 /// Its END is used only if its START sorts after the last non-preview event.
-pub fn chart_end_position_with_selection(
-    session: &mut Session,
-    chart: usize,
-    selected_rows: Option<(i32, i32)>,
-) -> Result<f64, Error> {
+pub fn chart_end_position_with_selection(session: &mut Session, chart: usize,selected_rows:Option<(i32,i32)>) -> Result<f64, Error> {
     use crate::event_clipboard::{Event, TimingKind, WidgetKind};
     let inventory = crate::region_selection::inventory::Inventory::capture(session, chart)?;
     let last = inventory.entries().iter().filter(|entry| !matches!(entry.event, Event::SongWidget(widget) if widget.kind()==WidgetKind::Preview))
         .max_by(|a,b| a.event.chart_position().total_cmp(&b.event.chart_position()).then(a.phase.cmp(&b.phase)));
-    let Some(last) = last else {
-        return end_with_selected_rows(None, selected_rows);
+    let Some(last)=last else {return end_with_selected_rows(None,selected_rows)};
+    let row=last.event.source_row() as f64;
+    let length=match last.event {
+        Event::Note(position)=>session.grid(chart)?.get(position).and_then(|note|note.end).map(|end|end as f64-row).unwrap_or(0.0),
+        Event::Pattern{row}=>crate::generation::metadata::ChartData::read(session.document(),chart)?.and_then(|data|data.patterns).and_then(|patterns|patterns.get(&row).map(|pattern|pattern.length as f64)).unwrap_or(0.0),
+        Event::Timing{kind:TimingKind::Warp|TimingKind::Fake,..}=>inventory.display_value(last.event).ok_or_else(||Error::InvalidEdit("Region end is missing".into()))?.parse::<f64>().map_err(|_|Error::InvalidEdit("Region end is invalid".into()))?*48.0,
+        _=>0.0,
     };
-    let row = last.event.source_row() as f64;
-    let length = match last.event {
-        Event::Note(position) => session
-            .grid(chart)?
-            .get(position)
-            .and_then(|note| note.end)
-            .map(|end| end as f64 - row)
-            .unwrap_or(0.0),
-        Event::Pattern { row } => {
-            crate::generation::metadata::ChartData::read(session.document(), chart)?
-                .and_then(|data| data.patterns)
-                .and_then(|patterns| patterns.get(&row).map(|pattern| pattern.length as f64))
-                .unwrap_or(0.0)
-        }
-        Event::Timing {
-            kind: TimingKind::Warp | TimingKind::Fake,
-            ..
-        } => {
-            inventory
-                .display_value(last.event)
-                .ok_or_else(|| Error::InvalidEdit("Region end is missing".into()))?
-                .parse::<f64>()
-                .map_err(|_| Error::InvalidEdit("Region end is invalid".into()))?
-                * 48.0
-        }
-        _ => 0.0,
-    };
-    end_with_selected_rows(
-        Some((last.event.chart_position(), row + length)),
-        selected_rows,
-    )
+    end_with_selected_rows(Some((last.event.chart_position(),row+length)),selected_rows)
 }
-fn end_with_selected_rows(
-    last: Option<(f64, f64)>,
-    selected: Option<(i32, i32)>,
-) -> Result<f64, Error> {
-    if let Some((start, end)) = selected {
-        if start > end {
-            return Err(Error::InvalidEdit(
-                "Invalid selected row widget bounds".into(),
-            ));
-        }
-        if last.is_none_or(|(position, _)| f64::from(start) > position) {
-            return Ok(f64::from(end));
-        }
-    }
-    Ok(last.map_or(0., |(_, end)| end))
+fn end_with_selected_rows(last:Option<(f64,f64)>,selected:Option<(i32,i32)>)->Result<f64,Error>{
+    if let Some((start,end))=selected{if start>end{return Err(Error::InvalidEdit("Invalid selected row widget bounds".into()));}if last.is_none_or(|(position,_)|f64::from(start)>position){return Ok(f64::from(end));}}
+    Ok(last.map_or(0.,|(_,end)|end))
 }
 
-#[cfg(test)]
-mod selected_rows_source_tests {
-    use super::*;
-    #[test]
-    fn actual_source_last_event_custom_order_and_preview_exclusion_180_cases() {
-        let rows: serde_json::Value = serde_json::from_str(include_str!(
-            "../tests/fixtures/editor-end-selected-rows/source.expected.json"
-        ))
-        .unwrap();
-        assert_eq!(rows.as_array().unwrap().len(), 180);
-        for row in rows.as_array().unwrap() {
-            let expected = row["result"].as_f64().unwrap();
-            let actual = end_with_selected_rows(
-                Some((
-                    row["ordinaryStart"].as_f64().unwrap(),
-                    row["ordinaryEnd"].as_f64().unwrap(),
-                )),
-                Some((
-                    row["start"].as_i64().unwrap() as i32,
-                    row["end"].as_i64().unwrap() as i32,
-                )),
-            )
-            .unwrap();
-            assert_eq!(actual.to_bits(), expected.to_bits(), "{row}");
-        }
-    }
-}
+#[cfg(test)]mod selected_rows_source_tests{use super::*;#[test]fn actual_source_last_event_custom_order_and_preview_exclusion_180_cases(){let rows:serde_json::Value=serde_json::from_str(include_str!("../tests/fixtures/editor-end-selected-rows/source.expected.json")).unwrap();assert_eq!(rows.as_array().unwrap().len(),180);for row in rows.as_array().unwrap(){let expected=row["result"].as_f64().unwrap();let actual=end_with_selected_rows(Some((row["ordinaryStart"].as_f64().unwrap(),row["ordinaryEnd"].as_f64().unwrap())),Some((row["start"].as_i64().unwrap()as i32,row["end"].as_i64().unwrap()as i32))).unwrap();assert_eq!(actual.to_bits(),expected.to_bits(),"{row}");}}}

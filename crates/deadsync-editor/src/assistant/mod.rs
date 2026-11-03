@@ -134,13 +134,11 @@ impl Toolbox {
                     })
                     .transpose()?;
                 let grid = workspace.assistant_session().grid(chart)?;
-                let page: Vec<_> = grid
-                    .iter_heads_row_order(start, end, cursor)
-                    .take(limit + 1)
+                let page: Vec<_> = grid.iter_heads_row_order(start, end, cursor).take(limit + 1)
                     .collect();
                 let next = if page.len() > limit {
-                    page.get(limit - 1)
-                        .map(|(p, _)| json!({"row":p.row,"lane":p.lane,"player":p.player}))
+                    page.get(limit - 1).map(|(p, _)|
+                    json!({"row":p.row,"lane":p.lane,"player":p.player}))
                 } else {
                     None
                 };

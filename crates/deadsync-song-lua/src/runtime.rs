@@ -31,14 +31,7 @@ pub fn create_song_runtime_table(
     table.set(SONG_LUA_RUNTIME_DELTA_SECONDS_KEY, 0_i64)?;
     // SongPosition::Reset runs before live actors load. Song timing replaces
     // its native construction BPS on the first gameplay update.
-    table.set(
-        SONG_LUA_RUNTIME_BPS_KEY,
-        if context.live {
-            10.0
-        } else {
-            song_display_bps(context)
-        },
-    )?;
+    table.set(SONG_LUA_RUNTIME_BPS_KEY, if context.live { 10.0 } else { song_display_bps(context) })?;
     table.set(SONG_LUA_RUNTIME_RATE_KEY, song_music_rate(context))?;
     table.set("__songlua_freeze", false)?;
     table.set("__songlua_delay", false)?;
@@ -48,14 +41,9 @@ pub fn create_song_runtime_table(
         let positions = lua.create_table()?;
         for index in 1..=crate::LUA_PLAYERS {
             let position = lua.create_table()?;
-            for key in [
-                SONG_LUA_RUNTIME_BEAT_KEY,
-                SONG_LUA_RUNTIME_SECONDS_KEY,
-                SONG_LUA_RUNTIME_BPS_KEY,
-                SONG_LUA_RUNTIME_RATE_KEY,
-                "__songlua_freeze",
-                "__songlua_delay",
-            ] {
+            for key in [SONG_LUA_RUNTIME_BEAT_KEY, SONG_LUA_RUNTIME_SECONDS_KEY,
+                SONG_LUA_RUNTIME_BPS_KEY, SONG_LUA_RUNTIME_RATE_KEY,
+                "__songlua_freeze", "__songlua_delay"] {
                 position.raw_set(key, table.raw_get::<Value>(key)?)?;
             }
             positions.raw_set(index, position)?;
@@ -79,20 +67,16 @@ pub fn create_song_runtime_table(
 
 pub(crate) fn song_music_time(lua: &Lua, seconds: f64, rate: f32) -> f32 {
     // Live frames already carry the audio clock's native music position.
-    if crate::live::active(lua) {
-        return seconds as f32;
-    }
+    if crate::live::active(lua) { return seconds as f32; }
     // Replay seconds are elapsed wall time. SongPosition exposes the native
     // float music timestamp, which includes the song origin and music rate.
-    let origin = lua
-        .app_data_ref::<SongLuaClock>()
+    let origin = lua.app_data_ref::<SongLuaClock>()
         .map_or(0.0, |clock| clock.0.get_time_for_beat_exact(0.0));
     (seconds * f64::from(rate)) as f32 + origin
 }
 
 pub(crate) fn song_music_seconds(lua: &Lua, runtime: &Table) -> mlua::Result<Value> {
-    let seconds = song_music_time(
-        lua,
+    let seconds = song_music_time(lua,
         runtime.get::<f64>(SONG_LUA_RUNTIME_SECONDS_KEY)?,
         runtime.get::<f32>(SONG_LUA_RUNTIME_RATE_KEY)?,
     );
@@ -309,58 +293,28 @@ mod tests {
 
     #[test]
     fn music_seconds_preserves_offset_and_rate() {
-        for (origin, rate) in [
-            (0.0, 1.0),
-            (1.25, 1.0),
-            (-0.5, 1.0),
-            (1.25, 2.0),
-            (-0.5, 0.5),
-        ] {
+        for (origin, rate) in [(0.0, 1.0), (1.25, 1.0), (-0.5, 1.0), (1.25, 2.0), (-0.5, 0.5)] {
             let lua = Lua::new();
             let mut context = SongLuaCompileContext::new(std::path::Path::new("."), "music clock");
             context.song_music_rate = rate;
             context.song_timing = Some(deadsync_rules::timing::TimingData::from_segments(
-                origin,
-                0.0,
+                origin, 0.0,
                 &deadsync_rules::timing::TimingSegments {
-                    bpms: vec![(0.0, 60.0)],
-                    ..Default::default()
-                },
-                &[],
+                    bpms: vec![(0.0, 60.0)], ..Default::default()
+                }, &[],
             ));
             let runtime = create_song_runtime_table(&lua, &context).expect("song runtime");
             let position = create_song_position_table(&lua, &runtime).expect("song position");
-            assert_eq!(
-                context
-                    .song_timing
-                    .as_ref()
-                    .expect("native song timing")
-                    .get_time_for_beat_exact(0.0),
-                origin
-            );
+            assert_eq!(context.song_timing.as_ref().expect("native song timing").get_time_for_beat_exact(0.0), origin);
             for elapsed in [0.0, 1e-9, 1.0 / 60.0, 0.5, 2.0] {
-                runtime
-                    .set(SONG_LUA_RUNTIME_SECONDS_KEY, elapsed)
-                    .expect("trace timestamp");
+                runtime.set(SONG_LUA_RUNTIME_SECONDS_KEY, elapsed).expect("trace timestamp");
                 for method in ["GetMusicSeconds", "GetMusicSecondsVisible"] {
-                    let getter = position
-                        .get::<mlua::Function>(method)
-                        .expect("native getter");
-                    let actual = getter
-                        .call::<f32>(position.clone())
-                        .expect("music timestamp");
-                    assert_eq!(
-                        actual,
-                        (elapsed * f64::from(rate)) as f32 + origin,
-                        "{method}: origin={origin}, rate={rate}, elapsed={elapsed}"
-                    );
+                    let getter = position.get::<mlua::Function>(method).expect("native getter");
+                    let actual = getter.call::<f32>(position.clone()).expect("music timestamp");
+                    assert_eq!(actual, (elapsed * f64::from(rate)) as f32 + origin,
+                        "{method}: origin={origin}, rate={rate}, elapsed={elapsed}");
                 }
-                assert_eq!(
-                    runtime
-                        .get::<f64>(SONG_LUA_RUNTIME_SECONDS_KEY)
-                        .expect("wall clock"),
-                    elapsed
-                );
+                assert_eq!(runtime.get::<f64>(SONG_LUA_RUNTIME_SECONDS_KEY).expect("wall clock"), elapsed);
             }
         }
     }

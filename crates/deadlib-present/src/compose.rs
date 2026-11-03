@@ -5773,18 +5773,17 @@ fn build_actor_sequence_with_state<'a, T, I>(
             }
             _ => {
                 if sequence.camera_stack.is_empty() {
-                    sequence.active_camera = if let Some(root_camera) =
-                        segment_camera.map(|camera| camera.root)
-                    {
-                        *root_camera_id.get_or_insert_with(|| {
+                    sequence.active_camera =
+                        if let Some(root_camera) = segment_camera.map(|camera| camera.root) {
+                            *root_camera_id
+                                .get_or_insert_with(|| {
                             sequence.camera_id(
-                                camera_prefix.map_or(*root_camera, |prefix| prefix * *root_camera),
-                                cameras,
+                                    camera_prefix.map_or(*root_camera, |prefix| prefix * *root_camera), cameras,
                             )
                         })
-                    } else {
-                        sequence.base_camera
-                    };
+                        } else {
+                            sequence.base_camera
+                        };
                 }
                 build_actor_recursive(
                     actor,
@@ -5973,9 +5972,7 @@ fn build_flat_draws<T: TextureContext + ?Sized>(
         return;
     }
     let projected = |matrix: Matrix4| {
-        segment
-            .projection_prefix
-            .map_or(matrix, |prefix| *prefix * matrix)
+        segment.projection_prefix.map_or(matrix, |prefix| *prefix * matrix)
     };
     let enclosing_camera = enclosing_matrix.map(|matrix| {
         let matrix = projected(*matrix);
@@ -7231,38 +7228,15 @@ fn build_actor_recursive<'a, T: TextureContext + ?Sized>(
             }
         }
 
-        actors::Actor::SharedCamera {
-            view_proj,
-            children,
-        } => {
+        actors::Actor::SharedCamera { view_proj, children } => {
             cameras.push(*view_proj);
             let id = cameras.len().saturating_sub(1).try_into().unwrap_or(0u8);
             build_actor_list(
                 children,
-                SmRect {
-                    x: 0.0,
-                    y: 0.0,
-                    w: m.right - m.left,
-                    h: m.top - m.bottom,
-                },
-                m,
-                fonts,
-                scratch,
-                base_z,
-                id,
-                style,
-                None,
-                cameras,
-                masks,
-                order_counter,
-                out,
-                sprite_instances,
-                text_cache,
-                texture_cache,
-                texture_ctx,
-                actor_textures,
-                total_elapsed,
-                None,
+                SmRect { x: 0.0, y: 0.0, w: m.right - m.left, h: m.top - m.bottom },
+                m, fonts, scratch, base_z, id, style, None, cameras, masks,
+                order_counter, out, sprite_instances, text_cache, texture_cache,
+                texture_ctx, actor_textures, total_elapsed, None,
             );
         }
 
@@ -8252,7 +8226,7 @@ fn push_sprite_passes<T: TextureContext + ?Sized>(
             false,
         );
         for (pass, &tint) in tints.iter().enumerate() {
-            if tint[3] <= 0.0 && (pass != 0 || !blend.requires_zero_alpha_fragments()) {
+            if tint[3] <= 0.0 && (pass!=0 || !blend.requires_zero_alpha_fragments()) {
                 continue;
             }
             let before = out.len();
@@ -8278,16 +8252,14 @@ fn push_sprite_passes<T: TextureContext + ?Sized>(
                     clear_depth_after: false,
                     // Mesh draws otherwise select repeat addressing. A target
                     // sprite must retain the target's clamp/nearest sampling.
-                    sampler: renderer::is_render_target_texture(texture_handle).then_some(
-                        renderer::MeshSampler {
-                            filter: if renderer::render_target_uses_nearest(texture_handle) {
-                                renderer::SamplerFilter::Nearest
-                            } else {
-                                renderer::SamplerFilter::Linear
-                            },
-                            wrap: renderer::SamplerWrap::Clamp,
+                    sampler: renderer::is_render_target_texture(texture_handle).then_some(renderer::MeshSampler {
+                        filter: if renderer::render_target_uses_nearest(texture_handle) {
+                            renderer::SamplerFilter::Nearest
+                        } else {
+                            renderer::SamplerFilter::Linear
                         },
-                    ),
+                        wrap: renderer::SamplerWrap::Clamp,
+                    }),
                 },
             );
             finish_pass(out, sprite_instances, before, before_sprite, pass != 0);
@@ -8360,7 +8332,7 @@ fn push_sprite_passes<T: TextureContext + ?Sized>(
         texture_mask: 0.0,
     };
     for (pass, &tint) in tints.iter().enumerate() {
-        if tint[3] <= 0.0 && (pass != 0 || !blend.requires_zero_alpha_fragments()) {
+        if tint[3] <= 0.0 && (pass!=0 || !blend.requires_zero_alpha_fragments()) {
             continue;
         }
         let before = out.len();
@@ -10174,57 +10146,22 @@ mod tests {
     #[test]
     fn skewed_render_target_sprite_preserves_clamp_and_filter() {
         for nearest in [false, true] {
-            let handle = deadlib_render_core::render_target_sample_handle(
-                render_target_texture_handle(17),
-                nearest,
-            );
-            let mut actor = test_sprite(SpriteSource::RenderTarget {
-                handle,
-                size: [64.0, 32.0],
-            });
-            let Actor::Sprite { skew, .. } = &mut actor else {
-                unreachable!()
-            };
+            let handle = deadlib_render_core::render_target_sample_handle(render_target_texture_handle(17), nearest);
+            let mut actor = test_sprite(SpriteSource::RenderTarget {handle, size: [64.0, 32.0]});
+            let Actor::Sprite {skew, ..} = &mut actor else {unreachable!()};
             *skew = [0.375, -0.25];
             let frame = super::build_passes(
-                std::iter::once(super::ActorSegment::new(&[actor])),
-                &[],
-                [0.0; 4],
-                &Metrics {
-                    left: -64.0,
-                    right: 64.0,
-                    top: 32.0,
-                    bottom: -32.0,
-                },
-                &font::FontMap::default(),
-                0.0,
-                &mut TextLayoutCache::default(),
-                &mut ComposeScratch::default(),
-                &super::NULL_TEXTURE_CONTEXT,
-                None,
-            );
-            let DrawOp::TexturedMesh(run) = frame.ops[0] else {
-                panic!("skewed sprite must use mesh geometry")
-            };
+                std::iter::once(super::ActorSegment::new(&[actor])), &[], [0.0; 4],
+                &Metrics {left: -64.0, right: 64.0, top: 32.0, bottom: -32.0},
+                &font::FontMap::default(), 0.0, &mut TextLayoutCache::default(),
+                &mut ComposeScratch::default(), &super::NULL_TEXTURE_CONTEXT, None);
+            let DrawOp::TexturedMesh(run) = frame.ops[0] else {panic!("skewed sprite must use mesh geometry")};
             let sampler = deadlib_render_core::texture_sampler_desc(
-                deadlib_render_core::SamplerDesc::default(),
-                run.texture_handle,
-                true,
-                run.sampler,
-            );
-            assert_eq!(
-                sampler.wrap,
-                deadlib_render_core::SamplerWrap::Clamp,
-                "a sprite becoming mesh geometry must keep render-target clamp addressing"
-            );
-            assert_eq!(
-                sampler.filter,
-                if nearest {
-                    deadlib_render_core::SamplerFilter::Nearest
-                } else {
-                    deadlib_render_core::SamplerFilter::Linear
-                }
-            );
+                deadlib_render_core::SamplerDesc::default(), run.texture_handle, true, run.sampler);
+            assert_eq!(sampler.wrap, deadlib_render_core::SamplerWrap::Clamp,
+                "a sprite becoming mesh geometry must keep render-target clamp addressing");
+            assert_eq!(sampler.filter, if nearest {deadlib_render_core::SamplerFilter::Nearest}
+                else {deadlib_render_core::SamplerFilter::Linear});
         }
     }
 
@@ -10790,7 +10727,8 @@ mod tests {
     fn actor_segment_keeps_camera_metadata_borrowed() {
         assert!(
             // The screen transform adds one borrowed pointer, never a matrix.
-            std::mem::size_of::<ActorSegment<'_>>() <= 96 + std::mem::size_of::<&Matrix4>(),
+            std::mem::size_of::<ActorSegment<'_>>()
+                <= 96 + std::mem::size_of::<&Matrix4>(),
             "actor segments must not embed retained 4x4 camera matrices: {} bytes",
             std::mem::size_of::<ActorSegment<'_>>()
         );

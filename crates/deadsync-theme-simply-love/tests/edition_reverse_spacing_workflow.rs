@@ -250,8 +250,7 @@ fn reverse_mirrors_chart_geometry_and_restores_upright_widgets_and_waveform_in_a
                 .find_map(|a| match a {
                     Actor::Text {
                         content,
-                        clip: Some([_, y, _, _]),
-                        ..
+                        clip: Some([_, y, _, _]), ..
                     } if content.ends_with(" repere") => Some(y),
                     _ => None,
                 })

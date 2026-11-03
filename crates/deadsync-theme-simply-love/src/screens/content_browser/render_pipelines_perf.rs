@@ -50,8 +50,7 @@ fn reload_dialog_preserves_counts_pluralization_and_all_actor_properties() {
                     push_reload_dialog(&mut new, &state, &prompt, w, h);
                     assert_eq!(
                         crate::actor_test_support::canonical(&old),
-                        crate::actor_test_support::canonical(&new)
-                    );
+                        crate::actor_test_support::canonical(&new));
                 }
             }
         }
@@ -71,10 +70,8 @@ fn reload_dialog_removes_temporary_summary_vectors_and_strings() {
         let (_, after) = measure(|| push_reload_dialog(&mut new, &state, &prompt, 854., 480.));
         assert_eq!(
             crate::actor_test_support::canonical(&old),
-            crate::actor_test_support::canonical(&new)
-        );
-        assert!(
-            after.allocs < before.allocs,
+            crate::actor_test_support::canonical(&new));
+        assert!(after.allocs < before.allocs,
             "before={before:?}, after={after:?}"
         );
         assert!(after.allocated_bytes < before.allocated_bytes);

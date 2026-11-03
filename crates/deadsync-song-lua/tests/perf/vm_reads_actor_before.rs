@@ -31,17 +31,13 @@ pub(super) fn lookup(lua: &Lua, (actor, key): (Table, Value)) -> mlua::Result<Va
         return Ok(Value::Nil);
     };
     let name = name.to_str()?;
-    let kind =
-        actor.raw_get::<Option<crate::lua_util::LuaFieldText<64>>>("__songlua_actor_type")?;
+    let kind = actor
+        .raw_get::<Option<crate::lua_util::LuaFieldText<64>>>("__songlua_actor_type")?;
     let kind = kind.as_ref().map_or("Actor", |kind| kind.as_str());
     if let Some(class) = lua.globals().get::<Option<Table>>(class_name(kind))? {
         let method = class.get::<Value>(key.clone())?;
-        if !method.is_nil() {
-            return Ok(method);
-        }
-        if is_core(kind) {
-            return Ok(Value::Nil);
-        }
+        if !method.is_nil() { return Ok(method); }
+        if is_core(kind) { return Ok(Value::Nil); }
     }
     // Unlinked classes retain their existing own adapters until their native
     // inventories are audited. Frame callbacks are never inherited by Actor.

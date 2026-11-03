@@ -4,15 +4,14 @@ use super::*;
 use deadsync_gameplay::{
     EditorAssetKind as Kind, EditorAssetReadiness, GameplayAudioCommand as AudioCommand,
 };
-#[derive(Clone, PartialEq)]
+#[derive(Clone,PartialEq)]
 struct SourceMusicConfiguration {
-    music: String,
-    preview: String,
-    chart: Option<(deadsync_editor::generation::metadata::Guid, Option<String>)>,
+    music:String,preview:String,
+    chart:Option<(deadsync_editor::generation::metadata::Guid,Option<String>)>,
 }
 #[derive(Default)]
 pub(super) struct Runtime {
-    source_configuration: Option<SourceMusicConfiguration>,
+    source_configuration:Option<SourceMusicConfiguration>,
     pub(super) force_register: bool,
     song_music: Option<String>,
     resource_base: Option<PathBuf>,
@@ -49,18 +48,11 @@ impl State {
                 .flatten()
             })
             .filter(|name| !name.is_empty());
-        let dedicated =
-            deadsync_editor::song_text::resident::effective(document).unwrap_or_default();
+        let dedicated = deadsync_editor::song_text::resident::effective(document).unwrap_or_default();
         let main = if self.workspace.has_chart() {
             let name = local.unwrap_or(song);
             (!name.is_empty()).then(|| directory.join(name.replace('\\', "/")))
-        } else if self
-            .audio_session
-            .assets
-            .chartless_main_cleared
-            .as_ref()
-            .is_some_and(|binding| binding.belongs_to(&file.session))
-        {
+        } else if self.audio_session.assets.chartless_main_cleared.as_ref().is_some_and(|binding|binding.belongs_to(&file.session)) {
             None
         } else if self
             .audio_session
@@ -107,11 +99,8 @@ impl State {
             .unwrap_or([None, None])
     }
     pub(super) fn song_main_music_notification(&mut self) {
-        if !self.workspace.has_chart() {
-            self.audio_session.assets.chartless_main_cleared =
-                Some(deadsync_editor::chart_order::SessionBinding::capture(
-                    &self.workspace.file().session,
-                ));
+        if !self.workspace.has_chart(){
+            self.audio_session.assets.chartless_main_cleared=Some(deadsync_editor::chart_order::SessionBinding::capture(&self.workspace.file().session));
         }
     }
     pub(super) fn sync_editor_asset_registration(&mut self) {
@@ -121,56 +110,26 @@ impl State {
             .resource_base
             .as_deref()
             .is_some_and(|old| old != self.workspace.file().resource_base());
-        if self.workspace.has_chart() {
-            self.audio_session.assets.chartless_main_cleared = None;
-        } else if !relocated
-            && self
-                .audio_session
-                .assets
-                .source_configuration
-                .as_ref()
-                .is_some_and(|old| {
-                    old.music
-                        != self
-                            .workspace
-                            .file()
-                            .session
-                            .document()
-                            .text(None, "MUSIC")
-                            .unwrap_or_default()
-                })
-        {
+        if self.workspace.has_chart(){self.audio_session.assets.chartless_main_cleared=None;}
+        else if !relocated && self.audio_session.assets.source_configuration.as_ref().is_some_and(|old|old.music!=self.workspace.file().session.document().text(None,"MUSIC").unwrap_or_default()) {
             // A reviewed relocation rebases media paths without representing an
             // explicit Music edit. Explicit typed commits notify before
             // this synchronization, so this guard never suppresses that event.
             self.song_main_music_notification();
         }
         let raw = self.source_editor_asset_paths();
-        let document = self.workspace.file().session.document();
-        let configuration = SourceMusicConfiguration {
-            music: document.text(None, "MUSIC").unwrap_or_default(),
-            preview: deadsync_editor::song_text::resident::effective(document).unwrap_or_default(),
-            chart: self.workspace.active_chart().map(|chart| {
-                (
-                    self.workspace.file().session.chart_ids()[chart].clone(),
-                    deadsync_editor::chart_text::local_value(
-                        document,
-                        chart,
-                        deadsync_editor::chart_text::Field::Music,
-                    )
-                    .ok()
-                    .flatten(),
-                )
-            }),
+        let document=self.workspace.file().session.document();
+        let configuration=SourceMusicConfiguration{
+            music:document.text(None,"MUSIC").unwrap_or_default(),
+            preview:deadsync_editor::song_text::resident::effective(document).unwrap_or_default(),
+            chart:self.workspace.active_chart().map(|chart|(
+                self.workspace.file().session.chart_ids()[chart].clone(),
+                deadsync_editor::chart_text::local_value(document,chart,deadsync_editor::chart_text::Field::Music).ok().flatten(),
+            )),
         };
-        let configured_changed = self
-            .audio_session
-            .assets
-            .source_configuration
-            .as_ref()
-            .is_some_and(|old| old != &configuration);
-        self.audio_session.assets.source_configuration = Some(configuration);
-        if configured_changed && self.is_playing() && !self.chart_transport_is_playing() {
+        let configured_changed=self.audio_session.assets.source_configuration.as_ref().is_some_and(|old|old!=&configuration);
+        self.audio_session.assets.source_configuration=Some(configuration);
+        if configured_changed && self.is_playing() && !self.chart_transport_is_playing(){
             // Source OnMusicChanged/OnMusicPreviewChanged always stop preview,
             // including a Main edit hidden by a focused chart override. The
             // configuration excludes file bytes and source relocation alone.
@@ -302,12 +261,7 @@ mod tests {
         // This command-level fixture models an acknowledged output lease, not a real device.
         let owner = state.editor_asset_owner();
         let mut snapshot = deadsync_gameplay::GameplayAudioSnapshot::default();
-        snapshot.editor.owner = owner;
-        snapshot.editor.output.available = true;
-        snapshot.editor.output.leased = true;
-        snapshot.editor.output.period_control = deadsync_gameplay::EditorBufferControl::Adjustable;
-        snapshot.editor.output.requested_period = Some(512);
-        snapshot.editor.output.negotiated_period = Some(512);
+        snapshot.editor.owner=owner;snapshot.editor.output.available=true;snapshot.editor.output.leased=true;snapshot.editor.output.period_control=deadsync_gameplay::EditorBufferControl::Adjustable;snapshot.editor.output.requested_period=Some(512);snapshot.editor.output.negotiated_period=Some(512);
         state.update_audio(snapshot);
         (root, state)
     }
@@ -498,45 +452,10 @@ mod final_view_music_tests {
         assert_eq!(state.chart_audio_generation(), Some(17));
     }
     #[test]
-    fn configured_main_change_stops_dedicated_preview_but_inactive_file_reload_does_not() {
-        i18n::init_for_tests();
-        let (root, mut state) = super::tests::state();
-        state.take_audio_commands();
-        let owner = state.editor_asset_owner();
-        let registration = state.editor_asset_registration();
-        state.observe_editor_assets(EditorAssetReadiness {
-            owner,
-            registration,
-            main: true,
-            dedicated_preview: true,
-        });
-        state.command_toggle_sample_audio();
-        assert!(state.is_playing());
-        state.take_audio_commands();
+    fn configured_main_change_stops_dedicated_preview_but_inactive_file_reload_does_not(){
+        i18n::init_for_tests();let(root,mut state)=super::tests::state();state.take_audio_commands();let owner=state.editor_asset_owner();let registration=state.editor_asset_registration();state.observe_editor_assets(EditorAssetReadiness{owner,registration,main:true,dedicated_preview:true});state.command_toggle_sample_audio();assert!(state.is_playing());state.take_audio_commands();
         // An inactive cache/file update is not EditorSong.MusicChanged.
-        std::fs::write(root.path().join("main.wav"), b"reloaded inactive main").unwrap();
-        state.sync_editor_asset_registration();
-        assert!(state.is_playing());
-        assert_eq!(state.editor_asset_registration(), registration);
-        assert!(!state.take_audio_commands().iter().any(|c| matches!(
-            c,
-            AudioCommand::EditorStopMusic { .. } | AudioCommand::EditorPauseMusic { .. }
-        )));
-        let mut draft = state.workspace.song_properties().unwrap();
-        draft
-            .set_text(deadsync_editor::song_text::Field::Music, "new.wav")
-            .unwrap();
-        state.workspace.apply_song_properties(&draft).unwrap();
-        state.sync_editor_asset_registration();
-        assert!(
-            !state.is_playing(),
-            "source OnMusicChanged stops preview even if DedicatedPreview supplied its PCM"
-        );
-        assert!(
-            state
-                .take_audio_commands()
-                .iter()
-                .any(|c| matches!(c,AudioCommand::EditorStopMusic{owner:o}if *o==owner))
-        );
+        std::fs::write(root.path().join("main.wav"),b"reloaded inactive main").unwrap();state.sync_editor_asset_registration();assert!(state.is_playing());assert_eq!(state.editor_asset_registration(),registration);assert!(!state.take_audio_commands().iter().any(|c|matches!(c,AudioCommand::EditorStopMusic{..}|AudioCommand::EditorPauseMusic{..})));
+        let mut draft=state.workspace.song_properties().unwrap();draft.set_text(deadsync_editor::song_text::Field::Music,"new.wav").unwrap();state.workspace.apply_song_properties(&draft).unwrap();state.sync_editor_asset_registration();assert!(!state.is_playing(),"source OnMusicChanged stops preview even if DedicatedPreview supplied its PCM");assert!(state.take_audio_commands().iter().any(|c|matches!(c,AudioCommand::EditorStopMusic{owner:o}if *o==owner)));
     }
 }

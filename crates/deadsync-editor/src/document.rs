@@ -1,6 +1,6 @@
 pub mod load_context;
 pub mod metadata;
-pub use load_context::{LoadContext, Snapshot};
+pub use load_context::{LoadContext,Snapshot};
 pub mod chart_type;
 mod layout_token;
 pub(crate) mod media_relocation;
@@ -42,7 +42,7 @@ pub struct Chart {
 /// another chart's identity or an unknown property. Reading is lazy for notes.
 #[derive(Clone, Debug)]
 pub struct Document {
-    load_context: LoadContext,
+    load_context:LoadContext,
     source: Arc<[u8]>,
     pub format: Format,
     tags: Vec<Tag>,
@@ -131,9 +131,7 @@ fn parse_parts(
                 return Err(Error::Unsupported("Metadata chart limit exceeded".into()));
             }
             charts.push(Chart {
-                steps_type: chart_type::canonical(&fields[0])
-                    .unwrap_or(&fields[0])
-                    .to_owned(),
+                steps_type: chart_type::canonical(&fields[0]).unwrap_or(&fields[0]).to_owned(),
                 description: fields[1].clone(),
                 difficulty: fields[2].clone(),
                 meter: fields[3].clone(),
@@ -150,8 +148,7 @@ fn parse_parts(
                 match name.as_str() {
                     "STEPSTYPE" => {
                         let value = decode(&source[value.clone()]);
-                        current.steps_type =
-                            chart_type::canonical(&value).unwrap_or(&value).to_owned();
+                        current.steps_type = chart_type::canonical(&value).unwrap_or(&value).to_owned();
                     }
                     "DESCRIPTION" => {
                         current.description = decode_value(&source[value.clone()], false)
@@ -195,7 +192,7 @@ impl Document {
             replacements: BTreeMap::new(),
             added: BTreeMap::new(),
             added_spelling: BTreeMap::new(),
-            load_context: Default::default(),
+            load_context:Default::default(),
         })
     }
 
@@ -258,8 +255,7 @@ impl Document {
     }
 
     pub fn text(&self, chart: Option<usize>, name: &str) -> Option<String> {
-        self.raw_property(chart, name)
-            .map(|value| decode_property(value, self.format, chart.is_some(), name))
+        self.raw_property(chart, name).map(|value| decode_property(value, self.format, chart.is_some(), name))
     }
 
     pub fn raw_property(&self, chart: Option<usize>, name: &str) -> Option<&[u8]> {
@@ -561,17 +557,14 @@ pub fn escape_text(text: &str) -> Vec<u8> {
 // Fumen's literal string schema is shared with read-only previews. Structural
 // values and SM headers retain their independent normalized contracts.
 fn decode_property(source: &[u8], format: Format, chart: bool, name: &str) -> String {
-    let literal = if !chart {
-        crate::song_text::Field::ALL
-            .iter()
-            .any(|field| field.tag().eq_ignore_ascii_case(name))
-    } else {
-        format == Format::Ssc
-            && ["CHARTNAME", "DESCRIPTION", "CREDIT", "CHARTSTYLE", "MUSIC"]
-                .iter()
-                .any(|tag| tag.eq_ignore_ascii_case(name))
-    };
-    decode_value(source, !literal)
+        let literal = if !chart {
+            crate::song_text::Field::ALL.iter().any(|field| field.tag().eq_ignore_ascii_case(name))
+        } else {
+            format == Format::Ssc
+                && ["CHARTNAME", "DESCRIPTION", "CREDIT", "CHARTSTYLE", "MUSIC"]
+                    .iter().any(|tag| tag.eq_ignore_ascii_case(name))
+        };
+        decode_value(source, !literal)
 }
 
 fn decode(source: &[u8]) -> String {
@@ -645,7 +638,7 @@ fn delimiter(source: &[u8], mut pos: usize, needle: u8) -> Option<usize> {
             // character on a CR or LF line, but retains hashes inside values.
             if first_on_line {
                 return (needle == b';').then_some(pos);
-            }
+        }
         }
         first_on_line = match byte {
             b'\r' | b'\n' => true,
@@ -658,19 +651,8 @@ fn delimiter(source: &[u8], mut pos: usize, needle: u8) -> Option<usize> {
 }
 
 impl Document {
-    pub fn load_context(&self) -> LoadContext {
-        self.load_context
-    }
-    pub fn parse_with_context(
-        source: impl Into<Arc<[u8]>>,
-        format: Format,
-        context: LoadContext,
-    ) -> Result<Self, Error> {
-        let mut document = Self::parse(source, format)?;
-        document.load_context = context;
-        Ok(document)
-    }
-    pub fn reparse(&self, source: impl Into<Arc<[u8]>>) -> Result<Self, Error> {
-        Self::parse_with_context(source, self.format, self.load_context)
-    }
+    pub fn load_context(&self)->LoadContext{self.load_context}
+    pub fn parse_with_context(source:impl Into<Arc<[u8]>>,format:Format,context:LoadContext,
+    )->Result<Self,Error>{let mut document=Self::parse(source,format)?;document.load_context=context;Ok(document)}
+    pub fn reparse(&self,source:impl Into<Arc<[u8]>>)->Result<Self,Error>{Self::parse_with_context(source,self.format,self.load_context)}
 }

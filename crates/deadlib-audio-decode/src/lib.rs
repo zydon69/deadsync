@@ -1,12 +1,12 @@
 //! Audio codecs, packet seeking, channel mapping, and resampling primitives.
 
+pub mod prepared;
 pub mod editor_time_stretch;
-pub mod flac;
 mod hermite;
+pub mod flac;
 pub mod mp3;
 pub mod ogg_vorbis;
 pub mod opus;
-pub mod prepared;
 pub mod resample;
 pub mod wav;
 

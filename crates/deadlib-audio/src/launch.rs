@@ -79,9 +79,13 @@ fn output_transport(
 ) -> (AudioStreamHandle, RenderState, SfxSender, SfxReceiver) {
     let (stream_handle, render_handle) = music_transport(sample_rate_hz, device_channels);
     let (sfx_sender, mut sfx_receiver) = sfx_transport(SFX_QUEUE_CAP);
-    let mut renderer = RenderState::new(render_handle, Arc::clone(controls), device_channels);
+    let mut renderer=RenderState::new(render_handle,Arc::clone(controls),device_channels);
     renderer.attach_sfx_retirement(sfx_receiver.take_retirement());
-    (stream_handle, renderer, sfx_sender, sfx_receiver)
+    (
+        stream_handle,
+        renderer,
+        sfx_sender,
+        sfx_receiver)
 }
 
 #[derive(Clone, Debug)]

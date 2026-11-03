@@ -1,9 +1,7 @@
 //! Native Model observations and comparisons of the production mesh pipeline.
 
 use super::*;
-use deadlib_present::render::{
-    DrawOp, MeshSampler, RenderFrame, SamplerFilter, SamplerWrap, textured_mesh_uvs,
-};
+use deadlib_present::render::{DrawOp, MeshSampler, RenderFrame, SamplerFilter, SamplerWrap, textured_mesh_uvs};
 use deadsync_song_lua::playback::actor_conformance::{
     WholeSongComposer, matrix_rows, multiply_matrices, project_world,
 };
@@ -169,21 +167,13 @@ pub(super) fn validate_models(trace: &NativeTrace) -> Result<(), String> {
     if trace.capabilities["model_texture_matrix_scale"].as_bool() != Some(true) {
         return Err("native Model reference omits per-vertex texture matrix scaling; recapture with harness 0.1.39 or newer".into());
     }
-    for capability in [
-        "model_hardware_mesh_path",
-        "model_update_order",
-        "model_texture_bindings",
-    ] {
+    for capability in ["model_hardware_mesh_path", "model_update_order", "model_texture_bindings"] {
         if trace.capabilities[capability].as_bool() != Some(true) {
-            return Err(format!(
-                "native Model reference omits {capability}; recapture with harness 0.1.42 or newer"
-            ));
+            return Err(format!("native Model reference omits {capability}; recapture with harness 0.1.42 or newer"));
         }
     }
     if trace.model_texture_units != Some(1) {
-        return Err(
-            "native Model reference requires the observed desktop one-texture-unit profile".into(),
-        );
+        return Err("native Model reference requires the observed desktop one-texture-unit profile".into());
     }
     for dimension in [trace.display.width, trace.display.height] {
         if !dimension.is_finite()
@@ -324,48 +314,25 @@ fn model_texture_key(
         .as_str()
         .ok_or_else(|| "native Model texture must be a string or null".to_string())?;
     let path = if let Some(relative) = raw.strip_prefix("noteskin:/") {
-        if !trace.noteskin_reference.as_ref().is_some_and(|skin| {
-            skin.files
-                .iter()
-                .any(|file| file.path == Path::new(relative))
-        }) {
-            return Err(format!(
-                "Model texture is absent from the native noteskin inventory: {raw}"
-            ));
+        if !trace.noteskin_reference.as_ref().is_some_and(|skin|
+            skin.files.iter().any(|file| file.path == Path::new(relative))) {
+            return Err(format!("Model texture is absent from the native noteskin inventory: {raw}"));
         }
-        Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("assets/noteskins")
-            .join(relative)
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("assets/noteskins").join(relative)
     } else if let Some(relative) = raw.strip_prefix("judgment:/") {
-        if !trace
-            .judgment_reference
-            .as_ref()
-            .is_some_and(|graphic| graphic.path == Path::new(relative))
-        {
-            return Err(format!(
-                "Model texture is absent from the native judgment inventory: {raw}"
-            ));
+        if !trace.judgment_reference.as_ref().is_some_and(|graphic| graphic.path == Path::new(relative)) {
+            return Err(format!("Model texture is absent from the native judgment inventory: {raw}"));
         }
-        Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("assets/graphics/judgements")
-            .join(relative)
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("assets/graphics/judgements").join(relative)
     } else {
-        raw.strip_prefix("song:/").map_or_else(
-            || {
-                let path = PathBuf::from(raw);
-                if path.is_absolute() {
-                    path
-                } else {
-                    context.song_dir.join(path)
-                }
-            },
-            |relative| context.song_dir.join(relative),
-        )
+        raw.strip_prefix("song:/").map_or_else(|| {
+            let path = PathBuf::from(raw);
+            if path.is_absolute() { path } else { context.song_dir.join(path) }
+        }, |relative| context.song_dir.join(relative))
     };
     // Native Model requests differ from Sprite RageTextureIDs for this file.
     Ok(Some(deadsync_assets::textures::model_texture_key(
-        &deadsync_assets::textures::canonical_texture_key(path),
-    )))
+        &deadsync_assets::textures::canonical_texture_key(path))))
 }
 
 fn compare_frame(
@@ -413,46 +380,20 @@ fn compare_frame(
         let vertices = &frame.tmesh_geometries[run.geometry as usize].vertices;
         let prefix = format!("Model {actor} pass {pass}");
         let expected_texture = model_texture_key(trace, context, &draw.texture);
-        let actual_texture =
-            (run.texture_handle != 0).then(|| composer.texture_key(run.texture_handle));
-        check_flag(
-            parity,
-            reported,
-            &format!("{prefix} texture binding"),
-            expected_texture
-                .as_ref()
-                .is_ok_and(|expected| actual_texture == expected.as_deref())
+        let actual_texture = (run.texture_handle != 0).then(|| composer.texture_key(run.texture_handle));
+        check_flag(parity, reported, &format!("{prefix} texture binding"),
+            expected_texture.as_ref().is_ok_and(|expected| actual_texture == expected.as_deref())
                 && run.additive_texture == 0,
-            || {
-                format!(
-                    "Model {actor} at {clock:.6}s pass {pass} binds {actual_texture:?}, native binds {expected_texture:?}"
-                )
-            },
-        );
+            || format!("Model {actor} at {clock:.6}s pass {pass} binds {actual_texture:?}, native binds {expected_texture:?}"));
         let expected_sampler = MeshSampler {
-            filter: if draw.texture_filtering {
-                SamplerFilter::Linear
-            } else {
-                SamplerFilter::Nearest
-            },
-            wrap: if draw.texture_wrapping {
-                SamplerWrap::Repeat
-            } else {
-                SamplerWrap::Clamp
-            },
+            filter: if draw.texture_filtering { SamplerFilter::Linear }
+                else { SamplerFilter::Nearest },
+            wrap: if draw.texture_wrapping { SamplerWrap::Repeat }
+                else { SamplerWrap::Clamp },
         };
-        check_flag(
-            parity,
-            reported,
-            &format!("{prefix} sampler"),
+        check_flag(parity, reported, &format!("{prefix} sampler"),
             run.sampler == Some(expected_sampler),
-            || {
-                format!(
-                    "Model {actor} pass {pass} sampler {:?} differs from native {expected_sampler:?}",
-                    run.sampler
-                )
-            },
-        );
+            || format!("Model {actor} pass {pass} sampler {:?} differs from native {expected_sampler:?}", run.sampler));
         check_flag(
             parity,
             reported,
@@ -575,13 +516,9 @@ fn compare_frame(
         });
         for (vertex_index, vertex) in vertices.iter().take(draw.vertex_count).enumerate() {
             let sphere = instance.texture_mask <= 0.5 && vertex.normal[3] as u8 & 1 != 0;
-            check_flag(
-                parity,
-                reported,
-                &format!("{prefix} sphere state"),
+            check_flag(parity, reported, &format!("{prefix} sphere state"),
                 sphere == draw.sphere_environment,
-                || format!("Model {actor} pass {pass} changes native sphere mapping state"),
-            );
+                || format!("Model {actor} pass {pass} changes native sphere mapping state"));
             let position = [vertex.pos[0], vertex.pos[1], vertex.pos[2], 1.0];
             let actual_world = project_world(world_matrix, position);
             let actual_view = project_world(matrices[1], actual_world);
@@ -819,16 +756,8 @@ fn compare_manual_models(
             let draws: Vec<NativeModelDraw> = serde_json::from_value(call["primitives"].clone())
                 .expect("validated manual Model primitives");
             compare_frame(
-                trace,
-                &draws,
-                &frame,
-                matrices,
-                &composers[layer],
-                context,
-                actor,
-                *seconds,
-                parity,
-                reported,
+                trace, &draws, &frame, matrices, &composers[layer], context,
+                actor, *seconds, parity, reported,
             );
         }
         for (layer, frames) in rendered {
@@ -866,8 +795,7 @@ fn native_model_columns_preserve_nulls() {
 fn native_model_texture_paths_require_reference_inventory() {
     crate::paths::init();
     let mut trace: NativeTrace = serde_json::from_value(model_trace_value()).unwrap();
-    let directory = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("tests/fixtures/itgmania-song-lua-micro/model-texture-images");
+    let directory = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/itgmania-song-lua-micro/model-texture-images");
     let context = SongLuaCompileContext::new(&directory, "Model texture identities");
     let texture = serde_json::json!("song:/frame-red.png");
     assert_eq!(
@@ -915,9 +843,7 @@ fn native_model_columns_reject_incomplete_observations() {
     validate_models(&serde_json::from_value(value.clone()).expect("complete control")).unwrap();
     let mut unbound = value.clone();
     unbound["model_geometry_tracks"][0]["samples"][0][3][0]
-        .as_object_mut()
-        .unwrap()
-        .remove("texture");
+        .as_object_mut().unwrap().remove("texture");
     validate_models(&serde_json::from_value(unbound).unwrap())
         .expect("native Lua omits the texture field when no texture is bound");
     let mut mutations = Vec::new();
@@ -972,33 +898,15 @@ fn native_model_columns_reject_incomplete_observations() {
         ("/model_geometry_buffers/0/0", serde_json::json!([0, 0, 0])),
         ("/model_geometry_tracks/0/samples", serde_json::json!([])),
         ("/model_geometry_tracks", serde_json::json!([])),
-        (
-            "/capabilities/actor_base_rotation",
-            serde_json::json!(false),
-        ),
-        (
-            "/capabilities/model_texture_matrix_scale",
-            serde_json::json!(false),
-        ),
-        (
-            "/capabilities/model_hardware_mesh_path",
-            serde_json::json!(false),
-        ),
+        ("/capabilities/actor_base_rotation", serde_json::json!(false)),
+        ("/capabilities/model_texture_matrix_scale", serde_json::json!(false)),
+        ("/capabilities/model_hardware_mesh_path", serde_json::json!(false)),
         ("/capabilities/model_update_order", serde_json::json!(false)),
-        (
-            "/capabilities/model_texture_bindings",
-            serde_json::json!(false),
-        ),
+        ("/capabilities/model_texture_bindings", serde_json::json!(false)),
         ("/model_texture_units", serde_json::json!(0)),
         ("/model_texture_units", serde_json::json!(2)),
-        (
-            "/model_geometry_tracks/0/samples/0/3/0/texture",
-            serde_json::json!(""),
-        ),
-        (
-            "/model_geometry_tracks/0/samples/0/3/0/texture",
-            serde_json::json!(true),
-        ),
+        ("/model_geometry_tracks/0/samples/0/3/0/texture", serde_json::json!("")),
+        ("/model_geometry_tracks/0/samples/0/3/0/texture", serde_json::json!(true)),
         ("/capabilities", serde_json::json!({})),
     ] {
         let mut changed = value.clone();
@@ -1027,16 +935,9 @@ fn native_model_columns_reject_incomplete_observations() {
     extra["model_geometry_tracks"][0]["samples"][0][3][0]["vertex_buffers"]["unknown"] =
         serde_json::json!(1);
     mutations.push(("unknown vertex field", extra));
-    for field in [
-        "texture_filtering",
-        "texture_wrapping",
-        "sphere_environment",
-    ] {
+    for field in ["texture_filtering", "texture_wrapping", "sphere_environment"] {
         let mut absent = value.clone();
-        absent["model_geometry_tracks"][0]["samples"][0][3][0]
-            .as_object_mut()
-            .unwrap()
-            .remove(field);
+        absent["model_geometry_tracks"][0]["samples"][0][3][0].as_object_mut().unwrap().remove(field);
         mutations.push((field, absent));
     }
     for (name, changed) in mutations {
@@ -1167,10 +1068,8 @@ fn model_alpha_cutoff() {
     crate::paths::init();
     let root = Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("tests/fixtures/itgmania-song-lua-micro/model-alpha-cutoff");
-    let native: Value = serde_json::from_slice(
-        &fs::read(root.join("native.json")).expect("native Model alpha observations"),
-    )
-    .expect("valid native observations");
+    let native: Value = serde_json::from_slice(&fs::read(root.join("native.json"))
+        .expect("native Model alpha observations")).expect("valid native observations");
     assert_eq!(native["oracle"], "itgmania_native_actor_conformance");
     let mut context = SongLuaCompileContext::new(&root, "Model Alpha Cutoff");
     context.music_length_seconds = 0.25;
@@ -1181,43 +1080,19 @@ fn model_alpha_cutoff() {
     let states = compiled_overlay_states_at(c, &context, 0.0, 0.0);
     let mut composer = WholeSongComposer::new(&c.overlays);
     let mut cases = 0;
-    for actor in native["samples"][0]["actors"]
-        .as_array()
-        .expect("native actors")
-    {
-        if actor["kind"] != "model" {
-            continue;
-        }
+    for actor in native["samples"][0]["actors"].as_array().expect("native actors") {
+        if actor["kind"] != "model" { continue; }
         let name = actor["name"].as_str().expect("native Model name");
-        let index = c
-            .overlays
-            .iter()
-            .position(|overlay| overlay.name.as_deref() == Some(name))
+        let index = c.overlays.iter().position(|overlay| overlay.name.as_deref() == Some(name))
             .expect("compiled Model");
-        let frame = composer.render_overlay(
-            &c.overlays,
-            &states,
-            index,
-            [context.screen_width, context.screen_height],
-            0.0,
-            0.0,
-        );
-        let count = frame
-            .ops
-            .iter()
-            .filter_map(|op| match op {
-                DrawOp::TexturedMesh(run) => Some(run.instance_count as usize),
-                _ => None,
-            })
-            .sum::<usize>();
-        assert_eq!(
-            count,
-            actor["draws"]
-                .as_array()
-                .expect("native Model passes")
-                .len(),
-            "native Model passes for {name}"
-        );
+        let frame = composer.render_overlay(&c.overlays, &states, index,
+            [context.screen_width, context.screen_height], 0.0, 0.0);
+        let count = frame.ops.iter().filter_map(|op| match op {
+            DrawOp::TexturedMesh(run) => Some(run.instance_count as usize),
+            _ => None,
+        }).sum::<usize>();
+        assert_eq!(count, actor["draws"].as_array().expect("native Model passes").len(),
+            "native Model passes for {name}");
         cases += 1;
     }
     assert_eq!(cases, 11);

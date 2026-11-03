@@ -241,59 +241,38 @@ fn note_analysis_bytes<'a>(
 ) -> Cow<'a, [u8]> {
     let mut indices = Vec::new();
     for entry in entries {
-        let Some(lanes) = rssp::supported_stepstype_lanes_bytes(entry.fields[0]) else {
-            continue;
-        };
-        if !entry.note_data.contains(&b'[') {
-            continue;
-        }
+        let Some(lanes) = rssp::supported_stepstype_lanes_bytes(entry.fields[0]) else { continue };
+        if !entry.note_data.contains(&b'[') { continue; }
         // ParsedChartEntry borrows each note block directly from these bytes.
         let offset = entry.note_data.as_ptr() as usize - data.as_ptr() as usize;
         let mut line_start = 0;
-        for line in entry
-            .note_data
-            .split_inclusive(|byte| matches!(byte, b'\n' | b','))
-        {
-            let mut end = line
-                .iter()
-                .position(|byte| matches!(byte, b'\n' | b','))
+        for line in entry.note_data.split_inclusive(|byte| matches!(byte, b'\n' | b',')) {
+            let mut end = line.iter().position(|byte| matches!(byte, b'\n' | b','))
                 .unwrap_or(line.len());
             if let Some(comment) = line[..end].windows(2).position(|bytes| bytes == b"//") {
                 end = comment;
             }
-            while end > 0 && matches!(line[end - 1], b'\r' | b'\t' | b' ') {
-                end -= 1;
-            }
+            while end > 0 && matches!(line[end - 1], b'\r' | b'\t' | b' ') { end -= 1; }
             let mut cursor = 0;
-            while cursor < end && matches!(line[cursor], b'\r' | b'\t' | b' ') {
-                cursor += 1;
-            }
+            while cursor < end && matches!(line[cursor], b'\r' | b'\t' | b' ') { cursor += 1; }
             // NoteDataUtil::LoadFromSMNoteDataStringWithPlayer consumes one
             // column, then skips its optional [keysound index] through ']'
             // or the row end. Its digits must never enter RSSP as notes.
             for _ in 0..lanes {
-                if cursor >= end {
-                    break;
-                }
+                if cursor >= end { break; }
                 cursor += 1;
                 if cursor < end && line[cursor] == b'[' {
                     let start = cursor;
                     cursor += 1;
-                    while cursor < end && line[cursor] != b']' {
-                        cursor += 1;
-                    }
-                    if cursor < end {
-                        cursor += 1;
-                    }
+                    while cursor < end && line[cursor] != b']' { cursor += 1; }
+                    if cursor < end { cursor += 1; }
                     indices.push(offset + line_start + start..offset + line_start + cursor);
                 }
             }
             line_start += line.len();
         }
     }
-    if indices.is_empty() {
-        return Cow::Borrowed(data);
-    }
+    if indices.is_empty() { return Cow::Borrowed(data); }
     indices.sort_unstable_by_key(|range| range.start);
     let mut notes = Vec::with_capacity(data.len());
     let mut cursor = 0;
@@ -379,7 +358,8 @@ fn parse_song_source(
         // trims only RageUtil's CR, LF, tab and space, then uses the same
         // authored text for the description, credit and chart name.
         let entries = parsed.notes_list.iter().filter(|entry| {
-            entry.field_count >= 5 && crate::partner_charts::playable(entry.fields[0])
+            entry.field_count >= 5
+                && crate::partner_charts::playable(entry.fields[0])
         });
         for (chart, entry) in summary.charts.iter_mut().zip(entries) {
             let description = rssp::parse::decode_unescape(entry.fields[1]);
@@ -394,12 +374,12 @@ fn parse_song_source(
         // tag names the chart instead, so leave that existing normalization.
         if !(version < rssp::parse::SSC_VERSION_CHART_NAME_TAG) {
             let entries = parsed.notes_list.iter().filter(|entry| {
-                entry.field_count >= 5 && crate::partner_charts::playable(entry.fields[0])
+                entry.field_count >= 5
+                    && crate::partner_charts::playable(entry.fields[0])
             });
             for (chart, entry) in summary.charts.iter_mut().zip(entries) {
                 chart.description_str = rssp::parse::decode_unescape(entry.fields[1])
-                    .trim_matches(['\r', '\n', '\t', ' '])
-                    .to_owned();
+                    .trim_matches(['\r', '\n', '\t', ' ']).to_owned();
             }
         }
     }
@@ -432,12 +412,8 @@ fn parse_song_source(
     if let Some([first, last]) = additional_bounds {
         song.first_second = if song.precise_note_last_second_seconds.is_some() {
             song.first_second.min(first)
-        } else {
-            first
-        };
-        let last = song
-            .precise_note_last_second_seconds
-            .map_or(last, |value| value.max(last));
+        } else { first };
+        let last = song.precise_note_last_second_seconds.map_or(last, |value| value.max(last));
         song.precise_note_last_second_seconds = Some(last);
         song.precise_last_second_seconds = song.precise_last_second_seconds.max(last);
         song.total_length_seconds = song.total_length_seconds.max(last as i32);
@@ -458,82 +434,45 @@ pub struct NativeStepMetadata {
     pub playable_index: Option<usize>,
 }
 
-pub fn load_native_step_metadata(
-    song: &deadsync_chart::SongData,
-) -> Result<Vec<NativeStepMetadata>, String> {
+pub fn load_native_step_metadata(song: &deadsync_chart::SongData) -> Result<Vec<NativeStepMetadata>, String> {
     let data = std::fs::read(&song.simfile_path).map_err(|error| error.to_string())?;
-    let extension = song
-        .simfile_path
-        .extension()
-        .and_then(|value| value.to_str())
-        .unwrap_or("sm");
-    let parsed =
-        rssp::parse::extract_sections(&data, extension).map_err(|error| error.to_string())?;
+    let extension = song.simfile_path.extension().and_then(|value| value.to_str()).unwrap_or("sm");
+    let parsed = rssp::parse::extract_sections(&data, extension).map_err(|error| error.to_string())?;
     let ssc = extension.eq_ignore_ascii_case("ssc");
-    let format = if ssc {
-        rssp::timing::TimingFormat::Ssc
-    } else {
-        rssp::timing::TimingFormat::Sm
-    };
+    let format = if ssc { rssp::timing::TimingFormat::Ssc } else { rssp::timing::TimingFormat::Sm };
     let version = rssp::parse::parse_version(parsed.version, format);
-    let text = |bytes: &[u8]| {
-        rssp::parse::decode_unescape(bytes)
-            .trim_matches(['\r', '\n', '\t', ' '])
-            .to_owned()
-    };
+    let text = |bytes: &[u8]| rssp::parse::decode_unescape(bytes)
+        .trim_matches(['\r', '\n', '\t', ' ']).to_owned();
     let mut playable = 0;
     let mut steps = Vec::new();
     for entry in &parsed.notes_list {
-        if entry.field_count < 5 {
-            continue;
-        }
+        if entry.field_count < 5 { continue; }
         let kind = text(entry.fields[0]).to_ascii_lowercase();
         if crate::partner_charts::playable(entry.fields[0]) {
-            let chart = song
-                .charts
-                .get(playable)
-                .ok_or("native Steps catalog exceeds playable charts")?;
+            let chart = song.charts.get(playable).ok_or("native Steps catalog exceeds playable charts")?;
             steps.push(NativeStepMetadata {
-                chart_type: chart.chart_type.clone(),
-                difficulty: chart.difficulty.clone(),
-                description: chart.description.clone(),
-                chart_name: chart.chart_name.clone(),
-                credit: chart.step_artist.clone(),
-                meter: chart.meter,
-                music_file: chart.music_file.clone(),
-                playable_index: Some(playable),
+                chart_type: chart.chart_type.clone(), difficulty: chart.difficulty.clone(),
+                description: chart.description.clone(), chart_name: chart.chart_name.clone(),
+                credit: chart.step_artist.clone(), meter: chart.meter,
+                music_file: chart.music_file.clone(), playable_index: Some(playable),
             });
             playable += 1;
         } else if native_unplayed_step_lanes(&kind).is_some() || kind == "lights-cabinet" {
             let legacy_name = ssc && version < rssp::parse::SSC_VERSION_CHART_NAME_TAG;
             let description = text(entry.fields[1]);
             steps.push(NativeStepMetadata {
-                chart_type: kind,
-                difficulty: text(entry.fields[2]),
-                chart_name: if !ssc || legacy_name {
-                    description.clone()
-                } else {
-                    text(entry.chart_name.unwrap_or_default())
-                },
-                credit: if ssc {
-                    text(entry.fields[4])
-                } else {
-                    description.clone()
-                },
-                description: if legacy_name {
-                    String::new()
-                } else {
-                    description
-                },
+                chart_type: kind, difficulty: text(entry.fields[2]),
+                chart_name: if !ssc || legacy_name { description.clone() }
+                    else { text(entry.chart_name.unwrap_or_default()) },
+                credit: if ssc { text(entry.fields[4]) } else { description.clone() },
+                description: if legacy_name { String::new() } else { description },
                 meter: text(entry.fields[3]).parse().unwrap_or(1),
                 music_file: entry.chart_music.as_deref().map(&text).unwrap_or_default(),
                 playable_index: None,
             });
         }
     }
-    if playable != song.charts.len() {
-        return Err("native Steps catalog is missing playable charts".into());
-    }
+    if playable != song.charts.len() { return Err("native Steps catalog is missing playable charts".into()); }
     Ok(steps)
 }
 
@@ -541,8 +480,7 @@ fn native_unplayed_step_lanes(kind: &str) -> Option<usize> {
     Some(match kind {
         "dance-threepanel" => 3,
         "dance-solo" | "pump-halfdouble" | "bm-single5" | "bm-versus5" | "kickbox-insect" => 6,
-        "dance-couple" | "dance-routine" | "ds3ddx-single" | "techno-single8"
-        | "techno-double4" | "bm-single7" | "bm-versus7" => 8,
+        "dance-couple" | "dance-routine" | "ds3ddx-single" | "techno-single8" | "techno-double4" | "bm-single7" | "bm-versus7" => 8,
         "pump-couple" | "pump-routine" | "ez2-double" | "techno-double5" => 10,
         "kb7-single" | "ez2-real" => 7,
         "ez2-single" | "para-single" | "pnm-five" | "techno-single5" => 5,
@@ -557,105 +495,43 @@ fn native_unplayed_step_lanes(kind: &str) -> Option<usize> {
 
 /// Song.cpp includes native charts that the gameplay analyzer does not load.
 /// Their notes still determine when ScreenGameplay transitions out.
-fn unplayed_chart_note_bounds(
-    parsed: &rssp::parse::ParsedSimfileData<'_>,
-    extension: &str,
-) -> Option<[f32; 2]> {
-    use rssp::timing::{TimingFormat, compute_timing_segments, steps_timing_allowed};
-    let format = if extension.eq_ignore_ascii_case("ssc") {
-        TimingFormat::Ssc
-    } else {
-        TimingFormat::Sm
-    };
+fn unplayed_chart_note_bounds(parsed: &rssp::parse::ParsedSimfileData<'_>, extension: &str) -> Option<[f32; 2]> {
+    use rssp::timing::{compute_timing_segments, steps_timing_allowed, TimingFormat};
+    let format = if extension.eq_ignore_ascii_case("ssc") { TimingFormat::Ssc } else { TimingFormat::Sm };
     let version = rssp::parse::parse_version(parsed.version, format);
     let own_timing_allowed = steps_timing_allowed(version, format);
     let mut bounds: Option<[f32; 2]> = None;
     for entry in &parsed.notes_list {
-        let Ok(kind) = std::str::from_utf8(entry.fields[0]) else {
-            continue;
-        };
+        let Ok(kind) = std::str::from_utf8(entry.fields[0]) else { continue; };
         let kind = kind.trim().to_ascii_lowercase();
-        if crate::partner_charts::playable(entry.fields[0]) {
-            continue;
-        }
+        if crate::partner_charts::playable(entry.fields[0]) { continue; }
         // GameManager.cpp's native StepsTypeInfo table. Lights never contribute.
-        let Some(lanes) = native_unplayed_step_lanes(&kind) else {
-            continue;
-        };
-        if parsed.notes_list.len() > 1 && entry.fields[2].eq_ignore_ascii_case(b"Edit") {
-            continue;
-        }
-        let Some([first, last]) = native_note_row_bounds(entry.note_data, lanes) else {
-            continue;
-        };
-        if last == 0 {
-            continue;
-        }
-        let own = own_timing_allowed
-            && [
-                entry.chart_bpms.as_deref(),
-                entry.chart_stops.as_deref(),
-                entry.chart_delays.as_deref(),
-                entry.chart_warps.as_deref(),
-                entry.chart_speeds.as_deref(),
-                entry.chart_scrolls.as_deref(),
-                entry.chart_fakes.as_deref(),
-                entry.chart_offset.as_deref(),
-                entry.chart_time_signatures.as_deref(),
-                entry.chart_labels.as_deref(),
-                entry.chart_tickcounts.as_deref(),
-                entry.chart_combos.as_deref(),
-            ]
-            .iter()
-            .any(Option::is_some);
-        let text =
-            |value: Option<&[u8]>| value.map(|value| String::from_utf8_lossy(value).into_owned());
-        let tags = [
-            (entry.chart_bpms.as_deref(), parsed.bpms),
-            (entry.chart_stops.as_deref(), parsed.stops),
-            (entry.chart_delays.as_deref(), parsed.delays),
-            (entry.chart_warps.as_deref(), parsed.warps),
-        ];
-        let tags = tags.map(|(chart, global)| {
-            (
-                text(if own_timing_allowed { chart } else { None }),
-                text(if own { None } else { global }).unwrap_or_default(),
-            )
-        });
-        let segments = compute_timing_segments(
-            tags[0].0.as_deref(),
-            &tags[0].1,
-            tags[1].0.as_deref(),
-            &tags[1].1,
-            tags[2].0.as_deref(),
-            &tags[2].1,
-            tags[3].0.as_deref(),
-            &tags[3].1,
-            None,
-            "",
-            None,
-            "",
-            None,
-            "",
-            format,
-            false,
-        );
+        let Some(lanes) = native_unplayed_step_lanes(&kind) else { continue; };
+        if parsed.notes_list.len() > 1 && entry.fields[2].eq_ignore_ascii_case(b"Edit") { continue; }
+        let Some([first, last]) = native_note_row_bounds(entry.note_data, lanes) else { continue; };
+        if last == 0 { continue; }
+        let own = own_timing_allowed && [entry.chart_bpms.as_deref(), entry.chart_stops.as_deref(),
+            entry.chart_delays.as_deref(), entry.chart_warps.as_deref(), entry.chart_speeds.as_deref(),
+            entry.chart_scrolls.as_deref(), entry.chart_fakes.as_deref(), entry.chart_offset.as_deref(),
+            entry.chart_time_signatures.as_deref(), entry.chart_labels.as_deref(),
+            entry.chart_tickcounts.as_deref(), entry.chart_combos.as_deref()].iter().any(Option::is_some);
+        let text = |value: Option<&[u8]>| value.map(|value| String::from_utf8_lossy(value).into_owned());
+        let tags = [(entry.chart_bpms.as_deref(), parsed.bpms), (entry.chart_stops.as_deref(), parsed.stops),
+            (entry.chart_delays.as_deref(), parsed.delays), (entry.chart_warps.as_deref(), parsed.warps)];
+        let tags = tags.map(|(chart, global)| (text(if own_timing_allowed { chart } else { None }),
+            text(if own { None } else { global }).unwrap_or_default()));
+        let segments = compute_timing_segments(tags[0].0.as_deref(), &tags[0].1,
+            tags[1].0.as_deref(), &tags[1].1, tags[2].0.as_deref(), &tags[2].1,
+            tags[3].0.as_deref(), &tags[3].1, None, "", None, "", None, "", format, false);
         let offset = rssp::parse::parse_offset_seconds(if own_timing_allowed {
             entry.chart_offset.as_deref().or(parsed.offset)
-        } else {
-            parsed.offset
-        }) as f32;
-        let timing = deadsync_rules::timing::TimingData::from_segments(
-            -offset,
-            0.0,
-            &crate::timing::timing_segments_from_rssp(&segments),
-            &[],
-        );
+        } else { parsed.offset }) as f32;
+        let timing = deadsync_rules::timing::TimingData::from_segments(-offset, 0.0,
+            &crate::timing::timing_segments_from_rssp(&segments), &[]);
         let first = timing.get_time_for_beat(first as f32 / 48.0);
         let last = timing.get_time_for_beat(last as f32 / 48.0);
         if first.is_finite() && last.is_finite() {
-            bounds =
-                Some(bounds.map_or([first, last], |old| [old[0].min(first), old[1].max(last)]));
+            bounds = Some(bounds.map_or([first, last], |old| [old[0].min(first), old[1].max(last)]));
         }
     }
     bounds
@@ -668,64 +544,41 @@ fn native_note_row_bounds(data: &[u8], lanes: usize) -> Option<[i32; 2]> {
     let mut tracks = vec![std::collections::BTreeMap::<i32, Option<i32>>::new(); lanes];
     for player in data.split(|byte| *byte == b'&') {
         for (measure, data) in player.split(|byte| *byte == b',').enumerate() {
-            let rows: Vec<_> = data
-                .split(|byte| *byte == b'\n')
-                .filter_map(|line| {
-                    let end = line
-                        .windows(2)
-                        .position(|value| value == b"//")
-                        .unwrap_or(line.len());
-                    let line = line[..end].trim_ascii();
-                    (!line.is_empty()).then_some(line)
-                })
-                .collect();
+            let rows: Vec<_> = data.split(|byte| *byte == b'\n').filter_map(|line| {
+                let end = line.windows(2).position(|value| value == b"//").unwrap_or(line.len());
+                let line = line[..end].trim_ascii();
+                (!line.is_empty()).then_some(line)
+            }).collect();
             for (index, line) in rows.iter().enumerate() {
                 let beat = (measure as f32 + index as f32 / rows.len() as f32) * 4.0;
                 let row = (beat * 48.0).round() as i32;
                 let mut cursor = 0;
                 for track in &mut tracks {
-                    let Some(&cell) = line.get(cursor) else {
-                        break;
-                    };
+                    let Some(&cell) = line.get(cursor) else { break; };
                     cursor += 1;
                     if line.get(cursor) == Some(&b'[') {
                         cursor += 1;
-                        while cursor < line.len() && line[cursor] != b']' {
-                            cursor += 1;
-                        }
+                        while cursor < line.len() && line[cursor] != b']' { cursor += 1; }
                         cursor += usize::from(cursor < line.len());
                     }
                     match cell {
-                        b'2' | b'4' => {
-                            track.insert(row, None);
-                        }
+                        b'2' | b'4' => { track.insert(row, None); }
                         b'3' => {
-                            if let Some((_, tail)) = track
-                                .range_mut(..row)
-                                .rev()
-                                .find(|(_, tail)| tail.is_none())
-                            {
+                            if let Some((_, tail)) = track.range_mut(..row).rev().find(|(_, tail)| tail.is_none()) {
                                 *tail = Some(row);
                             }
                         }
-                        b'1' | b'M' | b'L' | b'F' | b'K' => {
-                            track.insert(row, Some(row));
-                        }
-                        _ => {}
+                        b'1' | b'M' | b'L' | b'F' | b'K' => { track.insert(row, Some(row)); }
+                        _ => {},
                     }
                 }
             }
         }
     }
-    let mut rows = tracks.iter().flat_map(|track| {
-        track
-            .iter()
-            .filter_map(|(&head, tail)| tail.map(|tail| [head, tail]))
-    });
+    let mut rows = tracks.iter().flat_map(|track| track.iter()
+        .filter_map(|(&head, tail)| tail.map(|tail| [head, tail])));
     let mut result = rows.next()?;
-    for [first, last] in rows {
-        result = [result[0].min(first), result[1].max(last)];
-    }
+    for [first, last] in rows { result = [result[0].min(first), result[1].max(last)]; }
     Some(result)
 }
 
@@ -1186,63 +1039,27 @@ mod tests {
         let options = ParseSongOptions::new(Vec::new(), Vec::new(), Vec::new());
         let notes = "1[24]000\n02[13]00\n0300\n004[23]0\n0030\n0001[4]\n0000\n0000\n";
         for (extension, chart) in [
-            (
-                "sm",
-                format!("#NOTES2:dance-single:[12] Author:Challenge:1:0,0,0,0,0:\n{notes};"),
-            ),
-            (
-                "ssc",
-                format!(
-                    "#NOTEDATA:;\n#STEPSTYPE:dance-single;\n#DESCRIPTION:[12] Author;\n\
-                #DIFFICULTY:Challenge;\n#METER:1;\n#NOTES2:\n{notes};"
-                ),
-            ),
+            ("sm", format!("#NOTES2:dance-single:[12] Author:Challenge:1:0,0,0,0,0:\n{notes};")),
+            ("ssc", format!("#NOTEDATA:;\n#STEPSTYPE:dance-single;\n#DESCRIPTION:[12] Author;\n\
+                #DIFFICULTY:Challenge;\n#METER:1;\n#NOTES2:\n{notes};")),
         ] {
             let source = format!("#VERSION:0.83;\n#TITLE:[24] Keysounds;\n#BPMS:0=120;\n{chart}");
             let path = root.join(format!("song.{extension}"));
             fs::write(&path, &source).unwrap();
-            for song in [
-                parse_song_file(&path, &options, |_| 4.0).unwrap(),
-                parse_song_bytes(source.as_bytes(), extension, &path, &options, |_| 4.0).unwrap(),
-            ] {
+            for song in [parse_song_file(&path, &options, |_| 4.0).unwrap(),
+                parse_song_bytes(source.as_bytes(), extension, &path, &options, |_| 4.0).unwrap()] {
                 assert_eq!(song.title, "[24] Keysounds");
                 let chart = &song.charts[0];
                 assert_eq!(chart.description, "[12] Author");
-                assert_eq!(
-                    (
-                        chart.stats.total_steps,
-                        chart.stats.holds,
-                        chart.stats.rolls
-                    ),
-                    (4, 1, 1),
-                    "keysound index digits are metadata, not additional hold or roll notes"
-                );
-                assert_eq!(
-                    chart.parsed_notes.len(),
-                    4,
-                    "keysound index digits must not create additional parsed note cells"
-                );
-                assert_eq!(
-                    chart
-                        .parsed_notes
-                        .iter()
-                        .map(|note| note.column)
-                        .collect::<Vec<_>>(),
-                    [0, 1, 2, 3]
-                );
-                assert_eq!(
-                    chart
-                        .parsed_notes
-                        .iter()
-                        .map(|note| NoteType::from(note.note_type))
-                        .collect::<Vec<_>>(),
-                    [NoteType::Tap, NoteType::Hold, NoteType::Roll, NoteType::Tap]
-                );
+                assert_eq!((chart.stats.total_steps, chart.stats.holds, chart.stats.rolls), (4, 1, 1),
+                    "keysound index digits are metadata, not additional hold or roll notes");
+                assert_eq!(chart.parsed_notes.len(), 4,
+                    "keysound index digits must not create additional parsed note cells");
+                assert_eq!(chart.parsed_notes.iter().map(|note| note.column).collect::<Vec<_>>(), [0, 1, 2, 3]);
+                assert_eq!(chart.parsed_notes.iter().map(|note| NoteType::from(note.note_type)).collect::<Vec<_>>(),
+                    [NoteType::Tap, NoteType::Hold, NoteType::Roll, NoteType::Tap]);
                 for note in &chart.parsed_notes[1..3] {
-                    assert!(
-                        note.tail_row_index
-                            .is_some_and(|tail| tail > note.row_index)
-                    );
+                    assert!(note.tail_row_index.is_some_and(|tail| tail > note.row_index));
                 }
             }
             assert_eq!(fs::read(&path).unwrap(), source.as_bytes());
@@ -1255,23 +1072,17 @@ mod tests {
         let simfile = root.join("metadata.ssc");
         let options = ParseSongOptions::new(Vec::new(), Vec::new(), Vec::new());
         for (version, expected) in [("0.83", "\u{a0}Author: description\u{a0}"), ("0.60", "")] {
-            let source = format!(
-                "#VERSION:{version};\n#TITLE:Metadata;\n#BPMS:0=120;\n\
+            let source = format!("#VERSION:{version};\n#TITLE:Metadata;\n#BPMS:0=120;\n\
                 #NOTEDATA:;\n#STEPSTYPE:unknown-style;\n#DESCRIPTION:Skipped;\n#DIFFICULTY:Hard;\n#METER:1;\n#NOTES:1000;\n\
                 #NOTEDATA:;\n#STEPSTYPE:dance-single;\n#CHARTNAME:Independent name;\n#CREDIT:Independent credit;\n\
-                #DESCRIPTION:\t \u{a0}Author\\: description\u{a0} \t ;\n#DIFFICULTY:Hard;\n#METER:1;\n#NOTES:1000;"
-            );
+                #DESCRIPTION:\t \u{a0}Author\\: description\u{a0} \t ;\n#DIFFICULTY:Hard;\n#METER:1;\n#NOTES:1000;");
             fs::write(&simfile, &source).unwrap();
-            for song in [
-                parse_song_file(&simfile, &options, |_| 0.0).unwrap(),
-                parse_song_bytes(source.as_bytes(), "SSC", &simfile, &options, |_| 0.0).unwrap(),
-            ] {
+            for song in [parse_song_file(&simfile, &options, |_| 0.0).unwrap(),
+                parse_song_bytes(source.as_bytes(), "SSC", &simfile, &options, |_| 0.0).unwrap()] {
                 assert_eq!(song.charts.len(), 1);
                 assert_eq!(song.charts[0].description, expected);
                 assert_eq!(song.charts[0].step_artist, "Independent credit");
-                if version == "0.83" {
-                    assert_eq!(song.charts[0].chart_name, "Independent name");
-                }
+                if version == "0.83" { assert_eq!(song.charts[0].chart_name, "Independent name"); }
                 assert_eq!(song.charts[0].parsed_notes.len(), 1);
             }
         }
@@ -1692,22 +1503,9 @@ mod tests {
 #NOTEDATA:;#STEPSTYPE:dance-solo;#DIFFICULTY:Edit;#METER:1;#NOTES:\n000000\n,\n000000\n,\n000000\n,\n100000\n;\n\
 #NOTEDATA:;#STEPSTYPE:lights-cabinet;#DIFFICULTY:Hard;#METER:1;#NOTES:\n00000000\n,\n00000000\n,\n00000000\n,\n10000000\n;").unwrap();
         let options = ParseSongOptions::new(Vec::new(), Vec::new(), Vec::new());
-        for song in [
-            parse_song_data_file(&simfile, &options, 0.125, |_| 20.0).unwrap(),
-            parse_song_bytes(
-                &fs::read(&simfile).unwrap(),
-                "ssc",
-                &simfile,
-                &options,
-                |_| 20.0,
-            )
-            .unwrap(),
-        ] {
-            assert_eq!(
-                song.charts.len(),
-                1,
-                "unplayed charts do not enter gameplay selection"
-            );
+        for song in [parse_song_data_file(&simfile, &options, 0.125, |_| 20.0).unwrap(),
+            parse_song_bytes(&fs::read(&simfile).unwrap(), "ssc", &simfile, &options, |_| 20.0).unwrap()] {
+            assert_eq!(song.charts.len(), 1, "unplayed charts do not enter gameplay selection");
             assert_eq!(song.first_second, 0.0);
             assert_eq!(song.precise_note_last_second_seconds, Some(8.25));
             assert_eq!(song.precise_last_second_seconds, 8.25);
@@ -1717,15 +1515,9 @@ mod tests {
 
     #[test]
     fn native_note_bounds_resolve_holds_keysounds_and_routine_players() {
-        assert_eq!(
-            native_note_row_bounds(b"000000\n200000\n000000\n300000\n,\n00000K[12]\n", 6),
-            Some([48, 192])
-        );
+        assert_eq!(native_note_row_bounds(b"000000\n200000\n000000\n300000\n,\n00000K[12]\n", 6), Some([48, 192]));
         assert_eq!(native_note_row_bounds(b"200000\n,\n000000\n", 6), None);
-        assert_eq!(
-            native_note_row_bounds(b"10000000\n,\n00000000\n&\n00000000\n,\n0000000F\n", 8),
-            Some([0, 192])
-        );
+        assert_eq!(native_note_row_bounds(b"10000000\n,\n00000000\n&\n00000000\n,\n0000000F\n", 8), Some([0, 192]));
     }
 
     #[test]

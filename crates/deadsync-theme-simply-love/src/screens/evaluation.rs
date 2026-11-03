@@ -3081,8 +3081,7 @@ pub fn init(init_view: EvaluationInitView) -> State {
         }
 
         match play_style {
-            profile_data::PlayStyle::Versus
-            | profile_data::PlayStyle::PumpVersus
+            profile_data::PlayStyle::Versus | profile_data::PlayStyle::PumpVersus
             | profile_data::PlayStyle::Couple
             | profile_data::PlayStyle::PumpCouple => {
                 active_pane[0] = score_info[0].as_ref().map_or(EvalPane::Standard, |si| {
@@ -3279,8 +3278,7 @@ pub fn init_from_score_info(
     let mut active_graph: [EvalGraphPane; MAX_PLAYERS] = [EvalGraphPane::Itg; MAX_PLAYERS];
     let play_style = context.play_style;
     match play_style {
-        profile_data::PlayStyle::Versus
-        | profile_data::PlayStyle::PumpVersus
+        profile_data::PlayStyle::Versus | profile_data::PlayStyle::PumpVersus
         | profile_data::PlayStyle::Couple
         | profile_data::PlayStyle::PumpCouple => {
             active_pane[0] = score_info[0].as_ref().map_or(EvalPane::Standard, |si| {
@@ -7137,10 +7135,7 @@ fn push_golf_results(
     let x = eval_panes::test_input_pane_origin_x(controller);
     let y = screen_center_y() + 35.0;
     let par_label = tr("Golf", "Par");
-    let par_text = si.golf_par.map_or_else(
-        || format!("{par_label}: -"),
-        |par| format!("{par_label}: {par:.2}"),
-    );
+    let par_text = si.golf_par.map_or_else(|| format!("{par_label}: -"), |par| format!("{par_label}: {par:.2}"));
     let delta = si.golf_par.map_or_else(
         || tr("Golf", "LowerIsBetter").to_string(),
         |par| format!("{:+.3}", score.displayed() - par),

@@ -20,9 +20,7 @@ impl Projection {
         // only the presentation field after the normal dependency pass.
         summary.step_artist_str = self.description.clone();
         summary.difficulty_str = self.difficulty.clone();
-        if self.local_attacks {
-            summary.chart_has_own_attacks = true;
-        }
+        if self.local_attacks {summary.chart_has_own_attacks=true;}
     }
 }
 fn tag(out: &mut Vec<u8>, name: &str, raw: &[u8]) {
@@ -37,19 +35,14 @@ pub(super) fn project(
     chart: usize,
     entry: &rssp::parse::ParsedChartEntry<'_>,
 ) -> Result<Option<Projection>, Error> {
-    if !bytes
-        .windows(b"DSTIMING".len())
-        .any(|part| part.eq_ignore_ascii_case(b"DSTIMING"))
-        && !bytes
-            .windows(b"DSCHARTATTACKS".len())
-            .any(|part| part.eq_ignore_ascii_case(b"DSCHARTATTACKS"))
+    if !bytes.windows(b"DSTIMING".len()).any(|part|part.eq_ignore_ascii_case(b"DSTIMING")) && !bytes.windows(b"DSCHARTATTACKS".len()).any(|part|part.eq_ignore_ascii_case(b"DSCHARTATTACKS"))
     {
         return Ok(None);
     }
     let document = Document::parse(bytes, Format::Sm)?;
     let local = timing_edit::resident::has_local(&document, chart);
     let song_tag = timing_edit::resident::tag(None)?;
-    let local_attacks = crate::attacks::property::read(&document, Some(chart))?;
+    let local_attacks=crate::attacks::property::read(&document,Some(chart))?;
     if !local && document.raw_property(None, &song_tag).is_none() && local_attacks.is_none() {
         return Ok(None);
     }
@@ -71,7 +64,7 @@ pub(super) fn project(
             || name.starts_with("DSTIMING")
             || name.starts_with("DSATTACKROWS")
             || name.starts_with("DSCHARTATTACKS")
-            || (name == "ATTACKS" && local_attacks.is_some())
+            || (name=="ATTACKS"&&local_attacks.is_some())
             || name.starts_with("GACHARTDATA")
             || name.starts_with("GASONGDATA")
         {
@@ -110,9 +103,7 @@ pub(super) fn project(
         tag(&mut out, name, raw);
     }
     tag(&mut out, "CREDIT", b"");
-    if let Some(raw) = &local_attacks {
-        tag(&mut out, "ATTACKS", raw);
-    }
+    if let Some(raw)=&local_attacks {tag(&mut out,"ATTACKS",raw);}
     // RSSP requires two complete radar sets for SSC but one for SM. Repeating
     // the raw SM set preserves its exact first-set validity and values without
     // introducing a second radar parser or recomputing cached radar values.
@@ -132,6 +123,6 @@ pub(super) fn project(
         bytes: out,
         description,
         difficulty,
-        local_attacks: local_attacks.is_some(),
+        local_attacks:local_attacks.is_some(),
     }))
 }

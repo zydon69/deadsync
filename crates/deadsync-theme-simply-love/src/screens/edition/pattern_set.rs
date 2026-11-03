@@ -17,42 +17,25 @@ impl State {
         };
         let width = screen_width();
         let right = (width - 390.0).max(1.0);
-        let center = self
-            .receptor_preferences()
-            .placement
-            .project(
-                (width - 390.0) * 0.5,
-                0.0,
-                right,
-                105.0,
-                (screen_height() - 85.0).max(105.0),
-                self.reverse_display,
-            )
-            .0;
+        let center = self.receptor_preferences().placement.project(
+            (width - 390.0) * 0.5, 0.0, right, 105.0,
+            (screen_height() - 85.0).max(105.0), self.reverse_display,
+        ).0;
         let mut reserved_left = 0.0_f32;
         let density = self.source_density.preferences;
-        if density.visible
-            && density.position == deadsync_editor::density_preferences::Position::LeftSideOfWindow
-        {
+        if density.visible && density.position == deadsync_editor::density_preferences::Position::LeftSideOfWindow {
             reserved_left = (density.position_offsets[density.position.index()] as f32
-                + density.height as f32)
-                .max(reserved_left);
+                + density.height as f32).max(reserved_left);
         }
         let mount = self.minimap.position.mount;
         if self.minimap.content.options.visible
             && mount == deadsync_editor::minimap_position_preferences::Mount::LeftSideOfWindow
         {
             reserved_left = (self.minimap.position.offset(mount) as f32
-                + self.minimap.content.options.width as f32)
-                .max(reserved_left);
+                + self.minimap.content.options.width as f32).max(reserved_left);
         }
-        side_panel_fits(
-            width,
-            preview.grid().columns(),
-            self.zoom.size_zoom() as f32,
-            center,
-            reserved_left,
-        )
+        side_panel_fits(width, preview.grid().columns(), self.zoom.size_zoom() as f32,
+            center, reserved_left)
     }
     pub fn pattern_set_preview(&self) -> Option<(&pattern_batch::Preview, usize)> {
         match self.preview.as_ref()? {
@@ -103,11 +86,7 @@ impl State {
                 self.status = i18n::tr("Edition", "PatternSetOptionsHelp");
             }
             Err(error) => {
-                self.status = i18n::tr_fmt(
-                    "Edition",
-                    "Error",
-                    &[("message", &crate::i18n::editor_error(&error))],
-                )
+                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))])
             }
         }
     }
@@ -197,11 +176,7 @@ impl State {
                 self.status = i18n::tr("Edition", "GenerationPreparing");
             }
             Err(error) => {
-                self.status = i18n::tr_fmt(
-                    "Edition",
-                    "Error",
-                    &[("message", &crate::i18n::editor_error(&error))],
-                )
+                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))])
             }
         }
     }
@@ -212,11 +187,8 @@ impl State {
                 *entry = (*entry + if forward { 1 } else { count - 1 }) % count;
                 let row = preview.entries()[*entry].row;
                 if let Err(error) = self.workspace.execute(Command::Seek(row)) {
-                    self.status = i18n::tr_fmt(
-                        "Edition",
-                        "Error",
-                        &[("message", &crate::i18n::editor_error(&error))],
-                    );
+                    self.status =
+                        i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))]);
                 }
                 self.refresh();
             }
@@ -343,6 +315,7 @@ fn toggle(settings: &mut Settings) {
     }
 }
 
+
 // Reserve the actual scaled sprite envelope, not only the lane centers. Keep
 // the existing bottom preview when a lateral panel would hide notes behind
 // either a window-mounted overview or the panel itself.
@@ -352,7 +325,8 @@ fn side_panel_fits(width: f32, columns: u16, zoom: f32, center: f32, reserved_le
     }
     let lane = ((width - 570.0).max(80.0) / f32::from(columns)).min(48.0);
     let half_extent = lane * (f32::from(columns) - 1.0 + zoom) * 0.5;
-    center - half_extent >= reserved_left + 12.0 && center + half_extent <= width - 390.0 - 12.0
+    center - half_extent >= reserved_left + 12.0
+        && center + half_extent <= width - 390.0 - 12.0
 }
 
 #[cfg(test)]

@@ -3,20 +3,21 @@ use mlua::{Function, Lua, MultiValue, Table, Value};
 use std::path::Path;
 
 use crate::{
-    SONG_LUA_PRODUCT_VERSION, SONG_LUA_THEME_NAME, SONG_LUA_THEME_PATH_PREFIX,
-    create_actor_util_table, create_author_table, create_background_filter_values,
-    create_color_constants_table, create_credits_table, create_cryptman_table, create_debug_table,
-    create_ex_judgment_counts, create_fileman_table, create_find_files_function,
-    create_ini_file_table, create_lua_compat_table, create_network_table,
-    create_rage_file_util_table, create_range_table, create_string_array,
-    create_version_parts_table, current_gamestate_player_value, current_gamestate_value,
-    current_song_value, current_steps_value, deduplicate_lua_table, install_theme_color_helpers,
-    json_to_lua_value, lua_binary_to_hex, lua_table_to_string, lua_to_json_value, make_color_table,
-    map_lua_table, note_song_lua_side_effect, parse_chart_info, read_color_call, read_color_value,
-    read_f32, read_string, retarget_loader_env, rotate_lua_table, seconds_to_hhmmss,
-    set_string_method, song_lua_is_minimum_product_version, song_lua_is_product_version,
-    stringify_lua_table, strip_sprite_hints, timing_window_arg_index, timing_window_seconds,
-    truthy, worst_judgment_from_offsets,
+    SONG_LUA_PRODUCT_VERSION, SONG_LUA_THEME_NAME,
+    SONG_LUA_THEME_PATH_PREFIX, create_actor_util_table, create_author_table,
+    create_background_filter_values, create_color_constants_table, create_credits_table,
+    create_cryptman_table, create_debug_table, create_ex_judgment_counts, create_fileman_table,
+    create_find_files_function, create_ini_file_table, create_lua_compat_table,
+    create_network_table, create_rage_file_util_table, create_range_table,
+    create_string_array, create_version_parts_table, current_gamestate_player_value,
+    current_gamestate_value, current_song_value, current_steps_value, deduplicate_lua_table,
+    install_theme_color_helpers, json_to_lua_value, lua_binary_to_hex, lua_table_to_string,
+    lua_to_json_value, make_color_table, map_lua_table, note_song_lua_side_effect,
+    parse_chart_info, read_color_call, read_color_value, read_f32, read_string,
+    retarget_loader_env, rotate_lua_table, seconds_to_hhmmss, set_string_method,
+    song_lua_is_minimum_product_version, song_lua_is_product_version, stringify_lua_table,
+    strip_sprite_hints, timing_window_arg_index, timing_window_seconds, truthy,
+    worst_judgment_from_offsets,
 };
 
 #[derive(Clone, Copy)]
@@ -39,8 +40,7 @@ pub fn install_stdlib_compat(
     // _fallback/Scripts/02 Utilities.lua:113 returns the matching pairs key.
     table.set(
         "find",
-        lua.load(
-            r#"
+        lua.load(r#"
             return function(t, sFind)
                 for key, value in pairs(t) do
                     if value == sFind then return key end
@@ -48,8 +48,7 @@ pub fn install_stdlib_compat(
                 return nil
             end
         "#,
-        )
-        .eval::<Function>()?,
+        ).eval::<Function>()?,
     )?;
     table.set(
         "rotate_right",
@@ -192,7 +191,9 @@ pub fn install_stdlib_compat(
         "GetVersionParts",
         lua.create_function(|lua, args: MultiValue| {
             let version = args.front().and_then(string_value);
-            create_version_parts_table(lua, version.as_deref().unwrap_or(SONG_LUA_PRODUCT_VERSION))
+            create_version_parts_table(
+                lua,
+                version.as_deref().unwrap_or(SONG_LUA_PRODUCT_VERSION))
         })?,
     )?;
     globals.set(
@@ -346,8 +347,7 @@ end"#).set_name("Simply Love/Scripts/SL-Helpers.lua:GetComboFonts").eval::<Funct
         // SL-Helpers.lua also handles eight-column turns and declines cue
         // mappings for insertion/removal/shuffle modifiers. Retain that logic
         // instead of synthesizing a four-column identity map.
-        lua.load(
-            r#"return function(player)
+        lua.load(r#"return function(player)
 	local po = GAMESTATE:GetPlayerState(player):GetPlayerOptions('ModsLevel_Preferred')
 
 	local shuffle = po:Shuffle() or po:SoftShuffle() or po:SuperShuffle()
@@ -446,8 +446,8 @@ end"#).set_name("Simply Love/Scripts/SL-Helpers.lua:GetComboFonts").eval::<Funct
 	return column_mapping
 end"#,
         )
-        .set_name("@theme:/Scripts/SL-Helpers.lua")
-        .eval::<Function>()?,
+            .set_name("@theme:/Scripts/SL-Helpers.lua")
+            .eval::<Function>()?,
     )?;
     globals.set(
         "GetPlayerOptionsString",
@@ -472,17 +472,14 @@ end"#,
     globals.set(
         "IsRoutine",
         // _fallback/Scripts/02 Utilities.lua; used by gameplay-out's Off.
-        lua.load(
-            r#"return function()
+        lua.load(r#"return function()
     local style = GAMESTATE:GetCurrentStyle()
     if style and style:GetStyleType() == "StyleType_TwoPlayersSharedSides" then
         return true
     end
     return false
 end"#,
-        )
-        .set_name("@theme:/Scripts/02 Utilities.lua:IsRoutine")
-        .eval::<Function>()?,
+        ).set_name("@theme:/Scripts/02 Utilities.lua:IsRoutine").eval::<Function>()?,
     )?;
     globals.set(
         "IsGameAndMenuButton",
@@ -688,8 +685,7 @@ end
     globals.set(
         "loadstring",
         lua.create_function(|lua, (code, chunk_name): (String, Option<String>)| {
-            let code =
-                crate::cmd::preprocess_lua_cmd_syntax_cow(&code).map_err(mlua::Error::external)?;
+            let code = crate::cmd::preprocess_lua_cmd_syntax_cow(&code).map_err(mlua::Error::external)?;
             let mut chunk = lua.load(code.as_ref());
             if let Some(chunk_name) = chunk_name.as_deref() {
                 chunk = chunk.set_name(chunk_name);
@@ -787,9 +783,7 @@ impl SongLuaRandom {
                 .wrapping_mul(previous ^ (previous >> 30))
                 .wrapping_add(index as u32);
         }
-        Self {
-            words,
-            index: 624,
+        Self { words, index: 624,
             #[cfg(feature = "test-support")]
             reference_distribution: false,
         }
@@ -900,9 +894,7 @@ fn random_int_arg(lua: &Lua, args: &MultiValue, index: usize) -> mlua::Result<i3
 struct SongLuaRandomState(SongLuaRandom);
 
 impl Default for SongLuaRandom {
-    fn default() -> Self {
-        Self::seeded(1)
-    }
+    fn default() -> Self { Self::seeded(1) }
 }
 
 pub(crate) struct RandomSnapshot {
@@ -938,8 +930,7 @@ fn install_random_compat(lua: &Lua) -> mlua::Result<()> {
         } else {
             seed as u32
         };
-        let mut state = lua
-            .app_data_mut::<SongLuaRandomState>()
+        let mut state = lua.app_data_mut::<SongLuaRandomState>()
             .ok_or_else(|| mlua::Error::runtime("missing Lua random state"))?;
         #[cfg(feature = "test-support")]
         let reference_distribution = state.0.reference_distribution;
@@ -951,8 +942,7 @@ fn install_random_compat(lua: &Lua) -> mlua::Result<()> {
         Ok(())
     })?;
     let random = lua.create_function(|lua, args: MultiValue| {
-        let mut state = lua
-            .app_data_mut::<SongLuaRandomState>()
+        let mut state = lua.app_data_mut::<SongLuaRandomState>()
             .ok_or_else(|| mlua::Error::runtime("missing Lua random state"))?;
         match args.len() {
             0 => Ok(state.0.real()),

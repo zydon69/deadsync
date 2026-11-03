@@ -142,14 +142,7 @@ fn noops_stale_foreign_scope_and_sm_source_eligibility_preserve_data() {
         .unwrap(),
     );
     let bytes = sm.serialize().unwrap();
-    assert!(
-        Draft::capture(&sm, 0, Scope::Song)
-            .unwrap()
-            .labels()
-            .values()
-            .is_empty(),
-        "original unsupported SM tag stays ignored"
-    );
+    assert!(Draft::capture(&sm, 0, Scope::Song).unwrap().labels().values().is_empty(), "original unsupported SM tag stays ignored");
     assert!(
         Labels::from_document(sm.document(), 0)
             .unwrap()

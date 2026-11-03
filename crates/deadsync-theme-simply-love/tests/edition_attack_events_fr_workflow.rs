@@ -35,9 +35,7 @@ fn ctrl(s: &mut State, code: KeyCode) {
         timestamp: Instant::now(),
         host_nanos: 0,
     });
-    if code == KeyCode::Tab {
-        complete_chart_navigation(s);
-    }
+    if code == KeyCode::Tab { complete_chart_navigation(s); }
 }
 fn open(s: &mut State) {
     press(s, KeyCode::F10);
@@ -47,10 +45,7 @@ fn open(s: &mut State) {
     press(s, KeyCode::F6);
     // Source attack memory starts without a selected event. These legacy
     // editing scenarios explicitly choose the first shared event when needed.
-    if s.workspace()
-        .file()
-        .session
-        .selected_attack_row(s.workspace().chart(), Scope::Song)
+    if s.workspace().file().session.selected_attack_row(s.workspace().chart(), Scope::Song)
         .is_none()
         && !read(s).attacks().events().is_empty()
     {
@@ -549,12 +544,7 @@ fn attack_event_clipboard_crosses_charts_with_destination_clock_conflicts_and_on
     ctrl(&mut s, KeyCode::KeyS);
     let reopened = State::open_selected(&path, "dance-single", "Challenge", "", 10).unwrap();
     assert_eq!(
-        reopened
-            .workspace()
-            .file()
-            .session
-            .serialize_for_output()
-            .unwrap(),
+        reopened.workspace().file().session.serialize_for_output().unwrap(),
         output
     );
     // Cutting the whole event remains staged, and cancelling restores it.
@@ -766,12 +756,7 @@ fn mixed_event_clipboard_shortcuts_cross_charts_and_undo_notes_timing_and_attack
     ctrl(&mut s, KeyCode::KeyS);
     let reopened = State::open_selected(&path, "dance-single", "Challenge", "", 10).unwrap();
     assert_eq!(
-        reopened
-            .workspace()
-            .file()
-            .session
-            .serialize_for_output()
-            .unwrap(),
+        reopened.workspace().file().session.serialize_for_output().unwrap(),
         output
     );
     ctrl(&mut s, KeyCode::Tab);
@@ -1026,12 +1011,7 @@ fn individual_event_picker_copies_cuts_and_deletes_only_checked_notes_timing_and
     ctrl(&mut s, KeyCode::KeyS);
     let reopened = State::open_selected(&path, "dance-single", "Hard", "", 9).unwrap();
     assert_eq!(
-        reopened
-            .workspace()
-            .file()
-            .session
-            .serialize_for_output()
-            .unwrap(),
+        reopened.workspace().file().session.serialize_for_output().unwrap(),
         output
     );
 }

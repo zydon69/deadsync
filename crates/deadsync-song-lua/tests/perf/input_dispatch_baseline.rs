@@ -54,10 +54,7 @@ struct RequiresRuntime;
 
 pub(crate) fn require_offline_compatible(lua: &Lua) -> Result<(), String> {
     if lua.app_data_ref::<RequiresRuntime>().is_some() {
-        Err(
-            "song Lua registers input callbacks and requires runtime Lua (context.live = true)"
-                .into(),
-        )
+        Err("song Lua registers input callbacks and requires runtime Lua (context.live = true)".into())
     } else {
         Ok(())
     }
@@ -162,6 +159,7 @@ pub(crate) fn dispatch(
     }
     Ok((handled, errors))
 }
+
 
 // Event construction extracted verbatim for the isolated boundary measurement.
 pub(crate) fn create_event(lua: &Lua, input: &SongLuaInputEvent<'_>) -> mlua::Result<Table> {

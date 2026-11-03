@@ -8,21 +8,13 @@ pub struct Preferences {
     pub index: i32,
 }
 impl Preferences {
-    pub fn merge_changes(&self, expected: &Self, target: &Self) -> Result<Self, Error> {
-        fn fields(value: &Preferences) -> Map<String, Value> {
-            let mut fields = Map::from_iter([
-                ("LastCompletedFtueVersion".into(), Value::Null),
-                ("FtueIndex".into(), Value::from(0)),
-            ]);
-            value.write_changed(&Preferences::default(), &mut fields);
-            fields
+    pub fn merge_changes(&self,expected:&Self,target:&Self)->Result<Self,Error>{
+        fn fields(value:&Preferences)->Map<String,Value>{
+            let mut fields=Map::from_iter([("LastCompletedFtueVersion".into(),Value::Null),("FtueIndex".into(),Value::from(0))]);
+            value.write_changed(&Preferences::default(),&mut fields);fields
         }
-        let mut current = fields(self);
-        crate::audio_preferences::publication::merge_fields(
-            &mut current,
-            &fields(expected),
-            &fields(target),
-        )?;
+        let mut current=fields(self);
+        crate::audio_preferences::publication::merge_fields(&mut current,&fields(expected),&fields(target))?;
         Self::read(&current)
     }
 
@@ -174,26 +166,11 @@ mod version_tests {
 
 #[cfg(test)]
 mod changed_leaf_publication_tests {
-    use super::*;
-    #[test]
-    fn progression_owns_index_and_completion_independently() {
-        let before = Preferences {
-            completed: None,
-            index: 2,
-        };
-        let mut target = before.clone();
-        target.index = 3;
-        let live = Preferences {
-            completed: Some([0, 1, 0, 0]),
-            index: 2,
-        };
-        let merged = live.merge_changes(&before, &target).unwrap();
-        assert_eq!(merged.completed, live.completed);
-        assert_eq!(merged.index, 3);
-        assert!(
-            Preferences { index: 4, ..live }
-                .merge_changes(&before, &target)
-                .is_err()
-        );
-    }
+ use super::*;
+ #[test]
+ fn progression_owns_index_and_completion_independently(){
+  let before=Preferences{completed:None,index:2};let mut target=before.clone();target.index=3;
+  let live=Preferences{completed:Some([0,1,0,0]),index:2};let merged=live.merge_changes(&before,&target).unwrap();assert_eq!(merged.completed,live.completed);assert_eq!(merged.index,3);
+  assert!(Preferences{index:4,..live}.merge_changes(&before,&target).is_err());
+ }
 }

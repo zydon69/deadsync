@@ -1,9 +1,9 @@
 //! Lexical media-reference relocation; no filesystem access or save publication.
 mod directory;
 mod source;
-use crate::Error;
-pub use directory::rebase_from_directory;
 pub(crate) use source::SourceBase;
+pub use directory::rebase_from_directory;
+use crate::Error;
 use std::path::{Component, Path, PathBuf};
 
 /// Preserve an asset's location when its containing simfile moves. A new song

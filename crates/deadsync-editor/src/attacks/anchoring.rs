@@ -16,7 +16,7 @@ pub(crate) fn preserve_generated(
         }
         let scope = if super::supports_resident_chart_attacks(after.document()) {
             let bytes = resident::encode(after, target, &events, &Default::default())?;
-            super::property::write(after, Some(target), bytes.into())?;
+            super::property::write(after,Some(target),bytes.into())?;
             Scope::Chart
         } else {
             Scope::Song
@@ -39,10 +39,9 @@ pub(crate) fn preserve(before: &Session, after: &mut Session) -> Result<(), Erro
     };
     let mut charts = Vec::new();
     for (chart, descriptor) in before.document().charts().iter().enumerate() {
-        let mut has_attacks = false;
-        for origin in [None, Some(chart)] {
-            has_attacks |= super::property::read(before.document(), origin)?
-                .is_some_and(|raw| !raw.is_empty());
+        let mut has_attacks=false;
+        for origin in [None,Some(chart)] {
+            has_attacks |= super::property::read(before.document(),origin)?.is_some_and(|raw|!raw.is_empty());
         }
         if !has_attacks {
             continue;
@@ -74,7 +73,7 @@ pub(crate) fn preserve(before: &Session, after: &mut Session) -> Result<(), Erro
     if scope == Scope::Chart {
         for (chart, events, bytes) in &charts {
             if let Some(bytes) = bytes {
-                super::property::write(after, Some(*chart), bytes.clone().into())?;
+                super::property::write(after,Some(*chart),bytes.clone().into())?;
                 resident::reconcile(after, *chart, scope, events)?;
             }
         }

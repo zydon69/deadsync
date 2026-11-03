@@ -1,5 +1,5 @@
-use deadsync_editor::minimap_viewport as viewport;
 pub use deadsync_editor::{Error, minimap_navigation, minimap_projection, playback};
+use deadsync_editor::minimap_viewport as viewport;
 use viewport::{Axis, Geometry, Viewport, area_start};
 
 #[test]

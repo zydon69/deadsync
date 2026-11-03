@@ -113,9 +113,7 @@ impl Change {
         };
         let mut preferences = target.clone();
         preferences = crate::audio_preferences::publication::publish(
-            &mut self.file,
-            live,
-            preferences,
+            &mut self.file, live, preferences,
             |current| Snapshot::merged(current, expected, target),
         )?;
         Ok(Update {

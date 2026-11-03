@@ -6,148 +6,46 @@ use crate::{SongLuaSpeedMod, read_boolish, read_f32};
 // Later branches only block its final whole-name fallback (skins with spaces).
 pub(crate) fn option_blocks_skin(key: &str, level: f32, whole: bool) -> bool {
     let family = [
-        "modtimer",
-        "drawsize",
-        "lights",
-        "wave",
-        "expand",
-        "drunk",
-        "shrink",
-        "pulse",
-        "dizzy",
-        "confusion",
-        "bounce",
-        "tiny",
-        "tornado",
-        "tipsy",
-        "bumpy",
-        "beat",
-        "digital",
-        "zigzag",
-        "sawtooth",
-        "square",
-        "parabola",
-        "attenuate",
-        "stealth",
-        "reverse",
-        "dark",
-    ]
-    .iter()
-    .any(|family| key.contains(family));
-    let early = matches!(
-        key,
-        "alternate"
-            | "attackmines"
-            | "backwards"
-            | "bar"
-            | "battery"
-            | "big"
-            | "blind"
-            | "blink"
-            | "bmrize"
-            | "boomerang"
-            | "boost"
-            | "brake"
-            | "centered"
-            | "clearall"
-            | "cover"
-            | "cross"
-            | "death"
-            | "distant"
-            | "echo"
-            | "flip"
-            | "floored"
-            | "hallway"
-            | "hidden"
-            | "hiddenoffset"
-            | "holdrolls"
-            | "hypershuffle"
-            | "incoming"
-            | "invert"
-            | "land"
-            | "left"
-            | "life"
-            | "lifetime"
-            | "little"
-            | "lives"
-            | "lrmirror"
-            | "mines"
-            | "mini"
-            | "mirror"
-            | "noattacks"
-            | "nofakes"
-            | "nohands"
-            | "noholds"
-            | "nojumps"
-            | "nolifts"
-            | "nomines"
-            | "noquads"
-            | "norecover"
-            | "normal-drain"
-            | "norolls"
-            | "nostretch"
-            | "overhead"
-            | "passmark"
-            | "planted"
-            | "playerautoplay"
-            | "power-drop"
-            | "quick"
-            | "randomattacks"
-            | "randomvanish"
-            | "resetspeed"
-            | "right"
-            | "roll"
-            | "shuffle"
-            | "skippy"
-            | "softshuffle"
-            | "space"
-            | "split"
-            | "stomp"
-            | "sudden"
-            | "suddendeath"
-            | "suddenoffset"
-            | "supershuffle"
-            | "twirl"
-            | "twister"
-            | "udmirror"
-            | "wide"
-            | "xmode"
+        "modtimer", "drawsize", "lights", "wave",
+        "expand", "drunk", "shrink",
+        "pulse", "dizzy", "confusion", "bounce",
+        "tiny", "tornado",
+        "tipsy", "bumpy", "beat", "digital",
+        "zigzag", "sawtooth", "square", "parabola",
+        "attenuate", "stealth", "reverse", "dark",
+    ].iter().any(|family| key.contains(family));
+    let early = matches!(key,
+        "alternate" | "attackmines" | "backwards" | "bar" |
+        "battery" | "big" | "blind" | "blink" | "bmrize" |
+        "boomerang" | "boost" | "brake" | "centered" |
+        "clearall" | "cover" | "cross" | "death" |
+        "distant" | "echo" | "flip" | "floored" |
+        "hallway" | "hidden" | "hiddenoffset" | "holdrolls" | "hypershuffle" | "incoming" |
+        "invert" | "land" | "left" | "life" |
+        "lifetime" | "little" | "lives" | "lrmirror" |
+        "mines" | "mini" | "mirror" | "noattacks" |
+        "nofakes" | "nohands" | "noholds" | "nojumps" |
+        "nolifts" | "nomines" | "noquads" | "norecover" |
+        "normal-drain" | "norolls" | "nostretch" | "overhead" |
+        "passmark" | "planted" | "playerautoplay" | "power-drop" | "quick" |
+        "randomattacks" | "randomvanish" | "resetspeed" | "right" |
+        "roll" | "shuffle" | "skippy" | "softshuffle" | "space" |
+        "split" | "stomp" | "sudden" | "suddendeath" |
+        "suddenoffset" | "supershuffle" | "twirl" |
+        "twister" | "udmirror" | "wide" | "xmode"
     );
-    let speed = key
-        .strip_prefix('c')
-        .or_else(|| key.strip_prefix('m'))
+    let speed = key.strip_prefix('c').or_else(|| key.strip_prefix('m'))
         .is_some_and(|amount| parse_option_float(amount).is_some());
-    family
-        || early
-        || speed
-        || (key == "turn" && level <= 0.5)
-        || (whole
-            && (key.contains("move")
-                || matches!(
-                    key,
-                    "converge"
-                        | "cosecant"
-                        | "failarcade"
-                        | "failatend"
-                        | "faildefault"
-                        | "failendofsong"
-                        | "failimmediate"
-                        | "failimmediatecontinue"
-                        | "failoff"
-                        | "muteonerror"
-                        | "random"
-                        | "randomspeed"
-                        | "skew"
-                        | "tilt"
-                        | "visualdelay"
-                        | "zbuffer"
-                )
-                || (key == "noteskin" && level <= 0.5)
-                || (level == 0.0
-                    && key
-                        .as_bytes()
-                        .windows(2)
-                        .any(|pair| pair[0] == b'w' && (b'1'..=b'5').contains(&pair[1])))))
+    family || early || speed || (key == "turn" && level <= 0.5) || (whole && (
+        key.contains("move") || matches!(key,
+            "converge" | "cosecant" | "failarcade" | "failatend" |
+            "faildefault" | "failendofsong" | "failimmediate" | "failimmediatecontinue" |
+            "failoff" | "muteonerror" | "random" |
+            "randomspeed" | "skew" | "tilt" | "visualdelay" |
+            "zbuffer"
+        ) || (key == "noteskin" && level <= 0.5) || (level == 0.0 && key.as_bytes().windows(2)
+            .any(|pair| pair[0] == b'w' && (b'1'..=b'5').contains(&pair[1])))
+    ))
 }
 
 pub const MOD_TIMER_NAMES: [&str; 4] = [

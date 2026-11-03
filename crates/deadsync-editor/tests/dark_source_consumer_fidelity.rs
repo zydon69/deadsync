@@ -3,10 +3,10 @@ use deadsync_editor::{
         File,
         source_import::{Disposition, Draft},
     },
+    key_binding_preferences::source_profile::Platform,
     dark_preferences::{Order, Preferences, Size},
     document::{Document, Format},
     history::Session,
-    key_binding_preferences::source_profile::Platform,
 };
 use serde_json::{Value, json};
 fn new_session() -> Session {

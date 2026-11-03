@@ -1,6 +1,5 @@
 use crate::transforms::{
-    attenuate_offset, beat_wave_offset, move_col_extra, visual_note_rotation_x,
-    visual_note_rotation_y,
+    attenuate_offset, beat_wave_offset, move_col_extra, visual_note_rotation_x, visual_note_rotation_y,
 };
 use crate::{
     CapturedActorScratch, CapturedActorSource, HoldBodyCapRequest, HoldEntryPlanRequest,
@@ -1236,8 +1235,7 @@ fn compose_visible_notes<S, F>(
                         adjusted_travel,
                         notes.note_depth_frame_cache,
                         transform_cache,
-                    )
-                    + spline_offset[2];
+                    ) + spline_offset[2];
                 if prepared.column_position_splines[local_col].absolute {
                     [column_center_x, y_pos, world_z] = prepared.spline_position(
                         local_col,

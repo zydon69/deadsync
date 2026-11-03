@@ -56,16 +56,8 @@ struct Callback {
 
 pub(crate) fn functions(lua: &Lua) -> Option<Vec<Function>> {
     let callbacks = lua.app_data_ref::<Callbacks>()?;
-    if callbacks.dispatching {
-        return None;
-    }
-    Some(
-        callbacks
-            .functions
-            .iter()
-            .map(|entry| entry.function.clone())
-            .collect(),
-    )
+    if callbacks.dispatching { return None; }
+    Some(callbacks.functions.iter().map(|entry| entry.function.clone()).collect())
 }
 
 impl Callbacks {

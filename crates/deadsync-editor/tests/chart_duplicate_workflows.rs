@@ -182,18 +182,9 @@ fn workspace_clone_edit_undo_redo_save_reopen_restores_active_chart_and_particip
     assert_eq!(workspace.grid().players(), 2);
     assert_eq!(workspace.row(), 48);
     workspace.execute(Command::Place(2)).unwrap();
-    let added = Position {
-        player: 1,
-        lane: 2,
-        row: 48,
-    };
+    let added = Position { player: 1, lane: 2, row: 48 };
     assert_eq!(workspace.grid().get(added), Some(&Note::tap()));
-    assert!(
-        workspace
-            .grid()
-            .get(Position { player: 0, ..added })
-            .is_none()
-    );
+    assert!(workspace.grid().get(Position { player: 0, ..added }).is_none());
     let after = workspace.file().session.serialize().unwrap();
     workspace.execute(Command::Undo).unwrap();
     workspace.execute(Command::Undo).unwrap();

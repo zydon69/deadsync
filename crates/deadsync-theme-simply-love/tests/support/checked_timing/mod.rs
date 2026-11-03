@@ -96,7 +96,11 @@ fn checked_timing_scope_preserves_unchecked_warp_and_undoes_after_save() {
             .as_deref(),
         Some("1=1,3=1")
     );
-    let output = s.workspace().file().session.serialize_for_output().unwrap();
+    let output = s.workspace()
+            .file()
+            .session
+            .serialize_for_output()
+            .unwrap();
     ctrl(&mut s, KeyCode::KeyS);
     let reopened = State::open(&path, 0).unwrap();
     assert_eq!(serialized(&reopened), output);
@@ -122,8 +126,8 @@ fn cancelling_checked_timing_review_returns_to_original_checked_event_picker() {
     // Picker identities survived Cancel: deleting checked miscellaneous events
     // leaves the unchecked Warp at3 and the existing initial BPM untouched.
     press(&mut s, KeyCode::Delete);
-    let document = s.workspace().file().session.document();
-    let origin = deadsync_editor::timing_edit::uses_chart_timing(document, 0).then_some(0);
+    let document=s.workspace().file().session.document();
+    let origin=deadsync_editor::timing_edit::uses_chart_timing(document,0).then_some(0);
     assert_eq!(
         s.workspace()
             .file()

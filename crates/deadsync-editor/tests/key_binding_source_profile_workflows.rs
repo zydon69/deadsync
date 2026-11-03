@@ -83,17 +83,7 @@ fn presets_use_executed_platform_defaults_and_neutralize_native_extensions_expli
             source_ids.len() - implemented
         );
         assert!(prepared.report.retained_modifiers.is_empty());
-        assert_eq!(
-            prepared.report.applied_modifiers,
-            [
-                "ScrollZoom",
-                "ScrollSpacing",
-                "MouseSelectionAltBehavior",
-                "MouseSelectionControlBehavior",
-                "MouseSelectionShiftBehavior",
-                "LockReceptorMoveAxis"
-            ]
-        );
+        assert_eq!(prepared.report.applied_modifiers, ["ScrollZoom", "ScrollSpacing","MouseSelectionAltBehavior","MouseSelectionControlBehavior","MouseSelectionShiftBehavior","LockReceptorMoveAxis"]);
         assert!(
             prepared.report.rejected.is_empty(),
             "{:?}",
@@ -119,22 +109,9 @@ fn source_jsonc_import_retains_exact_unhandled_data_and_uses_physical_key_names(
         prepared.preferences.commands["PlayPause"],
         vec![vec!["Space"]]
     );
-    assert!(
-        prepared
-            .report
-            .applied
-            .contains(&"SelectAllNotes".to_owned())
-    );
-    assert!(
-        !prepared
-            .report
-            .unavailable_commands
-            .contains(&"SelectAllNotes".to_owned())
-    );
-    assert_eq!(
-        prepared.preferences.commands["SelectAllNotes"],
-        vec![vec!["LeftWindows", "A"]]
-    );
+    assert!(prepared.report.applied.contains(&"SelectAllNotes".to_owned()));
+    assert!(!prepared.report.unavailable_commands.contains(&"SelectAllNotes".to_owned()));
+    assert_eq!(prepared.preferences.commands["SelectAllNotes"], vec![vec!["LeftWindows", "A"]]);
     assert!(
         prepared
             .report
@@ -304,26 +281,11 @@ fn imported_equal_priority_commands_keep_original_callback_declaration_order() {
 #[test]
 fn newly_available_marker_callback_blocks_shorter_callbacks_without_an_unavailable_marker() {
     use deadsync_editor::key_commands::{Key, Registry};
-    let prepared = source_profile::import(
-        &Preferences::default(),
+    let prepared = source_profile::import(&Preferences::default(),
         r#"{"MoveEventPreview":[["LeftControl","LeftShift","W"]],"Close":[[]]}"#,
-        Platform::Other,
-    )
-    .unwrap();
-    assert!(
-        prepared
-            .report
-            .applied
-            .iter()
-            .any(|id| id == "MoveEventPreview")
-    );
-    assert!(
-        !prepared
-            .report
-            .blocked_unavailable
-            .iter()
-            .any(|id| id == "MoveEventPreview")
-    );
+        Platform::Other).unwrap();
+    assert!(prepared.report.applied.iter().any(|id|id=="MoveEventPreview"));
+    assert!(!prepared.report.blocked_unavailable.iter().any(|id|id=="MoveEventPreview"));
     assert!(
         !prepared
             .report
@@ -362,16 +324,9 @@ fn blockers_round_trip_and_are_owned_by_the_global_draft() {
     // Exercise the archived field owner with a deterministic, valid dormant
     // entry. This synthetic ID is not claimed to be an original callback and
     // must never become a live binding.
-    source.source_blockers.insert(
-        "ArchivedCASFixture".into(),
-        vec![vec!["LeftControl".into(), "F12".into()]],
-    );
-    assert_ne!(source.source_blockers, native.source_blockers);
-    assert!(
-        source_profile::blockers(&source)
-            .iter()
-            .all(|binding| !binding.id.contains("ArchivedCASFixture"))
-    );
+    source.source_blockers.insert("ArchivedCASFixture".into(),vec![vec!["LeftControl".into(),"F12".into()]]);
+    assert_ne!(source.source_blockers,native.source_blockers);
+    assert!(source_profile::blockers(&source).iter().all(|binding|!binding.id.contains("ArchivedCASFixture")));
     let mut fields = serde_json::Map::new();
     source.write(&mut fields).unwrap();
     assert_eq!(Preferences::read(&fields).unwrap(), source);
@@ -404,7 +359,7 @@ fn source_import_cannot_steal_f1_or_silently_narrow_marker_chords() {
     );
     assert_eq!(
         prepared.preferences.commands["MoveEventPreview"],
-        vec![vec!["LeftControl", "LeftShift", "F13"], vec!["D1"]]
+        vec![vec!["LeftControl", "LeftShift", "F13"],vec!["D1"]]
     );
     assert!(
         prepared
@@ -413,27 +368,9 @@ fn source_import_cannot_steal_f1_or_silently_narrow_marker_chords() {
             .iter()
             .any(|rejected| rejected.id == "New")
     );
-    assert!(
-        !prepared
-            .report
-            .retained_native_contexts
-            .iter()
-            .any(|id| id == "MoveEventPreview")
-    );
-    assert!(
-        !prepared
-            .report
-            .blocked_unavailable
-            .iter()
-            .any(|id| id == "MoveEventPreview")
-    );
-    assert!(
-        prepared
-            .report
-            .rejected
-            .iter()
-            .any(|item| item.id == "MoveEventPreview")
-    );
+    assert!(!prepared.report.retained_native_contexts.iter().any(|id| id == "MoveEventPreview"));
+    assert!(!prepared.report.blocked_unavailable.iter().any(|id|id=="MoveEventPreview"));
+    assert!(prepared.report.rejected.iter().any(|item|item.id=="MoveEventPreview"));
 }
 #[test]
 fn malformed_persisted_blockers_fail_before_runtime_and_unknown_ids_never_activate() {

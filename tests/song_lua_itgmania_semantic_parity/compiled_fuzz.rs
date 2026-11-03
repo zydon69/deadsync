@@ -99,11 +99,8 @@ pub(super) fn compare(trace: &Value, trace_path: &Path, simfile: &Path) -> Resul
         let beat = frame["beat"].as_f64().ok_or("missing frame beat")? as f32;
         // Native records raw music time; command playback uses elapsed time
         // from beat zero. Composition still receives the raw music clock.
-        let elapsed = (second
-            - context
-                .song_timing
-                .as_ref()
-                .map_or(0.0, |timing| timing.get_time_for_beat_exact(0.0)))
+        let elapsed = (second - context.song_timing.as_ref()
+            .map_or(0.0, |timing| timing.get_time_for_beat_exact(0.0)))
             / deadsync_song_lua::song_music_rate(&context);
         let end = boundary["samples"]
             .as_u64()
@@ -161,9 +158,7 @@ pub(super) fn compare(trace: &Value, trace_path: &Path, simfile: &Path) -> Resul
             }
             let ops = std::mem::take(&mut submitted.ops);
             let batched = batch_native_quad_passes(expected, ops.len());
-            let batched_refs = batched
-                .as_ref()
-                .map(|samples| samples.iter().collect::<Vec<_>>());
+            let batched_refs = batched.as_ref().map(|samples| samples.iter().collect::<Vec<_>>());
             let expected = batched_refs.as_deref().unwrap_or(expected);
             if ops.len() != expected.len() {
                 failures += 1;
@@ -383,13 +378,8 @@ fn compare_pass(
         state[a].as_f64().unwrap_or(1.0) as f32 / state[b].as_f64().unwrap_or(1.0) as f32
     });
     let equal = geometry_matches(&rows, native, quads, |actual, expected| {
-        compiled_row_matches(
-            actual,
-            expected,
-            uv,
-            expected_texture.is_empty(),
-            native_gameplay::native_depth_range(state),
-        )
+        compiled_row_matches(actual, expected, uv, expected_texture.is_empty(),
+            native_gameplay::native_depth_range(state))
     });
     Ok((!equal).then_some("clip_uv_color_or_topology"))
 }
@@ -401,35 +391,20 @@ fn geometry_matches(
     matches: impl Fn(&[f32; 10], &Value) -> bool,
 ) -> bool {
     if !quads {
-        return rows.len() == native.len() && rows.iter().zip(native).all(|(a, b)| matches(a, b));
+        return rows.len() == native.len() && rows.iter().zip(native).all(|(a,b)| matches(a,b));
     }
-    if native.len() % 4 != 0 || rows.len() != native.len() / 4 * 6 {
-        return false;
-    }
+    if native.len() % 4 != 0 || rows.len() != native.len() / 4 * 6 { return false; }
     let mut used = vec![false; native.len() / 4];
     rows.chunks_exact(6).all(|a| {
         native.chunks_exact(4).enumerate().any(|(index, b)| {
-            if used[index] {
-                return false;
-            }
+            if used[index] { return false; }
             let triangle = |actual: &[[f32; 10]], indices: [usize; 3]| {
-                [
-                    [0, 1, 2],
-                    [0, 2, 1],
-                    [1, 0, 2],
-                    [1, 2, 0],
-                    [2, 0, 1],
-                    [2, 1, 0],
-                ]
-                .iter()
-                .any(|p| (0..3).all(|i| matches(&actual[p[i]], &b[indices[i]])))
+                [[0,1,2], [0,2,1], [1,0,2], [1,2,0], [2,0,1], [2,1,0]]
+                    .iter().any(|p| (0..3).all(|i| matches(&actual[p[i]], &b[indices[i]])))
             };
-            let equal = [([0, 1, 2], [0, 2, 3]), ([0, 1, 3], [1, 2, 3])]
-                .iter()
-                .any(|&(x, y)| {
-                    triangle(&a[..3], x) && triangle(&a[3..], y)
-                        || triangle(&a[..3], y) && triangle(&a[3..], x)
-                });
+            let equal = [([0,1,2], [0,2,3]), ([0,1,3], [1,2,3])].iter().any(|&(x,y)|
+                triangle(&a[..3], x) && triangle(&a[3..], y)
+                || triangle(&a[..3], y) && triangle(&a[3..], x));
             used[index] = equal;
             equal
         })
@@ -562,28 +537,15 @@ fn native_color_quantization_does_not_hide_geometry_or_color_changes() {
 #[test]
 fn batched_quads_require_every_native_vertex_once() {
     let native: Vec<_> = (0..8).map(|i| json!(i)).collect();
-    let row = |i: usize| {
-        let mut row = [0.0; 10];
-        row[0] = i as f32;
-        row
-    };
-    let mut actual: Vec<_> = [4, 5, 6, 4, 6, 7, 0, 1, 2, 0, 2, 3]
-        .into_iter()
-        .map(row)
-        .collect();
-    let matches = |a: &[f32; 10], b: &Value| a[0] == b.as_f64().unwrap() as f32;
+    let row = |i: usize| { let mut row = [0.0; 10]; row[0] = i as f32; row };
+    let mut actual: Vec<_> = [4,5,6,4,6,7,0,1,2,0,2,3].into_iter().map(row).collect();
+    let matches = |a: &[f32;10], b: &Value| a[0] == b.as_f64().unwrap() as f32;
     assert!(geometry_matches(&actual, &native, true, matches));
     assert!(!geometry_matches(&actual[..6], &native, true, matches));
-    actual[6..].copy_from_slice(&[row(4), row(5), row(6), row(4), row(6), row(7)]);
-    assert!(
-        !geometry_matches(&actual, &native, true, matches),
-        "duplicate quad must not replace the missing quad"
-    );
-    actual[6..].copy_from_slice(&[row(0), row(1), row(2), row(0), row(2), row(7)]);
-    assert!(
-        !geometry_matches(&actual, &native, true, matches),
-        "changed corner must fail"
-    );
+    actual[6..].copy_from_slice(&[row(4),row(5),row(6),row(4),row(6),row(7)]);
+    assert!(!geometry_matches(&actual, &native, true, matches), "duplicate quad must not replace the missing quad");
+    actual[6..].copy_from_slice(&[row(0),row(1),row(2),row(0),row(2),row(7)]);
+    assert!(!geometry_matches(&actual, &native, true, matches), "changed corner must fail");
 }
 
 #[test]

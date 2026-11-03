@@ -77,10 +77,8 @@ impl Draft {
         }
         let layout = crate::notes::canonical_layout(layout)
             .ok_or_else(|| invalid("Unsupported new chart layout"))?;
-        let columns =
-            layout_columns(layout).ok_or_else(|| invalid("Unsupported new chart layout"))?;
-        let players = crate::notes::default_players(layout)
-            .ok_or_else(|| invalid("Unknown new chart participants"))?;
+        let columns = layout_columns(layout).ok_or_else(|| invalid("Unsupported new chart layout"))?;
+        let players = crate::notes::default_players(layout).ok_or_else(|| invalid("Unknown new chart participants"))?;
         let grid = Grid::new(columns, players)?;
         let notes = grid.serialize()?;
         let mut block = if session.document().format == Format::Ssc {
@@ -94,16 +92,10 @@ impl Draft {
             max_player_index: players - 1,
             ..Default::default()
         };
-        let resident = if session.document().format == Format::Sm {
-            Some(crate::timing_edit::resident::initial_chart(
-                self.defaults.tempo,
-                self.defaults.signature,
-                self.defaults.song_offset,
-            )?)
-        } else {
-            None
-        };
-        session.insert_empty_chart(block, &grid, metadata, resident)
+        let resident=if session.document().format==Format::Sm {
+            Some(crate::timing_edit::resident::initial_chart(self.defaults.tempo,self.defaults.signature,self.defaults.song_offset)?)
+        }else{None};
+        session.insert_empty_chart(block, &grid, metadata,resident)
     }
 }
 fn starting_signature(document: &Document) -> Result<Signature, Error> {

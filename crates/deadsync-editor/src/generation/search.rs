@@ -674,8 +674,7 @@ mod source_comparison_tests {
     fn original_search_node_float_cost_comparisons() {
         let rows: serde_json::Value = serde_json::from_str(include_str!(
             "../../tests/fixtures/generation-cost-comparison/source.expected.json"
-        ))
-        .unwrap();
+        )).unwrap();
         for row in rows.as_array().unwrap() {
             let mut a = Cost::default();
             let mut b = Cost::default();
@@ -685,14 +684,8 @@ mod source_comparison_tests {
             let x = f32::from_bits(row["x"].as_u64().unwrap() as u32);
             let y = f32::from_bits(row["y"].as_u64().unwrap() as u32);
             match row["field"].as_str().unwrap() {
-                "pattern_type" => {
-                    a.pattern_type = x;
-                    b.pattern_type = y;
-                }
-                "distribution" => {
-                    a.distribution = x;
-                    b.distribution = y;
-                }
+                "pattern_type" => { a.pattern_type = x; b.pattern_type = y; }
+                "distribution" => { a.distribution = x; b.distribution = y; }
                 other => panic!("Unknown original field {other}"),
             }
             let expected = row["expected"].as_i64().unwrap().cmp(&0);
@@ -701,22 +694,12 @@ mod source_comparison_tests {
     }
     #[test]
     fn double_costs_keep_double_subtraction_and_comparison_precedence() {
-        let mut a = Cost {
-            fallback: 0.00001000000001,
-            random: 0.1,
-            ..Cost::default()
-        };
-        let b = Cost {
-            random: 0.9,
-            ..Cost::default()
-        };
+        let mut a = Cost { fallback: 0.00001000000001, random: 0.1, ..Cost::default() };
+        let b = Cost { random: 0.9, ..Cost::default() };
         assert_eq!(a.compare(&b), Ordering::Greater);
         a.fallback = 0.0;
         a.pattern_type = f32::from_bits(925353389);
-        let b = Cost {
-            pattern_type: f32::from_bits(722255052),
-            ..b
-        };
+        let b = Cost { pattern_type: f32::from_bits(722255052), ..b };
         assert_eq!(a.compare(&b), Ordering::Less);
         a.misleading = 1;
         assert_eq!(a.compare(&b), Ordering::Greater);

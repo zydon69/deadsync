@@ -1344,27 +1344,12 @@ fn status_text(
     }
     if let Some(prompt) = overlay.password_prompt.as_ref() {
         return match &prompt.mode {
-            PasswordPromptMode::CreateLobby => crate::i18n::tr_fmt(
-                "UiMessages",
-                "ChooseUpToPASSWORDPROMPTMAXLENUppercaseLettersOr",
-                &[(
-                    "PASSWORD_PROMPT_MAX_LEN",
-                    &(PASSWORD_PROMPT_MAX_LEN).to_string(),
-                )],
-            )
-            .to_string(),
-            PasswordPromptMode::JoinLobby { code } => crate::i18n::tr_fmt(
-                "UiMessages",
-                "EnterThePASSWORDPROMPTMAXLENLetterUppercasePasswordFor",
-                &[
-                    (
-                        "PASSWORD_PROMPT_MAX_LEN",
-                        &(PASSWORD_PROMPT_MAX_LEN).to_string(),
-                    ),
-                    ("code", &(code).to_string()),
-                ],
-            )
-            .to_string(),
+            PasswordPromptMode::CreateLobby => {
+                crate::i18n::tr_fmt("UiMessages", "ChooseUpToPASSWORDPROMPTMAXLENUppercaseLettersOr", &[("PASSWORD_PROMPT_MAX_LEN", &(PASSWORD_PROMPT_MAX_LEN).to_string())]).to_string()
+            }
+            PasswordPromptMode::JoinLobby { code } => {
+                crate::i18n::tr_fmt("UiMessages", "EnterThePASSWORDPROMPTMAXLENLetterUppercasePasswordFor", &[("PASSWORD_PROMPT_MAX_LEN", &(PASSWORD_PROMPT_MAX_LEN).to_string()), ("code", &(code).to_string())]).to_string()
+            }
         };
     }
     if let Some(text) = reconnect_status_text {
@@ -1380,9 +1365,7 @@ fn status_text(
         lobby_data::ConnectionState::Disconnected => {
             crate::i18n::tr("UiMessages", "DisconnectedFromOnlineService").to_string()
         }
-        lobby_data::ConnectionState::Connecting => {
-            crate::i18n::tr("UiMessages", "ConnectingToOnlineService").to_string()
-        }
+        lobby_data::ConnectionState::Connecting => crate::i18n::tr("UiMessages", "ConnectingToOnlineService").to_string(),
         lobby_data::ConnectionState::Connected => {
             if snapshot.joined_lobby.is_some() {
                 crate::i18n::tr("UiMessages", "ConnectedToOnlineService").to_string()
@@ -1390,12 +1373,7 @@ fn status_text(
                 crate::i18n::tr("UiMessages", "SelectALobbyOrCreateOne").to_string()
             }
         }
-        lobby_data::ConnectionState::Error(error) => crate::i18n::tr_fmt(
-            "UiMessages",
-            "ConnectionErrorError",
-            &[("error", &(error).to_string())],
-        )
-        .to_string(),
+        lobby_data::ConnectionState::Error(error) => crate::i18n::tr_fmt("UiMessages", "ConnectionErrorError", &[("error", &(error).to_string())]).to_string(),
     }
 }
 
@@ -1694,13 +1672,8 @@ fn password_prompt_backspace(prompt: &mut PasswordPromptState) -> bool {
 
 fn password_prompt_title(prompt: &PasswordPromptState) -> String {
     match &prompt.mode {
-        PasswordPromptMode::CreateLobby => {
-            crate::i18n::tr("UiMessages", "CreateLobbyPasswordOptional").to_string()
-        }
-        PasswordPromptMode::JoinLobby { code } => {
-            crate::i18n::tr_fmt("UiMessages", "JoinCode", &[("code", &(code).to_string())])
-                .to_string()
-        }
+        PasswordPromptMode::CreateLobby => crate::i18n::tr("UiMessages", "CreateLobbyPasswordOptional").to_string(),
+        PasswordPromptMode::JoinLobby { code } => crate::i18n::tr_fmt("UiMessages", "JoinCode", &[("code", &(code).to_string())]).to_string(),
     }
 }
 

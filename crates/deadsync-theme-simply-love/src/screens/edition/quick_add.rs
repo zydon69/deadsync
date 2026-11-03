@@ -40,6 +40,7 @@ pub(super) struct Settings {
 }
 impl State {
     pub(super) fn command_quick_add_review(&mut self, kind: Kind) {
+
         self.open_quick_add();
         if !matches!(self.panel, Some(Panel::QuickAdd(_))) {
             return;
@@ -112,6 +113,7 @@ impl State {
         }
     }
     fn prepare_quick_add_review(&mut self) {
+
         let position = match self.capture_song_property_presentation() {
             Ok(value) => value.row(),
             Err(error) => {
@@ -208,109 +210,40 @@ mod fractional_focus_tests {
 #[cfg(test)]
 mod resident_sm_tests {
     use super::*;
-    use deadsync_editor::{
-        document::Format,
-        event_clipboard::{Event, TimingKind},
-        key_binding_preferences::{Action, Preferences},
-        timing_edit::{Scope, region},
-        workspace::Command,
-    };
-    fn press(state: &mut State, code: KeyCode) {
-        for pressed in [true, false] {
-            state.raw_key(&deadlib_platform::input::RawKeyboardEvent {
-                code,
-                pressed,
-                repeat: false,
-                timestamp: std::time::Instant::now(),
-                host_nanos: 0,
-            });
-        }
+    use deadsync_editor::{key_binding_preferences::{Preferences,Action},event_clipboard::{Event,TimingKind},timing_edit::{Scope,region},document::Format,workspace::Command};
+    fn press(state:&mut State,code:KeyCode) {
+        for pressed in [true,false] {state.raw_key(&deadlib_platform::input::RawKeyboardEvent{code,pressed,repeat:false,timestamp:std::time::Instant::now(),host_nanos:0});}
     }
     #[test]
     fn physical_source_add_actions_author_each_sm_event_without_format_promotion_en_fr() {
-        for locale in ["en", "fr"] {
-            crate::i18n::init_for_tests();
-            crate::i18n::set_locale(deadsync_assets::language::load_for_tests(locale));
-            for (action, kind) in [
-                (Action::AddEventWarp, TimingKind::Warp),
-                (Action::AddEventFakeRegion, TimingKind::Fake),
-                (Action::AddEventScrollRate, TimingKind::Scroll),
-                (Action::AddEventInterpolatedScrollRate, TimingKind::Speed),
-                (Action::AddEventComboMultipliers, TimingKind::Combo),
-                (Action::AddEventLabel, TimingKind::Label),
-            ] {
-                let directory = tempfile::tempdir().unwrap();
-                let path = directory.path().join("source.sm");
+        for locale in ["en","fr"] {
+            crate::i18n::init_for_tests();crate::i18n::set_locale(deadsync_assets::language::load_for_tests(locale));
+            for (action,kind) in [(Action::AddEventWarp,TimingKind::Warp),(Action::AddEventFakeRegion,TimingKind::Fake),(Action::AddEventScrollRate,TimingKind::Scroll),(Action::AddEventInterpolatedScrollRate,TimingKind::Speed),(Action::AddEventComboMultipliers,TimingKind::Combo),(Action::AddEventLabel,TimingKind::Label)] {
+                let directory=tempfile::tempdir().unwrap();let path=directory.path().join("source.sm");
                 std::fs::write(&path,b"#BPMS:0=120;#WARPS:1=100;#NOTES:dance-single::Hard:9::1000,0100,0010;#NOTES:dance-single::Easy:2::0001,0010,0100;").unwrap();
-                let mut state = State::open(&path, 0).unwrap();
-                state.panel = None;
-                state.workspace.execute(Command::Seek(384)).unwrap();
-                let mut preferences = Preferences::default();
-                preferences
-                    .commands
-                    .insert(action.id().into(), vec![vec!["F13".into()]]);
+                let mut state=State::open(&path,0).unwrap();state.panel=None;state.workspace.execute(Command::Seek(384)).unwrap();
+                let mut preferences=Preferences::default();preferences.commands.insert(action.id().into(),vec![vec!["F13".into()]]);
                 state.configure_key_binding_preferences(std::sync::Arc::new(preferences));
-                let before = state.workspace.file().session.serialize().unwrap();
-                press(&mut state, KeyCode::F13);
-                assert!(
-                    matches!(state.panel, Some(Panel::QuickAdd(2))),
-                    "{locale} {action:?}: {:?}",
-                    state.status
-                );
-                assert_eq!(state.workspace.file().session.serialize().unwrap(), before);
-                press(&mut state, KeyCode::ArrowDown);
-                press(&mut state, KeyCode::Enter);
-                assert!(
-                    state.panel.is_none(),
-                    "{locale} {action:?}: {}",
-                    state.status
-                );
-                assert_eq!(state.workspace.file().session.document().format, Format::Sm);
-                let inventory = state.workspace.event_selection_between(384, 384).unwrap();
-                assert!(
-                    inventory
-                        .events()
-                        .contains(&Event::Timing { row: 384, kind }),
-                    "{action:?}"
-                );
-                assert_eq!(
-                    state
-                        .workspace
-                        .file()
-                        .session
-                        .document()
-                        .raw_property(None, "WARPS"),
-                    Some(b"1=100".as_slice())
-                );
-                state.command(Command::Undo);
-                assert_eq!(state.workspace.file().session.serialize().unwrap(), before);
-                state.command(Command::Redo);
-                assert!(
-                    state
-                        .workspace
-                        .event_selection_between(384, 384)
-                        .unwrap()
-                        .events()
-                        .contains(&Event::Timing { row: 384, kind })
-                );
-                if kind == TimingKind::Warp {
-                    state.open_timing();
-                    assert!(matches!(state.panel, Some(Panel::Timing(0))));
-                    for _ in 0..3 {
-                        press(&mut state, KeyCode::Tab);
-                    }
-                    press(&mut state, KeyCode::ArrowDown);
-                    press(&mut state, KeyCode::ArrowDown);
-                    press(&mut state, KeyCode::ArrowRight);
-                    for _ in 0..6 {
-                        press(&mut state, KeyCode::ArrowDown);
-                    }
-                    press(&mut state, KeyCode::Enter);
-                    assert!(state.panel.is_none(), "{}", state.status);
-                    let draft =
-                        region::Draft::capture(&state.workspace.file().session, 0, Scope::Chart)
-                            .unwrap();
-                    assert!(draft.regions(region::Kind::Warp).values()[&384] > 48);
+                let before=state.workspace.file().session.serialize().unwrap();
+                press(&mut state,KeyCode::F13);assert!(matches!(state.panel,Some(Panel::QuickAdd(2))),"{locale} {action:?}: {:?}",state.status);
+                assert_eq!(state.workspace.file().session.serialize().unwrap(),before);
+                press(&mut state,KeyCode::ArrowDown);press(&mut state,KeyCode::Enter);
+                assert!(state.panel.is_none(),"{locale} {action:?}: {}",state.status);
+                assert_eq!(state.workspace.file().session.document().format,Format::Sm);
+                let inventory=state.workspace.event_selection_between(384,384).unwrap();
+                assert!(inventory.events().contains(&Event::Timing{row:384,kind}),"{action:?}");
+                assert_eq!(state.workspace.file().session.document().raw_property(None,"WARPS"),Some(b"1=100".as_slice()));
+                state.command(Command::Undo);assert_eq!(state.workspace.file().session.serialize().unwrap(),before);
+                state.command(Command::Redo);assert!(state.workspace.event_selection_between(384,384).unwrap().events().contains(&Event::Timing{row:384,kind}));
+                if kind==TimingKind::Warp {
+                    state.open_timing();assert!(matches!(state.panel,Some(Panel::Timing(0))));
+                    for _ in 0..3 {press(&mut state,KeyCode::Tab);}
+                    press(&mut state,KeyCode::ArrowDown);press(&mut state,KeyCode::ArrowDown);
+                    press(&mut state,KeyCode::ArrowRight);
+                    for _ in 0..6 {press(&mut state,KeyCode::ArrowDown);}
+                    press(&mut state,KeyCode::Enter);assert!(state.panel.is_none(),"{}",state.status);
+                    let draft=region::Draft::capture(&state.workspace.file().session,0,Scope::Chart).unwrap();
+                    assert!(draft.regions(region::Kind::Warp).values()[&384]>48);
                 }
             }
         }

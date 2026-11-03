@@ -156,8 +156,7 @@ fn all_media_paths_use_typed_picker_stage_apply_undo_save_and_reopen() {
         ctrl(&mut s, KeyCode::KeyY);
         assert_eq!(s.workspace().file().session.serialize().unwrap(), changed);
         ctrl(&mut s, KeyCode::KeyS);
-        let reopened =
-            FileSession::open(s.workspace().file().require_existing_path().unwrap()).unwrap();
+        let reopened = FileSession::open(s.workspace().file().require_existing_path().unwrap()).unwrap();
         let text = Text::read(reopened.session.document());
         for (target, name, path) in selected {
             assert_eq!(text.get(target), name);
@@ -209,16 +208,8 @@ fn automatic_media_search_stages_real_images_and_lyrics_and_preserves_missing_pa
         } else {
             "No matching media found"
         };
-        assert!(
-            actors.iter().any(
-                |actor| matches!(actor, Actor::Text {content,..} if content.contains(missing))
-            )
-        );
-        assert!(
-            actors.iter().any(
-                |actor| matches!(actor, Actor::Text {content,..} if content.contains("old.png"))
-            )
-        );
+        assert!(actors.iter().any(|actor| matches!(actor, Actor::Text {content,..} if content.contains(missing))));
+        assert!(actors.iter().any(|actor| matches!(actor, Actor::Text {content,..} if content.contains("old.png"))));
         let cases = [
             (Field::Banner, "Été banner.png"),
             (Field::Background, "background.png"),
@@ -232,9 +223,7 @@ fn automatic_media_search_stages_real_images_and_lyrics_and_preserves_missing_pa
             if target == Field::Lyrics {
                 fs::write(d.path().join(name), b"[00:01.00]Hello").unwrap();
             } else {
-                image::RgbImage::new(2, 2)
-                    .save(d.path().join(name))
-                    .unwrap();
+                image::RgbImage::new(2, 2).save(d.path().join(name)).unwrap();
             }
             field(&mut s, &mut current, target);
             press(&mut s, KeyCode::F4);
@@ -258,8 +247,7 @@ fn automatic_media_search_stages_real_images_and_lyrics_and_preserves_missing_pa
         assert_eq!(s.workspace().file().session.serialize().unwrap(), changed);
         let output = s.workspace().file().session.serialize_for_output().unwrap();
         ctrl(&mut s, KeyCode::KeyS);
-        let reopened =
-            FileSession::open(s.workspace().file().require_existing_path().unwrap()).unwrap();
+        let reopened = FileSession::open(s.workspace().file().require_existing_path().unwrap()).unwrap();
         assert_eq!(reopened.session.serialize_for_output().unwrap(), output);
     }
 }
@@ -267,12 +255,8 @@ fn automatic_media_search_stages_real_images_and_lyrics_and_preserves_missing_pa
 #[test]
 fn automatic_search_uses_decoded_dimensions_then_background_video_fallback() {
     let (d, mut s, original) = setup(Format::Ssc);
-    image::RgbImage::new(418, 164)
-        .save(d.path().join("wide.png"))
-        .unwrap();
-    image::RgbImage::new(640, 480)
-        .save(d.path().join("scene.png"))
-        .unwrap();
+    image::RgbImage::new(418, 164).save(d.path().join("wide.png")).unwrap();
+    image::RgbImage::new(640, 480).save(d.path().join("scene.png")).unwrap();
     open(&mut s);
     let mut current = 0;
     field(&mut s, &mut current, Field::Banner);
@@ -281,11 +265,7 @@ fn automatic_search_uses_decoded_dimensions_then_background_video_fallback() {
     press(&mut s, KeyCode::F4);
     let mut actors = Vec::new();
     s.actors(&mut actors);
-    assert!(
-        actors.iter().any(
-            |actor| matches!(actor, Actor::Text {content,..} if content.contains("scene.png"))
-        )
-    );
+    assert!(actors.iter().any(|actor| matches!(actor, Actor::Text {content,..} if content.contains("scene.png"))));
     fs::remove_file(d.path().join("wide.png")).unwrap();
     fs::remove_file(d.path().join("scene.png")).unwrap();
     fs::write(d.path().join("animation.mp4"), b"video selection fixture").unwrap();
@@ -304,9 +284,7 @@ fn automatic_search_uses_decoded_dimensions_then_background_video_fallback() {
 #[test]
 fn automatic_media_search_ignores_shortcuts_during_ime_composition() {
     let (d, mut s, original) = setup(Format::Ssc);
-    image::RgbImage::new(2, 2)
-        .save(d.path().join("banner.png"))
-        .unwrap();
+    image::RgbImage::new(2, 2).save(d.path().join("banner.png")).unwrap();
     open(&mut s);
     let mut current = 0;
     field(&mut s, &mut current, Field::Banner);

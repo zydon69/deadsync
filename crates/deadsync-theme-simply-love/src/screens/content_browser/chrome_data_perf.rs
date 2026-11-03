@@ -76,8 +76,7 @@ fn browser_chrome_does_not_copy_static_labels() {
     let mut new = Vec::with_capacity(128);
     let (_, before) = measure(|| draw(&mut old, &state, true));
     let (_, after) = measure(|| draw(&mut new, &state, false));
-    assert!(
-        before.allocs - after.allocs >= TABS.len() + usize::from(band(&state).is_some()),
+    assert!(before.allocs - after.allocs >= TABS.len() + usize::from(band(&state).is_some()),
         "before={before:?}, after={after:?}"
     );
     assert!(after.allocated_bytes < before.allocated_bytes);
@@ -158,8 +157,7 @@ fn comma_formatting_allocates_only_the_final_text() {
         assert_eq!(old, new);
         assert_eq!(after.allocs, 1);
         assert_eq!(after.reallocs, 0);
-        assert!(
-            after.allocs < before.allocs,
+        assert!(after.allocs < before.allocs,
             "before={before:?}, after={after:?}"
         );
         assert!(after.allocated_bytes < before.allocated_bytes);

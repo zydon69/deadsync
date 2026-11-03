@@ -30,7 +30,7 @@ impl Symbol {
         if self == other {
             return self;
         }
-        if let (Some((a, b)), Some((c, d))) = (self.integer_range(), other.integer_range()) {
+        if let (Some((a,b)), Some((c,d))) = (self.integer_range(), other.integer_range()) {
             return Self::NumberRange(a.min(c), b.max(d));
         }
         if self.stable_bytes() && other.stable_bytes() {
@@ -47,14 +47,11 @@ impl Symbol {
 
     fn integer_range(self) -> Option<(i32, i32)> {
         match self {
-            Self::NumberRange(a, b) => Some((a, b)),
+            Self::NumberRange(a,b) => Some((a,b)),
             Self::Constant(Value::Number(bits)) => {
                 let value = f64::from_bits(bits);
-                (value.is_finite()
-                    && value.fract() == 0.0
-                    && value >= f64::from(i32::MIN)
-                    && value <= f64::from(i32::MAX))
-                .then_some((value as i32, value as i32))
+                (value.is_finite() && value.fract() == 0.0 && value >= f64::from(i32::MIN) && value <= f64::from(i32::MAX))
+                    .then_some((value as i32, value as i32))
             }
             _ => None,
         }
@@ -99,14 +96,10 @@ impl Builder<'_> {
         Ok(match binding {
             Binding::Literal(v) => Source::Value(self.literal(v.clone())),
             Binding::Object(id) => Source::Value(
-                self.tables
-                    .and_then(|tables| {
-                        tables
-                            .index(*id)
-                            .map(Value::BooleanTable)
-                            .or_else(|| tables.array_index(*id).map(Value::BooleanTableArray))
-                    })
-                    .unwrap_or(Value::Object(*id)),
+                self.tables.and_then(|tables| {
+                    tables.index(*id).map(Value::BooleanTable)
+                        .or_else(|| tables.array_index(*id).map(Value::BooleanTableArray))
+                }).unwrap_or(Value::Object(*id))
             ),
             Binding::Cell(id) => {
                 if *id >= self.cells.len() {
@@ -475,28 +468,17 @@ pub(super) fn lower_with(
                         Symbol::Constant(*constants.get(bx).ok_or(CompileError::InvalidChunk)?),
                     )
                 } else {
-                    (
-                        reg(&mut clear_registers, &symbols, b, pc)?,
-                        rk(&mut clear_registers, &symbols, &constants, c, pc)?.1,
-                    )
+                    (reg(&mut clear_registers, &symbols, b, pc)?, rk(&mut clear_registers, &symbols, &constants, c, pc)?.1)
                 };
                 if object == Symbol::BooleanTable {
                     require(key, Types::BYTES, pc)?;
                     let key = rk(&mut clear_registers, &symbols, &constants, c, pc)?.0;
                     set(&mut symbols, a, Symbol::Scalar(Types::NIL | Types::BOOLEAN))?;
-                    Op::ReadBooleanTable {
-                        dst: a,
-                        table: b,
-                        key,
-                    }
+                    Op::ReadBooleanTable { dst: a, table: b, key }
                 } else if let Symbol::BooleanTableArray(array) = object {
                     let len = builder.tables.expect("array schema").array(array).len();
-                    let Some((min, max)) = key.integer_range() else {
-                        return Err(unsupported(pc, "unproven array index"));
-                    };
-                    if min < 1 || max as usize > len {
-                        return Err(unsupported(pc, "array index range"));
-                    }
+                    let Some((min,max)) = key.integer_range() else { return Err(unsupported(pc, "unproven array index")); };
+                    if min < 1 || max as usize > len { return Err(unsupported(pc, "array index range")); }
                     let key = rk(&mut clear_registers, &symbols, &constants, c, pc)?.0;
                     set(&mut symbols, a, Symbol::BooleanTable)?;
                     Op::ReadBooleanTableArray { dst: a, array, key }
@@ -516,52 +498,44 @@ pub(super) fn lower_with(
                     let (source, value_type) = rk(&mut clear_registers, &symbols, &constants, c, pc)?;
                     require(key_type, Types::BYTES, pc)?;
                     require(value_type, Types::NIL | Types::BOOLEAN, pc)?;
-                    Op::WriteBooleanTable {
-                        table: a,
-                        key,
-                        source,
-                    }
+                    Op::WriteBooleanTable { table: a, key, source }
                 } else {
-                    let (target, source, symbol) = if opcode == 8 {
+                let (target, source, symbol) = if opcode == 8 {
+                    (
+                        *upvalues.get(b).ok_or(CompileError::InvalidChunk)?,
+                        Operand::Register(a),
+                        reg(&mut clear_registers, &symbols, a, pc)?,
+                    )
+                } else {
+                    let (object, key, source, symbol) = if opcode == 7 {
+                        let object = bindings
+                            .environment
+                            .ok_or_else(|| unsupported(pc, "unbound environment"))?;
                         (
-                            *upvalues.get(b).ok_or(CompileError::InvalidChunk)?,
+                            Symbol::Object(object),
+                            Symbol::Constant(*constants.get(bx).ok_or(CompileError::InvalidChunk)?),
                             Operand::Register(a),
                             reg(&mut clear_registers, &symbols, a, pc)?,
                         )
                     } else {
-                        let (object, key, source, symbol) = if opcode == 7 {
-                            let object = bindings
-                                .environment
-                                .ok_or_else(|| unsupported(pc, "unbound environment"))?;
-                            (
-                                Symbol::Object(object),
-                                Symbol::Constant(*constants.get(bx).ok_or(CompileError::InvalidChunk)?),
-                                Operand::Register(a),
-                                reg(&mut clear_registers, &symbols, a, pc)?,
-                            )
-                        } else {
-                            let (source, symbol) = rk(&mut clear_registers, &symbols, &constants, c, pc)?;
-                            (
-                                reg(&mut clear_registers, &symbols, a, pc)?,
-                                rk(&mut clear_registers, &symbols, &constants, b, pc)?.1,
-                                source,
-                                symbol,
-                            )
-                        };
-                        let field = builder.field(object, key, pc)?;
-                        (builder.field_source(field), source, symbol)
+                        let (source, symbol) = rk(&mut clear_registers, &symbols, &constants, c, pc)?;
+                        (
+                            reg(&mut clear_registers, &symbols, a, pc)?,
+                            rk(&mut clear_registers, &symbols, &constants, b, pc)?.1,
+                            source,
+                            symbol,
+                        )
                     };
-                    let cell = builder.write(target, symbol, pc)?;
-                    Op::Write { cell, source }
+                    let field = builder.field(object, key, pc)?;
+                    (builder.field_source(field), source, symbol)
+                };
+                let cell = builder.write(target, symbol, pc)?;
+                Op::Write { cell, source }
                 }
             }
             11 => {
                 let receiver = reg(&mut clear_registers, &symbols, b, pc)?;
-                let field = builder.field(
-                    receiver,
-                    rk(&mut clear_registers, &symbols, &constants, c, pc)?.1,
-                    pc,
-                )?;
+                let field = builder.field(receiver, rk(&mut clear_registers, &symbols, &constants, c, pc)?.1, pc)?;
                 let Resolved::Action(action) = field else {
                     return Err(unsupported(pc, "unbound method"));
                 };

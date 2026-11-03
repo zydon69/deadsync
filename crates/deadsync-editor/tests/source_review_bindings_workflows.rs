@@ -34,7 +34,10 @@ fn reviewed_source_callbacks_are_explicitly_available_without_native_default_ass
             }
         }
         assert_eq!(added, 58);
-        for id in ["ShiftEarlier", "ShiftLater"] {
+        for id in [
+            "ShiftEarlier",
+            "ShiftLater",
+        ] {
             let action = Action::from_id(id).expect("selected mixed-event callback is ported");
             assert!(action.is_selected_review());
             assert!(source_ids.contains(&id));

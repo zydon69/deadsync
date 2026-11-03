@@ -21,15 +21,15 @@
 //! An input frame is immutable for a complete call. Action arguments borrow
 //! its bytes or the program's owned constants without allocating.
 
-mod batch;
 mod compile;
+mod batch;
 pub use batch::BatchCompiler;
 mod decode;
 mod dedup;
 mod strings;
 mod tables;
-use strings::Strings;
 pub use tables::{BooleanTable, BooleanTableArray};
+use strings::Strings;
 
 use crate::Function;
 use std::{
@@ -322,21 +322,9 @@ enum Op {
         tail: bool,
     },
     Return(Option<usize>),
-    ReadBooleanTable {
-        dst: usize,
-        table: usize,
-        key: Operand,
-    },
-    WriteBooleanTable {
-        table: usize,
-        key: Operand,
-        source: Operand,
-    },
-    ReadBooleanTableArray {
-        dst: usize,
-        array: usize,
-        key: Operand,
-    },
+    ReadBooleanTable { dst: usize, table: usize, key: Operand },
+    WriteBooleanTable { table: usize, key: Operand, source: Operand },
+    ReadBooleanTableArray { dst: usize, array: usize, key: Operand },
 }
 
 struct Code {
@@ -465,8 +453,7 @@ impl Program {
 
     /// Owned code/data payload, excluding allocator bookkeeping and Arc counters.
     pub fn retained_bytes(&self) -> usize {
-        self.code_bytes()
-            + self.0.strings.retained_bytes()
+        self.code_bytes() + self.0.strings.retained_bytes()
             + self.0.tables.as_ref().map_or(0, |tables| tables.retained_bytes())
     }
 
@@ -533,12 +520,7 @@ impl Machine {
 
     /// Opaque identities of the declared Boolean tables.
     pub fn boolean_objects(&self) -> impl Iterator<Item = u32> + '_ {
-        self.program
-            .0
-            .tables
-            .as_ref()
-            .into_iter()
-            .flat_map(|tables| tables.objects())
+        self.program.0.tables.as_ref().into_iter().flat_map(|tables| tables.objects())
     }
 
     /// Execute against actual immutable inputs and emit host actions in authored
@@ -608,10 +590,7 @@ impl Group {
         }
         let initial = programs.first().map_or(&[][..], |p| p.0.cells.as_ref());
         let cells = initial.to_vec().into_boxed_slice();
-        let tables = programs
-            .first()
-            .and_then(|p| p.0.tables.as_ref())
-            .map(|tables| tables.state());
+        let tables = programs.first().and_then(|p| p.0.tables.as_ref()).map(|tables| tables.state());
         let registers =
             vec![Value::Nil; programs.iter().map(|p| p.0.registers).max().unwrap_or(0)].into_boxed_slice();
         Ok(Self {
@@ -653,11 +632,7 @@ impl Group {
 
     /// Opaque identities in the group's shared Boolean-table layout.
     pub fn boolean_objects(&self) -> impl Iterator<Item = u32> + '_ {
-        self.programs
-            .first()
-            .and_then(|p| p.0.tables.as_ref())
-            .into_iter()
-            .flat_map(|tables| tables.objects())
+        self.programs.first().and_then(|p| p.0.tables.as_ref()).into_iter().flat_map(|tables| tables.objects())
     }
 
     /// Execute one program. None means an invalid program index and has no
@@ -708,23 +683,11 @@ impl Group {
             + size_of_val(self.cells.as_ref())
             + size_of_val(self.registers.as_ref())
             + self.tables.as_ref().map_or(0, |tables| tables.retained_bytes())
-            + self
-                .programs
-                .iter()
-                .enumerate()
-                .filter(|(index, program)| {
-                    program.0.tables.as_ref().is_some_and(|tables| {
-                        !self.programs[..*index].iter().any(|other| {
-                            other
-                                .0
-                                .tables
-                                .as_ref()
-                                .is_some_and(|previous| Arc::ptr_eq(previous, tables))
-                        })
-                    })
+            + self.programs.iter().enumerate().filter(|(index, program)| {
+                program.0.tables.as_ref().is_some_and(|tables| {
+                    !self.programs[..*index].iter().any(|other| other.0.tables.as_ref().is_some_and(|previous| Arc::ptr_eq(previous, tables)))
                 })
-                .map(|(_, program)| program.0.tables.as_ref().unwrap().retained_bytes())
-                .sum::<usize>()
+            }).map(|(_, program)| program.0.tables.as_ref().unwrap().retained_bytes()).sum::<usize>()
             + self
                 .programs
                 .iter()
@@ -781,25 +744,14 @@ fn execute<'a, R>(
             Op::Nil { first, last } => registers[first..=last].fill(Value::Nil),
             Op::Write { cell, source } => cells[cell] = source.get(registers),
             Op::ReadBooleanTable { dst, table, key } => {
-                let Value::BooleanTable(index) = registers[table] else {
-                    unreachable!("verified table")
-                };
-                let Datum::Bytes(key) = datum(key.get(registers), code, inputs) else {
-                    unreachable!("verified table key")
-                };
+                let Value::BooleanTable(index) = registers[table] else { unreachable!("verified table") };
+                let Datum::Bytes(key) = datum(key.get(registers), code, inputs) else { unreachable!("verified table key") };
                 registers[dst] = tables.as_ref().expect("verified table state").read(index, key);
             }
             Op::WriteBooleanTable { table, key, source } => {
-                let Value::BooleanTable(index) = registers[table] else {
-                    unreachable!("verified table")
-                };
-                let Datum::Bytes(key) = datum(key.get(registers), code, inputs) else {
-                    unreachable!("verified table key")
-                };
-                tables
-                    .as_mut()
-                    .expect("verified table state")
-                    .write(index, key, source.get(registers));
+                let Value::BooleanTable(index) = registers[table] else { unreachable!("verified table") };
+                let Datum::Bytes(key) = datum(key.get(registers), code, inputs) else { unreachable!("verified table key") };
+                tables.as_mut().expect("verified table state").write(index, key, source.get(registers));
             }
             Op::ReadBooleanTableArray { dst, array, key } => {
                 let index = key.get(registers).number() as usize;
@@ -926,15 +878,8 @@ fn datum<'a>(v: Value, code: &'a Code, inputs: &'a [Datum<'a>]) -> Datum<'a> {
         Value::String(i) => Datum::Bytes(&code.strings[i]),
         Value::InputString(i) => inputs[i],
         Value::Object(i) => Datum::Object(i),
-        Value::BooleanTable(i) => {
-            Datum::Object(code.tables.as_ref().expect("verified table layout").object(i))
-        }
-        Value::BooleanTableArray(i) => Datum::Object(
-            code.tables
-                .as_ref()
-                .expect("verified array layout")
-                .array_object(i),
-        ),
+        Value::BooleanTable(i) => Datum::Object(code.tables.as_ref().expect("verified table layout").object(i)),
+        Value::BooleanTableArray(i) => Datum::Object(code.tables.as_ref().expect("verified array layout").array_object(i)),
         Value::Action(i) => Datum::Action(i),
     }
 }

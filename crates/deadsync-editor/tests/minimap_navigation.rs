@@ -1,7 +1,7 @@
 //! Exercise the public production modules against source contracts.
 pub use deadsync_editor::Error;
-use deadsync_editor::minimap_navigation as navigation;
 use deadsync_editor::scroll_preferences::dragging;
+use deadsync_editor::minimap_navigation as navigation;
 use navigation::{Effect, Gesture, Input, Position};
 
 fn position(time: f64) -> Position {

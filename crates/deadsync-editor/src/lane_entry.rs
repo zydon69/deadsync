@@ -18,21 +18,12 @@ pub enum Mode {
 impl Mode {
     pub fn read(value: Option<&serde_json::Value>) -> Self {
         match value {
-            Some(serde_json::Value::String(name)) if name.eq_ignore_ascii_case("AdvanceBySnap") => {
-                Self::AdvanceBySnap
-            }
-            Some(serde_json::Value::Number(number)) if number.as_u64() == Some(1) => {
-                Self::AdvanceBySnap
-            }
+            Some(serde_json::Value::String(name)) if name.eq_ignore_ascii_case("AdvanceBySnap") => Self::AdvanceBySnap,
+            Some(serde_json::Value::Number(number)) if number.as_u64() == Some(1) => Self::AdvanceBySnap,
             _ => Self::Normal,
         }
     }
-    pub const fn name(self) -> &'static str {
-        match self {
-            Self::Normal => "Normal",
-            Self::AdvanceBySnap => "AdvanceBySnap",
-        }
-    }
+    pub const fn name(self) -> &'static str { match self {Self::Normal=>"Normal",Self::AdvanceBySnap=>"AdvanceBySnap"} }
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Draft {
@@ -379,245 +370,65 @@ fn resolve(grid: &mut Grid, lane: u16, g: &Gesture) -> Result<(), Error> {
 
 /// One actual event-tree identity. Pending and committed heads can share a
 /// Position; never collapse them before source admission or drawing.
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct Head {
-    pub position: Position,
-    pub note: Note,
-    pub edited: bool,
-}
+#[derive(Clone,Debug,PartialEq,Eq)]
+pub struct Head {pub position:Position,pub note:Note,pub edited:bool}
 impl Head {
-    pub(crate) fn key(&self) -> (u64, u8, u16, u32, bool) {
-        (
-            self.position.row,
-            self.note.kind.editor_phase(),
-            self.position.lane,
-            self.position.player,
-            self.edited,
-        )
-    }
-    pub fn draft(&self) -> Option<Draft> {
-        self.edited.then_some(Draft {
-            position: self.position,
-            kind: self.note.kind,
-            end: self.note.end,
-        })
-    }
+    pub(crate) fn key(&self)->(u64,u8,u16,u32,bool){(self.position.row,self.note.kind.editor_phase(),self.position.lane,self.position.player,self.edited)}
+    pub fn draft(&self)->Option<Draft>{self.edited.then_some(Draft{position:self.position,kind:self.note.kind,end:self.note.end})}
 }
 /// Sparse logical source tree while input is held. Release normalization is
 /// intentionally absent: original OnLaneInputUp performs it only on release.
-pub struct Held<'a> {
-    grid: &'a Grid,
-    deleted: BTreeSet<Position>,
-    drafts: Vec<Head>,
-}
-impl<'a> Held<'a> {
-    pub fn new(grid: &'a Grid, input: Option<&Inputs>) -> Self {
-        let deleted = input.into_iter().flat_map(Inputs::deleted_heads).collect();
-        let mut drafts = input
-            .into_iter()
-            .flat_map(Inputs::drafts)
-            .map(|d| Head {
-                position: d.position,
-                note: fresh(d),
-                edited: true,
-            })
-            .collect::<Vec<_>>();
-        drafts.sort_by_key(Head::key);
-        Self {
-            grid,
-            deleted,
-            drafts,
-        }
+pub struct Held<'a>{grid:&'a Grid,deleted:BTreeSet<Position>,drafts:Vec<Head>}
+impl<'a> Held<'a>{
+    pub fn new(grid:&'a Grid,input:Option<&Inputs>)->Self{
+        let deleted=input.into_iter().flat_map(Inputs::deleted_heads).collect();
+        let mut drafts=input.into_iter().flat_map(Inputs::drafts).map(|d|Head{position:d.position,note:fresh(d),edited:true}).collect::<Vec<_>>();
+        drafts.sort_by_key(Head::key);Self{grid,deleted,drafts}
     }
-    pub(crate) fn last_head_before(&self, row: u64) -> Option<Head> {
-        let base = self
-            .grid
-            .last_head_before_excluding(row, &self.deleted)
-            .map(|(p, n)| Head {
-                position: p,
-                note: n.clone(),
-                edited: false,
-            });
-        let draft = self
-            .drafts
-            .iter()
-            .rev()
-            .find(|h| h.position.row < row)
-            .cloned();
+    pub(crate) fn last_head_before(&self,row:u64)->Option<Head>{
+        let base=self.grid.last_head_before_excluding(row,&self.deleted).map(|(p,n)|Head{position:p,note:n.clone(),edited:false});
+        let draft=self.drafts.iter().rev().find(|h|h.position.row<row).cloned();
         base.into_iter().chain(draft).max_by_key(Head::key)
     }
-    pub(crate) fn heads_from(&self, row: u64) -> impl Iterator<Item = Head> + '_ {
-        let mut base = self
-            .grid
-            .row_heads_from(row)
-            .filter(|(p, _)| !self.deleted.contains(p))
-            .map(|(p, n)| Head {
-                position: p,
-                note: n.clone(),
-                edited: false,
-            })
-            .peekable();
-        let mut drafts = self
-            .drafts
-            .iter()
-            .filter(move |h| h.position.row >= row)
-            .cloned()
-            .peekable();
-        std::iter::from_fn(move || match (base.peek(), drafts.peek()) {
-            (Some(a), Some(b)) => {
-                if a.key() <= b.key() {
-                    base.next()
-                } else {
-                    drafts.next()
-                }
-            }
-            (Some(_), None) => base.next(),
-            (None, Some(_)) => drafts.next(),
-            _ => None,
-        })
+    pub(crate) fn heads_from(&self,row:u64)->impl Iterator<Item=Head>+'_ {
+        let mut base=self.grid.row_heads_from(row).filter(|(p,_)|!self.deleted.contains(p)).map(|(p,n)|Head{position:p,note:n.clone(),edited:false}).peekable();
+        let mut drafts=self.drafts.iter().filter(move|h|h.position.row>=row).cloned().peekable();
+        std::iter::from_fn(move||match(base.peek(),drafts.peek()){
+            (Some(a),Some(b))=>if a.key()<=b.key(){base.next()}else{drafts.next()},
+            (Some(_),None)=>base.next(),(None,Some(_))=>drafts.next(),_=>None})
     }
-    pub(crate) fn crossing(&self, row: f64, threshold: u64) -> Vec<Head> {
-        let mut out = self
-            .grid
-            .visible(threshold, threshold)
-            .into_iter()
-            .filter(|(p, n)| {
-                !self.deleted.contains(p)
-                    && p.row as f64 <= row
-                    && n.end.is_some_and(|e| e as f64 >= row)
-            })
-            .map(|(p, n)| Head {
-                position: p,
-                note: n.clone(),
-                edited: false,
-            })
-            .collect::<Vec<_>>();
+    pub(crate) fn crossing(&self,row:f64,threshold:u64)->Vec<Head>{
+        let mut out=self.grid.visible(threshold,threshold).into_iter().filter(|(p,n)|!self.deleted.contains(p)&&p.row as f64<=row&&n.end.is_some_and(|e|e as f64>=row)).map(|(p,n)|Head{position:p,note:n.clone(),edited:false}).collect::<Vec<_>>();
         // Edited holds are a separate source ScanBackwardsForHolds branch;
         // unlike committed holds, both endpoints are excluded.
-        out.extend(
-            self.drafts
-                .iter()
-                .filter(|h| {
-                    (h.position.row as f64) < row && h.note.end.is_some_and(|e| (e as f64) > row)
-                })
-                .cloned(),
-        );
-        out
+        out.extend(self.drafts.iter().filter(|h|(h.position.row as f64)<row&&h.note.end.is_some_and(|e|(e as f64)>row)).cloned());out
     }
 }
 #[cfg(test)]
 mod held_view_tests {
     use super::*;
-    use crate::document::{Document, Format};
+    use crate::document::{Document,Format};
     #[test]
     fn raw_held_tree_keeps_overlapping_committed_identity_until_release() {
-        let mut session = Session::new(
-            Document::parse(
-                b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:0000;"
-                    .to_vec(),
-                Format::Ssc,
-            )
-            .unwrap(),
-        );
-        let p = Position {
-            row: 24,
-            lane: 0,
-            player: 0,
-        };
-        session
-            .edit_notes(
-                0,
-                "fixture",
-                vec![(
-                    p,
-                    Some(Note {
-                        kind: Kind::Tap,
-                        end: None,
-                        attributes: Default::default(),
-                        tail_attributes: Default::default(),
-                    }),
-                )],
-            )
-            .unwrap();
-        let before = session.serialize().unwrap();
-        let revision = session.revision();
-        let mut input = Inputs::capture(&mut session, 0).unwrap();
-        input
-            .press(
-                &mut session,
-                Press {
-                    lane: 0,
-                    player: 0,
-                    row: 48.0,
-                    snap_rows: 0,
-                    modified: false,
-                    playing: false,
-                    advance_by_snap: false,
-                },
-            )
-            .unwrap();
-        input.move_to(&session, 24.0, 0, false).unwrap();
-        let held = Held::new(session.loaded_grid(0).unwrap(), Some(&input));
-        let heads = held.heads_from(0).collect::<Vec<_>>();
-        assert_eq!(heads.len(), 2);
-        assert_eq!(heads[0].position, p);
-        assert_eq!(heads[1].position, p);
-        assert!(!heads[0].edited);
-        assert!(heads[1].edited);
-        assert_eq!(heads[1].note.end, Some(48));
-        assert!(held.crossing(24.0, 24).is_empty());
-        assert_eq!(held.crossing(25.0, 25).len(), 1);
-        assert!(held.crossing(48.0, 48).is_empty());
-        assert_eq!(session.serialize().unwrap(), before);
-        assert_eq!(session.revision(), revision);
-        input.cancel();
-        assert_eq!(
-            Held::new(session.loaded_grid(0).unwrap(), Some(&input))
-                .heads_from(0)
-                .count(),
-            1
-        );
-        assert_eq!(session.serialize().unwrap(), before);
+        let mut session=Session::new(Document::parse(b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:0000;".to_vec(),Format::Ssc).unwrap());
+        let p=Position{row:24,lane:0,player:0};
+        session.edit_notes(0,"fixture",vec![(p,Some(Note{kind:Kind::Tap,end:None,attributes:Default::default(),tail_attributes:Default::default()}))]).unwrap();
+        let before=session.serialize().unwrap();let revision=session.revision();
+        let mut input=Inputs::capture(&mut session,0).unwrap();
+        input.press(&mut session,Press{lane:0,player:0,row:48.0,snap_rows:0,modified:false,playing:false,advance_by_snap:false}).unwrap();
+        input.move_to(&session,24.0,0,false).unwrap();
+        let held=Held::new(session.loaded_grid(0).unwrap(),Some(&input));
+        let heads=held.heads_from(0).collect::<Vec<_>>();assert_eq!(heads.len(),2);assert_eq!(heads[0].position,p);assert_eq!(heads[1].position,p);assert!(!heads[0].edited);assert!(heads[1].edited);assert_eq!(heads[1].note.end,Some(48));
+        assert!(held.crossing(24.0,24).is_empty());assert_eq!(held.crossing(25.0,25).len(),1);assert!(held.crossing(48.0,48).is_empty());
+        assert_eq!(session.serialize().unwrap(),before);assert_eq!(session.revision(),revision);
+        input.cancel();assert_eq!(Held::new(session.loaded_grid(0).unwrap(),Some(&input)).heads_from(0).count(),1);assert_eq!(session.serialize().unwrap(),before);
     }
     #[test]
     fn initial_deletion_changes_only_logical_tree_and_cancel_restores_it() {
-        let mut session = Session::new(
-            Document::parse(
-                b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;"
-                    .to_vec(),
-                Format::Ssc,
-            )
-            .unwrap(),
-        );
-        let mut input = Inputs::capture(&mut session, 0).unwrap();
-        let before = session.serialize().unwrap();
-        input
-            .press(
-                &mut session,
-                Press {
-                    lane: 0,
-                    player: 0,
-                    row: 0.0,
-                    snap_rows: 0,
-                    modified: false,
-                    playing: false,
-                    advance_by_snap: false,
-                },
-            )
-            .unwrap();
-        assert_eq!(
-            Held::new(session.loaded_grid(0).unwrap(), Some(&input))
-                .heads_from(0)
-                .count(),
-            0
-        );
-        assert_eq!(session.serialize().unwrap(), before);
-        input.cancel();
-        assert_eq!(
-            Held::new(session.loaded_grid(0).unwrap(), Some(&input))
-                .heads_from(0)
-                .count(),
-            1
-        );
+        let mut session=Session::new(Document::parse(b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;".to_vec(),Format::Ssc).unwrap());
+        let mut input=Inputs::capture(&mut session,0).unwrap();let before=session.serialize().unwrap();
+        input.press(&mut session,Press{lane:0,player:0,row:0.0,snap_rows:0,modified:false,playing:false,advance_by_snap:false}).unwrap();
+        assert_eq!(Held::new(session.loaded_grid(0).unwrap(),Some(&input)).heads_from(0).count(),0);assert_eq!(session.serialize().unwrap(),before);
+        input.cancel();assert_eq!(Held::new(session.loaded_grid(0).unwrap(),Some(&input)).heads_from(0).count(),1);
     }
 }

@@ -14,13 +14,7 @@ use std::{fs, path::PathBuf, sync::atomic::AtomicBool};
 fn fixture(name: &str, suffix: &str) -> Value {
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("tests/fixtures/grooveauthor")
-        .join(
-            if name.starts_with("parity-") || name.starts_with("policy-parity-") {
-                format!("generation-parity/{name}.{suffix}.json")
-            } else {
-                format!("{name}.{suffix}.json")
-            },
-        );
+        .join(if name.starts_with("parity-")||name.starts_with("policy-parity-"){format!("generation-parity/{name}.{suffix}.json")}else{format!("{name}.{suffix}.json")});
     serde_json::from_slice(&fs::read(path).unwrap()).unwrap()
 }
 
@@ -233,10 +227,8 @@ fn seeded_random_matches_original_dotnet_for_normal_negative_and_extreme_seeds()
 }
 
 #[test]
-fn original_double_path_has_matching_costs_at_each_step() {
-    compare_original_costs("double-context");
-}
-fn compare_original_costs(name: &str) {
+fn original_double_path_has_matching_costs_at_each_step(){compare_original_costs("double-context");}
+fn compare_original_costs(name:&str) {
     use deadsync_editor::generation::{
         graph::{ArrowState, FootState, StepGraph},
         search::{BLANK_LINK, Scoring},
@@ -483,7 +475,7 @@ fn timing_preparation_checks_cancellation_between_rows_and_events() {
 }
 
 #[test]
-fn original_search_single_leaf_mutations_match_outputs_and_performed_costs() {
+fn original_search_single_leaf_mutations_match_outputs_and_performed_costs(){
     compare_original("parity-pattern-beatsubdivision");
     compare_original("parity-pattern-startingfootchoice");
     compare_original("parity-pattern-startingfootspecified");
@@ -685,7 +677,7 @@ fn original_search_single_leaf_mutations_match_outputs_and_performed_costs() {
 }
 
 #[test]
-fn active_single_leaf_contexts_match_original_outputs_and_performed_costs() {
+fn active_single_leaf_contexts_match_original_outputs_and_performed_costs(){
     compare_original("parity-pattern-startingfootspecified-42-base-active");
     compare_original("parity-pattern-startingfootspecified-42-mutated-active");
     compare_original("parity-pattern-leftfootstartlanespecified-42-base-active");
@@ -715,13 +707,9 @@ fn active_single_leaf_contexts_match_original_outputs_and_performed_costs() {
     compare_original("parity-performed-facing-outwardpercentagecutoff-42-mutated-active");
     compare_original_costs("parity-performed-facing-outwardpercentagecutoff-42-mutated-active");
     compare_original("parity-performed-steptightening-distancetighteningenabled-42-base-active");
-    compare_original_costs(
-        "parity-performed-steptightening-distancetighteningenabled-42-base-active",
-    );
+    compare_original_costs("parity-performed-steptightening-distancetighteningenabled-42-base-active");
     compare_original("parity-performed-steptightening-distancetighteningenabled-42-mutated-active");
-    compare_original_costs(
-        "parity-performed-steptightening-distancetighteningenabled-42-mutated-active",
-    );
+    compare_original_costs("parity-performed-steptightening-distancetighteningenabled-42-mutated-active");
     compare_original("parity-performed-steptightening-distancemin-42-base-active");
     compare_original_costs("parity-performed-steptightening-distancemin-42-base-active");
     compare_original("parity-performed-steptightening-distancemin-42-mutated-active");
@@ -731,13 +719,9 @@ fn active_single_leaf_contexts_match_original_outputs_and_performed_costs() {
     compare_original("parity-performed-steptightening-distancemax-42-mutated-active");
     compare_original_costs("parity-performed-steptightening-distancemax-42-mutated-active");
     compare_original("parity-performed-steptightening-stretchtighteningenabled-42-base-active");
-    compare_original_costs(
-        "parity-performed-steptightening-stretchtighteningenabled-42-base-active",
-    );
+    compare_original_costs("parity-performed-steptightening-stretchtighteningenabled-42-base-active");
     compare_original("parity-performed-steptightening-stretchtighteningenabled-42-mutated-active");
-    compare_original_costs(
-        "parity-performed-steptightening-stretchtighteningenabled-42-mutated-active",
-    );
+    compare_original_costs("parity-performed-steptightening-stretchtighteningenabled-42-mutated-active");
     compare_original("parity-performed-steptightening-stretchdistancemin-42-base-active");
     compare_original_costs("parity-performed-steptightening-stretchdistancemin-42-base-active");
     compare_original("parity-performed-steptightening-stretchdistancemin-42-mutated-active");
@@ -747,15 +731,9 @@ fn active_single_leaf_contexts_match_original_outputs_and_performed_costs() {
     compare_original("parity-performed-steptightening-stretchdistancemax-42-mutated-active");
     compare_original_costs("parity-performed-steptightening-stretchdistancemax-42-mutated-active");
     compare_original("parity-performed-steptightening-longitudinalminpaneldistance-42-base-active");
-    compare_original_costs(
-        "parity-performed-steptightening-longitudinalminpaneldistance-42-base-active",
-    );
-    compare_original(
-        "parity-performed-steptightening-longitudinalminpaneldistance-42-mutated-active",
-    );
-    compare_original_costs(
-        "parity-performed-steptightening-longitudinalminpaneldistance-42-mutated-active",
-    );
+    compare_original_costs("parity-performed-steptightening-longitudinalminpaneldistance-42-base-active");
+    compare_original("parity-performed-steptightening-longitudinalminpaneldistance-42-mutated-active");
+    compare_original_costs("parity-performed-steptightening-longitudinalminpaneldistance-42-mutated-active");
     compare_original("parity-performed-lateraltightening-enabled-42-base-active");
     compare_original_costs("parity-performed-lateraltightening-enabled-42-base-active");
     compare_original("parity-performed-lateraltightening-enabled-42-mutated-active");
@@ -789,11 +767,7 @@ fn active_single_leaf_contexts_match_original_outputs_and_performed_costs() {
     compare_original("parity-performed-transitions-minimumpadwidth-42-mutated-active");
     compare_original_costs("parity-performed-transitions-minimumpadwidth-42-mutated-active");
     compare_original("parity-performed-transitions-transitioncutoffpercentage-42-base-active");
-    compare_original_costs(
-        "parity-performed-transitions-transitioncutoffpercentage-42-base-active",
-    );
+    compare_original_costs("parity-performed-transitions-transitioncutoffpercentage-42-base-active");
     compare_original("parity-performed-transitions-transitioncutoffpercentage-42-mutated-active");
-    compare_original_costs(
-        "parity-performed-transitions-transitioncutoffpercentage-42-mutated-active",
-    );
+    compare_original_costs("parity-performed-transitions-transitioncutoffpercentage-42-mutated-active");
 }

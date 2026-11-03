@@ -23,16 +23,10 @@ pub trait Orderer {
 /// Bind song-level deferred UI work even when no chart view is focused.
 pub struct SessionBinding(crate::history::ContentToken);
 impl SessionBinding {
-    pub fn capture(session: &Session) -> Self {
-        Self(session.content_token())
-    }
-    pub fn is_current(&self, session: &Session) -> bool {
-        session.accepts_content_token(&self.0)
-    }
+    pub fn capture(session: &Session) -> Self { Self(session.content_token()) }
+    pub fn is_current(&self, session: &Session) -> bool { session.accepts_content_token(&self.0) }
     /// Survive content edits without accepting another song session.
-    pub fn belongs_to(&self, session: &Session) -> bool {
-        session.owns_content_token(&self.0)
-    }
+    pub fn belongs_to(&self, session: &Session) -> bool { session.owns_content_token(&self.0) }
 }
 
 /// Bind a queued native operation to its original live song content and focus.
@@ -189,12 +183,7 @@ impl Snapshot {
     pub fn read(session: &mut Session, identities: &[Guid]) -> Result<Self, Error> {
         Self::read_mode(session, identities, false, || false).map(|(snapshot, _)| snapshot)
     }
-    fn read_mode(
-        session: &mut Session,
-        identities: &[Guid],
-        tolerate_chart_errors: bool,
-        mut cancelled: impl FnMut() -> bool,
-    ) -> Result<(Self, Vec<loadable::Failure>), Error> {
+    fn read_mode(session: &mut Session, identities: &[Guid], tolerate_chart_errors: bool, mut cancelled: impl FnMut() -> bool) -> Result<(Self, Vec<loadable::Failure>), Error> {
         if identities.len() != session.document().charts().len() {
             return Err(Error::InvalidEdit(
                 "Chart ordering identities do not match the song".into(),
@@ -204,9 +193,7 @@ impl Snapshot {
         let mut keys = Vec::with_capacity(identities.len());
         let mut source_indices = Vec::with_capacity(identities.len());
         for (index, guid) in identities.iter().enumerate() {
-            if cancelled() {
-                return Err(Error::InvalidEdit("Song opening cancelled".into()));
-            }
+            if cancelled() { return Err(Error::InvalidEdit("Song opening cancelled".into())); }
             // Upstream keeps unsupported charts outside its editable list.
             // Preserve their source blocks, without trying to parse their grids.
             if crate::notes::layout_columns(&session.document().charts()[index].steps_type)
@@ -220,47 +207,17 @@ impl Snapshot {
                 let steps = EditorTimeline::build_clock(&timing, grid, &[])?.step_count();
                 Key::read(session.document(), index, steps, guid.clone())
             })();
-            if cancelled() {
-                return Err(Error::InvalidEdit("Song opening cancelled".into()));
-            }
+            if cancelled() { return Err(Error::InvalidEdit("Song opening cancelled".into())); }
             match key {
-                Ok(key) => {
-                    keys.push(key);
-                    source_indices.push(index);
-                }
-                Err(error) if tolerate_chart_errors => failures.push(loadable::Failure {
-                    source_index: index,
-                    identity: guid.clone(),
-                    message: error.to_string(),
-                }),
+                Ok(key) => { keys.push(key); source_indices.push(index); },
+                Err(error) if tolerate_chart_errors => failures.push(loadable::Failure { source_index: index, identity: guid.clone(), message: error.to_string() }),
                 Err(error) => return Err(error),
             }
         }
-        if cancelled() {
-            return Err(Error::InvalidEdit("Song opening cancelled".into()));
-        }
-        Ok((
-            Self {
-                keys,
-                source_indices,
-            },
-            failures,
-        ))
+        if cancelled() { return Err(Error::InvalidEdit("Song opening cancelled".into())); }
+        Ok((Self { keys, source_indices }, failures))
     }
-    pub(crate) fn without_source(&self, source: usize) -> Self {
-        let mut keys = Vec::new();
-        let mut source_indices = Vec::new();
-        for (index, key) in self.source_indices.iter().zip(&self.keys) {
-            if *index != source {
-                source_indices.push(*index);
-                keys.push(key.clone());
-            }
-        }
-        Self {
-            keys,
-            source_indices,
-        }
-    }
+    pub(crate) fn without_source(&self,source:usize)->Self{let mut keys=Vec::new();let mut source_indices=Vec::new();for (index,key) in self.source_indices.iter().zip(&self.keys){if *index!=source{source_indices.push(*index);keys.push(key.clone());}}Self{keys,source_indices}}
     pub fn keys(&self) -> &[Key] {
         &self.keys
     }

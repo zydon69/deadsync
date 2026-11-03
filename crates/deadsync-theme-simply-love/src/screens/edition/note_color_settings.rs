@@ -12,26 +12,16 @@ impl State {
                 self.status = i18n::tr("Edition", "NoteColorSettingsHelp");
             }
             Err(error) => {
-                self.status = i18n::tr_fmt(
-                    "Edition",
-                    "Error",
-                    &[("message", &crate::i18n::editor_error(&error))],
-                )
+                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))])
             }
         }
     }
     pub(super) fn sync_note_color_preferences_history(&mut self) {
         if let Some(update) = self.workspace.take_note_color_preferences_update() {
             let result = self.configure_note_color_arc(update.preferences);
-            if let Some(file) = update.file {
-                self.publish_application_preferences_owner(file);
-            }
+            if let Some(file) = update.file {self.publish_application_preferences_owner(file);}
             if let Err(error) = result {
-                self.status = i18n::tr_fmt(
-                    "Edition",
-                    "Error",
-                    &[("message", &crate::i18n::editor_error(&error))],
-                );
+                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))]);
             }
         }
     }
@@ -40,11 +30,7 @@ impl State {
             return;
         };
         if let Err(error) = self.configure_note_color_arc(draft.staged()) {
-            self.status = i18n::tr_fmt(
-                "Edition",
-                "Error",
-                &[("message", &crate::i18n::editor_error(&error))],
-            );
+            self.status = i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))]);
         }
     }
     pub(super) fn note_color_settings_key(&mut self, index: usize, code: KeyCode) {
@@ -61,11 +47,8 @@ impl State {
                     self.status = i18n::tr("Edition", "ScrollSettingsDiscarded");
                 }
                 Err(error) => {
-                    self.status = i18n::tr_fmt(
-                        "Edition",
-                        "Error",
-                        &[("message", &crate::i18n::editor_error(&error))],
-                    )
+                    self.status =
+                        i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))])
                 }
             }
             return;
@@ -105,11 +88,8 @@ impl State {
             match result {
                 Some(Ok(true)) => self.note_color_preview(),
                 Some(Err(error)) => {
-                    self.status = i18n::tr_fmt(
-                        "Edition",
-                        "Error",
-                        &[("message", &crate::i18n::editor_error(&error))],
-                    )
+                    self.status =
+                        i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))])
                 }
                 _ => {}
             }
@@ -123,11 +103,8 @@ impl State {
                 match draft.defaults() {
                     Ok(true) => self.note_color_preview(),
                     Err(error) => {
-                        self.status = i18n::tr_fmt(
-                            "Edition",
-                            "Error",
-                            &[("message", &crate::i18n::editor_error(&error))],
-                        )
+                        self.status =
+                            i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))])
                     }
                     _ => {}
                 }
@@ -161,11 +138,7 @@ impl State {
                 self.status = i18n::tr("Edition", "ScrollSettingsSaved");
             }
             Err(error) => {
-                self.status = i18n::tr_fmt(
-                    "Edition",
-                    "Error",
-                    &[("message", &crate::i18n::editor_error(&error))],
-                )
+                self.status = i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))])
             }
         }
     }
@@ -179,7 +152,7 @@ impl State {
             act!(quad:xy(x,top+100.0):setsize(570.0,290.0):diffuse(0.04,0.06,0.1,0.98):z(8050)),
         );
         for row in 0..7 {
-            let ui_row_start = actors.len();
+            let ui_row_start=actors.len();
             let label = if row == 0 {
                 i18n::tr_fmt(
                     "Edition",
@@ -224,7 +197,7 @@ impl State {
             };
             actors.push(act!(text:font("miso"):settext(label):xy(x,top+row as f32*30.0):zoom(0.65):maxwidth(530.0):diffuse(1.0,if row==index{0.8}else{1.0},if row==index{0.3}else{1.0},1.0):z(8051)));
 
-            self.ui_row(actors, ui_row_start, row == index, 31.);
+            self.ui_row(actors,ui_row_start,row==index,31.);
         }
         // The preview uses already prepared caches; no palette rebuild per frame.
         let field = draft.field();

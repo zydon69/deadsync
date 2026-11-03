@@ -1,8 +1,8 @@
 //! Pack metadata model. Filesystem publication is deliberately owned by the caller.
-pub mod banner;
-mod codec;
-pub mod song_list;
 pub mod storage;
+pub mod banner;
+pub mod song_list;
+mod codec;
 pub use codec::Document;
 use std::sync::Arc;
 pub const MAX_BYTES: usize = 4 * 1024 * 1024;

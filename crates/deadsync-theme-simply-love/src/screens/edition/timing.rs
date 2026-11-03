@@ -83,43 +83,20 @@ impl State {
         }
     }
     fn timing_error(&mut self, error: deadsync_editor::Error) {
-        self.status = i18n::tr_fmt(
-            "Edition",
-            "Error",
-            &[("message", &crate::i18n::editor_error(&error))],
-        );
+        self.status = i18n::tr_fmt("Edition", "Error", &[("message", &crate::i18n::editor_error(&error))]);
     }
     fn timing_attacks(&mut self) {
-        if self
-            .timing
-            .as_ref()
-            .is_some_and(|settings| settings.pending || settings.draft.has_changes())
-        {
+        if self.timing.as_ref().is_some_and(|settings| settings.pending || settings.draft.has_changes()) {
             self.status = i18n::tr("Edition", "AttacksTimingPending");
             return;
         }
-        let scope = if deadsync_editor::attacks::supports_resident_chart_attacks(
-            self.workspace.file().session.document(),
-        ) {
-            self.timing
-                .as_ref()
-                .map_or(Scope::Song, |settings| settings.draft.scope())
-        } else {
-            Scope::Song
-        };
+        let scope = if deadsync_editor::attacks::supports_resident_chart_attacks(self.workspace.file().session.document()) {self.timing.as_ref().map_or(Scope::Song, |settings| settings.draft.scope())} else {Scope::Song};
         self.open_attacks(scope);
     }
     pub(super) fn timing_key(&mut self, index: usize, code: KeyCode) {
-        if code == KeyCode::F5 {
-            self.open_quick_add();
-            return;
-        }
+        if code == KeyCode::F5 { self.open_quick_add(); return; }
         if code == KeyCode::F7 {
-            if self
-                .timing
-                .as_ref()
-                .is_some_and(|settings| settings.pending || settings.draft.has_changes())
-            {
+            if self.timing.as_ref().is_some_and(|settings| settings.pending || settings.draft.has_changes()) {
                 self.status = i18n::tr("Edition", "TimingConversionPending");
             } else {
                 self.open_timing_conversion();
@@ -266,10 +243,7 @@ impl State {
                                 if self.shift {
                                     1.0 / 48.0
                                 } else {
-                                    deadsync_editor::workspace::snap_edit_rows(
-                                        self.workspace.snap(),
-                                    ) as f64
-                                        / 48.0
+                                    deadsync_editor::workspace::snap_edit_rows(self.workspace.snap()) as f64 / 48.0
                                 }
                             } else if self.shift {
                                 0.001
@@ -679,21 +653,15 @@ impl State {
         let Some(settings) = self.timing.take() else {
             return;
         };
-        let result = (|| {
-            let before = self.capture_timing_presentation()?;
-            let plan = settings.draft.live_edit().prepare(
-                &self.workspace.file().session,
-                self.workspace.chart(),
-                before.anchor(),
-            )?;
-            let application = self.workspace.apply_timing_live_plan(plan)?;
-            let changed = application.changed();
-            if changed {
-                self.finish_timing_presentation(before, application.into_position())?;
-            }
-            Ok::<_, deadsync_editor::Error>(changed)
+        let result=(|| {
+            let before=self.capture_timing_presentation()?;
+            let plan=settings.draft.live_edit().prepare(&self.workspace.file().session,self.workspace.chart(),before.anchor())?;
+            let application=self.workspace.apply_timing_live_plan(plan)?;
+            let changed=application.changed();
+            if changed {self.finish_timing_presentation(before,application.into_position())?;}
+            Ok::<_,deadsync_editor::Error>(changed)
         })();
-        self.timing = Some(settings);
+        self.timing=Some(settings);
         match result {
             Ok(changed) => {
                 self.timing = None;

@@ -795,19 +795,14 @@ impl TimingData {
     #[must_use]
     pub fn measure_index_at_beat(&self, beat: f32) -> usize {
         let row = beat_to_note_row(beat);
-        if self.time_signatures.is_empty() {
-            return (row.max(0) / 192) as usize;
-        }
+        if self.time_signatures.is_empty() { return (row.max(0) / 192) as usize; }
         let mut measure = 0_i64;
         for (index, signature) in self.time_signatures.iter().enumerate() {
             let start = i64::from(beat_to_note_row(signature.beat));
-            let end = self
-                .time_signatures
-                .get(index + 1)
+            let end = self.time_signatures.get(index + 1)
                 .map_or(i64::MAX, |next| i64::from(beat_to_note_row(next.beat)));
             let rows_per_measure = (192 * i64::from(signature.numerator)
-                / i64::from(signature.denominator.max(1)))
-            .max(1);
+                / i64::from(signature.denominator.max(1))).max(1);
             if i64::from(row) < end {
                 return (measure + (i64::from(row) - start) / rows_per_measure).max(0) as usize;
             }
@@ -980,11 +975,7 @@ impl TimingData {
     /// even though the supplied timestamp is already in music seconds.
     #[must_use]
     pub fn get_song_position_with_rate(&self, seconds: f32, music_rate: f32) -> BeatInfo {
-        self.get_song_position_cached_with_rate(
-            seconds,
-            music_rate,
-            &mut SongPositionCache::new(self),
-        )
+        self.get_song_position_cached_with_rate(seconds, music_rate, &mut SongPositionCache::new(self))
     }
 
     #[must_use]
@@ -2963,113 +2954,55 @@ pub fn compute_window_counts_blue_ms(notes: &[Note], blue_window_ms: f32) -> Win
 mod tests {
     #[test]
     fn song_clock_separate_float_offsets_match_native_dongo_input() {
-        let mut timing = TimingData::from_segments(
-            0.01,
-            -0.008,
-            &TimingSegments {
-                bpms: vec![(0.0, 130.0)],
-                ..Default::default()
-            },
-            &[],
-        );
+        let mut timing = TimingData::from_segments(0.01, -0.008, &TimingSegments {
+            bpms: vec![(0.0, 130.0)], ..Default::default()
+        }, &[]);
         timing.shift_group_offset_seconds(-0.009);
         // Recorded native input clock and song position from Dongo Bongo.
         // These differ from reconstructing the combined offsets through ns.
         let actual = timing.get_song_position(0.027732426300644875).beat;
         assert_eq!(actual.to_bits(), (0.0015869262861087918_f32).to_bits());
         let mut cache = SongPositionCache::new(&timing);
-        assert_eq!(
-            timing
-                .get_song_position_cached(0.027732426300644875, &mut cache)
-                .beat
-                .to_bits(),
-            actual.to_bits()
-        );
+        assert_eq!(timing.get_song_position_cached(0.027732426300644875, &mut cache).beat.to_bits(), actual.to_bits());
         let _ = timing.get_song_position_cached(1.0, &mut cache);
-        assert_eq!(
-            timing
-                .get_song_position_cached(0.027732426300644875, &mut cache)
-                .beat
-                .to_bits(),
-            actual.to_bits()
-        );
+        assert_eq!(timing.get_song_position_cached(0.027732426300644875, &mut cache).beat.to_bits(), actual.to_bits());
     }
 
     #[test]
     fn song_clock_group_shift_preserves_integer_timing() {
-        let mut original = TimingData::from_segments(
-            0.532426,
-            -0.008,
-            &TimingSegments {
-                bpms: vec![(0.0, 71.697998), (2.0, 74.014), (14.0, 73.051003)],
-                ..Default::default()
-            },
-            &[],
-        );
-        let mut separate = original.clone();
+        let mut original=TimingData::from_segments(0.532426,-0.008,&TimingSegments {
+            bpms:vec![(0.0,71.697998),(2.0,74.014),(14.0,73.051003)],
+            ..Default::default()
+        },&[]);
+        let mut separate=original.clone();
         original.shift_song_offset_seconds(-0.009);
         separate.shift_group_offset_seconds(-0.009);
-        for global in [-0.008, 0.125] {
+        for global in [-0.008,0.125] {
             original.set_global_offset_seconds(global);
             separate.set_global_offset_seconds(global);
-            for beat in [-4.0, 0.0, 0.01, 17.25, 20.5, 44.75] {
-                assert_eq!(
-                    original.get_time_for_beat_ns(beat),
-                    separate.get_time_for_beat_ns(beat)
-                );
-                assert_eq!(
-                    original.get_time_for_beat_exact(beat).to_bits(),
-                    separate.get_time_for_beat_exact(beat).to_bits()
-                );
+            for beat in [-4.0,0.0,0.01,17.25,20.5,44.75] {
+                assert_eq!(original.get_time_for_beat_ns(beat),separate.get_time_for_beat_ns(beat));
+                assert_eq!(original.get_time_for_beat_exact(beat).to_bits(),separate.get_time_for_beat_exact(beat).to_bits());
             }
         }
     }
 
     #[test]
     fn measure_index_rounds_native_signature_boundaries() {
-        let timing = TimingData::from_segments(
-            0.0,
-            0.0,
-            &TimingSegments {
-                bpms: vec![(0.0, 120.0)],
-                time_signatures: vec![
-                    TimeSignatureSegment {
-                        beat: 0.0,
-                        numerator: 4,
-                        denominator: 4,
-                    },
-                    TimeSignatureSegment {
-                        beat: 6.0,
-                        numerator: 3,
-                        denominator: 4,
-                    },
-                    TimeSignatureSegment {
-                        beat: 12.0,
-                        numerator: 5,
-                        denominator: 8,
-                    },
-                ],
-                ..Default::default()
-            },
-            &[],
-        );
-        for (beat, expected) in [
-            (0.0, 0),
-            (3.0, 0),
-            (4.0, 1),
-            (5.0, 1),
-            (6.0, 2),
-            (8.0, 2),
-            (9.0, 3),
-            (12.0, 4),
-            (14.0, 4),
-            (14.5, 5),
-            (17.0, 6),
-        ] {
+        let timing = TimingData::from_segments(0.0, 0.0, &TimingSegments {
+            bpms: vec![(0.0, 120.0)],
+            time_signatures: vec![TimeSignatureSegment { beat: 0.0, numerator: 4, denominator: 4 },
+                TimeSignatureSegment { beat: 6.0, numerator: 3, denominator: 4 },
+                TimeSignatureSegment { beat: 12.0, numerator: 5, denominator: 8 }],
+            ..Default::default()
+        }, &[]);
+        for (beat, expected) in [(0.0,0), (3.0,0), (4.0,1), (5.0,1), (6.0,2),
+            (8.0,2), (9.0,3), (12.0,4), (14.0,4), (14.5,5), (17.0,6)] {
             assert_eq!(timing.measure_index_at_beat(beat), expected, "beat {beat}");
         }
         assert_eq!(timing.clone().measure_index_at_beat(14.5), 5);
     }
+
 
     use super::*;
 
@@ -3384,10 +3317,7 @@ mod tests {
             },
             &[],
         );
-        assert_eq!(
-            timing.get_speed_multiplier(4.0, -10.0).to_bits(),
-            3255606968
-        );
+        assert_eq!(timing.get_speed_multiplier(4.0, -10.0).to_bits(), 3255606968);
         assert_eq!(timing.get_speed_multiplier_ns(4.0, -10_000_000_000), 0.5);
     }
 

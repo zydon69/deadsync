@@ -1,5 +1,6 @@
 mod chart_metadata;
 mod writer;
+pub use writer::Output;
 use super::Options;
 use crate::{
     Error,
@@ -16,7 +17,6 @@ use std::{
         atomic::{AtomicBool, Ordering},
     },
 };
-pub use writer::Output;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Severity {
@@ -74,14 +74,14 @@ pub struct Plan {
     token: ContentToken,
     source: Arc<[u8]>,
     source_format: Format,
-    load_context: crate::document::LoadContext,
+    load_context:crate::document::LoadContext,
     target: Format,
     timing_chart: Option<usize>,
     options: Options,
     ids: Vec<Guid>,
     issues: Vec<Issue>,
-    output_order: Vec<usize>,
-    order: Option<crate::source_output_order::SourceOutputOrder>,
+    output_order:Vec<usize>,
+    order:Option<crate::source_output_order::SourceOutputOrder>,
 }
 impl Plan {
     pub fn prepare(
@@ -92,98 +92,23 @@ impl Plan {
         limits: Limits,
         cancelled: &AtomicBool,
     ) -> Result<Self, Error> {
-        Self::prepare_inner(
-            session,
-            target,
-            Some(timing_chart),
-            options,
-            limits,
-            cancelled,
-        )
+        Self::prepare_inner(session,target,Some(timing_chart),options,limits,cancelled)
     }
-    pub fn prepare_song_timing(
-        session: &mut Session,
-        target: Format,
-        options: Options,
-        limits: Limits,
-        cancelled: &AtomicBool,
-    ) -> Result<Self, Error> {
-        let chart = session.song_timing_chart()?;
-        Self::prepare_inner(session, target, chart, options, limits, cancelled)
+    pub fn prepare_song_timing(session:&mut Session,target:Format,options:Options,limits:Limits,cancelled:&AtomicBool)->Result<Self,Error>{let chart=session.song_timing_chart()?;Self::prepare_inner(session,target,chart,options,limits,cancelled)}
+    pub fn prepare_chartless(session:&mut Session,target:Format,options:Options,limits:Limits,cancelled:&AtomicBool)->Result<Self,Error>{
+        if !session.document().charts().is_empty()||!session.chart_ids().is_empty(){return Err(invalid("Chartless export requires zero charts"));}
+        Self::prepare_inner(session,target,None,options,limits,cancelled)
     }
-    pub fn prepare_chartless(
-        session: &mut Session,
-        target: Format,
-        options: Options,
-        limits: Limits,
-        cancelled: &AtomicBool,
-    ) -> Result<Self, Error> {
-        if !session.document().charts().is_empty() || !session.chart_ids().is_empty() {
-            return Err(invalid("Chartless export requires zero charts"));
-        }
-        Self::prepare_inner(session, target, None, options, limits, cancelled)
-    }
-    fn prepare_inner(
-        session: &mut Session,
-        target: Format,
-        timing_chart: Option<usize>,
-        options: Options,
-        limits: Limits,
-        cancelled: &AtomicBool,
-    ) -> Result<Self, Error> {
-        Self::prepare_inner_ordered(
-            session,
-            target,
-            timing_chart,
-            options,
-            limits,
-            cancelled,
-            None,
-        )
-    }
-    pub(crate) fn prepare_ordered(
-        session: &mut Session,
-        target: Format,
-        timing_chart: Option<usize>,
-        options: Options,
-        limits: Limits,
-        cancelled: &AtomicBool,
-        order: crate::source_output_order::SourceOutputOrder,
-    ) -> Result<Self, Error> {
-        Self::prepare_inner_ordered(
-            session,
-            target,
-            timing_chart,
-            options,
-            limits,
-            cancelled,
-            Some(order),
-        )
-    }
-    fn prepare_inner_ordered(
-        session: &mut Session,
-        target: Format,
-        timing_chart: Option<usize>,
-        options: Options,
-        limits: Limits,
-        cancelled: &AtomicBool,
-        order: Option<crate::source_output_order::SourceOutputOrder>,
-    ) -> Result<Self, Error> {
-        if order
-            .as_ref()
-            .is_some_and(|order| !order.is_current(session))
-        {
-            return Err(invalid("Source-compatible output order became stale"));
-        }
-        let output_order = order
-            .as_ref()
-            .map(|order| order.indices().to_vec())
-            .unwrap_or_else(|| (0..session.chart_ids().len()).collect());
+    fn prepare_inner(session:&mut Session,target:Format,timing_chart:Option<usize>,options:Options,limits:Limits,cancelled:&AtomicBool)->Result<Self,Error>{Self::prepare_inner_ordered(session,target,timing_chart,options,limits,cancelled,None)}
+    pub(crate) fn prepare_ordered(session:&mut Session,target:Format,timing_chart:Option<usize>,options:Options,limits:Limits,cancelled:&AtomicBool,order:crate::source_output_order::SourceOutputOrder)->Result<Self,Error>{Self::prepare_inner_ordered(session,target,timing_chart,options,limits,cancelled,Some(order))}
+    fn prepare_inner_ordered(session:&mut Session,target:Format,timing_chart:Option<usize>,options:Options,limits:Limits,cancelled:&AtomicBool,order:Option<crate::source_output_order::SourceOutputOrder>)->Result<Self,Error>{
+        if order.as_ref().is_some_and(|order|!order.is_current(session)){return Err(invalid("Source-compatible output order became stale"));}
+        let output_order=order.as_ref().map(|order|order.indices().to_vec()).unwrap_or_else(||(0..session.chart_ids().len()).collect());
         check(cancelled)?;
         if session.document().charts().len() > limits.charts {
             return Err(invalid("Export chart limit exceeded"));
         }
-        if timing_chart.is_some_and(|chart| chart >= session.document().charts().len()) {
+        if timing_chart.is_some_and(|chart|chart >= session.document().charts().len()) {
             return Err(invalid("Choose an existing timing chart"));
         }
         // Reject an oversized immutable source before any export-sized clone.
@@ -211,24 +136,17 @@ impl Plan {
         }
         check(cancelled)?;
         crate::song_text::resident::read(session.document())?;
-        let bytes = if options.omit_custom_data {
-            session.serialize()?
-        } else if order.is_some() {
-            session.serialize_source_compatible_ordered(&output_order)?
-        } else {
-            session.serialize_for_source_compatible()?
-        };
+        let bytes = if options.omit_custom_data{session.serialize()?}else if order.is_some(){session.serialize_source_compatible_ordered(&output_order)?}else{session.serialize_for_source_compatible()?};
         check(cancelled)?;
         if bytes.len() > limits.bytes {
             return Err(invalid("Export source byte limit exceeded"));
         }
         let mut plan = Self {
             token: session.content_token(),
-            output_order,
-            order,
+            output_order,order,
             source: Arc::from(bytes),
             source_format: session.document().format,
-            load_context: session.document().load_context(),
+            load_context:session.document().load_context(),
             target,
             timing_chart,
             options,
@@ -237,11 +155,7 @@ impl Plan {
         };
         // Serialize pending grids first, then use the single existing Document
         // tokenizer. The original live Document/ranges/history stay untouched.
-        let snapshot = Document::parse_with_context(
-            plan.source.clone(),
-            plan.source_format,
-            plan.load_context,
-        )?;
+        let snapshot = Document::parse_with_context(plan.source.clone(), plan.source_format,plan.load_context)?;
         let mut staged = Session::new(snapshot);
         let mut signatures = Vec::new();
         let mut count = 0usize;
@@ -299,24 +213,13 @@ impl Plan {
         // even though the editor's own reader can still recover the tags.
         if target == Format::Ssc && options.omit_chart_timing {
             for (chart, signature) in signatures.iter().enumerate() {
-                if signature.as_ref().is_some_and(|fields| {
-                    fields
-                        .iter()
-                        .any(|(name, value)| *name == "ATTACKS" && !value.is_empty())
-                }) {
+                if signature.as_ref().is_some_and(|fields|fields.iter().any(|(name,value)|*name=="ATTACKS"&&!value.is_empty())) {
                     plan.add(Some(chart),Severity::Warning,IssueKind::ChartAttacksWithoutSplitTiming,"ATTACKS",None,"Chart attacks are ignored by StepMania without split timing; the editor's tag round-trip does not preserve their effect in game",limits)?;
                 }
             }
         }
-        let null_base = if timing_chart.is_none() {
-            Some(writer::chartless_timing(staged.document())?)
-        } else {
-            None
-        };
-        let base = timing_chart
-            .and_then(|chart| signatures.get(chart))
-            .and_then(Option::as_ref)
-            .or(null_base.as_ref());
+        let null_base=if timing_chart.is_none(){Some(writer::chartless_timing(staged.document())?)}else{None};
+        let base=timing_chart.and_then(|chart|signatures.get(chart)).and_then(Option::as_ref).or(null_base.as_ref());
         if let Some(base) = base {
             for (chart, signature) in signatures.iter().enumerate() {
                 check(cancelled)?;
@@ -326,12 +229,8 @@ impl Plan {
                 let Some(signature) = signature else {
                     continue;
                 };
-                for (field, value) in signature {
-                    let expected = base
-                        .iter()
-                        .find(|(name, _)| name == field)
-                        .map(|(_, value)| value.as_str())
-                        .unwrap_or("");
+                for (field,value) in signature {
+                    let expected=base.iter().find(|(name,_)|name==field).map(|(_,value)|value.as_str()).unwrap_or("");
                     if value == expected {
                         continue;
                     }
@@ -367,9 +266,7 @@ impl Plan {
                 }
             }
         }
-        if timing_chart.is_none() {
-            plan.inspect_chartless_song(staged.document(), limits)?;
-        }
+        if timing_chart.is_none(){plan.inspect_chartless_song(staged.document(),limits)?;}
         if options.anonymize {
             for field in SONG_ANON {
                 if staged
@@ -394,25 +291,12 @@ impl Plan {
                 if *field == "PREVIEW" && staged.document().format == Format::Sm {
                     continue; // Raw loss and authored loss are reviewed separately below.
                 }
-                if staged
-                    .document()
-                    .text(None, field)
-                    .is_some_and(|value| !value.is_empty())
-                {
-                    plan.add(
-                        None,
-                        Severity::Warning,
-                        IssueKind::OmittedEvent,
-                        field,
-                        None,
-                        "Original source-compatible SM writer omits this song property",
-                        limits,
-                    )?;
+                if staged.document().text(None,field).is_some_and(|value|!value.is_empty()) {
+                    plan.add(None,Severity::Warning,IssueKind::OmittedEvent,field,None,"Original source-compatible SM writer omits this song property",limits)?;
                 }
             }
         }
-        if target == Format::Sm
-            && staged.document().format == Format::Sm
+        if target == Format::Sm && staged.document().format == Format::Sm
             && crate::song_text::resident::read(staged.document())?.is_some()
         {
             plan.add(None,Severity::Warning,IssueKind::OmittedEvent,"PREVIEW",None,
@@ -441,12 +325,7 @@ impl Plan {
         self.timing_chart
     }
     pub fn is_current(&self, session: &Session) -> bool {
-        session.accepts_content_token(&self.token)
-            && session.chart_ids() == self.ids.as_slice()
-            && self
-                .order
-                .as_ref()
-                .is_none_or(|order| order.is_current(session))
+        session.accepts_content_token(&self.token) && session.chart_ids() == self.ids.as_slice() && self.order.as_ref().is_none_or(|order|order.is_current(session))
     }
     /// Generation is permitted only after every concrete warning is reviewed.
     /// This does not publish anything or mark the source saved.
@@ -623,8 +502,8 @@ impl Plan {
     ) -> Result<(), Error> {
         self.inspect_chart_metadata(document, chart, limits)?;
         let origin = timing_edit::uses_chart_timing(document, chart).then_some(chart);
-        let timing_properties = timing_edit::resident::Properties::capture(document, origin)?;
-        let raw = |field: &str| timing_properties.text(field);
+        let timing_properties=timing_edit::resident::Properties::capture(document,origin)?;
+        let raw=|field:&str|timing_properties.text(field);
         if self.target == Format::Sm {
             let warps = timing_edit::region::Regions::parse(
                 timing_edit::region::Kind::Warp,
@@ -728,13 +607,8 @@ impl Plan {
         }
         if self.options.anonymize {
             for field in ["DESCRIPTION", "CREDIT", "CHARTNAME", "CHARTSTYLE"] {
-                let logical = crate::chart_text::Field::ALL
-                    .into_iter()
-                    .find(|candidate| candidate.tag() == field)
-                    .unwrap();
-                if crate::chart_text::local_value(document, chart, logical)?
-                    .is_some_and(|value| !value.is_empty())
-                {
+                let logical=crate::chart_text::Field::ALL.into_iter().find(|candidate|candidate.tag()==field).unwrap();
+                if crate::chart_text::local_value(document,chart,logical)?.is_some_and(|value|!value.is_empty()) {
                     self.add(
                         Some(chart),
                         Severity::Warning,
@@ -749,46 +623,12 @@ impl Plan {
         }
         Ok(())
     }
-    fn inspect_chartless_song(&mut self, document: &Document, limits: Limits) -> Result<(), Error> {
-        if document.text(None, "OFFSET").is_some_and(|value| {
-            value
-                .trim()
-                .parse::<f64>()
-                .ok()
-                .is_none_or(|v| !v.is_finite())
-        }) {
-            self.add(
-                None,
-                Severity::Error,
-                IssueKind::InvalidChart,
-                "OFFSET",
-                None,
-                "Invalid song music offset",
-                limits,
-            )?;
-        }
-        let timing_properties = timing_edit::resident::Properties::capture(document, None)?;
-        for field in [
-            "BPMS",
-            "STOPS",
-            "DELAYS",
-            "WARPS",
-            "SCROLLS",
-            "SPEEDS",
-            "TIMESIGNATURES",
-            "TICKCOUNTS",
-            "COMBOS",
-            "FAKES",
-            "LABELS",
-            "ATTACKS",
-            "DISPLAYBPM",
-        ] {
-            let value = if field == "ATTACKS" {
-                document.text(None, field).unwrap_or_default()
-            } else {
-                timing_properties.text(field)
-            };
-            if !value.trim().is_empty() {
+    fn inspect_chartless_song(&mut self,document:&Document,limits:Limits)->Result<(),Error>{
+        if document.text(None,"OFFSET").is_some_and(|value|value.trim().parse::<f64>().ok().is_none_or(|v|!v.is_finite())){self.add(None,Severity::Error,IssueKind::InvalidChart,"OFFSET",None,"Invalid song music offset",limits)?;}
+        let timing_properties=timing_edit::resident::Properties::capture(document,None)?;
+        for field in ["BPMS","STOPS","DELAYS","WARPS","SCROLLS","SPEEDS","TIMESIGNATURES","TICKCOUNTS","COMBOS","FAKES","LABELS","ATTACKS","DISPLAYBPM"]{
+            let value=if field=="ATTACKS"{document.text(None,field).unwrap_or_default()}else{timing_properties.text(field)};
+            if !value.trim().is_empty(){
                 self.add(None,Severity::Warning,IssueKind::OmittedEvent,field,None,"The source chartless writer has no fallback chart; timing is omitted or replaced by its default",limits)?;
             }
         }
@@ -797,21 +637,12 @@ impl Plan {
     fn inspect_unknown(&mut self, document: &Document, limits: Limits) -> Result<(), Error> {
         let mut seen = BTreeSet::new();
         for tag in document.tags() {
-            if tag.chart.is_none()
-                && tag
-                    .name
-                    .eq_ignore_ascii_case(crate::song_text::resident::TAG)
-            {
+            if tag.chart.is_none() && tag.name.eq_ignore_ascii_case(crate::song_text::resident::TAG) {
                 crate::song_text::resident::read(document)?;
                 continue; // Semantic preview mapping is handled explicitly by the writer.
             }
-            if document.format == Format::Sm
-                && tag.chart.is_none()
-                && tag.name == "PREVIEW"
-                && document
-                    .value(tag.value.clone())
-                    .iter()
-                    .any(|byte| !byte.is_ascii_whitespace())
+            if document.format == Format::Sm && tag.chart.is_none() && tag.name == "PREVIEW"
+                && document.value(tag.value.clone()).iter().any(|byte| !byte.is_ascii_whitespace())
             {
                 if seen.insert((None, tag.name.clone())) {
                     self.add(None,Severity::Warning,IssueKind::UnknownProperty,"PREVIEW",None,
@@ -828,10 +659,7 @@ impl Plan {
                     tag.name.as_str(),
                     "WARPS" | "FAKES" | "COMBOS" | "LABELS" | "SCROLLS" | "SPEEDS"
                 )
-                && document
-                    .value(tag.value.clone())
-                    .iter()
-                    .any(|byte| !byte.is_ascii_whitespace())
+                && document.value(tag.value.clone()).iter().any(|byte| !byte.is_ascii_whitespace())
             {
                 if seen.insert((tag.chart, tag.name.clone())) {
                     self.add(
@@ -846,8 +674,7 @@ impl Plan {
                 }
                 continue;
             }
-            if is_native_timing_metadata(document, &tag.name)
-                || KNOWN.contains(&tag.name.as_str())
+            if is_native_timing_metadata(document,&tag.name) || KNOWN.contains(&tag.name.as_str())
                 || timing_edit::TIMING_TAGS.contains(&tag.name.as_str())
             {
                 continue;
@@ -946,14 +773,10 @@ fn inspect_timing(session: &Session, chart: usize) -> Result<Vec<(&'static str, 
         Scope::Song
     };
     let origin = timing_edit::uses_chart_timing(session.document(), chart).then_some(chart);
-    let timing_properties = timing_edit::resident::Properties::capture(session.document(), origin)?;
-    let text = |name: &str| timing_properties.text(name);
+    let timing_properties=timing_edit::resident::Properties::capture(session.document(),origin)?;
+    let text=|name:&str|timing_properties.text(name);
     let properties = crate::chart_properties::Draft::capture(session, chart)?;
-    let attack_scope = if crate::attacks::supports_resident_chart_attacks(session.document()) {
-        Scope::Chart
-    } else {
-        Scope::Song
-    };
+    let attack_scope=if crate::attacks::supports_resident_chart_attacks(session.document()){Scope::Chart}else{Scope::Song};
     let attack = crate::attacks::Draft::capture(session, chart, attack_scope)?
         .attacks()
         .serialize()?;
@@ -1034,30 +857,11 @@ fn is_custom(name: &str) -> bool {
 }
 
 /// Shared by loss review and the source-compatible writer. NativeLossless is separate.
-const SM_OMITTED_SONG_FIELDS: &[&str] = &[
-    "ORIGIN",
-    "JACKET",
-    "CDIMAGE",
-    "DISCIMAGE",
-    "PREVIEWVID",
-    "PREVIEW",
-    "LASTSECONDHINT",
-];
+const SM_OMITTED_SONG_FIELDS: &[&str] = &["ORIGIN","JACKET","CDIMAGE","DISCIMAGE","PREVIEWVID","PREVIEW","LASTSECONDHINT"];
 
 // These native records have a proven semantic writer: authored timing becomes
 // canonical target tags; resident attacks become the validated ATTACKS output.
-fn is_native_timing_metadata(document: &Document, name: &str) -> bool {
-    (document.format == Format::Sm
-        && (timing_edit::resident::is_tag(name) || crate::attacks::property::is_owner_tag(name)))
-        || name.strip_prefix("DSATTACKROWS").is_some_and(|suffix| {
-            suffix.is_empty()
-                || suffix == "SONG"
-                || (document.format == Format::Sm
-                    && suffix.strip_prefix("LOCALCHART").is_some_and(|index| {
-                        index.len() == 4 && index.bytes().all(|byte| byte.is_ascii_digit())
-                    }))
-                || suffix.strip_prefix("CHART").is_some_and(|index| {
-                    index.len() == 4 && index.bytes().all(|byte| byte.is_ascii_digit())
-                })
-        })
+fn is_native_timing_metadata(document:&Document,name:&str)->bool {
+    (document.format==Format::Sm && (timing_edit::resident::is_tag(name) || crate::attacks::property::is_owner_tag(name))) || name.strip_prefix("DSATTACKROWS").is_some_and(|suffix|
+        suffix.is_empty() || suffix=="SONG" || (document.format==Format::Sm && suffix.strip_prefix("LOCALCHART").is_some_and(|index|index.len()==4&&index.bytes().all(|byte|byte.is_ascii_digit()))) || suffix.strip_prefix("CHART").is_some_and(|index|index.len()==4&&index.bytes().all(|byte|byte.is_ascii_digit())))
 }

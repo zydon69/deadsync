@@ -64,7 +64,6 @@ fn arrows(state: &State) -> Vec<f32> {
         .filter(|y| (105.0..=395.0).contains(y))
         .collect()
 }
-
 fn sorted(mut v: Vec<f32>) -> Vec<f32> {
     v.sort_by(f32::total_cmp);
     v
@@ -250,13 +249,9 @@ fn temporal_waveform_remains_defined_when_variable_chart_speed_is_zero() {
                     scale,
                     ..
                 } if *tint == palette.resolved_sparse().rgba().map(|v| v.clamp(0., 1.))
-                    || *tint == palette.dense().rgba().map(|v| v.clamp(0., 1.)) =>
-                {
-                    let width = if *width == 0. {
-                        scale[0]
-                    } else {
-                        width * scale[0]
-                    } * ratio;
+                    || *tint == palette.dense().rgba().map(|v| v.clamp(0., 1.)) => {
+                    let width = if *width == 0. { scale[0] } else {
+                        width * scale[0] } * ratio;
                     (width > 10.).then_some(offset[1])
                 }
                 _ => None,
@@ -267,8 +262,7 @@ fn temporal_waveform_remains_defined_when_variable_chart_speed_is_zero() {
     let a = peaks(&s);
     assert!(!a.is_empty());
     let expected = 160.0 + (0.15 - deadsync_editor::song_properties::DEFAULT_SYNC_OFFSET) * 240.0;
-    assert!(
-        a.iter().all(|y| (f64::from(*y) - expected).abs() < 4.0),
+    assert!(a.iter().all(|y| (f64::from(*y) - expected).abs() < 4.0),
         "waveform peaks {a:?}, expected {expected}"
     );
     reverse(&mut s);
@@ -300,7 +294,7 @@ fn labels_returning_to_the_same_y_keep_distinct_readable_event_widgets() {
             })
             .collect::<Vec<_>>();
         result.sort_by(|a, b| a.0.cmp(&b.0));
-        assert_eq!(
+    assert_eq!(
             result.len(),
             2,
             "each source label owns its event widget: {result:?}"

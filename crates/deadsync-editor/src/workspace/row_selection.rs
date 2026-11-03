@@ -9,7 +9,7 @@ impl Workspace {
         if !self.has_chart() {
             return Err(Error::InvalidEdit("No active chart".into()));
         }
-        let row = nearest_source_row(position)?;
+        let row=nearest_source_row(position)?;
         if let Some(anchor) = self.anchor {
             let anchor = self.source_row_anchor.unwrap_or(
                 i32::try_from(anchor)
@@ -43,40 +43,16 @@ impl Workspace {
     }
 }
 
-fn nearest_source_row(position: f64) -> Result<i32, Error> {
-    if !position.is_finite() || position < i32::MIN as f64 || position > i32::MAX as f64 {
-        return Err(Error::InvalidEdit("Invalid row selection position".into()));
-    }
-    let truncated = position as i32;
-    truncated
-        .checked_add(i32::from(position - f64::from(truncated) > 0.5))
-        .ok_or_else(|| Error::InvalidEdit("Row selection position overflow".into()))
+fn nearest_source_row(position:f64)->Result<i32,Error>{
+    if !position.is_finite()||position<i32::MIN as f64||position>i32::MAX as f64{return Err(Error::InvalidEdit("Invalid row selection position".into()));}
+    let truncated=position as i32;truncated.checked_add(i32::from(position-f64::from(truncated)>0.5)).ok_or_else(||Error::InvalidEdit("Row selection position overflow".into()))
 }
-impl Workspace {
+impl Workspace{
     /// Signed transient widget bounds, using source nearest-row rounding for
     /// the live fractional focus. Completed note selection has no widget.
-    pub fn source_row_selection_at(&self, position: f64) -> Result<Option<(i32, i32)>, Error> {
-        if let Some(anchor) = self.source_row_anchor {
-            let row = nearest_source_row(position)?;
-            return Ok(Some((anchor.min(row), anchor.max(row))));
-        }
-        self.selection()
-            .map(|(start, end)| {
-                Ok((
-                    i32::try_from(start)
-                        .map_err(|_| Error::InvalidEdit("Row selection start overflow".into()))?,
-                    i32::try_from(end)
-                        .map_err(|_| Error::InvalidEdit("Row selection end overflow".into()))?,
-                ))
-            })
-            .transpose()
+    pub fn source_row_selection_at(&self,position:f64)->Result<Option<(i32,i32)>,Error>{
+        if let Some(anchor)=self.source_row_anchor{let row=nearest_source_row(position)?;return Ok(Some((anchor.min(row),anchor.max(row))));}
+        self.selection().map(|(start,end)|Ok((i32::try_from(start).map_err(|_|Error::InvalidEdit("Row selection start overflow".into()))?,i32::try_from(end).map_err(|_|Error::InvalidEdit("Row selection end overflow".into()))?))).transpose()
     }
-    pub fn source_chart_end_position_at(&mut self, position: f64) -> Result<f64, Error> {
-        let selection = self.source_row_selection_at(position)?;
-        crate::navigation::chart_end_position_with_selection(
-            &mut self.file.session,
-            self.chart,
-            selection,
-        )
-    }
+    pub fn source_chart_end_position_at(&mut self,position:f64)->Result<f64,Error>{let selection=self.source_row_selection_at(position)?;crate::navigation::chart_end_position_with_selection(&mut self.file.session,self.chart,selection)}
 }

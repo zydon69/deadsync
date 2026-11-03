@@ -118,10 +118,8 @@ impl Position {
     }
     /// Validate a captured endpoint without requiring it to be the active edit
     /// cursor. Region boundaries may refer to different rows in the same clock.
-    pub fn is_bound_to(&self, session: &Session, chart: usize) -> bool {
-        self.chart == chart
-            && session.accepts_content_token(&self.token)
-            && session.chart_ids().get(chart) == Some(&self.identity)
+    pub fn is_bound_to(&self,session:&Session,chart:usize)->bool{
+        self.chart==chart&&session.accepts_content_token(&self.token)&&session.chart_ids().get(chart)==Some(&self.identity)
     }
     pub fn is_current(&self, workspace: &Workspace) -> bool {
         self.chart == workspace.chart()

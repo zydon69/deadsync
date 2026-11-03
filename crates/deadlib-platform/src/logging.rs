@@ -42,7 +42,7 @@ pub fn with_file_context<T>(path: &Path, read: impl FnOnce() -> T) -> T {
 
 fn format_record(buf: &mut env_logger::fmt::Formatter, record: &log::Record<'_>) -> io::Result<()> {
     FILE_CONTEXT.with_borrow(|path| {
-        records::capture(record, path.as_deref());
+        records::capture(record,path.as_deref());
         let mut format = env_logger::fmt::ConfigurableFormat::default();
         match path {
             Some(path) => {
@@ -447,50 +447,12 @@ pub fn set_file_logging_enabled(enabled: bool) {
 }
 
 /// Current configured log destination; memory-only lookup, no path probing.
-pub fn current_log_path() -> Option<PathBuf> {
-    LOG_FILE_PATH.get().cloned()
-}
+pub fn current_log_path()->Option<PathBuf>{LOG_FILE_PATH.get().cloned()}
 
-#[cfg(test)]
-mod editor_record_pipeline_tests {
-    #[test]
-    fn existing_formatter_observes_only_accepted_records_in_source_order() {
-        let mut builder = env_logger::Builder::new();
-        builder
-            .filter_level(log::LevelFilter::Warn)
-            .filter_module("editor-private", log::LevelFilter::Off)
-            .format(super::format_record)
-            .target(env_logger::Target::Pipe(Box::new(std::io::sink())));
-        let logger = builder.build();
-        for (level, message, target) in [
-            (log::Level::Info, "__native_pipeline_suppressed", "editor"),
-            (log::Level::Warn, "__native_pipeline_warning", "editor"),
-            (log::Level::Error, "__native_pipeline_failure", "editor"),
-            (
-                log::Level::Error,
-                "__native_pipeline_private",
-                "editor-private",
-            ),
-        ] {
-            log::Log::log(
-                &logger,
-                &log::Record::builder()
-                    .level(level)
-                    .target(target)
-                    .args(format_args!("{message}"))
-                    .build(),
-            );
-        }
-        let snapshot = super::records::snapshot_if_changed(None).unwrap();
-        let accepted: Vec<&str> = snapshot
-            .records
-            .iter()
-            .map(|record| record.message.as_ref())
-            .filter(|message| message.starts_with("__native_pipeline_"))
-            .collect();
-        assert_eq!(
-            accepted,
-            ["__native_pipeline_failure", "__native_pipeline_warning"]
-        );
-    }
+#[cfg(test)]mod editor_record_pipeline_tests{
+ #[test]fn existing_formatter_observes_only_accepted_records_in_source_order(){
+  let mut builder=env_logger::Builder::new();builder.filter_level(log::LevelFilter::Warn).filter_module("editor-private",log::LevelFilter::Off).format(super::format_record).target(env_logger::Target::Pipe(Box::new(std::io::sink())));let logger=builder.build();
+  for(level,message,target)in[(log::Level::Info,"__native_pipeline_suppressed","editor"),(log::Level::Warn,"__native_pipeline_warning","editor"),(log::Level::Error,"__native_pipeline_failure","editor"),(log::Level::Error,"__native_pipeline_private","editor-private")]{log::Log::log(&logger,&log::Record::builder().level(level).target(target).args(format_args!("{message}")).build());}
+  let snapshot=super::records::snapshot_if_changed(None).unwrap();let accepted:Vec<&str>=snapshot.records.iter().map(|record|record.message.as_ref()).filter(|message|message.starts_with("__native_pipeline_")).collect();assert_eq!(accepted,["__native_pipeline_failure","__native_pipeline_warning"]);
+ }
 }

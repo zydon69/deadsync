@@ -386,17 +386,9 @@ fn dedicated_preview_draft_drives_audition_and_reversible_native_save_in_both_fo
     session.redo().unwrap();
     assert_eq!(session.serialize().unwrap(), changed);
     let mut sm = song(Format::Sm);
-    let original = sm.serialize().unwrap();
-    let mut draft = Draft::capture(&sm).unwrap();
-    assert!(draft.supports_text(Field::PreviewMusic));
-    draft.set_text(Field::PreviewMusic, "preview.wav").unwrap();
-    assert!(draft.apply(&mut sm).unwrap());
-    assert_eq!(
-        Draft::capture(&sm).unwrap().text(Field::PreviewMusic),
-        "preview.wav"
-    );
-    sm.undo().unwrap();
-    assert_eq!(sm.serialize().unwrap(), original);
+    let original=sm.serialize().unwrap();let mut draft=Draft::capture(&sm).unwrap();
+    assert!(draft.supports_text(Field::PreviewMusic));draft.set_text(Field::PreviewMusic,"preview.wav").unwrap();assert!(draft.apply(&mut sm).unwrap());
+    assert_eq!(Draft::capture(&sm).unwrap().text(Field::PreviewMusic),"preview.wav");sm.undo().unwrap();assert_eq!(sm.serialize().unwrap(),original);
 }
 
 #[test]
@@ -426,13 +418,7 @@ fn last_second_hint_is_reversible_in_both_formats_and_preserves_unedited_legacy_
     assert_eq!(session.serialize().unwrap(), changed);
     let reopened = Session::new(Document::parse(changed, Format::Ssc).unwrap());
     assert_eq!(Draft::capture(&reopened).unwrap().last_second_hint(), 12.5);
-    let mut session = song(Format::Sm);
-    let original = session.serialize().unwrap();
-    let mut draft = Draft::capture(&session).unwrap();
-    assert!(draft.supports_last_second_hint());
-    draft.set_last_second_hint(1.0).unwrap();
-    assert!(draft.apply(&mut session).unwrap());
-    assert_eq!(Draft::capture(&session).unwrap().last_second_hint(), 1.0);
-    session.undo().unwrap();
-    assert_eq!(session.serialize().unwrap(), original);
+    let mut session = song(Format::Sm);let original=session.serialize().unwrap();
+    let mut draft=Draft::capture(&session).unwrap();assert!(draft.supports_last_second_hint());draft.set_last_second_hint(1.0).unwrap();assert!(draft.apply(&mut session).unwrap());
+    assert_eq!(Draft::capture(&session).unwrap().last_second_hint(),1.0);session.undo().unwrap();assert_eq!(session.serialize().unwrap(),original);
 }

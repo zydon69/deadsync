@@ -1,2 +1,2 @@
-const LANGUAGE: &str = "fr";
+const LANGUAGE:&str="fr";
 include!("support/minimap.rs");

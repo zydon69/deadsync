@@ -1185,28 +1185,12 @@ pub fn push(actors: &mut Vec<Actor>, p: MusicWheelParams) {
                     };
                     let has_edit = runtime_slot.has_edit;
                     let has_lua = info.has_lua;
-                    let golf_visible = p.show_golf_pars
-                        && (0..2).any(|side| {
-                            p.runtime.joined[side] && runtime_slot.golf_pars[side].is_some()
-                        });
-                    let golf_badge_right = (badge_right_x_local
-                        - badge_gap_x * (u8::from(has_lua) + u8::from(has_edit)) as f32)
-                        .min(if has_percentage {
-                            wheel_score_x - WHEEL_SCORE_MAX_WIDTH - WHEEL_SCORE_TITLE_GAP
-                        } else {
-                            f32::INFINITY
-                        });
-                    let golf_title_max_w = if golf_visible {
-                        (golf_badge_right - GOLF_PAR_MAX_WIDTH - 8.0 - title_x_local).max(0.0)
-                    } else {
-                        f32::INFINITY
-                    };
-                    let title_max_w = (title_max_w_local * 0.85)
-                        .min(score_title_max_w)
-                        .min(golf_title_max_w);
-                    let subtitle_max_w = (title_max_w_local * 0.7)
-                        .min(score_title_max_w)
-                        .min(golf_title_max_w);
+                    let golf_visible = p.show_golf_pars && (0..2).any(|side| p.runtime.joined[side] && runtime_slot.golf_pars[side].is_some());
+                    let golf_badge_right = (badge_right_x_local - badge_gap_x * (u8::from(has_lua) + u8::from(has_edit)) as f32)
+                        .min(if has_percentage { wheel_score_x - WHEEL_SCORE_MAX_WIDTH - WHEEL_SCORE_TITLE_GAP } else { f32::INFINITY });
+                    let golf_title_max_w = if golf_visible { (golf_badge_right - GOLF_PAR_MAX_WIDTH - 8.0 - title_x_local).max(0.0) } else { f32::INFINITY };
+                    let title_max_w = (title_max_w_local * 0.85).min(score_title_max_w).min(golf_title_max_w);
+                    let subtitle_max_w = (title_max_w_local * 0.7).min(score_title_max_w).min(golf_title_max_w);
                     let lua_submit_allowed = lua_badge_submit_allowed(
                         has_lua,
                         [p1_joined, p2_joined],
@@ -1281,39 +1265,20 @@ pub fn push(actors: &mut Vec<Actor>, p: MusicWheelParams) {
                         ));
                     }
                     if golf_visible {
-                        let pars: [Option<f64>; 2] = std::array::from_fn(|side| {
-                            p.runtime.joined[side]
-                                .then_some(runtime_slot.golf_pars[side])
-                                .flatten()
-                        });
+                        let pars: [Option<f64>; 2] = std::array::from_fn(|side| p.runtime.joined[side].then_some(runtime_slot.golf_pars[side]).flatten());
                         let both = matches!(pars, [Some(a), Some(b)] if a != b);
-                        for (side, par) in pars
-                            .into_iter()
-                            .enumerate()
-                            .filter_map(|(side, par)| par.map(|par| (side, par)))
-                        {
+                        for (side, par) in pars.into_iter().enumerate().filter_map(|(side, par)| par.map(|par| (side, par))) {
                             let label_side = if both { side as u8 + 1 } else { 0 };
-                            let text = cached_text(
-                                &GOLF_PAR_TEXT,
-                                (par.to_bits(), label_side, crate::i18n::revision()),
-                                512,
-                                || {
-                                    let label = crate::i18n::tr("Golf", "Par").to_uppercase();
-                                    if both {
-                                        format!("P{} {label} {par:.2}", side + 1)
-                                    } else {
-                                        format!("{label} {par:.2}")
-                                    }
-                                },
-                            );
+                            let text = cached_text(&GOLF_PAR_TEXT, (par.to_bits(), label_side, crate::i18n::revision()), 512, || {
+                                let label = crate::i18n::tr("Golf", "Par").to_uppercase();
+                                if both { format!("P{} {label} {par:.2}", side + 1) } else { format!("{label} {par:.2}") }
+                            });
                             actors.push(act!(text: font("miso"): settext(text): align(1.0, 0.5):
                                 xy(highlight_left_world + golf_badge_right, y_center_item + if both { side as f32 * 12.0 - 6.0 } else { 0.0 }):
                                 maxwidth(GOLF_PAR_MAX_WIDTH):
                                 zoom(0.5): diffuse(0.2, 0.9, 0.3, 1.0): z(54)
                             ));
-                            if !both {
-                                break;
-                            }
+                            if !both { break; }
                         }
                     }
                     if has_lua {
@@ -1862,99 +1827,40 @@ mod tests {
         let entries = [MusicWheelEntry::Song(song)];
         for width in [640.0, 854.0] {
             set_current_metrics(Metrics::centered(width, 480.0));
-            let mut runtime = MusicWheelRuntimeView {
-                joined: [true, true],
-                ..Default::default()
-            };
+            let mut runtime = MusicWheelRuntimeView { joined: [true, true], ..Default::default() };
             let center = &mut runtime.slots[MUSIC_WHEEL_SLOT_COUNT / 2];
             center.has_edit = true;
             center.golf_pars = [Some(2.1), Some(3.0)];
-            center.sides[0].percentage = Some(MusicWheelScoreView {
-                hundredths: 9200,
-                score_type: SelectMusicWheelScoreType::Itg,
-                failed: false,
-                itl_points: None,
-            });
+            center.sides[0].percentage = Some(MusicWheelScoreView { hundredths: 9200, score_type: SelectMusicWheelScoreType::Itg, failed: false, itl_points: None });
             for enabled in [false, true] {
                 let mut actors = Vec::new();
-                push(
-                    &mut actors,
-                    MusicWheelParams {
-                        machine_font: Default::default(),
-                        entries: &entries,
-                        selected_index: 0,
-                        position_offset_from_selection: 0.0,
-                        selection_animation_timer: 0.0,
-                        selection_animation_beat: 0.0,
-                        color_pack_headers: false,
-                        pack_color_indices: None,
-                        song_box_color: None,
-                        song_text_color: None,
-                        song_text_color_overrides: None,
-                        show_pack_sync: false,
-                        show_golf_pars: enabled,
-                        show_music_wheel_grades: false,
-                        show_music_wheel_lamps: false,
-                        itl_rank_mode: SelectMusicItlRankMode::None,
-                        show_itl_points: false,
-                        song_select_bg_mode: SelectMusicSongSelectBgMode::Off,
-                        song_select_bg_paths: &[],
-                        song_select_bg_texture_keys: &[],
-                        expanded_series_name: None,
-                        expanded_pack_name: None,
-                        new_pack_names: None,
-                        default_sync_offset: Default::default(),
-                        runtime: &runtime,
-                    },
-                );
+                push(&mut actors, MusicWheelParams {
+                    machine_font: Default::default(), entries: &entries, selected_index: 0,
+                    position_offset_from_selection: 0.0, selection_animation_timer: 0.0, selection_animation_beat: 0.0,
+                    color_pack_headers: false, pack_color_indices: None, song_box_color: None, song_text_color: None,
+                    song_text_color_overrides: None, show_pack_sync: false, show_golf_pars: enabled,
+                    show_music_wheel_grades: false, show_music_wheel_lamps: false, itl_rank_mode: SelectMusicItlRankMode::None,
+                    show_itl_points: false, song_select_bg_mode: SelectMusicSongSelectBgMode::Off,
+                    song_select_bg_paths: &[], song_select_bg_texture_keys: &[], expanded_series_name: None,
+                    expanded_pack_name: None, new_pack_names: None, default_sync_offset: Default::default(), runtime: &runtime,
+                });
                 let prefix = format!("P1 {}", crate::i18n::tr("Golf", "Par").to_uppercase());
                 let badge = actors.iter().find_map(|actor| match actor {
-                    Actor::Text {
-                        content,
-                        offset,
-                        max_width,
-                        ..
-                    } if content.as_str().starts_with(&prefix) => {
-                        Some((offset[0], max_width.unwrap()))
-                    }
+                    Actor::Text { content, offset, max_width, .. } if content.as_str().starts_with(&prefix) => Some((offset[0], max_width.unwrap())),
                     _ => None,
                 });
                 assert_eq!(badge.is_some(), enabled);
                 if let Some((right, badge_width)) = badge {
-                    let title_right = actors
-                        .iter()
-                        .find_map(|actor| match actor {
-                            Actor::Text {
-                                content,
-                                offset,
-                                max_width: Some(max_width),
-                                ..
-                            } if content.as_str() == "Song" && offset[1] == 240.0 => {
-                                Some(offset[0] + max_width)
-                            }
-                            _ => None,
-                        })
-                        .unwrap();
-                    assert!(
-                        title_right <= right - badge_width - 7.9,
-                        "golf badges must not overlap titles"
-                    );
-                    let score_right = actors
-                        .iter()
-                        .find_map(|actor| match actor {
-                            Actor::Text {
-                                content, offset, ..
-                            } if content.as_str() == "92.00" => Some(offset[0]),
-                            _ => None,
-                        })
-                        .unwrap();
-                    assert!(
-                        right
-                            <= score_right
-                                - super::WHEEL_SCORE_MAX_WIDTH
-                                - super::WHEEL_SCORE_TITLE_GAP
-                                + 0.01
-                    );
+                    let title_right = actors.iter().find_map(|actor| match actor {
+                        Actor::Text { content, offset, max_width: Some(max_width), .. } if content.as_str() == "Song" && offset[1] == 240.0 => Some(offset[0] + max_width),
+                        _ => None,
+                    }).unwrap();
+                    assert!(title_right <= right - badge_width - 7.9, "golf badges must not overlap titles");
+                    let score_right = actors.iter().find_map(|actor| match actor {
+                        Actor::Text { content, offset, .. } if content.as_str() == "92.00" => Some(offset[0]),
+                        _ => None,
+                    }).unwrap();
+                    assert!(right <= score_right - super::WHEEL_SCORE_MAX_WIDTH - super::WHEEL_SCORE_TITLE_GAP + 0.01);
                 }
             }
         }

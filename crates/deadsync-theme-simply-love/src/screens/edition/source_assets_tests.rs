@@ -148,24 +148,18 @@ fn no_song_refuses_auto_assets_without_recreating_a_document() {
 
 #[test]
 fn auto_assets_preserve_fractional_focus_without_audio_commands() {
-    for sm in [false, true] {
-        let (_root, mut state) = state(false, sm, false);
-        let focus = deadsync_editor::chart_focus::Position::at_fractional_row(
-            &state.workspace.file().session,
-            0,
-            60.5,
-        )
-        .unwrap();
+    for sm in [false,true] {
+        let (_root,mut state)=state(false,sm,false);
+        let focus=deadsync_editor::chart_focus::Position::at_fractional_row(&state.workspace.file().session,0,60.5).unwrap();
         state.command(Command::Seek(focus.edit_row()));
-        let row = focus.row();
-        let time = focus.music_time();
-        state.focus_position = Some(focus);
+        let row=focus.row();let time=focus.music_time();
+        state.focus_position=Some(focus);
         state.audio_commands.clear();
         state.command_auto_song_assets(false);
-        let focus = state.focus_position.as_ref().unwrap();
+        let focus=state.focus_position.as_ref().unwrap();
         assert!(focus.is_current(&state.workspace));
-        assert_eq!(focus.row(), row);
-        assert_eq!(focus.music_time(), time);
+        assert_eq!(focus.row(),row);
+        assert_eq!(focus.music_time(),time);
         assert!(state.audio_commands.is_empty());
     }
 }

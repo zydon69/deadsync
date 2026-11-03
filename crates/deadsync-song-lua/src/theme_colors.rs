@@ -25,6 +25,7 @@ pub const SL_FA_PLUS_COLORS: &[&str] = &[
     "#21CCE8", "#ffffff", "#e29c18", "#66c955", "#b45cff", "#ff3030", "#ff00cc",
 ];
 
+
 const fn fixed_hex_digit(byte: u8) -> Option<u8> {
     match byte {
         b'0'..=b'9' => Some(byte - b'0'),
@@ -522,8 +523,7 @@ pub fn install_theme_color_helpers(lua: &Lua, globals: &Table) -> mlua::Result<(
     )?;
     // ITGmania fallback 02 Colors.lua keeps Lua number precision and uses
     // its final sector branch for every hue outside sectors zero to four.
-    lua.load(
-        r#"
+    lua.load(r#"
 function HSVToColor(hsv)
     local s, v = hsv.Sat, hsv.Value
     local a = hsv.Alpha or 0
@@ -547,14 +547,12 @@ end
 function HSVA(h, s, v, a)
     return HSVToColor{Hue=h, Sat=s, Value=v, Alpha=a}
 end
-"#,
-    )
-    .set_name("native HSV color helpers")
-    .set_environment(globals.clone())
-    .exec()?;
+"#)
+        .set_name("native HSV color helpers")
+        .set_environment(globals.clone())
+        .exec()?;
     // Retain the original fallback functions and their source line numbers.
-    lua.load(
-        r#"
+    lua.load(r#"
 
 
 
@@ -947,10 +945,7 @@ function Brightness(color,percent)
 	return HSVToColor(c)
 end
 
-"#,
-    )
-    .set_name("@theme:/Scripts/02 Colors.lua")
-    .exec()?;
+"#).set_name("@theme:/Scripts/02 Colors.lua").exec()?;
     Ok(())
 }
 

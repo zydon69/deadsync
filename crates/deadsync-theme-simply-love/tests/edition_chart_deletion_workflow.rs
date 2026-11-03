@@ -158,8 +158,7 @@ fn save_reopen_cached_selection_empty_file_menu_and_new_chart_are_usable() {
     assert_eq!(edited.workspace().grid().iter().count(), 1);
 }
 #[test]
-fn deletion_preserves_same_asset_transport_and_selects_remaining_chart_then_restores_original_focus()
- {
+fn deletion_preserves_same_asset_transport_and_selects_remaining_chart_then_restores_original_focus() {
     let (dir, _) = setup();
     let path = dir.path().join("music.ssc");
     let song = "#VERSION:0.83;#MUSIC:music.ogg;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#DIFFICULTY:Hard;#NOTES:1000;#NOTEDATA:;#STEPSTYPE:dance-double;#DIFFICULTY:Easy;#NOTES:00001000;";
@@ -174,7 +173,8 @@ fn deletion_preserves_same_asset_transport_and_selects_remaining_chart_then_rest
     assert!(s.take_audio_commands().is_empty());
     press(&mut s, KeyCode::ArrowDown);
     press(&mut s, KeyCode::Enter);
-    assert_eq!(s.workspace().chart(), 0);
+    assert_eq!(
+        s.workspace().chart(), 0);
     assert_eq!(s.workspace().grid().columns(), 4);
     assert!(s.is_playing());
     assert!(s.take_audio_commands().iter().all(|command| !matches!(

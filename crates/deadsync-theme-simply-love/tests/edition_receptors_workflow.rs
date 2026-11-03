@@ -227,11 +227,9 @@ fn all_resident_charts_use_their_own_validated_clock_for_receptors_and_hold_cuto
     state.update_with_time(now + Duration::from_millis(100));
     let paused = sprites(&state);
     assert!(!paused.iter().any(|s| s.receptor && s.z == 8010));
-    assert!(
-        has(&paused, 355.0, 112.0, 8004),
+    assert!(has(&paused, 355.0, 112.0, 8004),
         "paused heads: {:?}",
-        paused.iter().filter(|s| s.z == 8004).collect::<Vec<_>>()
-    );
+        paused.iter().filter(|s| s.z == 8004).collect::<Vec<_>>());
     assert!(has(&paused, 91.0, 124.0, 8004));
     assert_eq!(
         state.workspace().file().session.serialize().unwrap(),
@@ -263,25 +261,15 @@ fn passed_taps_trigger_hit_feedback_while_fake_notes_remain_visible_and_pause_do
             .iter()
             .any(|s| s.z == 8004 && (s.x - 403.0).abs() < 0.01)
     );
-    fn has_fake_marker(actor: &Actor) -> bool {
+    fn has_fake_marker(actor:&Actor)->bool {
         match actor {
-            Actor::Sprite {
-                z: 8004,
-                uv_rect: Some(uv),
-                visible: true,
-                ..
-            } => uv
-                .iter()
-                .zip([523u32, 1239, 563, 1279])
-                .all(|(a, b)| (*a - b as f32 / 1280.0).abs() < 1e-6),
-            Actor::Frame { children, .. } => children.iter().any(has_fake_marker),
-            _ => false,
+            Actor::Sprite{z:8004,uv_rect:Some(uv),visible:true,..} =>
+                uv.iter().zip([523u32,1239,563,1279]).all(|(a,b)|(*a-b as f32/1280.0).abs()<1e-6),
+            Actor::Frame{children,..}=>children.iter().any(has_fake_marker),
+            _=>false,
         }
     }
-    assert!(
-        actors(&state).iter().any(has_fake_marker),
-        "fake note survives consumption with its original source marker"
-    );
+    assert!(actors(&state).iter().any(has_fake_marker),"fake note survives consumption with its original source marker");
     transport_host::publish(&mut state);
     press(&mut state, KeyCode::Enter);
     let time = state.chart_focus_time().unwrap();

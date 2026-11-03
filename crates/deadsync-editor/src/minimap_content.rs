@@ -89,9 +89,7 @@ impl Raster {
         self.pixels = pixels;
         Ok(())
     }
-    pub fn pixels_mut(&mut self) -> &mut [u32] {
-        &mut self.pixels
-    }
+    pub fn pixels_mut(&mut self) -> &mut [u32] { &mut self.pixels }
     pub fn lane_positions(&self) -> &[u32] {
         &self.lanes
     }

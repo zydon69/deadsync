@@ -7,16 +7,11 @@ impl Plan {
         chart: usize,
         limits: Limits,
     ) -> Result<(), Error> {
-        if self.target == Format::Ssc && !self.options.anonymize {
-            let local =
-                crate::chart_text::local_value(document, chart, crate::chart_text::Field::Credit)?;
-            let authored = crate::chart_text::Text::read(document, chart)?;
-            if local.as_deref() == Some("")
-                && authored.get(crate::chart_text::Field::Credit).is_empty()
-                && document
-                    .text(None, "CREDIT")
-                    .is_some_and(|value| !value.is_empty())
-            {
+        if self.target==Format::Ssc && !self.options.anonymize {
+            let local=crate::chart_text::local_value(document,chart,crate::chart_text::Field::Credit)?;
+            let authored=crate::chart_text::Text::read(document,chart)?;
+            if local.as_deref()==Some("") && authored.get(crate::chart_text::Field::Credit).is_empty()
+                && document.text(None,"CREDIT").is_some_and(|value|!value.is_empty()) {
                 self.add(Some(chart),Severity::Warning,IssueKind::OmittedChartMetadata,"CREDIT",None,
                     "Source SSC reload inherits song CREDIT when chart CREDIT is empty; the explicit empty authored value changes",limits)?;
             }

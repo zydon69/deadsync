@@ -32,13 +32,11 @@ impl FileSession {
             ));
         }
         Ok(Self {
-            generation_profile_load: None,
+            generation_profile_load:None,
             session: candidate.session,
             output_policy: crate::output_policy::OutputPolicy::NativeLossless,
             policy_revision: 0,
-            publication_revision: 0,
-            publication_witness: None,
-            publication_epoch: Arc::new(std::sync::atomic::AtomicU64::new(0)),
+            publication_revision:0,publication_witness:None,publication_epoch:Arc::new(std::sync::atomic::AtomicU64::new(0)),
             origin: Origin::Untitled {
                 resource_base: resource_base.clone(),
             },

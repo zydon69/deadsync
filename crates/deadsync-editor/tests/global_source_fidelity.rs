@@ -82,23 +82,12 @@ fn all_mapped_source_constructor_and_postload_fields_match_actual_pinned_models(
             continue;
         }
         let raw: Value = serde_json::from_str(case["raw"].as_str().unwrap()).unwrap();
-        if raw["PreferencesStream"]["NoteType"]
-            .as_str()
+        if raw["PreferencesStream"]["NoteType"].as_str()
             .and_then(|v| v.trim().parse::<i32>().ok())
-            .is_some_and(|v| !(0..9).contains(&v))
-        {
-            let error = Draft::prepare(
-                &mut session,
-                None,
-                &file,
-                case["raw"].as_str().unwrap().as_bytes(),
-                Platform::Mac,
-            )
-            .err()
-            .expect("unsafe consumer must reject");
-            assert!(
-                matches!(error, deadsync_editor::Error::Unsupported(ref message) if message.starts_with("Unsafe source stream NoteType: "))
-            );
+            .is_some_and(|v| !(0..9).contains(&v)) {
+            let error = Draft::prepare(&mut session, None, &file,
+                case["raw"].as_str().unwrap().as_bytes(), Platform::Mac).err().expect("unsafe consumer must reject");
+            assert!(matches!(error, deadsync_editor::Error::Unsupported(ref message) if message.starts_with("Unsafe source stream NoteType: ")));
             continue;
         }
         let draft = match Draft::prepare(
@@ -138,12 +127,7 @@ fn all_mapped_source_constructor_and_postload_fields_match_actual_pinned_models(
             let Some(expected) = case["value"].get(source).and_then(|v| v.get(field)) else {
                 continue;
             };
-            let native_field =
-                if source == "PreferencesMultiplayer" && field == "ColorHoldsAndRolls" {
-                    "ColorMultiplayerHoldsAndRolls"
-                } else {
-                    field
-                };
+            let native_field = if source == "PreferencesMultiplayer" && field == "ColorHoldsAndRolls" { "ColorMultiplayerHoldsAndRolls" } else { field };
             let actual = actual.get(native).and_then(|v| v.get(native_field));
             checked += 1;
             if !actual.is_some_and(|v| close(v, expected)) {

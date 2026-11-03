@@ -104,7 +104,8 @@ fn keyboard_zoom_animates_note_positions_and_sizes_without_editing_or_moving_cur
         .iter()
         .find_map(|actor| match actor {
             Actor::Sprite {
-                z: 8005, offset, ..
+                z: 8005,
+                offset, ..
             } => Some(f64::from(offset[1])),
             _ => None,
         })
@@ -192,8 +193,7 @@ fn zoom_limits_render_bounded_actors_and_panels_and_focus_loss_keep_input_isolat
     close(state.spacing_zoom(), 1.0);
     let mut rendered = Vec::new();
     state.actors(&mut rendered);
-    assert!(
-        state.workspace().row() > 0,
+    assert!(state.workspace().row() > 0,
         "{:?}",
         rendered
             .iter()

@@ -1,6 +1,6 @@
 // Frozen core color code from 552763528, with public parent visibility for four private value helpers.
-use crate::read_string;
 use mlua::Value;
+use crate::read_string;
 pub const SONG_LUA_ACTIVE_COLOR_INDEX: i64 = 1;
 pub const SL_COLORS: &[&str] = &[
     "#FF5D47", "#FF577E", "#FF47B3", "#DD57FF", "#8885ff", "#3D94FF", "#00B8CC", "#5CE087",

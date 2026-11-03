@@ -21,7 +21,7 @@ fn modified(s: &mut State, modifier: KeyCode, code: KeyCode) {
     press(s, code);
     key(s, modifier, false);
 }
-fn setup() -> (tempfile::TempDir, State, u64) {
+fn setup() -> (tempfile::TempDir, State,u64) {
     i18n::init(deadsync_assets::language::load_for_tests(LANGUAGE));
     deadlib_present::space::set_current_metrics(deadlib_present::space::Metrics::centered(
         854.0, 480.0,
@@ -32,11 +32,11 @@ fn setup() -> (tempfile::TempDir, State, u64) {
     let mut s = State::open(&d.path().join("song.ssc"), 0).unwrap();
     transport_host::configure_projection(&mut s, &d.path().join("prefs.json"), false);
     let owner = transport_host::publish(&mut s);
-    (d, s, owner)
+    (d, s,owner)
 }
 #[test]
 fn live_shortcuts_undo_and_pause_resume_keep_fractional_music_position() {
-    let (d, mut s, owner) = setup();
+    let (d, mut s,owner) = setup();
     let original = s.workspace().file().session.serialize().unwrap();
     press(&mut s, KeyCode::Enter);
     s.take_audio_commands();
@@ -47,10 +47,7 @@ fn live_shortcuts_undo_and_pause_resume_keep_fractional_music_position() {
     assert_eq!(s.audio_preferences().music_rate(), 1.1);
     assert_eq!(
         s.take_audio_commands(),
-        vec![
-            gains(owner),
-            GameplayAudioCommand::EditorSetMusicRate { owner, rate: 1.1 }
-        ]
+        vec![gains(owner),GameplayAudioCommand::EditorSetMusicRate{owner,rate:1.1}]
     );
     s.update_audio(stale);
     assert_eq!(s.workspace().row(), 12);
@@ -63,32 +60,25 @@ fn live_shortcuts_undo_and_pause_resume_keep_fractional_music_position() {
     modified(&mut s, KeyCode::SuperLeft, KeyCode::KeyZ);
     assert_eq!(
         s.take_audio_commands(),
-        vec![
-            gains(owner),
-            GameplayAudioCommand::EditorSetMusicRate { owner, rate: 1.0 }
-        ]
+        vec![gains(owner),GameplayAudioCommand::EditorSetMusicRate{owner,rate:1.0}]
     );
     assert!(s.is_playing());
     modified(&mut s, KeyCode::SuperLeft, KeyCode::KeyY);
     assert_eq!(
         s.take_audio_commands(),
-        vec![
-            gains(owner),
-            GameplayAudioCommand::EditorSetMusicRate { owner, rate: 1.1 }
-        ]
+        vec![gains(owner),GameplayAudioCommand::EditorSetMusicRate{owner,rate:1.1}]
     );
     assert!(s.is_playing());
     s.update_audio(transport_host::snapshot(&s, 0.126));
     press(&mut s, KeyCode::Enter);
     assert_eq!(
         s.take_audio_commands(),
-        vec![GameplayAudioCommand::EditorPauseMusic {
-            owner,
+        vec![GameplayAudioCommand::EditorPauseMusic {owner,
             seconds: 0.126
         }]
     );
     modified(&mut s, KeyCode::ShiftLeft, KeyCode::ArrowRight);
-    assert_eq!(s.take_audio_commands(), vec![gains(owner)]);
+    assert_eq!(s.take_audio_commands(),vec![gains(owner)]);
     press(&mut s, KeyCode::Enter);
     assert!(
         matches!(s.take_audio_commands().as_slice(), [GameplayAudioCommand::EditorResumeMusic {owner:actual,seconds, rate, ..}] if *actual==owner && *seconds == 0.126 && *rate == 1.2)
@@ -105,7 +95,7 @@ fn live_shortcuts_undo_and_pause_resume_keep_fractional_music_position() {
 }
 #[test]
 fn typed_rate_panel_stages_saves_cancels_and_sample_preview_stays_at_unity() {
-    let (d, mut s, owner) = setup();
+    let (d, mut s,owner) = setup();
     for code in [
         KeyCode::F11,
         KeyCode::F6,
@@ -118,20 +108,14 @@ fn typed_rate_panel_stages_saves_cancels_and_sample_preview_stays_at_unity() {
     assert_eq!(s.audio_preferences().music_rate(), 1.0);
     let mut actors = Vec::new();
     s.actors(&mut actors);
-    let prefix = &i18n::tr("Edition", "AudioNameRate");
-    assert!(actors.iter().any(
-        |actor| matches!(actor, Actor::Text {content, ..} if content.contains(prefix.as_ref()))
-    ));
-    assert!(
-        actors
-            .iter()
-            .any(|actor| matches!(actor, Actor::Text {content, ..} if content.contains("1.001")))
-    );
+    let prefix = &i18n::tr("Edition","AudioNameRate");
+    assert!(actors.iter().any(|actor| matches!(actor, Actor::Text {content, ..} if content.contains(prefix.as_ref()))));
+    assert!(actors.iter().any(|actor| matches!(actor, Actor::Text {content, ..} if content.contains("1.001"))));
     for code in [KeyCode::ArrowDown, KeyCode::ArrowDown, KeyCode::Enter] {
         press(&mut s, code);
     }
     assert_eq!(s.audio_preferences().music_rate(), 1.001);
-    assert_eq!(s.take_audio_commands(), vec![gains(owner)]);
+    assert_eq!(s.take_audio_commands(),vec![gains(owner)]);
     let saved = fs::read(d.path().join("prefs.json")).unwrap();
     for code in [
         KeyCode::F5,
@@ -175,10 +159,10 @@ fn conflicting_preferences_refuse_live_change_and_undo_without_stopping_transpor
 #[test]
 fn panel_commit_preserves_merged_fields_and_reloading_rate_updates_live_transport() {
     use deadsync_editor::audio_preferences::File;
-    let (d, mut s, owner) = setup();
+    let (d, mut s,owner) = setup();
     let path = d.path().join("prefs.json");
     modified(&mut s, KeyCode::ShiftLeft, KeyCode::ArrowRight);
-    assert_eq!(s.take_audio_commands(), vec![gains(owner)]);
+    assert_eq!(s.take_audio_commands(),vec![gains(owner)]);
     for code in [
         KeyCode::F11,
         KeyCode::F6,
@@ -199,7 +183,7 @@ fn panel_commit_preserves_merged_fields_and_reloading_rate_updates_live_transpor
     // Runtime and disk are independent preference owners: committing only
     // the rate retains the live fade while preserving the external disk fade.
     assert_eq!(s.audio_preferences().fade_out(), 1.5);
-    assert_eq!(s.take_audio_commands(), vec![gains(owner)]);
+    assert_eq!(s.take_audio_commands(),vec![gains(owner)]);
     let persisted = File::open(&path).unwrap().audio();
     assert_eq!(persisted.fade_out(), 2.5);
     assert_eq!(persisted.music_rate(), s.audio_preferences().music_rate());
@@ -217,26 +201,16 @@ fn panel_commit_preserves_merged_fields_and_reloading_rate_updates_live_transpor
     assert!(s.is_playing());
     assert_eq!(
         s.take_audio_commands(),
-        vec![
-            gains(owner),
-            GameplayAudioCommand::EditorSetPreviewFades {
+        vec![gains(owner),GameplayAudioCommand::EditorSetPreviewFades {
                 owner,
                 fade_in: 0.0,
                 fade_out: 2.5
             },
-            GameplayAudioCommand::EditorSetMusicRate { owner, rate: 1.5 }
-        ]
+            GameplayAudioCommand::EditorSetMusicRate{owner,rate:1.5}]
     );
 }
 
-fn gains(owner: u64) -> GameplayAudioCommand {
-    GameplayAudioCommand::EditorUpdateAudio {
-        owner,
-        gains: deadsync_gameplay::EditorAudioGains {
-            main: 1.,
-            music: 0.5,
-            assist: 0.0,
-            beat: 0.0,
+fn gains(owner:u64)->GameplayAudioCommand {
+    GameplayAudioCommand::EditorUpdateAudio{owner,gains:deadsync_gameplay::EditorAudioGains{main:1.,music:0.5,assist: 0.0,beat: 0.0,
         },
-    }
-}
+    }}

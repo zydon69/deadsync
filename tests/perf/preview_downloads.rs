@@ -57,8 +57,7 @@ fn assert_original(
     let after = actors(state, rows, color, font);
     assert_eq!(
         crate::actor_test_support::canonical(&before),
-        crate::actor_test_support::canonical(&after)
-    );
+        crate::actor_test_support::canonical(&after));
     after
 }
 
