@@ -175,12 +175,6 @@ impl State {
             return None;
         }
         let geometry = self.minimap_viewport_geometry().ok()?;
-        if (geometry.projection.editor_end - geometry.projection.editor_start)
-            / geometry.projection.mini_range
-            >= 1.0
-        {
-            return None;
-        }
         let key = self.minimap_content_key(&geometry);
         let frame = self
             .minimap
@@ -234,10 +228,6 @@ impl State {
             return;
         }
         let projection = &geometry.projection;
-        let fraction = (projection.editor_end - projection.editor_start) / projection.mini_range;
-        if fraction >= 1.0 {
-            return;
-        }
         let width = options.width;
         let x = match self.minimap_mount_bounds() {
             Ok(bounds) => bounds.x as f32,
@@ -289,11 +279,20 @@ impl State {
         };
         let key = self.minimap_content_key(geometry);
         let frame = self.minimap.content.frames.frame(session, chart, key, || {
-            let range = projection.editor_end - projection.editor_start;
-            let background = minimap_background::build(
+            let grid = self
+                .preview
+                .as_ref()
+                .map_or(self.workspace.grid(), |preview| preview.grid());
+            let content = match geometry.axis {
+                deadsync_editor::minimap_viewport::Axis::Time => {
+                    (clock.chart_time(0)?, clock.note_time(grid.last_row())?)
+                }
+                deadsync_editor::minimap_viewport::Axis::Row => (0.0, grid.last_row() as f64),
+            };
+            let background = minimap_background::build_overview(
                 projection,
                 width,
-                (projection.full_start + range, projection.full_end - range),
+                content,
                 geometry.focused_coordinate(),
                 self.minimap_capture_active(),
                 self.minimap_focused(),
@@ -326,10 +325,8 @@ impl State {
                 preview_color: 0xff7a7a7a,
                 label_color: 0xff9c3db7,
             };
-            let mut scene = minimap_content_scene::build_on_background(
-                self.preview
-                    .as_ref()
-                    .map_or(self.workspace.grid(), |preview| preview.grid()),
+            let scene = minimap_content_scene::build_on_background(
+                grid,
                 clock,
                 projection,
                 geometry.axis,
@@ -368,7 +365,6 @@ impl State {
                     )
                 },
             )?;
-            minimap_background::fade(scene.raster.pixels_mut(), fraction, 0.9)?;
             let mesh = Mesh::build(
                 width,
                 projection.visible_height as u32,

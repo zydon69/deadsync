@@ -37,6 +37,29 @@ pub fn build(
     grabbed: bool,
     hovered: bool,
 ) -> Result<Background, Error> {
+    build_internal(projection, width, content, cursor, grabbed, hovered, false)
+}
+/// Native full-chart overview stays visible even when the editor already shows
+/// the whole chart. The source scrollbar's suppression remains in `build`.
+pub fn build_overview(
+    projection: &Projection,
+    width: u32,
+    content: (f64, f64),
+    cursor: f64,
+    grabbed: bool,
+    hovered: bool,
+) -> Result<Background, Error> {
+    build_internal(projection, width, content, cursor, grabbed, hovered, true)
+}
+fn build_internal(
+    projection: &Projection,
+    width: u32,
+    content: (f64, f64),
+    cursor: f64,
+    grabbed: bool,
+    hovered: bool,
+    overview: bool,
+) -> Result<Background, Error> {
     let height = projection.visible_height;
     if !(2..=1024).contains(&width)
         || !(3..=16384).contains(&height)
@@ -48,10 +71,21 @@ pub fn build(
             "Invalid minimap background geometry".into(),
         ));
     }
-    let content_start_y = Raster::project(projection, content.0, false)?;
-    let content_end_y = Raster::project(projection, content.1, false)?;
-    let cursor_y = Raster::project(projection, cursor, true)?;
-    if (projection.editor_end - projection.editor_start) / projection.mini_range >= 1.0 {
+    let visible = |coordinate: f64| {
+        if overview {
+            coordinate.clamp(
+                projection.mini_unquantized,
+                projection.mini_unquantized + projection.mini_range,
+            )
+        } else {
+            coordinate
+        }
+    };
+    let content_start_y = Raster::project(projection, visible(content.0), false)?;
+    let content_end_y = Raster::project(projection, visible(content.1), false)?;
+    let cursor_y = Raster::project(projection, visible(cursor), true)?;
+    if !overview && (projection.editor_end - projection.editor_start) / projection.mini_range >= 1.0
+    {
         return Ok(Background {
             pixels: Vec::new(),
             content_start_y,
@@ -99,9 +133,9 @@ pub fn build(
     for y in (start_int.saturating_add(1)).max(1)..height - 1 {
         interior(&mut pixels, width, y, 0xff020202);
     }
-    let editor_start = Raster::project(projection, projection.editor_start, true)?;
+    let editor_start = Raster::project(projection, visible(projection.editor_start), true)?;
     let editor_end =
-        Raster::project(projection, projection.editor_end, true)?.max(editor_start + 1.0);
+        Raster::project(projection, visible(projection.editor_end), true)?.max(editor_start + 1.0);
     let start_int = floor(editor_start)?;
     let end_int = floor(editor_end)?;
     let color = if grabbed {

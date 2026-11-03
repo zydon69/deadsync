@@ -9,9 +9,8 @@ use deadsync_editor::{
 };
 use std::cell::RefCell;
 
-// Source Editor.UpdateMiniMap passes the configured range unchanged. The
-// source projection anchors oversized ranges at FullAreaStart; content clipping
-// is performed by the existing raster, without silently changing the scale.
+// The simplified native editor fits short charts into the overview. A configured
+// smaller range still zooms long charts; persisted source preferences are intact.
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -75,16 +74,13 @@ mod tests {
                                 }
                                 Axis::Row => (0., last as f64),
                             };
-                            assert_eq!(
-                                p.mini_range, configured,
-                                "source configured range survives {width}x{height} dpi{dpi} {mode:?}"
-                            );
                             if short {
-                                assert!(p.mini_range >= p.full_end - p.full_start);
-                                assert!((p.mini_start - p.full_start).abs() < 1e-9);
                                 let start = p.project_editor(content.0);
                                 let end = p.project_editor(content.1);
-                                assert!(start >= 0.0 && end <= f64::from(p.visible_height));
+                                assert!((start - 1.0).abs() < 1e-8);
+                                assert!((end - f64::from(p.visible_height - 2)).abs() < 1e-8);
+                            } else {
+                                assert_eq!(p.mini_range, configured);
                             }
                             assert_eq!(state.minimap_preferences(), preferences);
                             assert_eq!(state.workspace.file().session.serialize().unwrap(), before);
@@ -95,7 +91,7 @@ mod tests {
         }
     }
     #[test]
-    fn source_ui_range_changes_scale_on_short_chart_and_clips_real_content_mesh() {
+    fn short_chart_fills_overview_without_rewriting_configured_ranges() {
         i18n::init_for_tests();
         for (size, dpi) in [
             ([854.0, 480.0], 1.0),
@@ -153,7 +149,6 @@ mod tests {
                     state.minimap_settings_key(5, KeyCode::Enter);
                     let (geometry, clock) = state.minimap_projection().unwrap();
                     let p = geometry.projection;
-                    assert_eq!(p.mini_range, expected);
                     assert_eq!(
                         state.minimap_preferences().visible_range(geometry.axis),
                         expected
@@ -193,11 +188,10 @@ mod tests {
                         "actual content raster must produce a bounded mesh"
                     );
                 }
-                assert_ne!(
-                    projected[0].0, projected[1].0,
-                    "configured range changes actual note projection"
+                assert_eq!(
+                    projected[0], projected[1],
+                    "short chart fits both oversized ranges"
                 );
-                assert!((projected[0].1 / projected[1].1 - high / low).abs() < 1e-8);
             }
         }
     }
@@ -423,7 +417,7 @@ impl State {
             Axis::Row => (position.row, (0.0, last_row as f64)),
         };
         let overview = self.overview_vertical_layout();
-        let geometry = Geometry::build(
+        let mut geometry = Geometry::build(
             axis,
             viewport,
             scale,
@@ -435,6 +429,19 @@ impl State {
             self.reverse_display,
             self.minimap.preferences.quantize(),
         )?;
+        let span = content.1 - content.0;
+        let projection = &mut geometry.projection;
+        if span > 0.0 && span <= projection.mini_range && projection.visible_height > 3 {
+            // Reserve one raster pixel at each rim. Use the same effective
+            // projection for notes, overlays, cursor and navigation, rather
+            // than stretching just the note mesh after rendering.
+            let units_per_pixel = span / f64::from(projection.visible_height - 3);
+            projection.mini_range = units_per_pixel * f64::from(projection.visible_height);
+            projection.mini_start = content.0 - units_per_pixel;
+            projection.mini_unquantized = projection.mini_start;
+            projection.full_start = projection.mini_start;
+            projection.full_end = projection.mini_start + projection.mini_range;
+        }
         Ok((geometry, clock))
     }
     fn minimap_effect(&mut self, effect: Option<Effect>) -> Result<(), deadsync_editor::Error> {
