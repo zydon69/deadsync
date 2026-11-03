@@ -144,6 +144,40 @@ pub const fn itg_score_inputs_from_display(
     }
 }
 
+/// ScoreKeeperShared receives every judgment from both Routine participants,
+/// and its possible points cover both parts, so it scores their sum.
+#[must_use]
+pub const fn shared_itg_score_inputs(first: ItgScoreInputs, second: ItgScoreInputs) -> ItgScoreInputs {
+    let mut scoring_counts = first.scoring_counts;
+    let mut ix = 0usize;
+    while ix < judgment::JUDGE_GRADE_COUNT {
+        scoring_counts[ix] = scoring_counts[ix].saturating_add(second.scoring_counts[ix]);
+        ix += 1;
+    }
+    ItgScoreInputs {
+        current_possible_points: first
+            .current_possible_points
+            .saturating_add(second.current_possible_points),
+        scoring_counts,
+        holds_held_for_score: first
+            .holds_held_for_score
+            .saturating_add(second.holds_held_for_score),
+        rolls_held_for_score: first
+            .rolls_held_for_score
+            .saturating_add(second.rolls_held_for_score),
+        mines_hit_for_score: first
+            .mines_hit_for_score
+            .saturating_add(second.mines_hit_for_score),
+        checkpoints_hit: first.checkpoints_hit.saturating_add(second.checkpoints_hit),
+        checkpoints_missed: first
+            .checkpoints_missed
+            .saturating_add(second.checkpoints_missed),
+        possible_grade_points: first
+            .possible_grade_points
+            .saturating_add(second.possible_grade_points),
+    }
+}
+
 #[must_use]
 pub fn itg_score_percent_from_inputs(inputs: ItgScoreInputs) -> f64 {
     let points = judgment::itg_grade_points_with_checkpoints(
@@ -272,6 +306,7 @@ pub enum GameplayTargetScoreSetting {
     SpecifiedValue,
     MachineBest,
     PersonalBest,
+    GhostData,
 }
 
 #[must_use]
@@ -295,7 +330,8 @@ pub const fn target_score_setting_percent(setting: GameplayTargetScoreSetting) -
         GameplayTargetScoreSetting::Star4 => Some(100.0),
         GameplayTargetScoreSetting::SpecifiedValue
         | GameplayTargetScoreSetting::MachineBest
-        | GameplayTargetScoreSetting::PersonalBest => None,
+        | GameplayTargetScoreSetting::PersonalBest
+        | GameplayTargetScoreSetting::GhostData => None,
     }
 }
 
@@ -312,7 +348,9 @@ pub fn resolve_target_score_percent(
     machine_best: Option<f64>,
 ) -> f64 {
     let percent = match setting {
-        GameplayTargetScoreSetting::SpecifiedValue => Some(specified_percent),
+        GameplayTargetScoreSetting::SpecifiedValue | GameplayTargetScoreSetting::GhostData => {
+            Some(specified_percent)
+        }
         GameplayTargetScoreSetting::MachineBest => machine_best,
         GameplayTargetScoreSetting::PersonalBest => personal_best,
         fixed => target_score_setting_percent(fixed),

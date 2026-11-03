@@ -13,7 +13,7 @@ mod runtime_regression_tests {
     use std::time::Instant;
 
     #[derive(Clone)]
-    struct TestProfile {
+    pub(super) struct TestProfile {
         remove_mask_bits: u8,
         turn_option: GameplayTurnOption,
         attack_mode: GameplayAttackMode,
@@ -24,7 +24,7 @@ mod runtime_regression_tests {
         fantastic_feedback_options: FantasticFeedbackOptions,
         noteskin_name: &'static str,
         mini_percent: f32,
-        global_offset_shift_ms: i32,
+        pub(super) global_offset_shift_ms: i32,
         mini_indicator_options: GameplayMiniIndicatorOptions,
         target_score: GameplayTargetScoreSetting,
         density_graph: bool,
@@ -249,7 +249,7 @@ mod runtime_regression_tests {
         }
     }
 
-    struct NoSongLuaRuntime;
+    pub(super) struct NoSongLuaRuntime;
 
     impl SongLuaRuntimeBuilder<(), (), ()> for NoSongLuaRuntime {
         fn build_song_lua_runtime(
@@ -286,7 +286,7 @@ mod runtime_regression_tests {
         }
     }
 
-    type State = GameplayRuntimeState<TestProfile, (), (), ()>;
+    pub(super) type State = GameplayRuntimeState<TestProfile, (), (), ()>;
 
     fn assert_valid_hot_state_for_tests(state: &State, delta_time: f32, music_time_sec: f32) {
         debug_assert!(
@@ -847,7 +847,7 @@ mod runtime_regression_tests {
         }
     }
 
-    fn regression_song() -> SongData {
+    pub(super) fn regression_song() -> SongData {
         SongData {
             simfile_path: PathBuf::from("songs/Tests/gameplay-regression.ssc"),
             title: "Gameplay Regression".to_string(),
@@ -885,7 +885,7 @@ mod runtime_regression_tests {
         }
     }
 
-    fn regression_payload_with_segments(
+    pub(super) fn regression_payload_with_segments(
         timing_segments: TimingSegments,
         last_row: usize,
     ) -> GameplayChartData {
@@ -1234,6 +1234,10 @@ mod runtime_regression_tests {
                     [GameplayTargetScoreSetting::MachineBest; MAX_PLAYERS],
                     [99.5, 98.75],
                 ),
+                (
+                    [GameplayTargetScoreSetting::GhostData; MAX_PLAYERS],
+                    [6.0 / 7.0 * 100.0, 100.0],
+                ),
             ] {
                 let state = init_gameplay_runtime(
                     song.clone(),
@@ -1247,6 +1251,16 @@ mod runtime_regression_tests {
                     GameplayConfig::default(),
                     SyncPref::Default,
                     GameplayMiniIndicatorData {
+                        ghost_targets: [
+                            GameplayGhostTarget {
+                                score_type: GhostScoreType::Ex,
+                                points: vec![3.0, 6.0],
+                            },
+                            GameplayGhostTarget {
+                                score_type: GhostScoreType::HardEx,
+                                points: vec![3.5, 7.0],
+                            },
+                        ],
                         specified_target_percent: [97.0, 96.0],
                         personal_best_percent: [Some(95.25), Some(93.5)],
                         machine_best_percent: [Some(99.5), Some(98.75)],
@@ -1288,6 +1302,143 @@ mod runtime_regression_tests {
                 }
             }
         }
+    }
+
+    fn finalize_ghost_test_tap(state: &mut State, note_index: usize, offset_ms: f32) {
+        let player = state.player_for_col(state.chart_runtime.notes[note_index].column);
+        let row = state.chart_runtime.notes[note_index].row_index;
+        let entry = row_entry_index_for_note(
+            &state.chart_runtime.row_indices.note_row_entry_indices,
+            note_index,
+        )
+        .unwrap();
+        state.set_final_note_result(
+            note_index,
+            Judgment {
+                time_error_ms: offset_ms,
+                time_error_music_ns: song_time_ns_from_seconds(offset_ms / 1000.0),
+                grade: JudgeGrade::Fantastic,
+                window: Some(TimingWindow::W1),
+                miss_because_held: false,
+            },
+        );
+        state.finalize_row_judgment(player, row, entry, false);
+    }
+
+    #[test]
+    fn ghost_history_records_players_independently_and_only_saves_valid_passes() {
+        let mut state = regression_state_with_session(GameplaySession {
+            play_style: GameplayInputPlayStyle::Versus,
+            ..GameplaySession::default()
+        });
+        for player in 0..2 {
+            let (first, end) = state.note_range_for_player(player);
+            finalize_ghost_test_tap(&mut state, first, if player == 0 { 0.0 } else { 20.0 });
+            finalize_ghost_test_tap(&mut state, end - 1, 0.0);
+        }
+        assert_eq!(state.players()[0].ghost.recorded[0], [5.0, 10.0]);
+        assert_eq!(state.players()[0].ghost.recorded[1], [3.5, 7.0]);
+        assert_eq!(state.players()[1].ghost.recorded[1], [3.0, 6.5]);
+        assert_eq!(state.players()[1].ghost.recorded[2], [3.0, 6.5]);
+        assert!(state.ghost_history_for_save(0).is_none(), "unfinished run");
+        state.progress.stage.song_completed_naturally = true;
+        assert!(state.ghost_history_for_save(0).is_some());
+        state.players_runtime.players[0].stage_failed = true;
+        assert!(state.ghost_history_for_save(0).is_none());
+        assert!(state.ghost_history_for_save(1).is_some());
+        state.progress.stage.score_valid[1] = false;
+        assert!(state.ghost_history_for_save(1).is_none());
+        state.progress.stage.score_valid[1] = true;
+        state.mark_autoplay_used();
+        assert!(state.ghost_history_for_save(1).is_none());
+    }
+
+    #[test]
+    fn ghost_history_includes_held_dropped_and_missed_hold_results() {
+        for result in [HoldResult::Held, HoldResult::LetGo, HoldResult::Missed] {
+            let mut state = hold_regression_state(GameplayInputPlayStyle::Single);
+            finalize_ghost_test_tap(&mut state, 0, 0.0);
+            match result {
+                HoldResult::Held => state.handle_hold_success(0, 0),
+                HoldResult::LetGo => state.handle_hold_let_go(0, 0, 500_000_000),
+                HoldResult::Missed => state.handle_hold_missed(0, 0),
+            }
+            let histories = &state.players()[0].ghost.recorded;
+            assert_eq!(
+                histories[0],
+                [
+                    5.0,
+                    if result == HoldResult::Held {
+                        10.0
+                    } else {
+                        5.0
+                    }
+                ]
+            );
+            assert_eq!(
+                histories[1],
+                [3.5, if result == HoldResult::Held { 4.5 } else { 3.5 }]
+            );
+        }
+    }
+
+    #[test]
+    fn ghost_history_counts_avoided_mines_without_lua_and_finalizes_last_mine() {
+        for finalize_at_end in [false, true] {
+            let mut state = regression_state_with_segments(
+                TimingSegments {
+                    bpms: vec![(0.0, 60.0)],
+                    ..TimingSegments::default()
+                },
+                192,
+            );
+            set_regression_mine(&mut state, 1, 1, 96, 2_000_000_000);
+            state.progress.chart_totals.mines_total[0] = 1;
+            finalize_ghost_test_tap(&mut state, 0, 0.0);
+            if finalize_at_end {
+                state.finalize_completed_mines();
+            } else {
+                state.apply_time_based_mine_avoidance(3_000_000_000);
+                state.dispatch_avoided_mine_judgments();
+            }
+            assert_eq!(state.players()[0].ghost.recorded[0], [5.0, 5.0]);
+            assert_eq!(state.players()[0].ghost.recorded[1], [3.5, 3.5]);
+            state.finalize_completed_mines();
+            assert_eq!(
+                state.players()[0].ghost.recorded[0].len(),
+                2,
+                "do not count the same mine twice"
+            );
+        }
+    }
+
+    #[test]
+    fn ghost_history_includes_mine_penalties_and_skips_autoplay() {
+        let mut state = regression_state();
+        set_regression_mine(&mut state, 1, 1, 96, 2_000_000_000);
+        state.progress.chart_totals.mines_total[0] = 1;
+        finalize_ghost_test_tap(&mut state, 0, 0.0);
+        state.chart_runtime.notes[1].mine_result = Some(MineResult::Hit);
+        state
+            .chart_runtime
+            .mine_scan
+            .pending_mine_hit_indices
+            .push(ChartNoteIndex(1));
+        state.apply_pending_mine_hits();
+        assert_eq!(state.players()[0].ghost.recorded[0], [5.0, -1.0]);
+        assert_eq!(state.players()[0].ghost.recorded[1], [3.5, 2.5]);
+        assert_eq!(state.players()[0].ghost.recorded[2], [3.5, 2.5]);
+
+        let mut autoplay = regression_state();
+        autoplay.set_live_autoplay_enabled(true);
+        finalize_ghost_test_tap(&mut autoplay, 0, 0.0);
+        assert!(
+            autoplay.players()[0]
+                .ghost
+                .recorded
+                .iter()
+                .all(Vec::is_empty)
+        );
     }
 
     #[test]
@@ -2728,6 +2879,9 @@ mod runtime_regression_tests {
                 );
                 state.chart_runtime.notes[0].note_type = NoteType::Roll;
                 state.progress.stage.autoplay_enabled = true;
+                // Isolate roll life from float row-crossing rounding at a
+                // calibrated head time (e.g. 0.516 s rounds below beat 1).
+                state.apply_global_offset_delta(-state.global_offset_seconds());
                 state.set_music_rate(rate);
                 state.display.noteskin_effects.set_receptor_step_behavior(
                     0,
@@ -3781,30 +3935,50 @@ mod runtime_regression_tests {
     }
 
     #[test]
-    fn autosync_rate_correction() {
+    fn autosync_rate_correction_eliminates_the_measured_error() {
         for mode in [AutosyncMode::Song, AutosyncMode::Machine] {
             for rate in [0.5, 1.0, 1.5, 2.0] {
                 for error_ms in [-10.0, 10.0] {
-                    let mut state = regression_state();
+                    let mut state = regression_state_with_segments(
+                        TimingSegments {
+                            bpms: vec![(0.0, 120.0)],
+                            ..TimingSegments::default()
+                        },
+                        96,
+                    );
+                    state.apply_global_offset_delta(-state.global_offset_seconds());
                     state.set_music_rate(rate);
                     state.set_autosync_mode(mode);
                     set_single_judged_tap(&mut state, 0, 48, JudgeGrade::Fantastic, error_ms);
+                    state.refresh_timing_after_offset_change();
                     let song_offset = state.song_offset_seconds();
                     let global_offset = state.global_offset_seconds();
                     let error_ns = judgment::judgment_time_error_music_ns_from_ms(error_ms, rate);
-                    let hit = state
-                        .note_hit_eval(0, 1_000_000_000, 1_000_000_000 + error_ns)
-                        .expect("10 ms hit is inside the judgment window");
-                    state.chart_runtime.notes[0].result =
-                        Some(state.build_final_note_hit_plan(0, hit, rate).judgment);
+                    let event_source_time_ns =
+                        state.chart_runtime.note_time_cache_ns[0] + error_ns;
 
-                    for _ in 0..AUTOSYNC_OFFSET_SAMPLE_COUNT {
-                        state.apply_autosync_for_row_hits(0);
+                    // Replay the same physical timing after correction, using the real
+                    // mapped-clock and note-cache paths rather than only inspecting
+                    // the offset setting. A second batch must remain centered.
+                    for batch in 0..2 {
+                        for _ in 0..AUTOSYNC_OFFSET_SAMPLE_COUNT {
+                            let judgment =
+                                autosync_judgment_at_source_time(&mut state, event_source_time_ns);
+                            state.chart_runtime.notes[0].result = Some(judgment);
+                            state.apply_autosync_for_row_hits(0);
+                        }
+                        let residual =
+                            autosync_judgment_at_source_time(&mut state, event_source_time_ns);
+                        assert!(
+                            residual.time_error_ms.abs() < 0.001,
+                            "mode={mode:?}, rate={rate}, error_ms={error_ms}, batch={batch}, residual_ms={}",
+                            residual.time_error_ms,
+                        );
                     }
 
                     let correction = -error_ms / 1000.0;
                     let (song_delta, global_delta) = match mode {
-                        AutosyncMode::Song => (correction, 0.0),
+                        AutosyncMode::Song => (correction * rate, 0.0),
                         AutosyncMode::Machine => (0.0, correction),
                         AutosyncMode::Off => unreachable!(),
                     };
@@ -3821,6 +3995,71 @@ mod runtime_regression_tests {
                     assert_eq!(state.autosync_standard_deviation(), 0.0);
                 }
             }
+        }
+    }
+
+    fn autosync_judgment_at_source_time(state: &mut State, source_time_ns: SongTimeNs) -> Judgment {
+        let rate = state.music_rate();
+        let now = Instant::now();
+        let clock = current_song_clock_snapshot(
+            GameplayAudioSnapshot {
+                stream_clock: GameplayStreamClockSnapshot {
+                    music_nanos: source_time_ns,
+                    music_seconds_per_second: rate,
+                    has_music_mapping: true,
+                    valid_at: now,
+                    valid_at_host_nanos: 1,
+                    ..GameplayStreamClockSnapshot::default()
+                },
+                ..GameplayAudioSnapshot::default()
+            },
+            rate,
+            0.0,
+        );
+        let event_time_ns = song_clock_music_time_ns(clock, now, 1);
+        let hit = state
+            .note_hit_eval(0, state.chart_runtime.note_time_cache_ns[0], event_time_ns)
+            .expect("autosync probe stays within the judgment window");
+        state.build_final_note_hit_plan(0, hit, rate).judgment
+    }
+
+    #[test]
+    fn autosync_discards_partial_samples_when_music_rate_changes() {
+        for mode in [AutosyncMode::Song, AutosyncMode::Machine] {
+            let mut state = regression_state();
+            state.set_music_rate(0.5);
+            state.set_autosync_mode(mode);
+            for _ in 0..AUTOSYNC_OFFSET_SAMPLE_COUNT / 2 {
+                state.apply_autosync_offset_correction(song_time_ns_from_seconds(0.010));
+            }
+            assert_eq!(
+                state.autosync_sample_count(),
+                AUTOSYNC_OFFSET_SAMPLE_COUNT / 2
+            );
+            let song_offset = state.song_offset_seconds();
+            let global_offset = state.global_offset_seconds();
+            assert!(!state.set_music_rate(0.5));
+            assert_eq!(
+                state.autosync_sample_count(),
+                AUTOSYNC_OFFSET_SAMPLE_COUNT / 2
+            );
+
+            assert!(state.set_music_rate(2.0));
+            assert_eq!(state.autosync_sample_count(), 0);
+            for _ in 0..AUTOSYNC_OFFSET_SAMPLE_COUNT - 1 {
+                state.apply_autosync_offset_correction(song_time_ns_from_seconds(-0.010));
+            }
+            assert_eq!(state.song_offset_seconds(), song_offset);
+            assert_eq!(state.global_offset_seconds(), global_offset);
+            state.apply_autosync_offset_correction(song_time_ns_from_seconds(-0.010));
+
+            let (song_delta, global_delta) = match mode {
+                AutosyncMode::Song => (-0.020, 0.0),
+                AutosyncMode::Machine => (0.0, -0.010),
+                AutosyncMode::Off => unreachable!(),
+            };
+            assert!((state.song_offset_seconds() - song_offset - song_delta).abs() < 1e-6);
+            assert!((state.global_offset_seconds() - global_offset - global_delta).abs() < 1e-6);
         }
     }
 
@@ -3856,7 +4095,7 @@ mod runtime_regression_tests {
                     // ITGmania accepts only standard deviations strictly below 30 ms.
                     let correction = if spread_ms < 30.0 { 0.010 } else { 0.0 };
                     let (song_delta, global_delta) = match mode {
-                        AutosyncMode::Song => (correction, 0.0),
+                        AutosyncMode::Song => (correction * rate, 0.0),
                         AutosyncMode::Machine => (0.0, correction),
                         AutosyncMode::Off => unreachable!(),
                     };
@@ -5555,5 +5794,296 @@ mod runtime_regression_tests {
         assert!(state.mods.attacks.visual[0].confusion_offset.is_none());
         assert!(state.mods.attacks.visual[0].tipsy.is_none());
         assert!((visibility.dark - 1.0).abs() <= 0.0001);
+    }
+
+    /// Routine notes owned by P1 at beats 1 and 2 (columns 0 and 1) and by P2
+    /// at beat 1 (column 7), so both participants have a note on one row.
+    fn routine_state() -> State {
+        let song = Arc::new(regression_song());
+        let mut chart = song.charts[0].clone();
+        chart.chart_type = "dance-routine".to_string();
+        let chart = Arc::new(chart);
+        let mut payload = regression_payload_with_segments(TimingSegments::default(), 96);
+        payload.parsed_notes = [(0, 48, 0), (1, 48, 7), (0, 96, 1)]
+            .into_iter()
+            .map(|(player, row_index, column)| ParsedNote {
+                player,
+                row_index,
+                column,
+                note_type: NoteType::Tap,
+                tail_row_index: None,
+            })
+            .collect();
+        let payload = Arc::new(payload);
+        init_gameplay_runtime(
+            song,
+            [chart.clone(), chart],
+            [payload.clone(), payload],
+            GameplayViewport::default(),
+            GameplaySession {
+                play_style: GameplayInputPlayStyle::Routine,
+                joined_sides: [true, true],
+                ..Default::default()
+            },
+            GameplayConfig::default(),
+            SyncPref::Default,
+            GameplayMiniIndicatorData::default(),
+            GameplayNoteskinData::default(),
+            NoSongLuaRuntime,
+            empty_crossover_annotations,
+            5,
+            1.0,
+            [ScrollSpeedSetting::default(); MAX_PLAYERS],
+            std::array::from_fn(|_| TestProfile::default()),
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            [CourseLifeConfig::Bar; MAX_PLAYERS],
+            false,
+            [0; MAX_PLAYERS],
+        )
+    }
+
+    fn routine_note(state: &State, column: usize) -> usize {
+        state
+            .chart_runtime
+            .notes
+            .iter()
+            .position(|note| note.column == column)
+            .expect("routine note in column")
+    }
+
+    /// Step the shared pads as live input does, at `time_ns`.
+    fn routine_step(state: &mut State, lanes: &[Lane], time_ns: SongTimeNs) {
+        for &lane in lanes {
+            assert!(state.queue_pending_input_edge(lane.index(), test_input_edge_at(lane, true, time_ns)));
+        }
+        let clock = SongClockSnapshot {
+            song_time_ns: time_ns,
+            seconds_per_second: 1.0,
+            mapped_audio: true,
+            valid_at: std::time::Instant::now(),
+            valid_at_host_nanos: 0,
+            timing_diag_enabled: false,
+            timing_diag_callback_gap_ns: 0,
+        };
+        let mut phase_timings = GameplayUpdatePhaseTimings::default();
+        process_input_edges(state, false, &mut phase_timings, clock);
+        let beat = state.timing_runtime.timing.get_beat_for_time_ns(time_ns);
+        let seconds = song_time_ns_to_seconds(time_ns);
+        state.set_song_position_for_test(beat, time_ns, beat, seconds);
+        state.update_judged_rows();
+    }
+
+    fn judged(counts: &judgment::JudgeCounts) -> u32 {
+        counts.iter().sum()
+    }
+
+    #[test]
+    fn routine_simultaneous_notes_of_different_participants_are_two_judged_rows() {
+        let mut state = routine_state();
+        assert_eq!(state.num_players(), 2);
+        assert_eq!(state.num_cols(), 16);
+        // Each participant's field holds only the notes it owns.
+        let p1 = routine_note(&state, 0);
+        let p2 = routine_note(&state, 15);
+        assert_eq!(state.chart_runtime.notes[p1].participant, Some(0));
+        assert_eq!(state.chart_runtime.notes[p2].participant, Some(1));
+        assert_eq!(state.chart_runtime.notes[p1].row_index, state.chart_runtime.notes[p2].row_index);
+        assert!(!state.chart_runtime.notes.iter().any(|note| note.column == 7 || note.column == 8));
+
+        // P1 steps left on the first pad and P2 steps right on the second.
+        let time_ns = state.chart_runtime.note_time_cache_ns[p1];
+        routine_step(&mut state, &[Lane::Left, Lane::P2Right], time_ns);
+
+        // ScreenGameplay sends each step to both Players.
+        assert!(state.lane_is_pressed(0) && state.lane_is_pressed(8));
+        assert!(state.lane_is_pressed(7) && state.lane_is_pressed(15));
+        for note in [p1, p2] {
+            let result = state.chart_runtime.notes[note].result.as_ref().expect("note judged");
+            assert_eq!(result.grade, JudgeGrade::Fantastic);
+        }
+        // One row per participant, not one shared row.
+        assert_eq!(judged(&state.players_runtime.players[0].judgment_counts), 1);
+        assert_eq!(judged(&state.players_runtime.players[1].judgment_counts), 1);
+        assert_eq!(state.players_runtime.players[0].combo, 1);
+        assert_eq!(state.players_runtime.players[1].combo, 1);
+    }
+
+    #[test]
+    fn routine_participants_judge_independently_into_one_shared_score() {
+        let mut state = routine_state();
+        let p1_first = routine_note(&state, 0);
+        let p1_second = routine_note(&state, 1);
+        let p2 = routine_note(&state, 15);
+        let first_time_ns = state.chart_runtime.note_time_cache_ns[p1_first];
+        // P2 is late by a Great/Decent amount while P1 is exact.
+        routine_step(&mut state, &[Lane::Left], first_time_ns);
+        routine_step(
+            &mut state,
+            &[Lane::P2Right],
+            first_time_ns.saturating_add(song_time_ns_from_seconds(0.12)),
+        );
+        let second_time_ns = state.chart_runtime.note_time_cache_ns[p1_second];
+        routine_step(&mut state, &[Lane::Down], second_time_ns);
+
+        let grade = |note: usize| state.chart_runtime.notes[note].result.as_ref().unwrap().grade;
+        assert_eq!(grade(p1_first), JudgeGrade::Fantastic);
+        assert_eq!(grade(p1_second), JudgeGrade::Fantastic);
+        assert!(!matches!(grade(p2), JudgeGrade::Fantastic | JudgeGrade::Miss));
+        let players = &state.players_runtime.players;
+        assert_eq!(players[0].judgment_counts[0], 2);
+        assert_eq!(judged(&players[0].judgment_counts), 2);
+        assert_eq!(players[1].judgment_counts[0], 0);
+        assert_eq!(judged(&players[1].judgment_counts), 1);
+
+        // ScoreKeeperShared: both parts' points over both parts' possible points.
+        let first = state.stage_itg_score_inputs(0).unwrap();
+        let second = state.stage_itg_score_inputs(1).unwrap();
+        assert_eq!(first.possible_grade_points, 2 * second.possible_grade_points);
+        let points = |inputs: ItgScoreInputs| {
+            judgment::itg_grade_points_with_checkpoints(
+                &inputs.scoring_counts,
+                inputs.holds_held_for_score,
+                inputs.rolls_held_for_score,
+                inputs.mines_hit_for_score,
+                inputs.checkpoints_hit,
+                inputs.checkpoints_missed,
+            )
+        };
+        let expected = judgment::calculate_itg_score_percent_from_points(
+            points(first) + points(second),
+            first.possible_grade_points + second.possible_grade_points,
+        );
+        let shared = state.routine_shared_itg_score_percent().unwrap();
+        assert!((shared - expected).abs() < 1e-12);
+        assert!(shared < state.stage_itg_score_percent(0));
+        assert!(shared > state.stage_itg_score_percent(1));
+        assert_ne!(
+            shared,
+            (state.stage_itg_score_percent(0) + state.stage_itg_score_percent(1)) / 2.0
+        );
+
+        // CombinedLifeMeterShared: one meter changed by both participants.
+        assert_eq!(players[0].life, players[1].life);
+        assert_eq!(players[0].life_history, players[1].life_history);
+    }
+
+    #[test]
+    fn routine_hud_shows_the_shared_score_for_both_participants() {
+        let mut state = routine_state();
+        let p1_first = routine_note(&state, 0);
+        let p1_second = routine_note(&state, 1);
+        let first_time_ns = state.chart_runtime.note_time_cache_ns[p1_first];
+        // P1 is exact while P2 is late, so their own scores differ.
+        routine_step(&mut state, &[Lane::Left], first_time_ns);
+        routine_step(
+            &mut state,
+            &[Lane::P2Right],
+            first_time_ns.saturating_add(song_time_ns_from_seconds(0.12)),
+        );
+        let second_time_ns = state.chart_runtime.note_time_cache_ns[p1_second];
+        routine_step(&mut state, &[Lane::Down], second_time_ns);
+
+        let shared = state.routine_shared_itg_score_inputs().unwrap();
+        let own = |player| state.participant_display_itg_score_inputs(player).unwrap();
+        assert!(itg_score_percent_from_inputs(own(0)) > itg_score_percent_from_inputs(shared));
+        assert!(itg_score_percent_from_inputs(own(1)) < itg_score_percent_from_inputs(shared));
+        // Simply Love's Score.lua shows the shared score in both HUD modes.
+        for player in 0..2 {
+            for mode in [
+                GameplayScoreDisplayMode::Normal,
+                GameplayScoreDisplayMode::Predictive,
+            ] {
+                assert_eq!(
+                    state.display_gameplay_itg_score_percent(player, mode),
+                    display_itg_score_percent_for_mode(shared, mode),
+                );
+            }
+            assert_eq!(
+                state.display_predictive_itg_score_percent(player),
+                predictive_itg_score_percent_from_inputs(shared),
+            );
+        }
+        assert_ne!(
+            predictive_itg_score_percent_from_inputs(own(0)),
+            predictive_itg_score_percent_from_inputs(shared),
+        );
+        // Judgments and EX scores stay with each participant.
+        assert_ne!(
+            state.display_ex_score_percent(0, state.player_blue_window_ms(0)),
+            state.display_ex_score_percent(1, state.player_blue_window_ms(1)),
+        );
+        assert_ne!(
+            state.players_runtime.players[0].judgment_counts,
+            state.players_runtime.players[1].judgment_counts,
+        );
+    }
+
+    #[test]
+    fn routine_shared_course_score_keeps_earlier_songs() {
+        let mut state = routine_state();
+        let stage_points = [
+            state.stage_totals_for_player(0).possible_grade_points,
+            state.stage_totals_for_player(1).possible_grade_points,
+        ];
+        let stage_steps = [
+            state.stage_totals_for_player(0).total_steps,
+            state.stage_totals_for_player(1).total_steps,
+        ];
+        // The previous song was all Greats, the current one all Fantastics.
+        let carry = |player: usize| CourseDisplayCarry {
+            scoring_counts: [0, 0, stage_steps[player], 0, 0, 0],
+            ..CourseDisplayCarry::default()
+        };
+        let totals = |player: usize| CourseDisplayTotals {
+            possible_grade_points: 2 * stage_points[player],
+            total_steps: 2 * stage_steps[player],
+            ..CourseDisplayTotals::default()
+        };
+        state.progress.course_display = GameplayCourseDisplayState::new(
+            Some([carry(0), carry(1)]),
+            Some([totals(0), totals(1)]),
+            None,
+        );
+        for player in 0..2 {
+            state.players_runtime.players[player].scoring_counts =
+                [stage_steps[player], 0, 0, 0, 0, 0];
+        }
+
+        // Individual-song saves keep the current song only.
+        assert_eq!(state.routine_shared_stage_itg_score_percent(), Some(1.0));
+        // Course display and evaluation score Greats (2) and Fantastics (5)
+        // over the whole course of both participants.
+        let course = state.routine_shared_itg_score_percent().unwrap();
+        assert!((course - 0.7).abs() < 1e-12, "{course}");
+        let hud = state.display_gameplay_itg_score_percent(1, GameplayScoreDisplayMode::Normal);
+        assert!((hud - 70.0).abs() < 1e-9, "{hud}");
+    }
+
+    #[test]
+    fn routine_failing_one_participant_fails_both() {
+        let mut state = routine_state();
+        assert!(state.force_fail_player(1));
+        assert!(state.player_is_dead(0) && state.player_is_dead(1));
+        assert_eq!(state.players_runtime.players[0].fail_time, state.players_runtime.players[1].fail_time);
+        // The partner's EX score freezes at the shared failure too.
+        assert!(state.players_runtime.players[0].failed_ex_score_inputs.is_some());
+        assert!(state.players_runtime.players[1].failed_ex_score_inputs.is_some());
+    }
+
+    #[test]
+    fn regular_versus_steps_are_not_shared() {
+        let mut state = regression_state_with_session(GameplaySession {
+            play_style: GameplayInputPlayStyle::Versus,
+            joined_sides: [true, true],
+            ..Default::default()
+        });
+        assert!(state.queue_pending_input_edge(0, test_input_edge_at(Lane::Left, true, 0)));
+        assert_eq!(state.pending_input_len(), 1);
     }
 }

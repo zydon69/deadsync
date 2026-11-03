@@ -36,6 +36,7 @@ pub enum DisplayMode {
 
 #[derive(Debug, Clone, Copy)]
 pub struct Config {
+    pub twitch: crate::streaming::TwitchOptions,
     pub coin: CoinOptions,
     pub vsync: bool,
     /// Stored `MaxFPS` cap value. `0` means "off".
@@ -228,8 +229,7 @@ pub struct Config {
     /// Startup flow fallback mode used when Select Play Mode is disabled.
     pub machine_preferred_play_mode: MachinePreferredPlayMode,
     /// Machine font for Bold/Header/Footer/numbers/ScreenEval roles.
-    /// Default `Wendy` keeps Wendy; `Mega` swaps those roles to Mega.
-    /// Body text (Normal role) stays Miso regardless.
+    /// Unprofessional also selects its matching Miso body font.
     pub machine_font: MachineFont,
     /// Machine-wide screen bar color behavior.
     /// Default preserves each screen's current bar background choice.
@@ -298,6 +298,7 @@ pub struct Config {
     pub select_music_scorebox_cycle_hard_ex: bool,
     pub select_music_scorebox_cycle_tournaments: bool,
     pub select_music_scorebox_cycle_golf: bool,
+    pub select_music_scorebox_events_first: bool,
     pub select_music_show_golf_pars: bool,
     pub select_music_chart_info_peak_nps: bool,
     pub select_music_chart_info_effective_bpm: bool,
@@ -402,6 +403,7 @@ impl Default for Config {
         let runtime = RuntimeOptions::default();
 
         Self {
+            twitch: crate::streaming::TwitchOptions::default(),
             coin: system.coin,
             vsync: DEFAULT_VSYNC,
             max_fps: DEFAULT_MAX_FPS,
@@ -543,6 +545,7 @@ impl Default for Config {
             select_music_scorebox_cycle_hard_ex: select_music.scorebox_cycle_hard_ex,
             select_music_scorebox_cycle_tournaments: select_music.scorebox_cycle_tournaments,
             select_music_scorebox_cycle_golf: select_music.scorebox_cycle_golf,
+            select_music_scorebox_events_first: select_music.scorebox_events_first,
             select_music_show_golf_pars: select_music.show_golf_pars,
             select_music_chart_info_peak_nps: select_music.chart_info_peak_nps,
             select_music_chart_info_effective_bpm: select_music.chart_info_effective_bpm,

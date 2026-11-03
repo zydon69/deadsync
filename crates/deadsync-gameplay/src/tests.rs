@@ -1277,12 +1277,36 @@ mod tests {
                 StepStatsPlayStyle::Single,
                 4,
                 1,
+                640.0,
+                480.0,
+                false,
+                true,
+            ),
+            192.0,
+        );
+        assert_near(
+            step_stats_density_graph_width(
+                StepStatsPlayStyle::Single,
+                4,
+                1,
                 854.0,
                 480.0,
                 true,
                 true,
             ),
             299.0,
+        );
+        assert_near(
+            step_stats_density_graph_width(
+                StepStatsPlayStyle::Single,
+                4,
+                1,
+                640.0,
+                640.0,
+                false,
+                true,
+            ),
+            192.0,
         );
         assert_near(
             step_stats_density_graph_width(
@@ -1545,6 +1569,21 @@ mod tests {
             ),
             viewport.center_x(),
         );
+        // Routine reaches song Lua as two Double players sharing the center.
+        for player in 0..2 {
+            assert_near(
+                song_lua_compile_player_screen_x(
+                    2,
+                    player,
+                    viewport,
+                    GameplayInputPlayStyle::Routine.as_song_lua_compile_play_style(),
+                    false,
+                    20.0,
+                    false,
+                ),
+                viewport.center_x(),
+            );
+        }
     }
 
     #[test]
@@ -6635,16 +6674,14 @@ mod tests {
     fn lane_input_mask_expands_only_active_gameplay_columns() {
         assert_eq!(input_lane_mask(0), 0);
         assert_eq!(input_lane_mask(4), 0b0000_1111);
-        assert_eq!(input_lane_mask(MAX_COLS), 0b11_1111_1111);
-        assert_eq!(input_lane_mask(MAX_COLS + 1), 0b11_1111_1111);
+        assert_eq!(input_lane_mask(MAX_COLS), 0b1111_1111_1111_1111_1111);
+        assert_eq!(input_lane_mask(MAX_COLS + 1), 0b1111_1111_1111_1111_1111);
 
         let inputs = lane_inputs_from_mask(0b1010_0101, 4);
-        assert_eq!(
-            inputs,
-            [
-                true, false, true, false, false, false, false, false, false, false,
-            ]
-        );
+        let mut expected = [false; MAX_COLS];
+        expected[0] = true;
+        expected[2] = true;
+        assert_eq!(inputs, expected);
     }
 
     #[test]
@@ -6854,7 +6891,7 @@ mod tests {
             decent,
             test_note_at(NoteType::Tap, None, false, 48, 1.0),
         ];
-        let mut note_indices = [usize::MAX; MAX_COLS];
+        let mut note_indices = [usize::MAX; MAX_COLS_PER_PLAYER];
         note_indices[0] = 0;
         note_indices[1] = 1;
         note_indices[2] = 2;
@@ -7795,6 +7832,34 @@ mod tests {
         assert!(song_lua_target_matches_player(Some(1), 0));
         assert!(song_lua_target_matches_player(Some(2), 1));
         assert!(!song_lua_target_matches_player(Some(2), 0));
+    }
+
+    #[test]
+    fn song_lua_window_units_share_rate_scaled_calibration() {
+        let mut timing = TimingData::from_segments(
+            0.0,
+            0.0,
+            &TimingSegments {
+                bpms: vec![(0.0, 120.0)],
+                ..Default::default()
+            },
+            &[],
+        );
+        for rate in [0.5, 1.0, 1.5, 2.0] {
+            for offset in [-0.020, 0.020] {
+                timing.set_global_offset_seconds_with_rate(offset, rate);
+                for (unit, value) in [
+                    (SongLuaRuntimeTimeUnit::Beat, 4.0),
+                    (SongLuaRuntimeTimeUnit::Second, 2.0),
+                    (SongLuaRuntimeTimeUnit::BeatClock, 2.0),
+                ] {
+                    assert_near(
+                        song_lua_time_to_second(unit, value, &timing, offset),
+                        2.0 - offset * rate,
+                    );
+                }
+            }
+        }
     }
 
     #[test]
@@ -14836,7 +14901,6 @@ mod tests {
             },
             0.75,
             2.0,
-            -0.1,
         );
 
         assert_eq!(snapshot.song_time_ns, song_time_ns_from_seconds(4.25));
@@ -14859,7 +14923,6 @@ mod tests {
                 },
                 ..GameplayAudioSnapshot::default()
             },
-            f32::NAN,
             f32::NAN,
             f32::NAN,
         );
@@ -15030,7 +15093,6 @@ mod tests {
             },
             1.25,
             0.0,
-            0.0,
         );
 
         assert_eq!(snapshot.song_time_ns, song_time_ns_from_seconds(2.0));
@@ -15051,10 +15113,9 @@ mod tests {
             },
             1.5,
             2.0,
-            -0.1,
         );
 
-        assert_eq!(snapshot.song_time_ns, song_time_ns_from_seconds(1.45));
+        assert_eq!(snapshot.song_time_ns, song_time_ns_from_seconds(1.5));
         assert_eq!(snapshot.seconds_per_second, 1.5);
         assert!(!snapshot.mapped_audio);
     }
@@ -15181,12 +15242,12 @@ mod tests {
     }
 
     #[test]
-    fn stream_position_to_music_time_applies_lead_in_rate_and_offset_anchor() {
-        assert_near(music_time_from_stream_position(3.0, 2.0, -0.100, 1.5), 1.45);
-        assert_near(music_time_from_stream_position(3.0, -2.0, 0.0, 1.0), 3.0);
-        assert_near(music_time_from_stream_position(3.0, 2.0, -0.100, 0.0), 1.0);
+    fn stream_position_to_music_time_applies_lead_in_and_rate() {
+        assert_near(music_time_from_stream_position(3.0, 2.0, 1.5), 1.5);
+        assert_near(music_time_from_stream_position(3.0, -2.0, 1.0), 3.0);
+        assert_near(music_time_from_stream_position(3.0, 2.0, 0.0), 1.0);
         assert_near(
-            music_time_from_stream_position(3.0, 2.0, -0.100, f32::NAN),
+            music_time_from_stream_position(3.0, 2.0, f32::NAN),
             1.0,
         );
     }
@@ -16325,7 +16386,7 @@ mod tests {
         let row = |time_ns| RowEntry {
             row_index: compact_row_index(0),
             time_ns,
-            nonmine_note_indices: [ChartNoteIndex::INVALID; MAX_COLS],
+            nonmine_note_indices: [ChartNoteIndex::INVALID; MAX_COLS_PER_PLAYER],
             nonmine_note_count: 0,
             rescore_track_count: 0,
             unresolved_count: 0,
@@ -16353,7 +16414,7 @@ mod tests {
         let row = |finalized: bool| RowEntry {
             row_index: compact_row_index(0),
             time_ns: 0,
-            nonmine_note_indices: [ChartNoteIndex::INVALID; MAX_COLS],
+            nonmine_note_indices: [ChartNoteIndex::INVALID; MAX_COLS_PER_PLAYER],
             nonmine_note_count: 0,
             rescore_track_count: 0,
             unresolved_count: 0,
@@ -16374,7 +16435,7 @@ mod tests {
         let row = |finalized: bool| RowEntry {
             row_index: compact_row_index(0),
             time_ns: 0,
-            nonmine_note_indices: [ChartNoteIndex::INVALID; MAX_COLS],
+            nonmine_note_indices: [ChartNoteIndex::INVALID; MAX_COLS_PER_PLAYER],
             nonmine_note_count: 0,
             rescore_track_count: 0,
             unresolved_count: 0,
@@ -16396,7 +16457,7 @@ mod tests {
         let row = |finalized: bool| RowEntry {
             row_index: compact_row_index(0),
             time_ns: 0,
-            nonmine_note_indices: [ChartNoteIndex::INVALID; MAX_COLS],
+            nonmine_note_indices: [ChartNoteIndex::INVALID; MAX_COLS_PER_PLAYER],
             nonmine_note_count: 0,
             rescore_track_count: 0,
             unresolved_count: 0,
@@ -16427,7 +16488,7 @@ mod tests {
         let row = |time_ns| RowEntry {
             row_index: compact_row_index(0),
             time_ns,
-            nonmine_note_indices: [ChartNoteIndex::INVALID; MAX_COLS],
+            nonmine_note_indices: [ChartNoteIndex::INVALID; MAX_COLS_PER_PLAYER],
             nonmine_note_count: 0,
             rescore_track_count: 0,
             unresolved_count: 0,
@@ -16464,7 +16525,7 @@ mod tests {
         let row = |time_ns| RowEntry {
             row_index: compact_row_index(0),
             time_ns,
-            nonmine_note_indices: [ChartNoteIndex::INVALID; MAX_COLS],
+            nonmine_note_indices: [ChartNoteIndex::INVALID; MAX_COLS_PER_PLAYER],
             nonmine_note_count: 0,
             rescore_track_count: 0,
             unresolved_count: 0,
@@ -16501,7 +16562,7 @@ mod tests {
         let row = |time_ns| RowEntry {
             row_index: compact_row_index(0),
             time_ns,
-            nonmine_note_indices: [ChartNoteIndex::INVALID; MAX_COLS],
+            nonmine_note_indices: [ChartNoteIndex::INVALID; MAX_COLS_PER_PLAYER],
             nonmine_note_count: 0,
             rescore_track_count: 0,
             unresolved_count: 0,
@@ -16540,7 +16601,7 @@ mod tests {
         let row = |time_ns| RowEntry {
             row_index: compact_row_index(0),
             time_ns,
-            nonmine_note_indices: [ChartNoteIndex::INVALID; MAX_COLS],
+            nonmine_note_indices: [ChartNoteIndex::INVALID; MAX_COLS_PER_PLAYER],
             nonmine_note_count: 0,
             rescore_track_count: 0,
             unresolved_count: 0,
@@ -16949,7 +17010,7 @@ mod tests {
         let mut judged = test_note_at(NoteType::Tap, None, false, 48, 1.0);
         judged.result = Some(test_judgment(JudgeGrade::Great));
         let notes = [judged];
-        let mut note_indices = [usize::MAX; MAX_COLS];
+        let mut note_indices = [usize::MAX; MAX_COLS_PER_PLAYER];
         note_indices[0] = 0;
         note_indices[1] = 99;
         let row_entry = RowEntry {

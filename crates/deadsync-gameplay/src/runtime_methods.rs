@@ -14,11 +14,13 @@ where
         deadsync_rules::life::record_life_change(
             &mut runtime.life_history, seconds, old, runtime.life);
         self.display.density_graph.life_dirty[player] = true;
+        self.share_routine_life(player);
     }
 
     pub fn mark_player_stage_failed_from_script(&mut self, player: usize) {
         if player < self.setup.num_players.min(MAX_PLAYERS) {
             self.players_runtime.players[player].stage_failed = true;
+            self.share_routine_life(player);
         }
     }
 
@@ -31,6 +33,46 @@ where
         let before = runtime.life_history.last().map_or(runtime.life, |&(_, life)| life);
         deadsync_rules::life::record_life_change(&mut runtime.life_history, seconds, before, life);
         self.display.density_graph.life_dirty[player] = true;
+        self.share_routine_life(player);
+    }
+
+    /// Routine has one CombinedLifeMeterShared fed by both Players. Both
+    /// runtimes hold identical meters, so after either changes, copying it to
+    /// the other is the same as changing one shared meter; failing one fails
+    /// both, as ScreenGameplay does for TwoPlayersSharedSides.
+    pub fn share_routine_life(&mut self, from: usize) {
+        if !self.setup.session.play_style.is_routine() || from >= MAX_PLAYERS {
+            return;
+        }
+        let to = 1 - from;
+        let [first, second] = &mut self.players_runtime.players;
+        let (source, target) = if from == 0 {
+            (&*first, second)
+        } else {
+            (&*second, first)
+        };
+        let fails_now = source.is_failing && !target.is_failing;
+        target.life = source.life;
+        target.combo_after_miss = source.combo_after_miss;
+        target.is_failing = source.is_failing;
+        target.fail_time = source.fail_time;
+        target.stage_failed = source.stage_failed;
+        target.course_life = source.course_life;
+        target.course_submit_life = source.course_submit_life;
+        // record_life_change rewrites at most the last two samples.
+        let keep = target
+            .life_history
+            .len()
+            .min(source.life_history.len())
+            .saturating_sub(2);
+        target.life_history.truncate(keep);
+        target
+            .life_history
+            .extend_from_slice(&source.life_history[keep..]);
+        self.display.density_graph.life_dirty[to] |= self.display.density_graph.life_dirty[from];
+        if fails_now {
+            self.capture_failed_ex_score_inputs(to, self.player_blue_window_ms(to));
+        }
     }
 
     #[inline(always)]
@@ -398,6 +440,7 @@ where
                         side_effect_plan.life_delta,
                         CourseLifeEvent::Mine,
                     );
+                    self.share_routine_life(player);
                 }
                 if side_effect_plan.capture_failed_ex_score_inputs {
                     self.capture_failed_ex_score_inputs(player, self.player_blue_window_ms(player));
@@ -423,6 +466,7 @@ where
                 if player_update.counted_for_score {
                     update_itg_grade_totals(&mut self.players_runtime.players[player]);
                 }
+                self.record_ghost_judgment(player);
             }
             if !update.stopped || update.event_count == 0 {
                 break;
@@ -597,6 +641,7 @@ where
                 player_update.life_delta,
                 CourseLifeEvent::HoldLetGo,
             );
+            self.share_routine_life(player);
         }
         if player_update.capture_failed_ex_score_inputs {
             self.capture_failed_ex_score_inputs(player, self.player_blue_window_ms(player));
@@ -615,6 +660,7 @@ where
             player_update.combo_update,
             combo_milestones_enabled,
         );
+        self.record_ghost_judgment(player);
         if update.effects.reset_receptor_glow {
             self.display.receptor_feedback.clear_lift_glow(column);
         }
@@ -653,6 +699,7 @@ where
                 player_update.life_delta,
                 CourseLifeEvent::HoldHeld,
             );
+            self.share_routine_life(player);
         }
         if player_update.capture_failed_ex_score_inputs {
             self.capture_failed_ex_score_inputs(player, self.player_blue_window_ms(player));
@@ -671,6 +718,7 @@ where
             player_update.combo_update,
             combo_milestones_enabled,
         );
+        self.record_ghost_judgment(player);
         if update.effects.trigger_hold_explosion {
             self.trigger_hold_explosion(column);
         }
@@ -699,6 +747,7 @@ where
         let mut stats = hold_result_stats_state(&self.players_runtime.players[player]);
         apply_hold_result_stats_update(&mut stats, stats_update);
         set_hold_result_stats_state(&mut self.players_runtime.players[player], stats);
+        self.record_ghost_judgment(player);
         self.display.hold_feedback.set_hold_judgment(
             column,
             Some(HoldJudgmentRenderInfo {
@@ -1039,6 +1088,7 @@ where
             },
         );
         apply_combo_update(player_runtime, combo_update, combo_milestones_enabled);
+        self.share_routine_life(player);
         if !checkpoint_hit {
             self.capture_failed_ex_score_inputs(player, self.player_blue_window_ms(player));
         }
@@ -1457,6 +1507,7 @@ where
     }
 
     pub fn finalize_completed_mines(&mut self) {
+        self.dispatch_avoided_mine_judgments();
         let mines_hit: [u32; MAX_PLAYERS] = std::array::from_fn(|player| {
             self.players_runtime
                 .players
@@ -1472,10 +1523,15 @@ where
             self.setup.num_players,
         );
         for player in 0..update.players_finalized {
+            let newly_avoided = update.mines_avoided[player]
+                .saturating_sub(self.players_runtime.players[player].mines_avoided);
             set_player_mines_avoided(
                 &mut self.players_runtime.players[player],
                 update.mines_avoided[player],
             );
+            for _ in 0..newly_avoided {
+                self.record_ghost_judgment(player);
+            }
         }
     }
 
@@ -1531,7 +1587,7 @@ where
         }
         let music_time_sec = song_time_ns_to_seconds(music_time_ns);
         let log_mine_avoid = log::log_enabled!(log::Level::Trace);
-        if self.avoided_mine_judgment_callback.is_some() {
+        if !self.autoplay_blocks_scoring() || self.avoided_mine_judgment_callback.is_some() {
             for player in 0..self.setup.num_players.min(MAX_PLAYERS) {
                 let start = self.chart_runtime.mine_scan.next_mine_ix_cursor[player];
                 let indices = &self.chart_runtime.mine_scan.mine_note_ix[player];
@@ -1647,10 +1703,8 @@ where
                     let global_offset_s = self.effective_player_global_offset_seconds(player);
                     let lead_in_s = self.clock.audio_clock.stream_lead_in_seconds(rate);
                     let stream_pos_s = self.clock.audio_clock.stream_position_seconds();
-                    let expected_stream_for_note_s =
-                        note_time / rate + lead_in_s + global_offset_s * (1.0 - rate) / rate;
-                    let expected_stream_for_miss_s =
-                        music_time_sec / rate + lead_in_s + global_offset_s * (1.0 - rate) / rate;
+                    let expected_stream_for_note_s = note_time / rate + lead_in_s;
+                    let expected_stream_for_miss_s = music_time_sec / rate + lead_in_s;
                     let stream_delta_note_ms = (stream_pos_s - expected_stream_for_note_s) * 1000.0;
                     let stream_delta_miss_ms = (stream_pos_s - expected_stream_for_miss_s) * 1000.0;
 
@@ -1791,6 +1845,7 @@ where
                 );
             }
             apply_combo_update(p, update.combo_update, combo_milestones_enabled);
+            self.share_routine_life(player);
         }
         if plan.show_final_visual {
             // Arrow Cloud's gameplay HUD uses the row-final JudgmentMessage for
@@ -1801,6 +1856,7 @@ where
         if plan.capture_failed_ex_score_inputs {
             self.capture_failed_ex_score_inputs(player, self.player_blue_window_ms(player));
         }
+        self.record_ghost_judgment(player);
     }
 
     pub fn update_judged_rows(&mut self) {
@@ -1881,7 +1937,11 @@ where
     }
 
     fn dispatch_avoided_mine_judgments(&mut self) {
-        let mut pending = std::mem::take(&mut self.chart_runtime.mine_scan.pending_avoided_mine_judgments);
+        let mut pending =
+            std::mem::take(&mut self.chart_runtime.mine_scan.pending_avoided_mine_judgments);
+        for &(player, _) in &pending {
+            self.record_ghost_judgment(player);
+        }
         if let Some(mut callback) = self.avoided_mine_judgment_callback.take() {
             for &(player, column) in &pending {
                 callback(self, player, column);
@@ -2441,6 +2501,7 @@ where
                                 plan.life_delta,
                                 CourseLifeEvent::Tap(judgment.grade),
                             );
+                            self.share_routine_life(player);
                         }
                         if plan.capture_failed_ex_score_inputs {
                             self.capture_failed_ex_score_inputs(
@@ -2645,6 +2706,7 @@ where
                             plan.life_delta,
                             CourseLifeEvent::Tap(judgment.grade),
                         );
+                        self.share_routine_life(player);
                     }
                     if plan.capture_failed_ex_score_inputs {
                         self.capture_failed_ex_score_inputs(

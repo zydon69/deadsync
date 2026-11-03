@@ -203,6 +203,7 @@ pub fn load_app_config(conf: &SimpleIni, default: Config) -> Config {
     );
 
     let mut cfg = default;
+    cfg.twitch = crate::streaming::load(conf, default.twitch);
     apply_display_opts(loaded.display, &mut cfg);
     apply_system_opts(loaded.system, &mut cfg);
     apply_system_hardware_opts(loaded.input_hardware, &mut cfg);
@@ -386,6 +387,7 @@ const fn apply_select_music_opts(loaded: SelectMusicOptions, cfg: &mut Config) {
     cfg.select_music_scorebox_cycle_hard_ex = loaded.scorebox_cycle_hard_ex;
     cfg.select_music_scorebox_cycle_tournaments = loaded.scorebox_cycle_tournaments;
     cfg.select_music_scorebox_cycle_golf = loaded.scorebox_cycle_golf;
+    cfg.select_music_scorebox_events_first = loaded.scorebox_events_first;
     cfg.select_music_show_golf_pars = loaded.show_golf_pars;
     cfg.select_music_chart_info_peak_nps = loaded.chart_info_peak_nps;
     cfg.select_music_chart_info_effective_bpm = loaded.chart_info_effective_bpm;

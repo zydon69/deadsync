@@ -75,6 +75,10 @@ fn update_config(apply: impl FnOnce(&mut Config) -> bool) -> bool {
     changed
 }
 
+pub fn update_twitch_chat(options: crate::streaming::TwitchOptions) {
+    update_config(|cfg| crate::update::set_if_changed(&mut cfg.twitch, options));
+}
+
 update_config_fn!(pub fn update_menu_music(enabled: bool) => set_menu_music);
 update_config_fn!(pub fn update_software_renderer_threads(threads: u8) => set_software_renderer_threads);
 update_config_fn!(pub fn update_audio_sample_rate(rate: Option<u32>) => set_audio_sample_rate);
@@ -398,4 +402,5 @@ pub fn update_overscan(translate_x: i32, translate_y: i32, add_width: i32, add_h
 }
 
 update_config_fn!(pub fn update_select_music_scorebox_cycle_golf(enabled: bool) => set_select_music_scorebox_cycle_golf);
+update_config_fn!(pub fn update_select_music_scorebox_events_first(enabled: bool) => set_select_music_scorebox_events_first);
 update_config_fn!(pub fn update_select_music_show_golf_pars(enabled: bool) => set_select_music_show_golf_pars);

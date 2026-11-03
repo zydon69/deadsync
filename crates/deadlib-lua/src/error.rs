@@ -1,7 +1,7 @@
 //! Source, bytecode, and runtime diagnostics.
 
-use crate::Value;
-use std::fmt;
+use crate::{ThreadId, Value};
+use std::{borrow::Cow, fmt};
 
 /// The stage that reported an error.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -14,6 +14,8 @@ pub enum ErrorKind {
     Bytecode,
     /// A Lua execution error.
     Runtime,
+    /// A fallible VM allocation failed.
+    Memory,
     /// A language construct that is not implemented yet.
     Unsupported,
 }
@@ -23,8 +25,13 @@ pub enum ErrorKind {
 pub struct Error {
     kind: ErrorKind,
     line: u32,
-    message: Box<str>,
+    message: Cow<'static, str>,
+    bytes: Option<Box<[u8]>>,
+    pub(crate) near: bool,
+    pub(crate) bypass_handler: bool,
     value: Option<Value>,
+    // Internal control transfer; public execution boundaries remove it.
+    pub(crate) target_thread: Option<ThreadId>,
 }
 
 impl Error {
@@ -32,8 +39,12 @@ impl Error {
         Self {
             kind,
             line,
-            message: message.into(),
+            message: Cow::Owned(message.into().into_string()),
+            bytes: None,
+            near: false,
+            bypass_handler: false,
             value: None,
+            target_thread: None,
         }
     }
 
@@ -41,21 +52,74 @@ impl Error {
         Self {
             kind: ErrorKind::Runtime,
             line: 0,
-            message: message.into(),
+            message: Cow::Owned(message.into().into_string()),
+            bytes: None,
+            near: false,
+            bypass_handler: false,
             value: Some(value),
+            target_thread: None,
         }
     }
 
     pub(crate) fn at_line(mut self, line: u32) -> Self {
-        if self.line == 0 {
+        if self.line == 0 && self.kind != ErrorKind::Memory {
             self.line = line;
         }
         self
     }
 
+    pub(crate) fn from_bytes(kind: ErrorKind, line: u32, bytes: Vec<u8>) -> Self {
+        match String::from_utf8(bytes) {
+            Ok(message) => Self::new(kind, line, message),
+            Err(error) => {
+                let bytes = error.into_bytes();
+                Self {
+                    kind,
+                    line,
+                    message: Cow::Owned(String::from_utf8_lossy(&bytes).into_owned()),
+                    bytes: Some(bytes.into_boxed_slice()),
+                    near: false,
+                    bypass_handler: false,
+                    value: None,
+                    target_thread: None,
+                }
+            }
+        }
+    }
+
+    /// Return diagnostic bytes, preserving non-UTF-8 source/token bytes.
+    /// [`Self::message`] and display replace invalid UTF-8 for Rust callers.
+    pub fn message_bytes(&self) -> &[u8] {
+        self.bytes.as_deref().unwrap_or(self.message.as_bytes())
+    }
+
     pub(crate) fn with_value(mut self, value: Value) -> Self {
         self.value = Some(value);
         self
+    }
+
+    pub(crate) fn handling(value: Value) -> Self {
+        let mut error = Self::raised(value, "error in error handling");
+        error.bypass_handler = true;
+        error
+    }
+
+    /// Construct the fixed memory diagnostic without allocating its text.
+    pub(crate) fn memory() -> Self {
+        Self {
+            kind: ErrorKind::Memory,
+            line: 0,
+            message: Cow::Borrowed("not enough memory"),
+            bytes: None,
+            near: false,
+            bypass_handler: false,
+            value: None,
+            target_thread: None,
+        }
+    }
+
+    pub(crate) fn catchable(&self) -> bool {
+        matches!(self.kind, ErrorKind::Runtime | ErrorKind::Memory)
     }
 
     /// Return an explicitly raised Lua error value, owned by its originating VM.
