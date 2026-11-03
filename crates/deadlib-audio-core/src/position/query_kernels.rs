@@ -1,7 +1,6 @@
 //! Differential probes against the production implementation.
 #![allow(dead_code)]
 use super::*;
-use crate::RenderReport;
 mod probes {
     use super::*;
     use std::hint::black_box;

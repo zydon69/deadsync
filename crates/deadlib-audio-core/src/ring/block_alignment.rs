@@ -1,4 +1,3 @@
-use crate::MusicMapSeg;
 use crate::ring as transport;
 use transport::{MUSIC_BLOCK_FRAMES, MusicBlockTiming, music_transport};
 
@@ -13,7 +12,7 @@ fn pushes_preserve_complete_frames_samples_and_timing() {
             .collect();
         for len in 0..=samples.len() {
             let timing = MusicBlockTiming {
-                asset_epoch: deadlib_audio_core::music_asset_epoch(),
+                asset_epoch: crate::music_asset_epoch(),
                 generation: len as u64,
                 music_start_sec: f64::from_bits((len as u64).wrapping_mul(0x9e3779b97f4a7c15)),
                 music_sec_per_frame: 1.5 / 48000.0,
