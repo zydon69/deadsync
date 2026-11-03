@@ -5,6 +5,7 @@ pub mod agent;
 mod audio;
 pub mod bridge;
 mod claude;
+mod probe_process;
 pub mod protocol;
 
 use crate::{

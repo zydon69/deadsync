@@ -713,12 +713,8 @@ pub(super) fn stop(holder: &Mutex<Option<Child>>) {
     }
 }
 
-/// Run `executable --version` as the job's registered child so that Escape
-/// kills it, and kill it once `timeout` elapses. On Unix the probe leads its
-/// own process group, killed whatever the outcome: a launcher's descendant
-/// cannot keep the pipe, and so the reader thread, alive. Windows kills only
-/// the direct child; the bounded reader then ends with its last descendant.
-/// Returns whether it exited successfully and its bounded standard output.
+/// Run a bounded, cancellable version probe in its own process tree. Cleanup
+/// terminates descendants before waiting for stdout and joining its reader.
 pub(super) fn probe_version(
     executable: &Path,
     cancelled: &AtomicBool,
@@ -731,71 +727,85 @@ pub(super) fn probe_version(
         .stdin(Stdio::null())
         .stdout(Stdio::piped())
         .stderr(Stdio::null());
-    #[cfg(unix)]
-    std::os::unix::process::CommandExt::process_group(&mut command, 0);
-    let mut child = command
-        .spawn()
+    let (child, mut tree) = super::probe_process::ProcessTree::spawn(&mut command)
         .map_err(|error| format!("cannot start the executable ({error})"))?;
-    let group = child.id();
-    let stop_group = || {
-        #[cfg(unix)]
-        if let Ok(group) = libc::pid_t::try_from(group) {
-            // SAFETY: plain signal delivery to the probe's own process group.
-            unsafe { libc::kill(-group, libc::SIGKILL) };
-        }
-        #[cfg(not(unix))]
-        let _ = group;
-        stop(holder);
-    };
-    let stdout = child.stdout.take().ok_or("missing standard output")?;
-    let (sender, receiver) = mpsc::channel();
-    std::thread::Builder::new()
-        .name("deadsync-assistant-version".into())
-        .spawn(move || {
-            let mut text = String::new();
-            let _ =
-                std::io::Read::read_to_string(&mut std::io::Read::take(stdout, 4096), &mut text);
-            let _ = sender.send(text);
-        })
-        .map_err(|e| e.to_string())?;
-    *holder
-        .lock()
-        .map_err(|_| "Assistant process lock poisoned")? = Some(child);
-    let deadline = Instant::now() + timeout;
-    let status = loop {
-        if cancelled.load(Ordering::Acquire) {
-            stop_group();
-            return Err("Assistant cancelled".into());
-        }
-        {
-            let mut guard = holder
-                .lock()
-                .map_err(|_| "Assistant process lock poisoned")?;
-            let Some(process) = guard.as_mut() else {
-                drop(guard);
-                stop_group();
+    let mut unpublished = Some(child);
+    let mut reader = None;
+    let mut output = None;
+    // All setup and wait failures pass through the same cleanup below.
+    let result = (|| {
+        let stdout = unpublished
+            .as_mut()
+            .and_then(|child| child.stdout.take())
+            .ok_or("missing standard output")?;
+        let mut guard = holder
+            .lock()
+            .map_err(|_| "Assistant process lock poisoned")?;
+        *guard = unpublished.take();
+        drop(guard);
+        let (sender, receiver) = mpsc::channel();
+        reader = Some(
+            std::thread::Builder::new()
+                .name("deadsync-assistant-version".into())
+                .spawn(move || {
+                    let mut text = String::new();
+                    let result = std::io::Read::read_to_string(
+                        &mut std::io::Read::take(stdout, 4096),
+                        &mut text,
+                    )
+                    .map(|_| text)
+                    .map_err(|error| error.to_string());
+                    let _ = sender.send(result);
+                })
+                .map_err(|error| error.to_string())?,
+        );
+        output = Some(receiver);
+        let deadline = Instant::now() + timeout;
+        loop {
+            if cancelled.load(Ordering::Acquire) {
                 return Err("Assistant cancelled".into());
-            };
-            if let Some(status) = process.try_wait().map_err(|e| e.to_string())? {
-                guard.take();
-                break status;
             }
+            {
+                let mut guard = holder
+                    .lock()
+                    .map_err(|_| "Assistant process lock poisoned")?;
+                let Some(process) = guard.as_mut() else {
+                    return Err("Assistant cancelled".into());
+                };
+                if let Some(status) = process.try_wait().map_err(|error| error.to_string())? {
+                    guard.take();
+                    return Ok(status.success());
+                }
+            }
+            if Instant::now() >= deadline {
+                return Err(format!(
+                    "did not report its version within {} seconds",
+                    timeout.as_secs()
+                ));
+            }
+            std::thread::sleep(Duration::from_millis(20));
         }
-        if Instant::now() >= deadline {
-            stop_group();
-            return Err(format!(
-                "did not report its version within {} seconds",
-                timeout.as_secs()
-            ));
+    })();
+    tree.terminate();
+    stop(holder);
+    if let Some(mut child) = unpublished {
+        let _ = child.kill();
+        let _ = child.wait();
+    }
+    let text = if let Some(output) = output {
+        let text = output.recv_timeout(Duration::from_secs(1)).map_err(|_| {
+            "Version probe output did not close after process-tree cleanup".to_owned()
+        })?;
+        if let Some(reader) = reader {
+            reader
+                .join()
+                .map_err(|_| "Version probe reader failed".to_owned())?;
         }
-        std::thread::sleep(Duration::from_millis(20));
+        text?
+    } else {
+        String::new()
     };
-    // A version check needs no survivors; this also releases the pipe.
-    stop_group();
-    let text = receiver
-        .recv_timeout(Duration::from_secs(1))
-        .unwrap_or_default();
-    Ok((status.success(), text))
+    result.map(|success| (success, text))
 }
 
 /// Resolve a bare program name the way a spawned process would.
@@ -962,8 +972,9 @@ mod tests {
             let result = probe_version(&launcher, &AtomicBool::new(false), &holder, timeout);
             assert!(started.elapsed() < Duration::from_secs(4), "{name}");
             assert_eq!(result.is_ok(), name == "quick");
-            if let Ok((success, text)) = result {
-                assert!(success && text.contains("9.9.9"));
+            match result {
+                Ok((success, text)) => assert!(success && text.contains("9.9.9")),
+                Err(error) => assert!(error.contains("did not report its version"), "{error}"),
             }
             // Under heavy load the timeout can kill the group before the
             // launcher records its descendant; nothing is left to check then.
@@ -973,13 +984,42 @@ mod tests {
             };
             let pid: libc::pid_t = pid.trim().parse().unwrap();
             let deadline = Instant::now() + Duration::from_secs(3);
-            // SAFETY: signal 0 only probes whether the process still exists.
-            while unsafe { libc::kill(pid, 0) } == 0 {
+            // A zombie has stopped running and released stdout, even if its
+            // adopting parent has not reaped it (common in Linux containers).
+            // SAFETY: signal 0 only checks existence and permission.
+            while unsafe { libc::kill(pid, 0) } == 0 && !probe_descendant_is_zombie(pid) {
                 assert!(Instant::now() < deadline, "{name}: descendant survived");
                 std::thread::sleep(Duration::from_millis(20));
             }
             assert!(holder.lock().unwrap().is_none());
         }
+    }
+    #[cfg(target_os = "linux")]
+    fn probe_descendant_is_zombie(pid: libc::pid_t) -> bool {
+        // /proc is available even in minimal containers without a `ps` binary.
+        // The command name can contain spaces and parentheses; the final `) `
+        // separates it from the state field.
+        std::fs::read_to_string(format!("/proc/{pid}/stat"))
+            .ok()
+            .is_some_and(|stat| {
+                stat.rsplit_once(") ")
+                    .is_some_and(|(_, fields)| fields.starts_with('Z'))
+            })
+    }
+    #[cfg(all(unix, not(target_os = "linux")))]
+    fn probe_descendant_is_zombie(pid: libc::pid_t) -> bool {
+        Process::new("/bin/ps")
+            .args(["-o", "stat=", "-p", &pid.to_string()])
+            .output()
+            .ok()
+            .is_some_and(|output| {
+                output.status.success()
+                    && output
+                        .stdout
+                        .iter()
+                        .find(|byte| !byte.is_ascii_whitespace())
+                        .is_some_and(|byte| *byte == b'Z')
+            })
     }
     #[test]
     fn runtime_override_then_installed_codex_then_claude() {
