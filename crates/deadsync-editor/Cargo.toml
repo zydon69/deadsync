@@ -21,6 +21,9 @@ rssp = { git = "https://github.com/pnn64/rssp", branch = "main" }
 lzma-rs = "0.3.0"
 uuid = { version = "1.26.1", features = ["v4"] }
 
+[target.'cfg(unix)'.dependencies]
+libc = "0.2.190"
+
 [target.'cfg(windows)'.dependencies]
 windows-sys = { version = "0.61.2", features = ["Win32_Foundation", "Win32_Storage_FileSystem"] }
 

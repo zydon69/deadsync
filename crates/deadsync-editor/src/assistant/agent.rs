@@ -714,8 +714,10 @@ pub(super) fn stop(holder: &Mutex<Option<Child>>) {
 }
 
 /// Run `executable --version` as the job's registered child so that Escape
-/// kills it, and kill it once `timeout` elapses. Output is read on a helper
-/// thread: a descendant holding the pipe open cannot block the worker.
+/// kills it, and kill it once `timeout` elapses. On Unix the probe leads its
+/// own process group, killed whatever the outcome: a launcher's descendant
+/// cannot keep the pipe, and so the reader thread, alive. Windows kills only
+/// the direct child; the bounded reader then ends with its last descendant.
 /// Returns whether it exited successfully and its bounded standard output.
 pub(super) fn probe_version(
     executable: &Path,
@@ -723,13 +725,28 @@ pub(super) fn probe_version(
     holder: &Mutex<Option<Child>>,
     timeout: Duration,
 ) -> Result<(bool, String), String> {
-    let mut child = Process::new(executable)
+    let mut command = Process::new(executable);
+    command
         .arg("--version")
         .stdin(Stdio::null())
         .stdout(Stdio::piped())
-        .stderr(Stdio::null())
+        .stderr(Stdio::null());
+    #[cfg(unix)]
+    std::os::unix::process::CommandExt::process_group(&mut command, 0);
+    let mut child = command
         .spawn()
         .map_err(|error| format!("cannot start the executable ({error})"))?;
+    let group = child.id();
+    let stop_group = || {
+        #[cfg(unix)]
+        if let Ok(group) = libc::pid_t::try_from(group) {
+            // SAFETY: plain signal delivery to the probe's own process group.
+            unsafe { libc::kill(-group, libc::SIGKILL) };
+        }
+        #[cfg(not(unix))]
+        let _ = group;
+        stop(holder);
+    };
     let stdout = child.stdout.take().ok_or("missing standard output")?;
     let (sender, receiver) = mpsc::channel();
     std::thread::Builder::new()
@@ -747,7 +764,7 @@ pub(super) fn probe_version(
     let deadline = Instant::now() + timeout;
     let status = loop {
         if cancelled.load(Ordering::Acquire) {
-            stop(holder);
+            stop_group();
             return Err("Assistant cancelled".into());
         }
         {
@@ -755,6 +772,8 @@ pub(super) fn probe_version(
                 .lock()
                 .map_err(|_| "Assistant process lock poisoned")?;
             let Some(process) = guard.as_mut() else {
+                drop(guard);
+                stop_group();
                 return Err("Assistant cancelled".into());
             };
             if let Some(status) = process.try_wait().map_err(|e| e.to_string())? {
@@ -763,7 +782,7 @@ pub(super) fn probe_version(
             }
         }
         if Instant::now() >= deadline {
-            stop(holder);
+            stop_group();
             return Err(format!(
                 "did not report its version within {} seconds",
                 timeout.as_secs()
@@ -771,6 +790,8 @@ pub(super) fn probe_version(
         }
         std::thread::sleep(Duration::from_millis(20));
     };
+    // A version check needs no survivors; this also releases the pipe.
+    stop_group();
     let text = receiver
         .recv_timeout(Duration::from_secs(1))
         .unwrap_or_default();
@@ -913,6 +934,52 @@ mod tests {
         )
         .unwrap_err();
         assert!(error.contains("DEADSYNC_CODEX_PATH"));
+    }
+    #[cfg(unix)]
+    #[test]
+    fn version_probe_kills_descendants_that_keep_its_output_open() {
+        use std::os::unix::fs::PermissionsExt;
+        let directory = tempfile::tempdir().unwrap();
+        for (name, script, timeout) in [
+            // Exits at once, leaving a descendant on the pipe.
+            ("quick", "echo 9.9.9\n", Duration::from_secs(5)),
+            // Never exits: the probe times out.
+            ("stalled", "wait\n", Duration::from_secs(1)),
+        ] {
+            let pid_file = directory.path().join(format!("{name}.pid"));
+            let launcher = directory.path().join(name);
+            std::fs::write(
+                &launcher,
+                format!(
+                    "#!/bin/sh\nsleep 30 &\necho $! > '{}'\n{script}",
+                    pid_file.display()
+                ),
+            )
+            .unwrap();
+            std::fs::set_permissions(&launcher, std::fs::Permissions::from_mode(0o755)).unwrap();
+            let holder = Mutex::new(None);
+            let started = Instant::now();
+            let result = probe_version(&launcher, &AtomicBool::new(false), &holder, timeout);
+            assert!(started.elapsed() < Duration::from_secs(4), "{name}");
+            assert_eq!(result.is_ok(), name == "quick");
+            if let Ok((success, text)) = result {
+                assert!(success && text.contains("9.9.9"));
+            }
+            // Under heavy load the timeout can kill the group before the
+            // launcher records its descendant; nothing is left to check then.
+            let Ok(pid) = std::fs::read_to_string(&pid_file) else {
+                assert_eq!(name, "stalled");
+                continue;
+            };
+            let pid: libc::pid_t = pid.trim().parse().unwrap();
+            let deadline = Instant::now() + Duration::from_secs(3);
+            // SAFETY: signal 0 only probes whether the process still exists.
+            while unsafe { libc::kill(pid, 0) } == 0 {
+                assert!(Instant::now() < deadline, "{name}: descendant survived");
+                std::thread::sleep(Duration::from_millis(20));
+            }
+            assert!(holder.lock().unwrap().is_none());
+        }
     }
     #[test]
     fn runtime_override_then_installed_codex_then_claude() {

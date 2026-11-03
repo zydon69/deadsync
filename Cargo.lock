@@ -1647,6 +1647,7 @@ name = "deadsync-editor"
 version = "0.1.0"
 dependencies = [
  "deadsync-audio-analysis",
+ "libc",
  "lzma-rs",
  "rssp",
  "serde",

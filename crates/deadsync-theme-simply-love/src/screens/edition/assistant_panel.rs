@@ -47,6 +47,20 @@ impl State {
             self.assistant.runtime_detected = true;
         }
     }
+    /// Opening another song replaces the editor state; only the runtime
+    /// choice survives, never the conversation, proposal or bridge.
+    pub(super) fn transfer_assistant_runtime(&self, next: &mut State) {
+        next.assistant.runtime = self.assistant.runtime;
+        next.assistant.runtime_detected = self.assistant.runtime_detected;
+    }
+    #[cfg(test)]
+    pub(super) fn assistant_runtime_for_test(&self) -> (Runtime, bool, bool) {
+        (
+            self.assistant.runtime,
+            self.assistant.runtime_detected,
+            self.assistant.transcript.is_empty(),
+        )
+    }
     fn assistant_start_bridge(&mut self) {
         self.assistant.bridge = None;
         match deadsync_editor::assistant::bridge::Bridge::start(&self.workspace) {

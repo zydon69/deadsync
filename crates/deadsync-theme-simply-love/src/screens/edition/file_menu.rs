@@ -642,6 +642,7 @@ impl State {
             },
         );
         self.transfer_editor_audio_session(&mut next);
+        self.transfer_assistant_runtime(&mut next);
         *self = next;
         Self::report_profile_load_repairs(self.workspace.file());
         Ok(())
@@ -2665,6 +2666,43 @@ mod directory_open_tests {
 #[cfg(test)]
 mod published_audio_binding_tests {
     use super::*;
+    #[test]
+    fn opening_another_song_keeps_only_the_assistant_runtime_choice() {
+        i18n::init_for_tests();
+        let root = tempfile::tempdir().unwrap();
+        let mut states = Vec::new();
+        for directory in ["old", "new"] {
+            let base = root.path().join(directory);
+            std::fs::create_dir(&base).unwrap();
+            let path = base.join("song.ssc");
+            std::fs::write(
+                &path,
+                "#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#NOTES:1000;",
+            )
+            .unwrap();
+            states.push(State::open(&path, 0).unwrap());
+        }
+        let next = states.pop().unwrap();
+        let mut current = states.pop().unwrap();
+        current.open_assistant();
+        let detected = current.assistant_runtime_for_test().0;
+        for pressed in [true, false] {
+            current.raw_key(&RawKeyboardEvent {
+                code: KeyCode::F6,
+                pressed,
+                repeat: false,
+                timestamp: std::time::Instant::now(),
+                host_nanos: 0,
+            });
+        }
+        let chosen = current.assistant_runtime_for_test();
+        assert_ne!(chosen.0, detected);
+        assert!(!chosen.2);
+        current.take_audio_commands();
+        current.publish_file_candidate(next).unwrap();
+        // The choice and its detection survive; the conversation does not.
+        assert_eq!(current.assistant_runtime_for_test(), (chosen.0, true, true));
+    }
     #[test]
     fn publishing_chartless_document_rebinds_main_even_with_identical_song_music() {
         i18n::init_for_tests();
