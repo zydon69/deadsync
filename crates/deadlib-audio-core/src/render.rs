@@ -3187,4 +3187,4 @@ pub(crate) fn test_global_audio_guard() -> impl Drop {
 
 #[cfg(test)]
 #[path = "render/callback_kernels.rs"]
-mod callback_kernels;
+pub(crate) mod callback_kernels;

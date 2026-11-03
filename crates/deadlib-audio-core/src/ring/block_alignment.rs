@@ -1,13 +1,5 @@
-use deadlib_audio_core::MusicMapSeg;
-#[path = "../src/preview_transport.rs"]
-mod preview_source;
-use preview_source::PreviewSource;
-
-#[allow(dead_code)]
-mod transport {
-    include!("../src/ring.rs");
-}
-
+use crate::MusicMapSeg;
+use crate::ring as transport;
 use transport::{MUSIC_BLOCK_FRAMES, MusicBlockTiming, music_transport};
 
 #[test]

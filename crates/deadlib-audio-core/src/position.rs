@@ -1047,3 +1047,7 @@ mod tests {
 #[cfg(test)]
 #[path = "position_perf.rs"]
 mod perf;
+
+#[cfg(test)]
+#[path = "position/query_kernels.rs"]
+mod query_kernels;

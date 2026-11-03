@@ -756,3 +756,7 @@ mod tests {
         assert_eq!(clock_reads.get(), 0);
     }
 }
+
+#[cfg(test)]
+#[path = "telemetry/query_kernels.rs"]
+mod query_kernels;

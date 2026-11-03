@@ -14,7 +14,8 @@ fn voice(data: Arc<[i16]>, pan: SfxPan) -> ActiveSfx {
         generation: 0,
         restart_slot: None,
         pan,
-        target_stream_frame: 0,
+        target_stream_frame: deadlib_audio_core::SfxOnset::Immediate,
+        schedule: None,
         voice: None,
     })
 }

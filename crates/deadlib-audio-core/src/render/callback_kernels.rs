@@ -2,9 +2,9 @@
 #![allow(dead_code)]
 
 #[path = "../../../../tests/support/kernel_bench.rs"]
-mod bench;
+pub(crate) mod bench;
 #[path = "../../../../tests/support/perf.rs"]
-mod perf;
+pub(crate) mod perf;
 
 mod mode_parser {
     use crate::AudioOutputMode;
@@ -135,9 +135,16 @@ mod quantization {
                     black_box(&output);
                 };
                 let (_, counts) = crate::render::callback_kernels::perf::measure(&mut work);
-                assert_eq!(counts, crate::render::callback_kernels::perf::Churn::default());
+                assert_eq!(
+                    counts,
+                    crate::render::callback_kernels::perf::Churn::default()
+                );
                 println!("{label}: allocation {counts:?}");
-                crate::render::callback_kernels::bench::measure(&label, 8_000_000 / samples, &mut work);
+                crate::render::callback_kernels::bench::measure(
+                    &label,
+                    8_000_000 / samples,
+                    &mut work,
+                );
             }
         }
     }
@@ -145,7 +152,9 @@ mod quantization {
 
 mod render {
     use crate::i16_to_f32;
-    use crate::render::{MUSIC_GAIN_MAX_STEP, advance_gain, convert_music_samples, write_i16_samples};
+    use crate::render::{
+        MUSIC_GAIN_MAX_STEP, advance_gain, convert_music_samples, write_i16_samples,
+    };
 
     #[inline]
     pub(super) fn write_pcm(src: &[f32], dst: &mut [i16], has_audio: bool) {
@@ -265,9 +274,16 @@ mod render {
                         black_box((&output, gain));
                     };
                     let (_, counts) = crate::render::callback_kernels::perf::measure(&mut work);
-                    assert_eq!(counts, crate::render::callback_kernels::perf::Churn::default());
+                    assert_eq!(
+                        counts,
+                        crate::render::callback_kernels::perf::Churn::default()
+                    );
                     println!("{label}: allocation {counts:?}");
-                    crate::render::callback_kernels::bench::measure(&label, 8_000_000 / samples, &mut work);
+                    crate::render::callback_kernels::bench::measure(
+                        &label,
+                        8_000_000 / samples,
+                        &mut work,
+                    );
                 }
             }
         }

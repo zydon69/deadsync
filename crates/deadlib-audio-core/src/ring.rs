@@ -572,3 +572,7 @@ mod tests {
         }
     }
 }
+
+#[cfg(test)]
+#[path = "ring/block_alignment.rs"]
+mod block_alignment;

@@ -13,6 +13,7 @@ fn push(stream: &mut AudioStreamHandle, input: &[i16], generation: u64) -> usize
         let n = stream.writer.try_push(
             &input[accepted..],
             MusicBlockTiming {
+                asset_epoch: music_asset_epoch(),
                 generation,
                 music_start_sec: accepted as f64 / stream.writer.channels() as f64 / 48000.0,
                 music_sec_per_frame: 1.0 / 48000.0,
@@ -45,7 +46,8 @@ fn effect(
         generation: 0,
         restart_slot: Some(0),
         pan,
-        target_stream_frame: target,
+        target_stream_frame: SfxOnset::from_legacy(target),
+        schedule: None,
         voice,
     }
 }
@@ -291,7 +293,8 @@ fn dump_rendering_trace() {
             word(&mut trace, u64::from(voice.is_playing()));
             word(&mut trace, stream.writer.outstanding_blocks() as u64);
             word(&mut trace, stream.writer.render_drained_generation());
-            while let Some((tag, seg)) = stream.played_map.pop() {
+            while let Some((tag, epoch, seg)) = stream.played_map.pop() {
+                assert_eq!(epoch, music_asset_epoch());
                 word(&mut trace, 1);
                 word(&mut trace, tag);
                 word(&mut trace, seg.stream_frame_start as u64);

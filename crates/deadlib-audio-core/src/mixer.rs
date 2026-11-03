@@ -1029,3 +1029,7 @@ mod editor_tick_snapshot_tests {
     }
 
 }
+
+#[cfg(test)]
+#[path = "mixer/panned_probes.rs"]
+mod panned_probes;
