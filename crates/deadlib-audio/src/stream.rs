@@ -1504,10 +1504,14 @@ mod tests {
 
     #[test]
     fn common_lead_in_layouts_submit_without_allocator_work() {
+        let _audio_guard = crate::test_audio_guard();
         for channels in [1, 2, 3, 6, 8] {
             let generation = 7;
             let (mut stream, _render) = music_transport(SAMPLE_RATE, channels);
             let control = control(generation);
+            // The real decoder publishes Opened before submitting PCM. On macOS
+            // the status mutex allocates its native storage on its first lock.
+            let _ = control.status.snapshot();
             let mut backpressure =
                 MusicBackpressure::new(SAMPLE_RATE, stream.writer.capacity_blocks(), generation);
             super::perf_tests::allocations::assert_no_churn(|| {

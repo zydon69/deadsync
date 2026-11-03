@@ -23,7 +23,7 @@ impl Fixture {
         let (stream, render) = music_transport(48_000, channels);
         let backpressure =
             MusicBackpressure::new(48_000, stream.writer.capacity_blocks(), generation);
-        Self {
+        let fixture = Self {
             stream,
             render,
             backpressure,
@@ -43,7 +43,10 @@ impl Fixture {
                 generation: AtomicU64::new(generation),
                 wake: DecoderWake::new(),
             },
-        }
+        };
+        // Decoder-open status publication initializes this mutex in production.
+        let _ = fixture.control.status.snapshot();
+        fixture
     }
 
     fn push(&mut self, frames: usize, step: f64) -> f64 {
