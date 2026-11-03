@@ -7,7 +7,7 @@ use std::{
     io::{BufRead, BufReader, Write},
     net::{TcpListener, TcpStream},
     path::{Path, PathBuf},
-    sync::{Mutex, OnceLock, atomic::AtomicUsize},
+    sync::{Condvar, Mutex, OnceLock, atomic::AtomicUsize},
     time::Duration,
 };
 type Materializer = Box<dyn FnOnce() -> Result<crate::document::Document, Error> + Send>;
@@ -35,7 +35,7 @@ impl DeferredDocument {
 struct Snapshot {
     epoch: Arc<()>,
     token: RevisionToken,
-    document: Arc<DeferredDocument>,
+    document: Option<Arc<DeferredDocument>>,
     base: PathBuf,
     chart: Option<usize>,
 }
@@ -45,10 +45,7 @@ impl Snapshot {
         Ok(Self {
             epoch: Arc::new(()),
             token: session.revision_token(),
-            document: Arc::new(DeferredDocument {
-                source: Mutex::new(Some(Box::new(session.deferred_snapshot()))),
-                document: OnceLock::new(),
-            }),
+            document: None,
             base: workspace.file().resource_base().to_owned(),
             chart: workspace.active_chart(),
         })
@@ -59,13 +56,103 @@ impl Snapshot {
                 resource_base: self.base.clone(),
             },
             session: crate::history::Session::new(
-                self.document.resolve().map_err(Error::InvalidEdit)?.clone(),
+                self.document
+                    .as_ref()
+                    .ok_or_else(|| Error::InvalidEdit("Snapshot not requested".into()))?
+                    .resolve()
+                    .map_err(Error::InvalidEdit)?
+                    .clone(),
             ),
         })?;
         match self.chart {
             Some(chart) => Workspace::from_file(file, chart),
             None => Ok(Workspace::from_file_unfocused(file)),
         }
+    }
+}
+/// Metadata is cheap to refresh on every edit. An authenticated tool request
+/// raises demand; the next UI synchronize copies editable state exactly once.
+struct Host {
+    state: Mutex<Snapshot>,
+    requested: AtomicBool,
+    invalidated: AtomicBool,
+    discard: AtomicBool,
+    ready: Condvar,
+}
+impl Host {
+    fn lock(&self) -> std::sync::LockResult<std::sync::MutexGuard<'_, Snapshot>> {
+        self.state.lock()
+    }
+    fn try_lock(&self) -> std::sync::TryLockResult<std::sync::MutexGuard<'_, Snapshot>> {
+        self.state.try_lock()
+    }
+    fn invalidate(&self, host: &mut Snapshot) {
+        host.epoch = Arc::new(());
+        host.document = None;
+    }
+    fn snapshot(&self, cancelled: &AtomicBool) -> Result<Snapshot, String> {
+        let deadline = std::time::Instant::now() + Duration::from_secs(10);
+        let mut host = self.lock().map_err(|_| "Host snapshot unavailable")?;
+        loop {
+            if cancelled.load(Ordering::Acquire) {
+                return Err("Assistant bridge stopped".into());
+            }
+            if !self.invalidated.load(Ordering::Acquire) && host.document.is_some() {
+                return Ok(host.clone());
+            }
+            self.requested.store(true, Ordering::Release);
+            self.ready.notify_all();
+            let remaining = deadline.saturating_duration_since(std::time::Instant::now());
+            if remaining.is_zero() {
+                return Err(
+                    "Editor did not provide a snapshot; keep the editor running and retry".into(),
+                );
+            }
+            host = self
+                .ready
+                // Shutdown must not rely on winning the narrow notify/wait
+                // race: periodically recheck the cancellation flag as well.
+                .wait_timeout(host, remaining.min(Duration::from_millis(100)))
+                .map_err(|_| "Host snapshot unavailable")?
+                .0;
+        }
+    }
+    fn refreshed_for_publication(
+        &self,
+        snapshot: &Snapshot,
+        cancelled: &AtomicBool,
+    ) -> Result<std::sync::MutexGuard<'_, Snapshot>, String> {
+        let deadline = std::time::Instant::now() + Duration::from_secs(10);
+        let mut host = self.lock().map_err(|_| "Host snapshot unavailable")?;
+        loop {
+            if cancelled.load(Ordering::Acquire) {
+                return Err("Assistant bridge stopped".into());
+            }
+            if !Arc::ptr_eq(&host.epoch, &snapshot.epoch) {
+                return Err(
+                    "Host changed or proposal was discarded; retry against the current song".into(),
+                );
+            }
+            if !self.invalidated.load(Ordering::Acquire) {
+                return Ok(host);
+            }
+            self.requested.store(true, Ordering::Release);
+            self.ready.notify_all();
+            let remaining = deadline.saturating_duration_since(std::time::Instant::now());
+            if remaining.is_zero() {
+                return Err(
+                    "Editor did not refresh the host; retry against the current song".into(),
+                );
+            }
+            host = self
+                .ready
+                .wait_timeout(host, remaining.min(Duration::from_millis(100)))
+                .map_err(|_| "Host snapshot unavailable")?
+                .0;
+        }
+    }
+    fn is_current(&self, host: &Snapshot, snapshot: &Snapshot) -> bool {
+        !self.invalidated.load(Ordering::Acquire) && Arc::ptr_eq(&host.epoch, &snapshot.epoch)
     }
 }
 struct Proposal {
@@ -81,7 +168,7 @@ pub struct Bridge {
     registry: PathBuf,
     secret: String,
     cancelled: Arc<AtomicBool>,
-    host: Arc<Mutex<Snapshot>>,
+    host: Arc<Host>,
     draft: Arc<Mutex<Option<Proposal>>>,
     failure: Arc<Mutex<Option<String>>>,
 }
@@ -101,8 +188,18 @@ impl Bridge {
     pub fn start(workspace: &Workspace) -> Result<Self, Error> {
         Self::start_at(workspace, default_connection_path()?)
     }
+    #[cfg(any(test, feature = "test-support"))]
+    pub fn start_for_test(workspace: &Workspace, registry: PathBuf) -> Result<Self, Error> {
+        Self::start_at(workspace, registry)
+    }
     fn start_at(workspace: &Workspace, registry: PathBuf) -> Result<Self, Error> {
-        let host = Arc::new(Mutex::new(Snapshot::capture(workspace)?));
+        let host = Arc::new(Host {
+            state: Mutex::new(Snapshot::capture(workspace)?),
+            requested: AtomicBool::new(false),
+            invalidated: AtomicBool::new(false),
+            discard: AtomicBool::new(false),
+            ready: Condvar::new(),
+        });
         let listener = TcpListener::bind((std::net::Ipv4Addr::LOCALHOST, 0))?;
         listener.set_nonblocking(true)?;
         let secret = uuid::Uuid::new_v4().to_string();
@@ -142,6 +239,8 @@ impl Bridge {
             secret,
             clients: Mutex::new(HashMap::new()),
             active: Arc::new(AtomicUsize::new(0)),
+            #[cfg(test)]
+            before_publish: Mutex::new(None),
         };
         std::thread::Builder::new()
             .name("deadsync-mcp-bridge".into())
@@ -155,31 +254,49 @@ impl Bridge {
                 return Err(Error::InvalidEdit(error.clone()));
             }
         }
-        let mut host = self
-            .host
-            .lock()
-            .map_err(|_| Error::InvalidEdit("Host snapshot unavailable".into()))?;
+        let mut host = match self.host.try_lock() {
+            Ok(host) => host,
+            Err(std::sync::TryLockError::WouldBlock) => {
+                // Block stale publication until a later frame can refresh
+                // metadata. The UI never waits behind assistant workers.
+                self.host.invalidated.store(true, Ordering::Release);
+                return Ok(());
+            }
+            Err(_) => return Err(Error::InvalidEdit("Host snapshot unavailable".into())),
+        };
         if !workspace.file().session.accepts_token(&host.token)
             || workspace.active_chart() != host.chart
             || workspace.file().resource_base() != host.base
         {
             *host = Snapshot::capture(workspace)?;
         }
+        if self.host.discard.swap(false, Ordering::AcqRel) {
+            self.host.invalidate(&mut host);
+        }
+        if self.host.requested.swap(false, Ordering::AcqRel) && host.document.is_none() {
+            host.document = Some(Arc::new(DeferredDocument {
+                source: Mutex::new(Some(Box::new(workspace.file().session.deferred_snapshot()))),
+                document: OnceLock::new(),
+            }));
+        }
+        self.host.invalidated.store(false, Ordering::Release);
+        self.host.ready.notify_all();
         Ok(())
     }
     /// Reject every detached client draft, including an in-flight publication.
     /// Advancing the epoch prevents the rejected edit from resurfacing later.
     pub fn discard_proposals(&self) -> Result<(), Error> {
-        let mut host = self
-            .host
-            .lock()
-            .map_err(|_| Error::InvalidEdit("Host snapshot unavailable".into()))?;
-        host.epoch = Arc::new(());
-        // A worker can hold the mailbox during generation. Never wait for it
-        // on the UI thread: epoch checks reject both queued and in-flight work.
+        self.host.invalidated.store(true, Ordering::Release);
+        self.host.discard.store(true, Ordering::Release);
+        if let Ok(mut host) = self.host.try_lock() {
+            self.host.invalidate(&mut host);
+            self.host.discard.store(false, Ordering::Release);
+            // Keep publication blocked until synchronize refreshes metadata.
+        }
         if let Ok(mut draft) = self.draft.try_lock() {
             *draft = None;
         }
+        self.host.ready.notify_all();
         Ok(())
     }
     pub fn discovery_path(&self) -> PathBuf {
@@ -189,20 +306,25 @@ impl Bridge {
         if let Some(error) = self.failure.try_lock().ok()?.take() {
             return Some(Err(error));
         }
+        let host = self.host.try_lock().ok()?;
+        if self.host.invalidated.load(Ordering::Acquire) {
+            return None;
+        }
         let proposal = self.draft.try_lock().ok()?.take()?;
-        let host = self.host.lock().ok()?;
         Arc::ptr_eq(&proposal.epoch, &host.epoch).then_some(Ok(proposal.draft))
     }
 }
 struct Server {
     registry: PathBuf,
     failure: Arc<Mutex<Option<String>>>,
-    host: Arc<Mutex<Snapshot>>,
+    host: Arc<Host>,
     draft: Arc<Mutex<Option<Proposal>>>,
     cancelled: Arc<AtomicBool>,
     secret: String,
     clients: Mutex<HashMap<String, Arc<Mutex<Client>>>>,
     active: Arc<AtomicUsize>,
+    #[cfg(test)]
+    before_publish: Mutex<Option<Box<dyn FnOnce() + Send>>>,
 }
 struct RequestLease(Arc<AtomicUsize>);
 impl Drop for RequestLease {
@@ -257,6 +379,7 @@ impl Server {
     }
     fn listener_failed(&self, error: std::io::Error) {
         self.cancelled.store(true, Ordering::Release);
+        self.host.ready.notify_all();
         if let Ok(mut failure) = self.failure.lock() {
             *failure = Some(format!(
                 "MCP listener stopped: {error}. Toggle MCP off and on to restart."
@@ -317,21 +440,16 @@ impl Server {
     }
     fn respond(&self, envelope: &Value) -> Result<Option<Value>, String> {
         let request = &envelope["request"];
-        let snapshot = self
-            .host
-            .lock()
-            .map_err(|_| "Host snapshot unavailable")?
-            .clone();
+        if let Some(response) = protocol::response_without_workspace(request) {
+            return Ok(response);
+        }
+        let snapshot = self.host.snapshot(&self.cancelled)?;
         let client = self.client(envelope["client"].as_str().unwrap_or("legacy"), &snapshot)?;
         let mut client = client.lock().map_err(|_| "Client state unavailable")?;
-        if !Arc::ptr_eq(
-            &self
-                .host
-                .lock()
-                .map_err(|_| "Host snapshot unavailable")?
-                .epoch,
-            &snapshot.epoch,
-        ) {
+        let current = self.host.lock().map_err(|_| "Host snapshot unavailable")?;
+        let is_current = self.host.is_current(&current, &snapshot);
+        drop(current);
+        if !is_current {
             return Err(
                 "Host changed or proposal was discarded; retry against the current song".into(),
             );
@@ -368,7 +486,9 @@ impl Server {
             );
         }
         let Client {
-            workspace, toolbox, ..
+            workspace,
+            toolbox,
+            epoch,
         } = &mut *client;
         let before = workspace.file().session.revision();
         let response = protocol::response_cancellable(
@@ -378,34 +498,39 @@ impl Server {
             false,
             &self.cancelled,
         );
-        if before != workspace.file().session.revision()
-            && response
+        if before != workspace.file().session.revision() {
+            // Any failure after a detached mutation must force a fresh client
+            // next time, even when the native revision itself did not change.
+            *epoch = Arc::new(());
+            if response
                 .as_ref()
-                .is_some_and(|v| v["result"]["isError"] == false)
-        {
-            let proposal = Draft {
-                token: snapshot.token,
-                bytes: workspace
-                    .file()
-                    .session
-                    .serialize()
-                    .map_err(|e| e.to_string())?,
-                message: "MCP proposal".into(),
-            };
-            if let Some(slot) = publication.as_mut() {
-                // Host lock is acquired only after the potentially long tool
-                // call. Rejection/focus/edit invalidation wins over old work.
-                let host = self.host.lock().map_err(|_| "Host snapshot unavailable")?;
-                if !Arc::ptr_eq(&host.epoch, &snapshot.epoch) {
-                    return Err(
-                        "Host changed or proposal was discarded; retry against the current song"
-                            .into(),
-                    );
+                .is_some_and(|value| value["result"]["isError"] == false)
+            {
+                let proposal = Draft {
+                    token: snapshot.token.clone(),
+                    bytes: workspace
+                        .file()
+                        .session
+                        .serialize()
+                        .map_err(|error| error.to_string())?,
+                    message: "MCP proposal".into(),
+                };
+                #[cfg(test)]
+                if let Some(hook) = self.before_publish.lock().unwrap().take() {
+                    hook();
                 }
-                **slot = Some(Proposal {
-                    epoch: snapshot.epoch.clone(),
-                    draft: proposal,
-                });
+                if let Some(slot) = publication.as_mut() {
+                    // A contended UI frame temporarily blocks publication. Wait
+                    // on the worker, releasing the host lock so UI can refresh.
+                    let _host = self
+                        .host
+                        .refreshed_for_publication(&snapshot, &self.cancelled)?;
+                    **slot = Some(Proposal {
+                        epoch: snapshot.epoch.clone(),
+                        draft: proposal,
+                    });
+                    *epoch = snapshot.epoch.clone();
+                }
             }
         }
         Ok(response)
@@ -429,6 +554,7 @@ fn tool_error(request: &Value, message: &str) -> Value {
 impl Drop for Bridge {
     fn drop(&mut self) {
         self.cancelled.store(true, Ordering::Release);
+        self.host.ready.notify_all();
         remove_owned_registry(&self.registry, &self.secret);
     }
 }
@@ -564,31 +690,58 @@ mod tests {
     use super::*;
     fn workspace() -> Workspace {
         let document=crate::document::Document::parse(Arc::<[u8]>::from(b"#VERSION:0.83;#BPMS:0=120;#NOTEDATA:;#STEPSTYPE:dance-single;#DIFFICULTY:Edit;#METER:1;#NOTES:1000;".as_slice()),crate::document::Format::Ssc).unwrap();
-        Snapshot {
-            epoch: Arc::new(()),
-            token: crate::history::Session::new(document.clone()).revision_token(),
-            document: Arc::new(DeferredDocument {
-                source: Mutex::new(Some(Box::new(move || Ok(document)))),
-                document: OnceLock::new(),
-            }),
-            base: std::env::temp_dir(),
-            chart: Some(0),
-        }
-        .workspace()
-        .unwrap()
+        let file = crate::storage::FileSession::from_new(crate::file_origin::NewSong {
+            origin: crate::file_origin::Origin::Untitled {
+                resource_base: std::env::temp_dir(),
+            },
+            session: crate::history::Session::new(document),
+        })
+        .unwrap();
+        Workspace::from_file(file, 0).unwrap()
     }
-    fn request(path: &Path, tool: &str, arguments: Value) -> Value {
+    fn wire_request(path: &Path, tool: &str, arguments: Value) -> Value {
+        wire_request_with_client(path, "regression", tool, arguments)
+    }
+    fn wire_request_with_client(path: &Path, client: &str, tool: &str, arguments: Value) -> Value {
         let connection: Value = serde_json::from_slice(&std::fs::read(path).unwrap()).unwrap();
         let mut stream = TcpStream::connect(connection["address"].as_str().unwrap()).unwrap();
         stream
             .set_read_timeout(Some(Duration::from_secs(5)))
             .unwrap();
-        write_frame(&mut stream,&json!({"token":connection["token"],"client":"regression","request":{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":tool,"arguments":arguments}}})).unwrap();
+        write_frame(&mut stream,&json!({"token":connection["token"],"client":client,"request":{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":tool,"arguments":arguments}}})).unwrap();
         let response = read_frame(&mut BufReader::new(stream)).unwrap();
         if response["result"]["isError"] == true || response.get("error").is_some() {
             eprintln!("Bridge fixture request {tool}: {response}");
         }
         response
+    }
+    fn request(
+        bridge: &Bridge,
+        host: &Workspace,
+        path: &Path,
+        tool: &str,
+        arguments: Value,
+    ) -> Value {
+        std::thread::scope(|scope| {
+            let (send, receive) = std::sync::mpsc::channel();
+            scope.spawn(move || {
+                send.send(wire_request(path, tool, arguments)).unwrap();
+            });
+            let deadline = std::time::Instant::now() + Duration::from_secs(5);
+            loop {
+                bridge.synchronize(host).unwrap();
+                match receive.recv_timeout(Duration::from_millis(1)) {
+                    Ok(response) => return response,
+                    Err(std::sync::mpsc::RecvTimeoutError::Timeout) => {
+                        assert!(
+                            std::time::Instant::now() < deadline,
+                            "request did not finish while UI was pumping"
+                        );
+                    }
+                    Err(error) => panic!("request worker stopped: {error}"),
+                }
+            }
+        })
     }
     #[test]
     fn host_changes_refresh_without_restarting_bridge_and_registry_is_removed() {
@@ -598,7 +751,7 @@ mod tests {
         let bridge = Bridge::start_at(&host, path.clone()).unwrap();
         let initial = std::fs::read(&path).unwrap();
         assert_eq!(
-            request(&path, "inspect_song", json!({}))["result"]["structuredContent"]["charts"]
+            request(&bridge, &host, &path, "inspect_song", json!({}))["result"]["structuredContent"]["charts"]
                 .as_array()
                 .unwrap()
                 .len(),
@@ -608,7 +761,7 @@ mod tests {
         bridge.synchronize(&host).unwrap();
         assert_eq!(std::fs::read(&path).unwrap(), initial);
         assert_eq!(
-            request(&path, "inspect_song", json!({}))["result"]["structuredContent"]["charts"]
+            request(&bridge, &host, &path, "inspect_song", json!({}))["result"]["structuredContent"]["charts"]
                 .as_array()
                 .unwrap()
                 .len(),
@@ -642,9 +795,12 @@ mod tests {
     fn full_mailbox_rejects_before_mutation_and_client_can_retry() {
         let home = tempfile::tempdir().unwrap();
         let path = home.path().join("connection.json");
-        let bridge = Bridge::start_at(&workspace(), path.clone()).unwrap();
+        let host = workspace();
+        let bridge = Bridge::start_at(&host, path.clone()).unwrap();
         let prepare = |row| {
             request(
+                &bridge,
+                &host,
                 &path,
                 "preview_note_edits",
                 json!({"chart":0,"edits":[{"row":row,"lane":1,"kind":"tap"}]}),
@@ -653,25 +809,45 @@ mod tests {
         };
         let preview = prepare(48);
         assert_eq!(
-            request(&path, "apply_preview", json!({"preview_id":preview}))["result"]["isError"],
+            request(
+                &bridge,
+                &host,
+                &path,
+                "apply_preview",
+                json!({"preview_id":preview})
+            )["result"]["isError"],
             false
         );
         let second = prepare(96);
         assert_eq!(
-            request(&path, "apply_preview", json!({"preview_id":second}))["result"]["isError"],
+            request(
+                &bridge,
+                &host,
+                &path,
+                "apply_preview",
+                json!({"preview_id":second})
+            )["result"]["isError"],
             true
         );
         assert_eq!(
-            request(&path, "inspect_chart", json!({"chart":0}))["result"]["structuredContent"]["total_notes"],
+            request(&bridge, &host, &path, "inspect_chart", json!({"chart":0}))["result"]["structuredContent"]
+                ["total_notes"],
             2
         );
         assert!(bridge.poll().is_some());
         assert_eq!(
-            request(&path, "apply_preview", json!({"preview_id":second}))["result"]["isError"],
+            request(
+                &bridge,
+                &host,
+                &path,
+                "apply_preview",
+                json!({"preview_id":second})
+            )["result"]["isError"],
             false
         );
         assert_eq!(
-            request(&path, "inspect_chart", json!({"chart":0}))["result"]["structuredContent"]["total_notes"],
+            request(&bridge, &host, &path, "inspect_chart", json!({"chart":0}))["result"]["structuredContent"]
+                ["total_notes"],
             3
         );
     }
@@ -684,7 +860,7 @@ mod tests {
         let new = Bridge::start_at(&host, path.clone()).unwrap();
         drop(old);
         assert_eq!(
-            request(&path, "inspect_song", json!({}))["result"]["isError"],
+            request(&new, &host, &path, "inspect_song", json!({}))["result"]["isError"],
             false
         );
         drop(new);
@@ -694,7 +870,8 @@ mod tests {
     fn slow_unauthenticated_client_does_not_block_other_requests() {
         let home = tempfile::tempdir().unwrap();
         let path = home.path().join("connection.json");
-        let _bridge = Bridge::start_at(&workspace(), path.clone()).unwrap();
+        let host = workspace();
+        let bridge = Bridge::start_at(&host, path.clone()).unwrap();
         let info: Value = serde_json::from_slice(&std::fs::read(&path).unwrap()).unwrap();
         let slow = TcpStream::connect(info["address"].as_str().unwrap()).unwrap();
         slow.set_read_timeout(Some(Duration::from_millis(100)))
@@ -708,7 +885,7 @@ mod tests {
         ));
         let start = std::time::Instant::now();
         assert_eq!(
-            request(&path, "inspect_song", json!({}))["result"]["isError"],
+            request(&bridge, &host, &path, "inspect_song", json!({}))["result"]["isError"],
             false
         );
         assert!(start.elapsed() < Duration::from_secs(2));
@@ -721,6 +898,8 @@ mod tests {
         let bridge = Bridge::start_at(&host, path.clone()).unwrap();
         let publish = |row| {
             let preview = request(
+                &bridge,
+                &host,
                 &path,
                 "preview_note_edits",
                 json!({
@@ -729,7 +908,13 @@ mod tests {
             )["result"]["structuredContent"]["preview_id"]
                 .clone();
             assert_eq!(
-                request(&path, "apply_preview", json!({"preview_id":preview}))["result"]["isError"],
+                request(
+                    &bridge,
+                    &host,
+                    &path,
+                    "apply_preview",
+                    json!({"preview_id":preview})
+                )["result"]["isError"],
                 false
             );
         };
@@ -738,7 +923,8 @@ mod tests {
         bridge.discard_proposals().unwrap();
         publish(96);
         assert_eq!(
-            request(&path, "inspect_chart", json!({"chart":0}))["result"]["structuredContent"]["total_notes"],
+            request(&bridge, &host, &path, "inspect_chart", json!({"chart":0}))["result"]["structuredContent"]
+                ["total_notes"],
             2
         );
         let draft = bridge.poll().unwrap().unwrap();
@@ -809,38 +995,235 @@ mod tests {
         assert!(bridge.poll().is_none());
     }
     #[test]
-    fn host_synchronization_defers_materialization_and_shares_it_between_clients() {
+    fn only_authenticated_tool_demand_captures_an_edited_song_and_clients_share_snapshot() {
         let home = tempfile::tempdir().unwrap();
+        let path = home.path().join("connection.json");
         let mut host = workspace();
-        let bridge = Bridge::start_at(&host, home.path().join("connection.json")).unwrap();
-        assert!(
-            bridge
-                .host
-                .lock()
-                .unwrap()
-                .document
-                .document
-                .get()
-                .is_none()
+        let bridge = Bridge::start_at(&host, path.clone()).unwrap();
+        assert!(bridge.host.lock().unwrap().document.is_none());
+        for row in 1..20 {
+            host.execute(Command::Seek(row * 48)).unwrap();
+            host.execute(Command::Place(1)).unwrap();
+            bridge.synchronize(&host).unwrap();
+            assert!(bridge.host.lock().unwrap().document.is_none());
+        }
+        assert!(!bridge.host.requested.load(Ordering::Acquire));
+        assert_eq!(
+            request(&bridge, &host, &path, "inspect_song", json!({}))["result"]["isError"],
+            false
         );
-        host.execute(Command::DuplicateChart).unwrap();
-        bridge.synchronize(&host).unwrap();
         let snapshot = bridge.host.lock().unwrap().clone();
-        assert!(snapshot.document.document.get().is_none());
-        let first = snapshot.workspace().unwrap();
-        assert_eq!(first.file().session.document().charts().len(), 2);
-        assert!(snapshot.document.document.get().is_some());
+        assert_eq!(
+            wire_request_with_client(&path, "second", "inspect_song", json!({}))["result"]["isError"],
+            false
+        );
+        let document = snapshot.document.as_ref().unwrap();
+        assert!(document.document.get().is_some());
         assert!(Arc::ptr_eq(
-            &snapshot.document,
-            &bridge.host.lock().unwrap().document
+            document,
+            bridge.host.lock().unwrap().document.as_ref().unwrap()
         ));
+        assert_eq!(snapshot.workspace().unwrap().grid().iter().count(), 20);
+        host.execute(Command::Place(2)).unwrap();
+        bridge.synchronize(&host).unwrap();
+        assert!(bridge.host.lock().unwrap().document.is_none());
+    }
+    #[test]
+    fn neutral_requests_and_unauthenticated_tools_never_request_a_snapshot() {
+        let home = tempfile::tempdir().unwrap();
+        let path = home.path().join("connection.json");
+        let host = workspace();
+        let bridge = Bridge::start_at(&host, path.clone()).unwrap();
+        let connection: Value = serde_json::from_slice(&std::fs::read(&path).unwrap()).unwrap();
+        for (method, authenticated) in [
+            ("initialize", true),
+            ("ping", true),
+            ("tools/list", true),
+            ("tools/call", false),
+        ] {
+            let mut stream = TcpStream::connect(connection["address"].as_str().unwrap()).unwrap();
+            stream
+                .set_read_timeout(Some(Duration::from_secs(2)))
+                .unwrap();
+            let token = if authenticated {
+                connection["token"].clone()
+            } else {
+                json!("incorrect")
+            };
+            write_frame(
+                &mut stream,
+                &json!({"token":token,"client":"neutral", "request":{
+                    "jsonrpc":"2.0","id":1,"method":method,
+                    "params":{"name":"inspect_song","arguments":{}}
+                }}),
+            )
+            .unwrap();
+            let response = read_frame(&mut BufReader::new(stream)).unwrap();
+            if authenticated {
+                assert!(response.get("result").is_some());
+            } else {
+                assert!(response.get("bridge_error").is_some());
+            }
+            assert!(!bridge.host.requested.load(Ordering::Acquire));
+            bridge.synchronize(&host).unwrap();
+            assert!(bridge.host.lock().unwrap().document.is_none());
+        }
+    }
+    #[test]
+    fn ui_operations_do_not_wait_behind_the_host_lock_and_defer_invalidation_safely() {
+        let home = tempfile::tempdir().unwrap();
+        let host = workspace();
+        let bridge = Bridge::start_at(&host, home.path().join("connection.json")).unwrap();
+        let held = bridge.host.lock().unwrap();
+        let epoch = held.epoch.clone();
+        std::thread::scope(|scope| {
+            let (send, receive) = std::sync::mpsc::channel();
+            let bridge = &bridge;
+            let host = &host;
+            scope.spawn(move || {
+                bridge.synchronize(host).unwrap();
+                assert!(bridge.poll().is_none());
+                bridge.discard_proposals().unwrap();
+                send.send(()).unwrap();
+            });
+            let result = receive.recv_timeout(Duration::from_secs(2));
+            drop(held);
+            result.expect("UI operation waited for host lock");
+        });
+        assert!(bridge.host.invalidated.load(Ordering::Acquire));
+        bridge.synchronize(&host).unwrap();
+        let state = bridge.host.lock().unwrap();
+        assert!(!Arc::ptr_eq(&epoch, &state.epoch));
+        assert!(!bridge.host.invalidated.load(Ordering::Acquire));
+        assert!(state.document.is_none());
+    }
+    fn publication_after_contended_frame(cancel: bool) {
+        let home = tempfile::tempdir().unwrap();
+        let host = workspace();
+        let bridge = Bridge::start_at(&host, home.path().join("connection.json")).unwrap();
+        bridge.host.requested.store(true, Ordering::Release);
+        bridge.synchronize(&host).unwrap();
+        let server = Server {
+            registry: bridge.registry.clone(),
+            secret: bridge.secret.clone(),
+            host: bridge.host.clone(),
+            draft: bridge.draft.clone(),
+            cancelled: bridge.cancelled.clone(),
+            failure: bridge.failure.clone(),
+            clients: Mutex::new(HashMap::new()),
+            active: Arc::new(AtomicUsize::new(0)),
+            before_publish: Mutex::new(None),
+        };
+        let envelope = |tool: &str, arguments: Value| {
+            json!({"client":"contended", "request":{
+                "jsonrpc":"2.0", "id":1, "method":"tools/call", "params":{"name":tool,"arguments":arguments}
+            }})
+        };
+        let preview = server
+            .respond(&envelope(
+                "preview_note_edits",
+                json!({
+                    "chart":0,"edits":[{"row":48,"lane":1,"kind":"tap"}]
+                }),
+            ))
+            .unwrap()
+            .unwrap()["result"]["structuredContent"]["preview_id"]
+            .clone();
+        let epoch = bridge.host.lock().unwrap().epoch.clone();
+        let (mutated_send, mutated_receive) = std::sync::mpsc::channel();
+        let (release_send, release_receive) = std::sync::mpsc::channel();
+        *server.before_publish.lock().unwrap() = Some(Box::new(move || {
+            mutated_send.send(()).unwrap();
+            release_receive
+                .recv_timeout(Duration::from_secs(5))
+                .unwrap();
+        }));
+        std::thread::scope(|scope| {
+            let (done_send, done_receive) = std::sync::mpsc::channel();
+            let server = &server;
+            let apply = envelope("apply_preview", json!({"preview_id":preview}));
+            scope.spawn(move || {
+                done_send.send(server.respond(&apply)).unwrap();
+            });
+            mutated_receive
+                .recv_timeout(Duration::from_secs(5))
+                .unwrap();
+            // The native song is unchanged; only a worker lock makes this UI
+            // frame defer its metadata refresh after the client already edited.
+            let held = bridge.host.lock().unwrap();
+            bridge.synchronize(&host).unwrap();
+            drop(held);
+            assert!(bridge.host.invalidated.load(Ordering::Acquire));
+            if cancel {
+                bridge.cancelled.store(true, Ordering::Release);
+            }
+            release_send.send(()).unwrap();
+            if !cancel {
+                let mut state = bridge.host.lock().unwrap();
+                let deadline = std::time::Instant::now() + Duration::from_secs(5);
+                while !bridge.host.requested.load(Ordering::Acquire) {
+                    let remaining = deadline.saturating_duration_since(std::time::Instant::now());
+                    assert!(
+                        !remaining.is_zero(),
+                        "publisher did not wait for UI refresh"
+                    );
+                    state = bridge.host.ready.wait_timeout(state, remaining).unwrap().0;
+                }
+                drop(state);
+                assert!(matches!(
+                    done_receive.try_recv(),
+                    Err(std::sync::mpsc::TryRecvError::Empty)
+                ));
+                bridge.synchronize(&host).unwrap();
+            }
+            let response = done_receive.recv_timeout(Duration::from_secs(5)).unwrap();
+            if cancel {
+                assert!(response.is_err());
+            } else {
+                assert_eq!(response.unwrap().unwrap()["result"]["isError"], false);
+            }
+        });
+        // Pure contention does not advance the host epoch.
+        assert!(Arc::ptr_eq(&epoch, &bridge.host.lock().unwrap().epoch));
+        if cancel {
+            bridge.cancelled.store(false, Ordering::Release);
+            bridge.synchronize(&host).unwrap();
+            assert!(bridge.poll().is_none());
+            let page = server
+                .respond(&envelope("inspect_chart", json!({"chart":0})))
+                .unwrap()
+                .unwrap();
+            assert_eq!(
+                page["result"]["structuredContent"]["total_notes"], 1,
+                "an unpublished mutation leaked through the next request"
+            );
+        } else {
+            assert!(bridge.poll().is_some());
+            let page = server
+                .respond(&envelope("inspect_chart", json!({"chart":0})))
+                .unwrap()
+                .unwrap();
+            assert_eq!(page["result"]["structuredContent"]["total_notes"], 2);
+        }
+    }
+    #[test]
+    fn contended_unchanged_host_refresh_still_publishes_the_client_mutation() {
+        publication_after_contended_frame(false);
+    }
+    #[test]
+    fn failed_publication_resets_client_even_when_host_epoch_is_unchanged() {
+        publication_after_contended_frame(true);
     }
     #[test]
     fn deferred_snapshot_keeps_edited_notes_isolated_from_later_host_changes() {
         let mut host = workspace();
         host.execute(Command::Seek(48)).unwrap();
         host.execute(Command::Place(1)).unwrap();
-        let snapshot = Snapshot::capture(&host).unwrap();
+        let mut snapshot = Snapshot::capture(&host).unwrap();
+        snapshot.document = Some(Arc::new(DeferredDocument {
+            source: Mutex::new(Some(Box::new(host.file().session.deferred_snapshot()))),
+            document: OnceLock::new(),
+        }));
         host.execute(Command::Seek(96)).unwrap();
         host.execute(Command::Place(1)).unwrap();
         let detached = snapshot.workspace().unwrap();
@@ -867,6 +1250,8 @@ mod tests {
             failure: bridge.failure.clone(),
             clients: Mutex::new(HashMap::new()),
             active: Arc::new(AtomicUsize::new(0)),
+            #[cfg(test)]
+            before_publish: Mutex::new(None),
         };
         server.listener_failed(std::io::Error::other("injected accept failure"));
         assert!(!path.exists());

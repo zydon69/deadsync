@@ -1,13 +1,61 @@
 use super::*;
 use crate::{document::Format, history::Session, notes::Grid};
 
-// One bounded entry per toolbox avoids retaining decoded PCM or unbounded song
-// histories. Changes to the canonical path, length or modification time invalidate it.
+use sha2::{Digest, Sha256};
+use std::io::Read;
+
+const MAX_AUDIO_BYTES: u64 = 2 * 1024 * 1024 * 1024;
+
+// One entry retains analysis only, never decoded PCM. Content identity remains
+// valid even when another application restores the file's original timestamps.
 pub(super) struct AnalysisCache {
     path: std::path::PathBuf,
-    length: u64,
-    modified: Option<std::time::SystemTime>,
+    fingerprint: [u8; 32],
     rhythm: deadsync_audio_analysis::rhythm::Rhythm,
+}
+
+fn audio_fingerprint(path: &std::path::Path, cancelled: &AtomicBool) -> Result<[u8; 32], Error> {
+    if cancelled.load(Ordering::Acquire) {
+        return invalid("Assistant request cancelled");
+    }
+    let mut file = std::fs::File::open(path)?;
+    if file.metadata()?.len() > MAX_AUDIO_BYTES {
+        return invalid("Assistant audio exceeds the 2 GiB limit");
+    }
+    let mut digest = Sha256::new();
+    let mut buffer = [0u8; 64 * 1024];
+    let mut total = 0u64;
+    loop {
+        if cancelled.load(Ordering::Acquire) {
+            return invalid("Assistant request cancelled");
+        }
+        let count = file.read(&mut buffer)?;
+        if count == 0 {
+            break;
+        }
+        total += count as u64;
+        if total > MAX_AUDIO_BYTES {
+            return invalid("Assistant audio exceeds the 2 GiB limit");
+        }
+        digest.update(&buffer[..count]);
+    }
+    if cancelled.load(Ordering::Acquire) {
+        return invalid("Assistant request cancelled");
+    }
+    Ok(digest.finalize().into())
+}
+
+fn analyze_unchanged_audio(
+    path: &std::path::Path,
+    cancelled: &AtomicBool,
+    fingerprint: [u8; 32],
+    analyze: impl FnOnce() -> Result<deadsync_audio_analysis::rhythm::Rhythm, String>,
+) -> Result<deadsync_audio_analysis::rhythm::Rhythm, Error> {
+    let rhythm = analyze().map_err(Error::InvalidEdit)?;
+    if audio_fingerprint(path, cancelled)? != fingerprint {
+        return invalid("Audio changed during analysis; retry the request");
+    }
+    Ok(rhythm)
 }
 
 pub(super) struct Preview {
@@ -57,29 +105,21 @@ impl Toolbox {
         if !path.starts_with(&base) {
             return invalid("Assistant audio must be inside the song directory");
         }
-        let metadata = std::fs::metadata(&path)?;
-        let modified = metadata.modified().ok();
-        let reusable = modified.is_some()
-            && self.audio_cache.as_ref().is_some_and(|cached| {
-                cached.path == path
-                    && cached.length == metadata.len()
-                    && cached.modified == modified
-            });
+        let fingerprint = audio_fingerprint(&path, cancelled)?;
+        let reusable = self
+            .audio_cache
+            .as_ref()
+            .is_some_and(|cached| cached.path == path && cached.fingerprint == fingerprint);
         if !reusable {
-            let rhythm = deadsync_audio_analysis::rhythm::analyze_file(&path, cancelled)
-                .map_err(Error::InvalidEdit)?;
-            if cancelled.load(Ordering::Acquire) {
-                return invalid("Assistant request cancelled");
-            }
-            // Never cache analysis if the source changed during decoding.
-            let after = std::fs::metadata(&path)?;
-            if after.len() != metadata.len() || after.modified().ok() != modified {
-                return invalid("Audio changed during analysis; retry the request");
-            }
+            // A failed or cancelled refresh must not retain a previous analysis
+            // for different bytes at the same path.
+            self.audio_cache = None;
+            let rhythm = analyze_unchanged_audio(&path, cancelled, fingerprint, || {
+                deadsync_audio_analysis::rhythm::analyze_file(&path, cancelled)
+            })?;
             self.audio_cache = Some(AnalysisCache {
                 path,
-                length: metadata.len(),
-                modified,
+                fingerprint,
                 rhythm,
             });
         }
@@ -241,8 +281,7 @@ mod tests {
         let mut toolbox = Toolbox::default();
         toolbox.audio_cache = Some(AnalysisCache {
             path: path.canonicalize().unwrap(),
-            length: metadata.len(),
-            modified: metadata.modified().ok(),
+            fingerprint: audio_fingerprint(&path, &AtomicBool::new(false)).unwrap(),
             rhythm: deadsync_audio_analysis::rhythm::Rhythm {
                 duration_seconds: 10.0,
                 bpm: 120.0,
@@ -262,7 +301,18 @@ mod tests {
             .unwrap();
         assert_eq!(response["estimated_bpm"], 120.0);
         assert_eq!(response["detected_onsets"], 1);
-        std::fs::write(&path, b"different invalid audio bytes").unwrap();
+        std::fs::write(&path, b"new audio").unwrap();
+        std::fs::File::options()
+            .write(true)
+            .open(&path)
+            .unwrap()
+            .set_times(std::fs::FileTimes::new().set_modified(metadata.modified().unwrap()))
+            .unwrap();
+        assert_eq!(std::fs::metadata(&path).unwrap().len(), metadata.len());
+        assert_eq!(
+            std::fs::metadata(&path).unwrap().modified().unwrap(),
+            metadata.modified().unwrap()
+        );
         assert!(
             toolbox
                 .audio(
@@ -273,5 +323,51 @@ mod tests {
                 )
                 .is_err()
         );
+        assert!(toolbox.audio_cache.is_none());
+    }
+
+    #[test]
+    fn analysis_rejects_content_changed_during_decode_with_identical_metadata() {
+        let directory = tempfile::tempdir().unwrap();
+        let path = directory.path().join("music.wav");
+        std::fs::write(&path, b"old audio").unwrap();
+        let modified = std::fs::metadata(&path).unwrap().modified().unwrap();
+        let cancelled = AtomicBool::new(false);
+        let fingerprint = audio_fingerprint(&path, &cancelled).unwrap();
+        let result = analyze_unchanged_audio(&path, &cancelled, fingerprint, || {
+            std::fs::write(&path, b"new audio").unwrap();
+            std::fs::File::options()
+                .write(true)
+                .open(&path)
+                .unwrap()
+                .set_times(std::fs::FileTimes::new().set_modified(modified))
+                .unwrap();
+            Ok(deadsync_audio_analysis::rhythm::Rhythm {
+                duration_seconds: 10.0,
+                bpm: 120.0,
+                beat_offset_seconds: 0.0,
+                confidence: 0.75,
+                onsets: vec![],
+                sections: vec![],
+            })
+        });
+        assert!(
+            result
+                .unwrap_err()
+                .to_string()
+                .contains("changed during analysis")
+        );
+    }
+
+    #[test]
+    fn fingerprint_is_cancellable_and_rejects_oversized_sources() {
+        let directory = tempfile::tempdir().unwrap();
+        let path = directory.path().join("large.wav");
+        let file = std::fs::File::create(&path).unwrap();
+        file.set_len(MAX_AUDIO_BYTES + 1).unwrap();
+        let error = audio_fingerprint(&path, &AtomicBool::new(false)).unwrap_err();
+        assert!(error.to_string().contains("2 GiB"));
+        let error = audio_fingerprint(&path, &AtomicBool::new(true)).unwrap_err();
+        assert!(error.to_string().contains("cancelled"));
     }
 }

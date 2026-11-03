@@ -2,6 +2,15 @@
 use super::*;
 use deadsync_editor::assistant::agent::{Draft, Event, Job};
 const INPUT_BYTE_LIMIT: usize = 8192;
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum ProposalSource {
+    Native,
+    Mcp(u64),
+}
+struct PendingDraft {
+    source: ProposalSource,
+    draft: Draft,
+}
 #[derive(Default)]
 pub(super) struct Ui {
     pub(super) open: bool,
@@ -9,8 +18,9 @@ pub(super) struct Ui {
     transcript: String,
     conversation: String,
     job: Option<Job>,
-    draft: Option<Draft>,
+    draft: Option<PendingDraft>,
     bridge: Option<deadsync_editor::assistant::bridge::Bridge>,
+    bridge_generation: u64,
     scroll: usize,
     preview: Option<(String, deadsync_editor::notes::Grid)>,
     preview_open: bool,
@@ -35,10 +45,29 @@ impl State {
                     "\nMCP: --connect-editor ({})\n",
                     bridge.discovery_path().display()
                 ));
-                self.assistant.bridge = Some(bridge);
+                self.assistant_install_bridge(bridge);
             }
             Err(e) => self.assistant.transcript.push_str(&format!("\nMCP: {e}\n")),
         }
+    }
+    fn assistant_install_bridge(&mut self, bridge: deadsync_editor::assistant::bridge::Bridge) {
+        self.assistant.bridge_generation = self.assistant.bridge_generation.wrapping_add(1);
+        self.assistant.bridge = Some(bridge);
+    }
+    fn assistant_discard_pending(&mut self) {
+        // A native-only rejection must not reset unrelated external
+        // clients. MCP-derived follow-ups retain their provenance.
+        if self.assistant.draft.as_ref().is_some_and(|pending| {
+            pending.source == ProposalSource::Mcp(self.assistant.bridge_generation)
+        }) && let Some(bridge) = &self.assistant.bridge
+            && let Err(error) = bridge.discard_proposals()
+        {
+            self.assistant
+                .transcript
+                .push_str(&format!("\nMCP: {error}\n"));
+        }
+        self.assistant.draft = None;
+        self.assistant.preview = None;
     }
     pub(super) fn assistant_accepts_input(&self) -> bool {
         self.assistant.open && self.assistant.job.is_none() && !self.assistant.preview_open
@@ -85,7 +114,7 @@ impl State {
             .assistant
             .draft
             .as_ref()
-            .and_then(|d| d.preview_grid(&self.workspace).ok())
+            .and_then(|d| d.draft.preview_grid(&self.workspace).ok())
             .flatten();
         self.assistant.preview_open = false;
         self.assistant.preview_row = 0;
@@ -161,19 +190,11 @@ impl State {
                 }
             }
             KeyCode::F3 if self.assistant.job.is_none() => {
-                if let Some(bridge) = &self.assistant.bridge {
-                    if let Err(error) = bridge.discard_proposals() {
-                        self.assistant
-                            .transcript
-                            .push_str(&format!("\nMCP: {error}\n"));
-                    }
-                }
-                self.assistant.draft = None;
-                self.assistant.preview = None;
+                self.assistant_discard_pending();
             }
             KeyCode::F2 if self.assistant.job.is_none() => {
                 if let Some(draft) = self.assistant.draft.take() {
-                    match draft.apply(&mut self.workspace) {
+                    match draft.draft.apply(&mut self.workspace) {
                         Ok(()) => {
                             self.assistant.preview = None;
                             self.focus_position = None;
@@ -202,8 +223,11 @@ impl State {
                     "Prior conversation (context only):\n{}\n\nCurrent request:\n{}",
                     self.assistant.conversation, input
                 );
-                match Job::start_with_draft(&self.workspace, prompt, self.assistant.draft.as_ref())
-                {
+                match Job::start_with_draft(
+                    &self.workspace,
+                    prompt,
+                    self.assistant.draft.as_ref().map(|pending| &pending.draft),
+                ) {
                     Ok(job) => {
                         self.assistant
                             .transcript
@@ -228,7 +252,7 @@ impl State {
             .assistant
             .draft
             .as_ref()
-            .is_some_and(|draft| !draft.is_current(&self.workspace))
+            .is_some_and(|draft| !draft.draft.is_current(&self.workspace))
         {
             self.assistant.draft = None;
             self.assistant.preview = None;
@@ -250,7 +274,10 @@ impl State {
             if let Some(result) = self.assistant.bridge.as_ref().and_then(|b| b.poll()) {
                 match result {
                     Ok(draft) if draft.is_current(&self.workspace) => {
-                        self.assistant.draft = Some(draft);
+                        self.assistant.draft = Some(PendingDraft {
+                            source: ProposalSource::Mcp(self.assistant.bridge_generation),
+                            draft,
+                        });
                         self.assistant_prepare_preview();
                         self.assistant.transcript.push_str(&format!(
                             "\nMCP: {}\n",
@@ -290,17 +317,19 @@ impl State {
                                 .push_str(&format!("Assistant: {}\n", draft.message));
                             match draft.has_changes(&self.workspace) {
                                 Ok(true) => {
-                                    self.assistant.draft = Some(draft);
+                                    let source = self
+                                        .assistant
+                                        .draft
+                                        .as_ref()
+                                        .map_or(ProposalSource::Native, |pending| pending.source);
+                                    self.assistant.draft = Some(PendingDraft { source, draft });
                                     self.assistant_prepare_preview();
                                     self.assistant.transcript.push_str(&format!(
                                         "\n{}\n",
                                         i18n::tr("Edition", "AssistantReady")
                                     ));
                                 }
-                                Ok(false) => {
-                                    self.assistant.draft = None;
-                                    self.assistant.preview = None;
-                                }
+                                Ok(false) => self.assistant_discard_pending(),
                                 Err(error) => {
                                     self.assistant.transcript.push_str(&format!("\n{error}\n"));
                                 }
@@ -546,6 +575,274 @@ mod tests {
     fn song_bytes(state: &State) -> Vec<u8> {
         state.workspace.file().session.serialize().unwrap()
     }
+    fn mcp_worker_call(
+        path: &std::path::Path,
+        name: &str,
+        arguments: serde_json::Value,
+    ) -> serde_json::Value {
+        use std::io::{BufRead, BufReader, Write};
+        let connection: serde_json::Value =
+            serde_json::from_slice(&std::fs::read(path).unwrap()).unwrap();
+        let mut stream =
+            std::net::TcpStream::connect(connection["address"].as_str().unwrap()).unwrap();
+        stream
+            .set_read_timeout(Some(std::time::Duration::from_secs(5)))
+            .unwrap();
+        serde_json::to_writer(
+            &mut stream,
+            &serde_json::json!({
+                "token":connection["token"], "client":"assistant-ui-regression",
+                "request":{"jsonrpc":"2.0", "id":1, "method":"tools/call",
+                    "params":{"name":name, "arguments":arguments}}
+            }),
+        )
+        .unwrap();
+        stream.write_all(b"\n").unwrap();
+        let mut response = String::new();
+        BufReader::new(stream).read_line(&mut response).unwrap();
+        serde_json::from_str(&response).unwrap()
+    }
+    fn mcp_call(
+        state: &mut State,
+        path: &std::path::Path,
+        name: &str,
+        arguments: serde_json::Value,
+    ) -> serde_json::Value {
+        let path = path.to_owned();
+        let name = name.to_owned();
+        let (sender, receiver) = std::sync::mpsc::channel();
+        let worker = std::thread::spawn(move || {
+            sender
+                .send(mcp_worker_call(&path, &name, arguments))
+                .unwrap();
+        });
+        let deadline = std::time::Instant::now() + std::time::Duration::from_secs(5);
+        loop {
+            state.poll_assistant();
+            match receiver.recv_timeout(std::time::Duration::from_millis(1)) {
+                Ok(response) => {
+                    worker.join().unwrap();
+                    return response;
+                }
+                Err(std::sync::mpsc::RecvTimeoutError::Timeout)
+                    if std::time::Instant::now() < deadline => {}
+                error => panic!("MCP fixture did not finish: {error:?}"),
+            }
+        }
+    }
+    fn prepare_mcp_note(state: &mut State, path: &std::path::Path, row: u64) -> serde_json::Value {
+        let response = mcp_call(
+            state,
+            path,
+            "preview_note_edits",
+            serde_json::json!({
+                "chart":0, "edits":[{"row":row,"lane":1,"kind":"tap"}]
+            }),
+        );
+        assert_eq!(response["result"]["isError"], false);
+        response["result"]["structuredContent"]["preview_id"].clone()
+    }
+    fn apply_mcp_note(state: &mut State, path: &std::path::Path, preview: serde_json::Value) {
+        assert_eq!(
+            mcp_call(
+                state,
+                path,
+                "apply_preview",
+                serde_json::json!({"preview_id":preview})
+            )["result"]["isError"],
+            false
+        );
+    }
+    #[test]
+    fn rejecting_native_proposal_preserves_external_client_preview() {
+        let (directory, mut state) = input_fixture();
+        let connection = directory.path().join("connection.json");
+        state.assistant_install_bridge(
+            deadsync_editor::assistant::bridge::Bridge::start_for_test(
+                &state.workspace,
+                connection.clone(),
+            )
+            .unwrap(),
+        );
+        let preview = prepare_mcp_note(&mut state, &connection, 48);
+        let mut detached = Workspace::open(&directory.path().join("clipboard.ssc"), 0).unwrap();
+        detached.execute(Command::DuplicateChart).unwrap();
+        state.assistant.draft = Some(PendingDraft {
+            source: ProposalSource::Native,
+            draft: Draft::from_bytes_for_test(
+                &state.workspace,
+                detached.file().session.serialize().unwrap(),
+            ),
+        });
+        key(&mut state, KeyCode::F3, true);
+        key(&mut state, KeyCode::F3, false);
+        assert!(state.assistant.draft.is_none());
+        // Pressing discard without any displayed proposal also leaves the
+        // external client's independent preview untouched.
+        key(&mut state, KeyCode::F3, true);
+        key(&mut state, KeyCode::F3, false);
+        apply_mcp_note(&mut state, &connection, preview);
+        state.poll_assistant();
+        assert_eq!(
+            state.assistant.draft.as_ref().unwrap().source,
+            ProposalSource::Mcp(state.assistant.bridge_generation)
+        );
+        key(&mut state, KeyCode::F2, true);
+        key(&mut state, KeyCode::F2, false);
+        assert_eq!(state.workspace.file().session.document().charts().len(), 1);
+        let rows: Vec<_> = state
+            .workspace
+            .grid()
+            .iter()
+            .map(|(position, _)| position.row)
+            .collect();
+        assert_eq!(rows, vec![0, 48]);
+    }
+    #[test]
+    fn rejecting_mcp_proposal_or_native_refinement_resets_its_external_client() {
+        for refine in [false, true] {
+            let (directory, mut state) = input_fixture();
+            let connection = directory.path().join("connection.json");
+            state.assistant_install_bridge(
+                deadsync_editor::assistant::bridge::Bridge::start_for_test(
+                    &state.workspace,
+                    connection.clone(),
+                )
+                .unwrap(),
+            );
+            let preview = prepare_mcp_note(&mut state, &connection, 48);
+            apply_mcp_note(&mut state, &connection, preview);
+            state.poll_assistant();
+            assert_eq!(
+                state.assistant.draft.as_ref().unwrap().source,
+                ProposalSource::Mcp(state.assistant.bridge_generation)
+            );
+            if refine {
+                let bytes = state
+                    .assistant
+                    .draft
+                    .as_ref()
+                    .unwrap()
+                    .draft
+                    .bytes()
+                    .to_vec();
+                let answer = Draft::from_bytes_for_test(&state.workspace, bytes);
+                let (job, worker) = Job::pending_for_test();
+                state.assistant.job = Some(job);
+                worker.send(Event::Finished(Ok(answer))).unwrap();
+                state.poll_assistant();
+                assert_eq!(
+                    state.assistant.draft.as_ref().unwrap().source,
+                    ProposalSource::Mcp(state.assistant.bridge_generation)
+                );
+            }
+            key(&mut state, KeyCode::F3, true);
+            key(&mut state, KeyCode::F3, false);
+            assert!(state.assistant.draft.is_none());
+            let inspected = mcp_call(
+                &mut state,
+                &connection,
+                "inspect_chart",
+                serde_json::json!({"chart":0}),
+            );
+            assert_eq!(inspected["result"]["structuredContent"]["total_notes"], 1);
+            let preview = prepare_mcp_note(&mut state, &connection, 96);
+            apply_mcp_note(&mut state, &connection, preview);
+            state.poll_assistant();
+            key(&mut state, KeyCode::F2, true);
+            key(&mut state, KeyCode::F2, false);
+            let rows: Vec<_> = state
+                .workspace
+                .grid()
+                .iter()
+                .map(|(position, _)| position.row)
+                .collect();
+            assert_eq!(rows, vec![0, 96]);
+        }
+    }
+
+    #[test]
+    fn rejected_proposal_from_replaced_bridge_does_not_reset_new_client() {
+        let (directory, mut state) = input_fixture();
+        let old = directory.path().join("old-connection.json");
+        state.assistant_install_bridge(
+            deadsync_editor::assistant::bridge::Bridge::start_for_test(
+                &state.workspace,
+                old.clone(),
+            )
+            .unwrap(),
+        );
+        let preview = prepare_mcp_note(&mut state, &old, 48);
+        apply_mcp_note(&mut state, &old, preview);
+        state.poll_assistant();
+        assert!(state.assistant.draft.is_some());
+        let connection = directory.path().join("new-connection.json");
+        state.assistant_install_bridge(
+            deadsync_editor::assistant::bridge::Bridge::start_for_test(
+                &state.workspace,
+                connection.clone(),
+            )
+            .unwrap(),
+        );
+        let preview = prepare_mcp_note(&mut state, &connection, 96);
+        key(&mut state, KeyCode::F3, true);
+        key(&mut state, KeyCode::F3, false);
+        apply_mcp_note(&mut state, &connection, preview);
+        state.poll_assistant();
+        key(&mut state, KeyCode::F2, true);
+        key(&mut state, KeyCode::F2, false);
+        let rows: Vec<_> = state
+            .workspace
+            .grid()
+            .iter()
+            .map(|(position, _)| position.row)
+            .collect();
+        assert_eq!(rows, vec![0, 96]);
+    }
+    #[test]
+    fn native_followup_reverting_mcp_draft_to_host_invalidates_rejected_edits() {
+        let (directory, mut state) = input_fixture();
+        let original = song_bytes(&state);
+        let connection = directory.path().join("connection.json");
+        state.assistant_install_bridge(
+            deadsync_editor::assistant::bridge::Bridge::start_for_test(
+                &state.workspace,
+                connection.clone(),
+            )
+            .unwrap(),
+        );
+        let preview = prepare_mcp_note(&mut state, &connection, 48);
+        apply_mcp_note(&mut state, &connection, preview);
+        state.poll_assistant();
+        assert!(state.assistant.draft.is_some());
+        let answer = Draft::from_bytes_for_test(&state.workspace, original.clone());
+        let (job, worker) = Job::pending_for_test();
+        state.assistant.job = Some(job);
+        worker.send(Event::Finished(Ok(answer))).unwrap();
+        state.poll_assistant();
+        assert!(state.assistant.draft.is_none());
+        assert_eq!(song_bytes(&state), original);
+        let inspected = mcp_call(
+            &mut state,
+            &connection,
+            "inspect_chart",
+            serde_json::json!({"chart":0}),
+        );
+        assert_eq!(inspected["result"]["structuredContent"]["total_notes"], 1);
+        let preview = prepare_mcp_note(&mut state, &connection, 96);
+        apply_mcp_note(&mut state, &connection, preview);
+        state.poll_assistant();
+        key(&mut state, KeyCode::F2, true);
+        key(&mut state, KeyCode::F2, false);
+        let rows: Vec<_> = state
+            .workspace
+            .grid()
+            .iter()
+            .map(|(position, _)| position.row)
+            .collect();
+        assert_eq!(rows, vec![0, 96]);
+    }
+
     #[test]
     fn conversational_completion_has_no_proposal_or_apply_status() {
         let (_directory, mut state) = input_fixture();
@@ -589,7 +886,10 @@ mod tests {
         let mut detached = Workspace::open(&directory.path().join("clipboard.ssc"), 0).unwrap();
         detached.execute(Command::DuplicateChart).unwrap();
         let edited = detached.file().session.serialize().unwrap();
-        state.assistant.draft = Some(Draft::from_bytes_for_test(&state.workspace, edited.clone()));
+        state.assistant.draft = Some(PendingDraft {
+            source: ProposalSource::Native,
+            draft: Draft::from_bytes_for_test(&state.workspace, edited.clone()),
+        });
         let mut answer = Draft::from_bytes_for_test(&state.workspace, edited.clone());
         answer.message = "Explanation of the previous edit.".into();
         let (job, worker) = Job::pending_for_test();
@@ -604,7 +904,10 @@ mod tests {
                 .contains(i18n::tr("Edition", "AssistantReady").as_ref())
         );
         assert_eq!(song_bytes(&state), before);
-        assert_eq!(state.assistant.draft.as_ref().unwrap().bytes(), edited);
+        assert_eq!(
+            state.assistant.draft.as_ref().unwrap().draft.bytes(),
+            edited
+        );
         key(&mut state, KeyCode::F2, true);
         key(&mut state, KeyCode::F2, false);
         let expected = deadsync_editor::document::Document::parse(

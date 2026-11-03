@@ -422,6 +422,26 @@ pub fn response(
         &AtomicBool::new(false),
     )
 }
+/// `None` means a workspace-dependent tool call; `Some(None)` is a notification.
+pub(super) fn response_without_workspace(request: &Value) -> Option<Option<Value>> {
+    let Some(id) = request.get("id").cloned() else {
+        return Some(None);
+    };
+    if request.get("jsonrpc") != Some(&json!("2.0")) {
+        return Some(Some(error(id, -32600, "Invalid JSON-RPC version")));
+    }
+    let result = match request.get("method").and_then(Value::as_str) {
+        Some("initialize") => {
+            json!({"protocolVersion":"2025-06-18","capabilities":{"tools":{"listChanged":false}},"serverInfo":{"name":"deadsync-editor","version":env!("CARGO_PKG_VERSION")}})
+        }
+        Some("ping") => json!({}),
+        Some("tools/list") => json!({"tools":tools()}),
+        Some("tools/call") => return None,
+        _ => return Some(Some(error(id, -32601, "Method not found"))),
+    };
+    Some(Some(json!({"jsonrpc":"2.0","id":id,"result":result})))
+}
+
 pub(super) fn response_cancellable(
     request: Value,
     workspace: &mut Workspace,
@@ -429,16 +449,11 @@ pub(super) fn response_cancellable(
     allow_save: bool,
     cancelled: &AtomicBool,
 ) -> Option<Value> {
-    let id = request.get("id")?.clone();
-    if request.get("jsonrpc") != Some(&json!("2.0")) {
-        return Some(error(id, -32600, "Invalid JSON-RPC version"));
+    if let Some(response) = response_without_workspace(&request) {
+        return response;
     }
+    let id = request.get("id")?.clone();
     let result = match request.get("method").and_then(Value::as_str) {
-        Some("initialize") => Ok(
-            json!({"protocolVersion":"2025-06-18","capabilities":{"tools":{"listChanged":false}},"serverInfo":{"name":"deadsync-editor","version":env!("CARGO_PKG_VERSION")}}),
-        ),
-        Some("ping") => Ok(json!({})),
-        Some("tools/list") => Ok(json!({"tools":tools()})),
         Some("tools/call") => {
             let p = &request["params"];
             match p["name"].as_str() {

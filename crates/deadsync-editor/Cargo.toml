@@ -7,11 +7,12 @@ description = "Lossless chart editing and GrooveAuthor functionality for DeadSyn
 
 [features]
 test-support = []
-assistant-audio = ["dep:deadsync-audio-analysis"]
+assistant-audio = ["dep:deadsync-audio-analysis", "dep:sha2"]
 
 [dependencies]
 deadsync-audio-analysis = { path = "../deadsync-audio-analysis", optional = true }
 subtle = "2.6.1"
+sha2 = { version = "0.11.0", optional = true }
 unicode-segmentation = "1.13.3"
 tempfile = "3.27.0"
 serde = { version = "1.0.229", features = ["derive"] }

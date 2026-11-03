@@ -56,7 +56,12 @@ requires a file-backed Codex login. It reports an error if that login is unavail
 
 Prompts, chart metadata, note data returned by tools, and analysis summaries are
 sent to the configured Codex service. Audio decoding and onset analysis run
-locally; the audio file is not uploaded. Service usage is subject to the user's
+locally; the audio file is not uploaded. Each assistant keeps at most one rhythm
+analysis, without decoded audio. Cache reuse requires a matching SHA-256 digest
+of the complete audio content, even if its path, size and modification time are
+unchanged. A second digest after decoding rejects files changed during analysis.
+Fingerprinting uses a 64 KiB buffer, supports cancellation, and rejects audio
+files larger than 2 GiB. Service usage is subject to the user's
 Codex account limits. No API key is required by this adapter.
 
 ## External MCP access to the open editor
@@ -92,9 +97,20 @@ or secret. `apply_preview`, `undo` and `redo` offer a proposal to the native pan
 **F2 in the game** is still required to publish it. A pending native proposal is
 never replaced by an external proposal. The bounded proposal mailbox returns a
 recoverable tool error before changing history when full. Clients can retry after
-review. Rejecting with **F3** also resets detached client drafts, including requests
-already in progress, so rejected edits cannot reappear. Bridge connections cannot
-save files.
+review. Rejecting an MCP-derived proposal with **F3** also resets detached drafts
+from that proposal's bridge, including in-flight requests. Rejecting a native
+Codex-only proposal leaves independent MCP previews intact. A native refinement
+of an MCP proposal retains its MCP origin; rejecting it also abandons that MCP
+work. Replacing the bridge does not let an older proposal reset the new clients.
+Bridge connections cannot save files.
+
+Editing refreshes only revision, focus and resource metadata. An authenticated
+`tools/call` requests a snapshot; the next UI update captures editable state once
+for that revision, while serialization and parsing run on the worker. With no
+tool request, edits do not copy note grids, even while MCP is enabled. Initialization,
+ping and tool discovery do not request a snapshot. Keep the editor updating while
+using external tools; a missing UI response produces a recoverable error after
+ten seconds.
 
 Up to eight request workers are active at once; slow audio processing in one
 client does not block another client. The helper permits up to one hour per
