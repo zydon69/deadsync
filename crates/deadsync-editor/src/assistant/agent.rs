@@ -22,6 +22,11 @@ pub struct Draft {
     pub(super) bytes: Vec<u8>,
     pub message: String,
 }
+pub struct PreviewChart {
+    pub index: usize,
+    pub before: bool,
+    pub layout: String,
+}
 impl Draft {
     /// Detached result fixture for host UI tests; never starts an assistant.
     #[cfg(any(test, feature = "test-support"))]
@@ -32,28 +37,78 @@ impl Draft {
             message: String::new(),
         }
     }
-    /// Select a changed chart for a detached visual review. No editor mutation.
+    /// Enumerate both versions of every affected chart without retaining grids.
+    pub fn preview_charts(&self, workspace: &Workspace) -> Result<Vec<PreviewChart>, Error> {
+        let before = workspace.file().session.snapshot_document()?;
+        let after = before.reparse(self.bytes.clone())?;
+        fn same_properties(
+            before: &crate::document::Document,
+            after: &crate::document::Document,
+            chart: Option<usize>,
+        ) -> bool {
+            before
+                .tags()
+                .iter()
+                .filter(|tag| tag.chart == chart)
+                .map(|tag| (tag.name.as_str(), before.value(tag.value.clone())))
+                .eq(after
+                    .tags()
+                    .iter()
+                    .filter(|tag| tag.chart == chart)
+                    .map(|tag| (tag.name.as_str(), after.value(tag.value.clone()))))
+        }
+        let global_changed = !same_properties(&before, &after, None);
+        let mut previews = Vec::new();
+        for index in 0..before.charts().len().max(after.charts().len()) {
+            if !global_changed
+                && before.charts().get(index).is_some()
+                && after.charts().get(index).is_some()
+                && same_properties(&before, &after, Some(index))
+            {
+                continue;
+            }
+            for (old, document) in [(true, &before), (false, &after)] {
+                if let Some(chart) = document.charts().get(index) {
+                    previews.push(PreviewChart {
+                        index,
+                        before: old,
+                        layout: chart.steps_type.clone(),
+                    });
+                }
+            }
+        }
+        Ok(previews)
+    }
+    pub fn preview_chart(
+        &self,
+        workspace: &Workspace,
+        preview: &PreviewChart,
+    ) -> Result<crate::notes::Grid, Error> {
+        let before = workspace.file().session.snapshot_document()?;
+        let document = if preview.before {
+            before
+        } else {
+            before.reparse(self.bytes.clone())?
+        };
+        let Some(chart) = document.charts().get(preview.index) else {
+            return invalid("Preview chart no longer exists");
+        };
+        crate::notes::Grid::parse_layout(document.value(chart.notes.clone()), &chart.steps_type)
+    }
+    /// Compatibility accessor for callers that only need one changed grid.
     pub fn preview_grid(
         &self,
         workspace: &Workspace,
     ) -> Result<Option<(String, crate::notes::Grid)>, Error> {
-        let before = workspace.file().session.document();
-        let after = before.reparse(self.bytes.clone())?;
-        for (index, chart) in after.charts().iter().enumerate().rev() {
-            let changed = before.charts().get(index).is_none_or(|old| {
-                before.value(old.notes.clone()) != after.value(chart.notes.clone())
-            });
-            if changed {
-                return Ok(Some((
-                    format!("{}: {}", index + 1, chart.steps_type),
-                    crate::notes::Grid::parse_layout(
-                        after.value(chart.notes.clone()),
-                        &chart.steps_type,
-                    )?,
-                )));
-            }
-        }
-        Ok(None)
+        self.preview_charts(workspace)?
+            .last()
+            .map(|preview| {
+                Ok((
+                    format!("{}: {}", preview.index + 1, preview.layout),
+                    self.preview_chart(workspace, preview)?,
+                ))
+            })
+            .transpose()
     }
     pub fn is_current(&self, workspace: &Workspace) -> bool {
         workspace.file().session.accepts_token(&self.token)
@@ -224,7 +279,7 @@ fn run(
     copy.open(&isolated)
         .and_then(|mut f| f.write_all(&original))
         .map_err(|e| e.to_string())?;
-    let diagnostics = Arc::new(AtomicBool::new(false));
+    let diagnostics = Arc::new(Diagnostics::default());
     let result = run_process(
         workspace,
         token,
@@ -257,15 +312,12 @@ fn run(
 }
 
 fn finish_request(
-    mut result: Result<Draft, String>,
+    result: Result<Draft, String>,
     authentication: Result<(), String>,
     events: &SyncSender<Event>,
 ) -> Result<Draft, String> {
     if let Err(error) = authentication {
         let warning = format!("\n[Codex authentication warning] {error}\n");
-        if let Ok(draft) = &mut result {
-            draft.message.push_str(&warning);
-        }
         // Refresh failure is secondary: never replace a completed proposal or
         // the actual request error with an authentication persistence error.
         let _ = events.send(Event::Text(warning));
@@ -273,24 +325,101 @@ fn finish_request(
     result
 }
 
-fn diagnostic_error(error: String, diagnostics: &AtomicBool) -> String {
-    if diagnostics.load(Ordering::Acquire) {
-        format!(
-            "{error}\nCodex emitted diagnostic output; raw diagnostics are hidden to protect credentials."
-        )
-    } else {
-        error
+#[derive(Default)]
+struct Diagnostics(std::sync::atomic::AtomicU8);
+impl Diagnostics {
+    fn observe(&self, text: &str) {
+        let mut flags = 1;
+        for (bit, needles) in [
+            (
+                2,
+                &[
+                    "session expired",
+                    "token expired",
+                    "unauthorized",
+                    "authentication",
+                    "invalid_grant",
+                    "refresh token",
+                    "login required",
+                ][..],
+            ),
+            (
+                4,
+                &[
+                    "network",
+                    "connection refused",
+                    "connection reset",
+                    "timed out",
+                    "timeout",
+                    "dns",
+                    "tls",
+                    "failed to connect",
+                ][..],
+            ),
+            (
+                8,
+                &[
+                    "rate limit",
+                    "rate_limit",
+                    "quota",
+                    "usage limit",
+                    "too many requests",
+                ][..],
+            ),
+        ] {
+            if needles.iter().any(|needle| text.contains(needle)) {
+                flags |= bit;
+            }
+        }
+        self.0.fetch_or(flags, Ordering::AcqRel);
     }
 }
 
-fn drain_diagnostics(mut reader: impl std::io::Read, diagnostics: &AtomicBool) {
+fn diagnostic_error(error: String, diagnostics: &Diagnostics) -> String {
+    let flags = diagnostics.0.load(Ordering::Acquire);
+    if flags == 0 {
+        return error;
+    }
+    let mut details = Vec::new();
+    if flags & 2 != 0 {
+        details
+            .push("Codex reported an authentication problem or expired session; check your login.");
+    }
+    if flags & 4 != 0 {
+        details
+            .push("Codex reported a network or connection problem; check connectivity and retry.");
+    }
+    if flags & 8 != 0 {
+        details.push(
+            "Codex reported a usage or rate limit; check your account limits before retrying.",
+        );
+    }
+    if details.is_empty() {
+        details.push("Codex emitted diagnostic output without a recognized error category.");
+    }
+    format!(
+        "{error}\n{}\nRaw diagnostics are hidden to protect credentials.",
+        details.join("\n")
+    )
+}
+
+fn drain_diagnostics(mut reader: impl std::io::Read, diagnostics: &Diagnostics) {
     // Arbitrary stderr is not a trusted display channel. Consume it to avoid a
-    // blocked child, but retain no raw bytes or partially redacted credentials.
+    // blocked child. Only category flags survive the bounded scanning window;
+    // no raw bytes or partially redacted credentials enter display errors.
     let mut chunk = [0u8; 2048];
+    let mut window = Vec::with_capacity(2176);
     loop {
         match reader.read(&mut chunk) {
             Ok(0) => break,
-            Ok(_) => diagnostics.store(true, Ordering::Release),
+            Ok(count) => {
+                window.extend_from_slice(&chunk[..count]);
+                window.make_ascii_lowercase();
+                diagnostics.observe(&String::from_utf8_lossy(&window));
+                if window.len() > 128 {
+                    window.drain(..window.len() - 128);
+                }
+            }
             Err(error) if error.kind() == std::io::ErrorKind::Interrupted => continue,
             Err(_) => break,
         }
@@ -326,7 +455,7 @@ fn run_process(
     events: &SyncSender<Event>,
     home: &Path,
     executable: &Path,
-    diagnostics: &Arc<AtomicBool>,
+    diagnostics: &Arc<Diagnostics>,
 ) -> Result<Draft, String> {
     let cwd = home.join("work");
     std::fs::create_dir(&cwd).map_err(|e| e.to_string())?;
@@ -606,7 +735,7 @@ mod tests {
             )
             .unwrap();
             assert_eq!(result.bytes(), bytes);
-            assert!(result.message.contains("authentication warning"));
+            assert!(!result.message.contains("authentication warning"));
             assert!(
                 matches!(receiver.try_recv().unwrap(), Event::Text(warning) if warning.contains("authentication warning"))
             );
@@ -634,14 +763,14 @@ mod tests {
     fn raw_diagnostics_never_enter_display_errors_even_across_read_boundaries() {
         let mut bytes = vec![b'x'; 2046];
         bytes.extend_from_slice(b"token=secret-fixture\nBearer eyJ-opaque-fixture\nauthorization: secret\napi_key=fixture\n");
-        let diagnostics = AtomicBool::new(false);
+        let diagnostics = Diagnostics::default();
         drain_diagnostics(std::io::Cursor::new(bytes), &diagnostics);
         let error = diagnostic_error("request failed".into(), &diagnostics);
-        assert!(error.contains("raw diagnostics are hidden"));
+        assert!(error.contains("Raw diagnostics are hidden"));
         for forbidden in ["secret", "Bearer", "eyJ", "api_key", "authorization"] {
             assert!(!error.contains(forbidden));
         }
-        let empty = AtomicBool::new(false);
+        let empty = Diagnostics::default();
         drain_diagnostics(std::io::empty(), &empty);
         assert_eq!(
             diagnostic_error("request failed".into(), &empty),

@@ -335,8 +335,27 @@ impl Drop for RequestLease {
 impl Server {
     fn listen(self, listener: TcpListener) {
         let server = Arc::new(self);
+        let (rejected, rejections) = std::sync::mpsc::sync_channel::<TcpStream>(8);
+        let stopped = server.cancelled.clone();
+        if let Err(error) = std::thread::Builder::new()
+            .name("deadsync-mcp-busy".into())
+            .spawn(move || {
+                while !stopped.load(Ordering::Acquire) {
+                    match rejections.recv_timeout(Duration::from_millis(25)) {
+                        Ok(mut stream) => {
+                            let _ = reject_busy(&mut stream);
+                        }
+                        Err(std::sync::mpsc::RecvTimeoutError::Timeout) => {}
+                        Err(std::sync::mpsc::RecvTimeoutError::Disconnected) => break,
+                    }
+                }
+            })
+        {
+            server.listener_failed(error);
+            return;
+        }
         while !server.cancelled.load(Ordering::Acquire) {
-            let (mut stream, _) = match listener.accept() {
+            let (stream, _) = match listener.accept() {
                 Ok(pair) => pair,
                 Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => {
                     std::thread::sleep(Duration::from_millis(25));
@@ -349,7 +368,10 @@ impl Server {
                 }
             };
             if server.active.load(Ordering::Acquire) >= 8 {
-                let _ = reject_busy(&mut stream);
+                // Admission never waits for a slow rejected peer. Both the
+                // rejection queue and its worker count are bounded; overflow
+                // closes excess connections rather than allocating threads.
+                let _ = rejected.try_send(stream);
                 continue;
             }
             // Keep a descriptor for an allocation/thread-pressure fallback.
@@ -523,10 +545,18 @@ impl Server {
                 if let Some(slot) = publication.as_mut() {
                     // A contended UI frame temporarily blocks publication. Wait
                     // on the worker, releasing the host lock so UI can refresh.
+                    let unchanged = proposal.bytes.as_slice()
+                        == snapshot
+                            .document
+                            .as_ref()
+                            .ok_or("Snapshot not requested")?
+                            .resolve()?
+                            .source()
+                            .as_ref();
                     let _host = self
                         .host
                         .refreshed_for_publication(&snapshot, &self.cancelled)?;
-                    **slot = Some(Proposal {
+                    **slot = (!unchanged).then_some(Proposal {
                         epoch: snapshot.epoch.clone(),
                         draft: proposal,
                     });

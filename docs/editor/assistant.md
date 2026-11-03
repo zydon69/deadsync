@@ -15,8 +15,11 @@ under the chart assistant action in keyboard settings.
 - **Escape** cancels a running request; press it again after cancellation to close.
 - **F2** applies the completed proposal to the current song in memory.
 - **F3** discards the proposal.
-- **F5** opens a detached visual preview of a changed chart. Up/Down scroll by
-  a beat, Page Up/Down by four measures; Escape returns to the conversation.
+- **F5** opens a detached visual preview of all affected charts. Left/Right
+  switches between their before/after versions; the heading shows the current
+  position and total. Up/Down scroll by a beat, Page Up/Down by four measures;
+  Escape returns to the conversation. Only the selected grid is retained.
+  This is a notes preview; review metadata and timing changes separately.
 - **Page Up / Page Down** scroll through the response.
 - **F4** enables or disables external MCP access. It is off by default.
   While enabled, the bridge follows editor revisions automatically.
@@ -122,7 +125,10 @@ using external tools; a missing UI response produces a recoverable error after
 ten seconds.
 
 Up to eight request workers are active at once; slow audio processing in one
-client does not block another client. The helper permits up to one hour per
+client does not block another client. Busy replies use one separate worker and
+a queue of eight sockets, so slow rejected peers do not block admission. Excess
+connections beyond that queue are closed. A mutation that returns to the host
+bytes does not publish an empty proposal. The helper permits up to one hour per
 response for the local 30-minute audio limit. Recoverable bridge errors are
 returned as MCP errors rather than terminating the stdio helper. The helper rereads
 discovery per request, so enabling a replacement bridge does not require restarting

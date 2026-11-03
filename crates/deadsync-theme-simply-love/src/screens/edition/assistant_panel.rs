@@ -1,6 +1,6 @@
 //! Keyboard-only host for isolated assistant proposals.
 use super::*;
-use deadsync_editor::assistant::agent::{Draft, Event, Job};
+use deadsync_editor::assistant::agent::{Draft, Event, Job, PreviewChart};
 const INPUT_BYTE_LIMIT: usize = 8192;
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum ProposalSource {
@@ -17,12 +17,15 @@ pub(super) struct Ui {
     input: String,
     transcript: String,
     conversation: String,
+    pending_input: Option<String>,
     job: Option<Job>,
     draft: Option<PendingDraft>,
     bridge: Option<deadsync_editor::assistant::bridge::Bridge>,
     bridge_generation: u64,
     scroll: usize,
     preview: Option<(String, deadsync_editor::notes::Grid)>,
+    preview_charts: Vec<PreviewChart>,
+    preview_index: usize,
     preview_open: bool,
     preview_row: u64,
 }
@@ -68,6 +71,8 @@ impl State {
         }
         self.assistant.draft = None;
         self.assistant.preview = None;
+        self.assistant.preview_charts.clear();
+        self.assistant.preview_open = false;
     }
     pub(super) fn assistant_accepts_input(&self) -> bool {
         self.assistant.open && self.assistant.job.is_none() && !self.assistant.preview_open
@@ -110,14 +115,51 @@ impl State {
         true
     }
     fn assistant_prepare_preview(&mut self) {
-        self.assistant.preview = self
-            .assistant
-            .draft
-            .as_ref()
-            .and_then(|d| d.draft.preview_grid(&self.workspace).ok())
-            .flatten();
+        self.assistant.preview_charts.clear();
+        self.assistant.preview_index = 0;
+        if let Some(pending) = &self.assistant.draft {
+            match pending.draft.preview_charts(&self.workspace) {
+                Ok(charts) => self.assistant.preview_charts = charts,
+                Err(error) => self.assistant.transcript.push_str(&format!("\n{error}\n")),
+            }
+        }
         self.assistant.preview_open = false;
+        self.assistant_load_preview();
+    }
+    fn assistant_load_preview(&mut self) {
+        self.assistant.preview = None;
         self.assistant.preview_row = 0;
+        if let Some(chart) = self
+            .assistant
+            .preview_charts
+            .get(self.assistant.preview_index)
+            && let Some(pending) = &self.assistant.draft
+        {
+            match pending.draft.preview_chart(&self.workspace, chart) {
+                Ok(grid) => {
+                    let version = i18n::tr(
+                        "Edition",
+                        if chart.before {
+                            "AssistantPreviewBefore"
+                        } else {
+                            "AssistantPreviewAfter"
+                        },
+                    );
+                    self.assistant.preview = Some((
+                        format!(
+                            "{} - {}: {} ({}/{})",
+                            version,
+                            chart.index + 1,
+                            chart.layout,
+                            self.assistant.preview_index + 1,
+                            self.assistant.preview_charts.len()
+                        ),
+                        grid,
+                    ));
+                }
+                Err(error) => self.assistant.transcript.push_str(&format!("\n{error}\n")),
+            }
+        }
     }
     pub(super) fn assistant_key(&mut self, event: &RawKeyboardEvent) {
         if !event.pressed {
@@ -126,6 +168,17 @@ impl State {
         if self.assistant.preview_open {
             match event.code {
                 KeyCode::Escape | KeyCode::F5 => self.assistant.preview_open = false,
+                KeyCode::ArrowLeft | KeyCode::ArrowRight
+                    if !self.assistant.preview_charts.is_empty() =>
+                {
+                    let count = self.assistant.preview_charts.len();
+                    self.assistant.preview_index = if event.code == KeyCode::ArrowRight {
+                        (self.assistant.preview_index + 1) % count
+                    } else {
+                        (self.assistant.preview_index + count - 1) % count
+                    };
+                    self.assistant_load_preview();
+                }
                 KeyCode::ArrowUp => {
                     self.assistant.preview_row = self.assistant.preview_row.saturating_sub(48)
                 }
@@ -197,6 +250,8 @@ impl State {
                     match draft.draft.apply(&mut self.workspace) {
                         Ok(()) => {
                             self.assistant.preview = None;
+                            self.assistant.preview_charts.clear();
+                            self.assistant.preview_open = false;
                             self.focus_position = None;
                             self.clear_unfocused_chart_selection();
                             self.refresh();
@@ -217,6 +272,7 @@ impl State {
                     && !self.assistant.input.trim().is_empty() =>
             {
                 let input = self.assistant.input.clone();
+                trim_front(&mut self.assistant.conversation, 16_384);
                 // Follow-ups refine the pending draft only while its original
                 // revision is still current; Job rejects stale proposals.
                 let prompt = format!(
@@ -232,9 +288,7 @@ impl State {
                         self.assistant
                             .transcript
                             .push_str(&format!("\n> {input}\n"));
-                        self.assistant
-                            .conversation
-                            .push_str(&format!("\nUser: {input}\n"));
+                        self.assistant.pending_input = Some(input);
                         self.assistant.input.clear();
                         self.assistant.scroll = 0;
                         self.assistant.job = Some(job);
@@ -256,6 +310,8 @@ impl State {
         {
             self.assistant.draft = None;
             self.assistant.preview = None;
+            self.assistant.preview_charts.clear();
+            self.assistant.preview_open = false;
             self.assistant
                 .transcript
                 .push_str(&format!("\n{}\n", i18n::tr("Edition", "AssistantStale")));
@@ -274,15 +330,24 @@ impl State {
             if let Some(result) = self.assistant.bridge.as_ref().and_then(|b| b.poll()) {
                 match result {
                     Ok(draft) if draft.is_current(&self.workspace) => {
-                        self.assistant.draft = Some(PendingDraft {
-                            source: ProposalSource::Mcp(self.assistant.bridge_generation),
-                            draft,
-                        });
-                        self.assistant_prepare_preview();
-                        self.assistant.transcript.push_str(&format!(
-                            "\nMCP: {}\n",
-                            i18n::tr("Edition", "AssistantReady")
-                        ));
+                        match draft.has_changes(&self.workspace) {
+                            Ok(false) => {}
+                            Ok(true) => {
+                                self.assistant.draft = Some(PendingDraft {
+                                    source: ProposalSource::Mcp(self.assistant.bridge_generation),
+                                    draft,
+                                });
+                                self.assistant_prepare_preview();
+                                self.assistant.transcript.push_str(&format!(
+                                    "\nMCP: {}\n",
+                                    i18n::tr("Edition", "AssistantReady")
+                                ));
+                            }
+                            Err(error) => self
+                                .assistant
+                                .transcript
+                                .push_str(&format!("\nMCP: {error}\n")),
+                        }
                     }
                     Ok(_) => self
                         .assistant
@@ -302,6 +367,7 @@ impl State {
                     .push_str(&format!("\n[{}]\n", assistant_tool_label(&name))),
                 Some(Event::Cancelled) => {
                     self.assistant.job = None;
+                    self.assistant.pending_input = None;
                     self.assistant.transcript.push_str(&format!(
                         "\n{}\n",
                         i18n::tr("Edition", "AssistantCancelled")
@@ -310,8 +376,14 @@ impl State {
                 }
                 Some(Event::Finished(result)) => {
                     self.assistant.job = None;
+                    let input = self.assistant.pending_input.take();
                     match result {
                         Ok(draft) => {
+                            if let Some(input) = input {
+                                self.assistant
+                                    .conversation
+                                    .push_str(&format!("\nUser: {input}\n"));
+                            }
                             self.assistant
                                 .conversation
                                 .push_str(&format!("Assistant: {}\n", draft.message));
@@ -345,6 +417,7 @@ impl State {
                 None => break,
             }
         }
+        trim_front(&mut self.assistant.conversation, 16_384);
         trim_front(&mut self.assistant.transcript, 131_072);
     }
     fn assistant_preview_actors(&self, actors: &mut Vec<Actor>) {
