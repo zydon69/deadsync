@@ -1524,15 +1524,9 @@ end }
         let config = GameplayConfig { global_offset_seconds: -0.008, ..Default::default() };
         let context = deadsync_shell::gameplay_entry::song_lua_context(&song, &charts,
             std::array::from_fn(|p| &payloads[p].timing), &profiles, &scroll, 1.0, viewport,
-            (854,480), 16.0/9.0, 0.0, &session, &config, "null", 1, true,
-            ).unwrap();
-        assert_eq!(song.charts.len(),
-                4,
-                "single, couple, routine and double remain available for playable selection"
-            );
-            assert_eq!(
-                context.song_step_chart_indices,
-                vec![Some(0), Some(1), Some(2), Some(3)]);
+            (854,480), 16.0/9.0, 0.0, &session, &config, "null", 1, true).unwrap();
+        assert_eq!(song.charts.len(), 4, "couple and routine are playable partner charts");
+        assert_eq!(context.song_step_chart_indices, vec![Some(0), Some(1), Some(2), Some(3)]);
         let mut prepared = deadsync_song_lua::playback::prepare_song_lua(&song, &context,
             deadsync_assets::song_lua::compile_song_lua, deadsync_assets::song_lua::compile_song_lua_layers,
             );

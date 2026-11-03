@@ -365,6 +365,7 @@ pub(super) fn execute_online(request: SimplyLoveOnlineConfigRequest) {
     use SimplyLoveOnlineConfigRequest as Request;
 
     match request {
+        Request::TwitchChat(options) => config::runtime_update::update_twitch_chat(options),
         Request::EnableGrooveStats(enabled) => {
             config::runtime_update::update_enable_groovestats(enabled)
         }
@@ -405,7 +406,12 @@ pub(super) fn execute_online(request: SimplyLoveOnlineConfigRequest) {
         Request::EnableGolf(enabled) => {
             if config::runtime::get().enable_golf != enabled {
                 config::runtime_update::update_enable_golf(enabled);
-                deadsync_score::runtime_invalidate_golf_leaderboards();
+                if enabled {
+                    // Turning golf on should change something visible: default the
+                    // wheel par badges to on. Turning it off leaves saved choices
+                    // alone, since the master switch already hides every golf display.
+                    config::runtime_update::update_select_music_show_golf_pars(true);
+                }
             }
         }
         Request::SubmitArrowCloudFails(enabled) => {
@@ -534,10 +540,10 @@ pub(super) fn execute_select_music(request: SimplyLoveSelectMusicConfigRequest) 
         Request::ScoreboxPlacement(mode) => {
             config::runtime_update::update_select_music_scorebox_placement(mode)
         }
+        Request::ScoreboxEventsFirst(enabled) => {
+            config::runtime_update::update_select_music_scorebox_events_first(enabled);
+        }
         Request::ScoreboxCycleMask(mask) => {
-            if config::runtime::get().select_music_scorebox_cycle_golf != (mask & (1 << 4) != 0) {
-                deadsync_score::runtime_invalidate_golf_leaderboards();
-            }
             config::runtime_update::update_select_music_scorebox_cycle_golf(mask & (1 << 4) != 0);
             config::runtime_update::update_select_music_scorebox_cycle_itg(mask & (1 << 0) != 0);
             config::runtime_update::update_select_music_scorebox_cycle_ex(mask & (1 << 1) != 0);

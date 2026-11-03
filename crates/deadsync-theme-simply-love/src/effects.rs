@@ -611,6 +611,7 @@ pub enum SimplyLoveSelectMusicConfigRequest {
     ShowScorebox(bool),
     ScoreboxPlacement(SelectMusicScoreboxPlacement),
     ScoreboxCycleMask(u8),
+    ScoreboxEventsFirst(bool),
     ChartInfoMask(u8),
 }
 
@@ -837,6 +838,7 @@ pub enum SimplyLoveLightsConfigRequest {
 /// Online preferences chosen by Simply Love and persisted by shell.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum SimplyLoveOnlineConfigRequest {
+    TwitchChat(deadsync_config::streaming::TwitchOptions),
     EnableGrooveStats(bool),
     ShowSrpgShop(bool),
     SrpgShopFolder(SimplyLoveSrpgShopFolder),

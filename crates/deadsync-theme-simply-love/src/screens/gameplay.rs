@@ -187,6 +187,10 @@ fn player_blue_window_ms(state: &GameplayCoreState, player_idx: usize) -> f32 {
 /// Compare the precise normal score values rather than their formatted or
 /// predictive display values, matching the upstream theme's behavior.
 pub fn gameplay_score_leader_alphas(state: &GameplayCoreState) -> [f32; MAX_PLAYERS] {
+    // Routine participants play for one shared score, so neither trails.
+    if state.setup.session.play_style.is_routine() {
+        return [1.0; MAX_PLAYERS];
+    }
     let golf: [bool; MAX_PLAYERS] = std::array::from_fn(|i| {
         let p = &state.profiles()[i];
         p.show_golf_score
@@ -1445,6 +1449,30 @@ impl State {
             .unwrap_or(DEFAULT_NOTEFIELD_WIDTH)
     }
 
+    pub fn twitch_chat_layout(&self) -> super::components::shared::twitch_chat::GameplayLayout {
+        let style = self.hud_snapshot.play_style;
+        let p2 = self.hud_snapshot.player_side == profile_data::PlayerSide::P2;
+        let centered = style.is_double() || self.runtime_view.policy.center_single_notefield;
+        let sign = if p2 { 1.0 } else { -1.0 };
+        let w = screen_width();
+        let center = w * 0.5
+            + if centered {
+                0.0
+            } else {
+                sign * w.clamp(640.0, 854.0) * 0.25
+            }
+            + sign * self.profiles()[0].note_field_offset_x.clamp(0, 50) as f32;
+        let half_width = self.notefield_width(0) * self.field_zoom_for_player(0) * 0.5;
+        super::components::shared::twitch_chat::GameplayLayout {
+            two_players: self.num_players() > 1,
+            p2,
+            centered,
+            field_left: center - half_width,
+            field_right: center + half_width,
+            statistics: self.step_stats_mode != GameplayStepStatsMode::Hidden,
+        }
+    }
+
     #[inline(always)]
     const fn display_mods_text(&self, player: usize) -> &Arc<str> {
         &self.display_mods_text[player]
@@ -2352,7 +2380,8 @@ fn gameplay_lobby_player_stats(
     };
     Some(lobby_data::MachinePlayerStats {
         judgments: Some(judgments),
-        score: Some((state.display_itg_score_percent(player_idx) * 100.0) as f32),
+        // Each participant's own score, like its judgments and EX score.
+        score: Some((state.participant_display_itg_score_percent(player_idx) * 100.0) as f32),
         ex_score: Some(state.display_ex_score_percent(player_idx, blue_window_ms) as f32),
     })
 }
@@ -4677,6 +4706,10 @@ pub fn frame_layers<'a>(
                 let Some(rgba) = state.danger_overlay_rgba(player_idx, hide_lifebar) else {
                     continue;
                 };
+                // Routine's participants share one life meter and one danger state.
+                if play_style.is_routine() && player_idx > 0 {
+                    continue;
+                }
                 let (x, w, fl, fr) = match play_style {
                     profile_data::PlayStyle::Double | profile_data::PlayStyle::PumpDouble
                     | profile_data::PlayStyle::Routine
@@ -4711,15 +4744,18 @@ pub fn frame_layers<'a>(
             }
         }
         ScreenLayer::Filter => {
+            // Simply Love draws Routine's background filter for the master
+            // player only, since both fields share one position.
+            let filter_players = if play_style.is_routine() { 1 } else { state.num_players() };
             let has_background_filter = per_player_fields.iter().any(|&(player_idx, _)| {
                 player_idx != usize::MAX
-                    && player_idx < state.num_players()
+                    && player_idx < filter_players
                     && state.profiles()[player_idx].background_filter.alpha() > 0.0
             });
             if has_background_filter {
                 presentation_skeleton.push(STATIC_FILTER, actors, |actors| {
                     for &(player_idx, field_x) in &per_player_fields {
-                        if player_idx == usize::MAX || player_idx >= state.num_players() {
+                        if player_idx == usize::MAX || player_idx >= filter_players {
                             continue;
                         }
                         let filter_alpha = state.profiles()[player_idx].background_filter.alpha();
@@ -4758,7 +4794,9 @@ pub fn frame_layers<'a>(
             let player_count = match play_style {
                 profile_data::PlayStyle::Versus | profile_data::PlayStyle::PumpVersus
                 | profile_data::PlayStyle::Couple
-                | profile_data::PlayStyle::PumpCouple => {
+                | profile_data::PlayStyle::PumpCouple
+                | profile_data::PlayStyle::Routine
+                | profile_data::PlayStyle::PumpRoutine => {
                     players[0] = (
                         0,
                         profile_data::PlayerSide::P1,
@@ -5197,7 +5235,9 @@ pub fn frame_layers<'a>(
                     let color_index = match play_style {
                         profile_data::PlayStyle::Versus | profile_data::PlayStyle::PumpVersus
                         | profile_data::PlayStyle::Couple
-                        | profile_data::PlayStyle::PumpCouple => {
+                        | profile_data::PlayStyle::PumpCouple
+                        | profile_data::PlayStyle::Routine
+                        | profile_data::PlayStyle::PumpRoutine => {
                             if player_idx == 0 {
                                 state.active_color_index()
                             } else {
@@ -5225,7 +5265,9 @@ pub fn frame_layers<'a>(
                 let life_player_count = match play_style {
                     profile_data::PlayStyle::Versus | profile_data::PlayStyle::PumpVersus
                     | profile_data::PlayStyle::Couple
-                    | profile_data::PlayStyle::PumpCouple => {
+                    | profile_data::PlayStyle::PumpCouple
+                    | profile_data::PlayStyle::Routine
+                    | profile_data::PlayStyle::PumpRoutine => {
                         life_players[0] = (0, profile_data::PlayerSide::P1);
                         life_players[1] = (1, profile_data::PlayerSide::P2);
                         2
@@ -5281,7 +5323,9 @@ pub fn frame_layers<'a>(
                                     profile_data::PlayStyle::Versus
                                     | profile_data::PlayStyle::PumpVersus
                                     | profile_data::PlayStyle::Couple
-                                    | profile_data::PlayStyle::PumpCouple => match side {
+                                    | profile_data::PlayStyle::PumpCouple
+                                    | profile_data::PlayStyle::Routine
+                                    | profile_data::PlayStyle::PumpRoutine => match side {
                                         profile_data::PlayerSide::P1 => -widescale(238.0, 288.0),
                                         profile_data::PlayerSide::P2 => widescale(238.0, 288.0),
                                     },
@@ -5536,6 +5580,16 @@ pub fn frame_layers<'a>(
             }
             match state.step_stats_mode {
                 GameplayStepStatsMode::Hidden => {}
+                GameplayStepStatsMode::Side
+                    if centered_single_notefield && !is_wide() =>
+                {
+                    gameplay_stats::push_centered_single_split_step_stats(
+                        actors,
+                        state,
+                        asset_manager,
+                        playfield_center_x,
+                    );
+                }
                 GameplayStepStatsMode::Side => gameplay_stats::push_step_stats(
                     actors,
                     state,

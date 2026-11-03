@@ -640,6 +640,7 @@ mod tests {
             meter,
             lanes: if doubles { 8 } else { 4 },
             notes: Arc::from(Vec::<PreviewNote>::new()),
+            holds: Arc::from(Vec::new()),
         }
     }
 
@@ -774,6 +775,7 @@ mod tests {
                 cols: 0b0001,
                 lifts: 0,
                 mines: 0,
+                holds: 0,
                 quant: 0,
             },
             PreviewNote {
@@ -781,6 +783,7 @@ mod tests {
                 cols: 0b0010,
                 lifts: 0,
                 mines: 0b0010,
+                holds: 0,
                 quant: 1,
             },
             PreviewNote {
@@ -788,6 +791,7 @@ mod tests {
                 cols: 0b1000,
                 lifts: 0,
                 mines: 0,
+                holds: 0,
                 quant: 0,
             },
         ]);
@@ -825,6 +829,7 @@ mod tests {
             cols: 0b0100,
             lifts: 0,
             mines: 0,
+            holds: 0,
             quant: 0,
         }]);
         let mut state = previewing(vec![taps.clone()]);

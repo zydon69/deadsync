@@ -289,6 +289,9 @@ const fn gameplay_target_score_setting(
         deadsync_profile::TargetScoreSetting::MachineBest => {
             deadsync_gameplay::GameplayTargetScoreSetting::MachineBest
         }
+        deadsync_profile::TargetScoreSetting::GhostData => {
+            deadsync_gameplay::GameplayTargetScoreSetting::GhostData
+        }
         deadsync_profile::TargetScoreSetting::PersonalBest => {
             deadsync_gameplay::GameplayTargetScoreSetting::PersonalBest
         }
@@ -1682,6 +1685,36 @@ where
     }
 }
 
+/// FillInRoutineHighScore: the Routine score that both participants share,
+/// saved once for the master player.
+fn routine_local_score_player_from_runtime<'a, RuntimeProfile, OverlayActor, CapturedActor, StateDelta>(
+    gs: &'a deadsync_gameplay::GameplayRuntimeState<
+        RuntimeProfile,
+        OverlayActor,
+        CapturedActor,
+        StateDelta,
+    >,
+    profile_id: String,
+    scoring_counts: &'a deadsync_rules::judgment::JudgeCounts,
+) -> deadsync_score::LocalScoreGameplayPlayer<'a>
+where
+    RuntimeProfile:
+        Deref<Target = deadsync_profile::Profile> + deadsync_gameplay::GameplayProfileData,
+{
+    // Init appends the second participant's notes right after the first's.
+    let (start, first_end) = gs.note_range_for_player(0);
+    let (second_start, end) = gs.note_range_for_player(1);
+    debug_assert_eq!(first_end, second_start);
+    deadsync_score::routine_shared_local_score_player(
+        local_score_player_from_runtime(gs, 0, profile_id),
+        local_score_player_from_runtime(gs, 1, String::new()),
+        scoring_counts,
+        &gs.notes()[start..end],
+        &gs.note_time_cache_ns()[start..end],
+        &gs.hold_end_time_cache_ns()[start..end],
+    )
+}
+
 pub fn save_local_scores_from_runtime<
     RuntimeProfile,
     OverlayActor,
@@ -1711,10 +1744,25 @@ pub fn save_local_scores_from_runtime<
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_millis() as i64)
         .unwrap_or(0);
-    let players = (0..gs.num_players()).filter_map(|player_idx| {
-        let profile_id = active_profile_id_for_player(gs.num_players(), player_idx)?;
-        Some(local_score_player_from_runtime(gs, player_idx, profile_id))
+    // StageStats::CommitScores fills only the master player's high score in
+    // Routine, from the shared stats both participants earned together.
+    let routine_counts = gs.setup.session.play_style.is_routine().then(|| {
+        let [first, second] = [&gs.players()[0].scoring_counts, &gs.players()[1].scoring_counts];
+        std::array::from_fn(|ix| first[ix].saturating_add(second[ix]))
     });
+    let players: Vec<_> = if let Some(counts) = routine_counts.as_ref() {
+        active_profile_id_for_player(gs.num_players(), 0)
+            .map(|profile_id| routine_local_score_player_from_runtime(gs, profile_id, counts))
+            .into_iter()
+            .collect()
+    } else {
+        (0..gs.num_players())
+            .filter_map(|player_idx| {
+                let profile_id = active_profile_id_for_player(gs.num_players(), player_idx)?;
+                Some(local_score_player_from_runtime(gs, player_idx, profile_id))
+            })
+            .collect()
+    };
     deadsync_score::save_local_gameplay_scores(
         played_at_ms,
         gs.music_rate(),
@@ -1736,6 +1784,29 @@ pub fn save_local_scores_from_app_runtime<RuntimeProfile, OverlayActor, Captured
     RuntimeProfile:
         Deref<Target = deadsync_profile::Profile> + deadsync_gameplay::GameplayProfileData,
 {
+    for player in 0..gs.num_players() {
+        let Some(histories) = gs.ghost_history_for_save(player) else {
+            continue;
+        };
+        let Some((_, id)) =
+            deadsync_profile::app_runtime::active_local_profile_id_for_gameplay_player(
+                gs.num_players(),
+                player,
+            )
+        else {
+            continue;
+        };
+        let Some(chart) = gs.chart(player) else {
+            continue;
+        };
+        let dir = deadsync_profile::app_runtime::local_profile_dir(&id);
+        if let Err(error) = deadsync_score::ghost::save_best(&dir, &chart.short_hash, histories) {
+            log::warn!(
+                "Could not save ghost history for {}: {error}",
+                chart.short_hash
+            );
+        }
+    }
     save_local_scores_from_runtime(
         gs,
         |num_players, player_idx| {

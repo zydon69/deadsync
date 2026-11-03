@@ -1607,6 +1607,47 @@ fn golf_master_switch_reveals_options_and_preserves_saved_selections() {
 }
 
 #[test]
+fn enabling_golf_defaults_wheel_pars_on_and_disabling_keeps_the_choice() {
+    let assets = AssetManager::new();
+    let mut state = init_with_config(config::app_config::Config {
+        select_music_show_golf_pars: false,
+        ..Default::default()
+    });
+    let pars_row = SELECT_MUSIC_OPTIONS_ROWS
+        .iter()
+        .position(|row| row.id == SubRowId::ShowGolfPars)
+        .unwrap();
+    assert_eq!(
+        state.sub[SubmenuKind::SelectMusic].choice_indices[pars_row],
+        0
+    );
+
+    state.view = OptionsView::Submenu(SubmenuKind::ArrowCloud);
+    select_visible_row(&mut state, SubmenuKind::ArrowCloud, SubRowId::EnableGolf);
+    apply_submenu_choice_delta(&mut state, &assets, 1, NavWrap::Clamp).unwrap();
+    assert!(golf_features_enabled(&state));
+    assert_eq!(
+        state.sub[SubmenuKind::SelectMusic].choice_indices[pars_row],
+        1,
+        "enabling golf turns the wheel par badges on"
+    );
+    assert_eq!(
+        state.sub[SubmenuKind::SelectMusic].cursor_indices[pars_row],
+        1
+    );
+
+    // A player who then turns the badges off keeps that choice when golf is disabled.
+    state.sub[SubmenuKind::SelectMusic].choice_indices[pars_row] = 0;
+    state.sub[SubmenuKind::SelectMusic].cursor_indices[pars_row] = 0;
+    apply_submenu_choice_delta(&mut state, &assets, -1, NavWrap::Clamp).unwrap();
+    assert!(!golf_features_enabled(&state));
+    assert_eq!(
+        state.sub[SubmenuKind::SelectMusic].choice_indices[pars_row],
+        0
+    );
+}
+
+#[test]
 fn arrowcloud_enable_persists_before_reinitializing_services() {
     let asset_manager = AssetManager::new();
     let mut state = init();
@@ -3970,4 +4011,40 @@ mod enumeration {
         env!("CARGO_MANIFEST_DIR"),
         "/../../tests/perf/option_enumeration.rs"
     ));
+}
+
+#[test]
+fn pack_sync_styles_options_can_measure_a_doubles_only_pack_from_singles() {
+    let parsed = deadsync_simfile::song::parse_song_bytes(
+        b"#TITLE:Doubles only;#BPMS:0=120;#NOTES:dance-double::Hard:9:0,0,0,0,0:10000000\n;",
+        "sm",
+        std::path::Path::new("Songs/Doubles only/Song/song.sm"),
+        &deadsync_simfile::song::ParseSongOptions::new(Vec::new(), Vec::new(), Vec::new()),
+        |_| 0.0,
+    )
+    .unwrap();
+    let song = Arc::new(deadsync_simfile::cache::build_song_meta(parsed, 0.0));
+    let mut state = init();
+    assert_eq!(state.pack_sync.target_chart_type, "dance-single");
+    state.song_packs = vec![crate::views::OptionsSongPackView {
+        group_name: "Doubles only".to_owned(),
+        display_name: "Doubles only".to_owned(),
+        songs: vec![Arc::clone(&song)],
+    }];
+    super::pack_sync::begin_pack_sync(
+        &mut state,
+        super::pack_sync::SyncPackSelection {
+            pack_group: Some("Doubles only".to_owned()),
+            pack_label: "Doubles only".to_owned(),
+        },
+    );
+    let Some(crate::SimplyLoveSyncRequest::StartAnalysis { owner, targets, .. }) =
+        state.pending_sync.pop()
+    else {
+        panic!("Options must queue a doubles-only pack in singles mode");
+    };
+    assert_eq!(owner, crate::SimplyLoveSyncOwner::OptionsPack);
+    assert_eq!(targets.len(), 1);
+    assert!(Arc::ptr_eq(&targets[0].song, &song));
+    assert_eq!(targets[0].chart_ix, 0);
 }

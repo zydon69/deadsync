@@ -12,6 +12,7 @@ use serde::Serialize;
 use smallvec::{SmallVec, smallvec};
 use std::collections::{HashMap, HashSet};
 use std::error::Error;
+use std::fmt::Write as _;
 use std::path::Path;
 use std::sync::atomic::{AtomicU64, Ordering as AtomicOrdering};
 use std::sync::{Arc, LazyLock, Mutex, MutexGuard};
@@ -19,6 +20,7 @@ use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 pub mod column_judgments;
 pub mod event_progress;
+pub mod ghost;
 pub mod import;
 pub mod itl;
 pub mod leaderboard;
@@ -1549,9 +1551,7 @@ pub fn runtime_read_best_itg_score_for_profile(
         runtime_get_local_itg_score_for_profile(profile_id, chart_hash, score_paths);
     let (gs, gs_result) = runtime_get_gs_score_for_profile(profile_id, chart_hash, score_paths);
     let (ac, ac_result) = runtime_get_ac_scores_for_profile(profile_id, chart_hash, score_paths);
-    let ac = ac
-        .and_then(|scores| scores.itg)
-        .map(|score| score.to_cached_score());
+    let ac = ac.and_then(|scores| scores.to_cached_itg_score());
     ScoreCacheAccess {
         value: best_cached_itg_score([local, gs, ac]),
         results: smallvec![
@@ -2116,8 +2116,7 @@ impl HeldProfileScores<'_> {
                     [
                         local_itg.copied(),
                         self.gs.and_then(|scores| scores.get(chart_hash).copied()),
-                        ac.and_then(|scores| scores.itg)
-                            .map(|score| score.to_cached_score()),
+                        ac.and_then(ArrowCloudScores::to_cached_itg_score),
                     ]
                     .into_iter()
                     .flatten()
@@ -2152,9 +2151,8 @@ impl HeldProfileScores<'_> {
         let gs = self.gs.and_then(|scores| scores.get(chart_hash).copied());
         let ac = self
             .ac
-            .and_then(|scores| scores.get(chart_hash).copied())
-            .and_then(|score| score.itg)
-            .map(|score| score.to_cached_score());
+            .and_then(|scores| scores.get(chart_hash))
+            .and_then(ArrowCloudScores::to_cached_itg_score);
         best_cached_itg_score([local, gs, ac])
     }
 }
@@ -2201,8 +2199,8 @@ fn merged_profile_scores_from_sources<'a>(
                 .count();
             let mut merged = Vec::with_capacity(itg_count);
             for (chart_hash, scores) in scores {
-                if let Some(score) = scores.itg {
-                    merged.push((chart_hash.clone(), score.to_cached_score()));
+                if let Some(score) = scores.to_cached_itg_score() {
+                    merged.push((chart_hash.clone(), score));
                 }
             }
             sort_profile_scores(&mut merged);
@@ -2235,8 +2233,8 @@ fn merged_profile_scores_from_sources<'a>(
     }
     if let Some(scores) = ac {
         for (chart_hash, score) in scores {
-            if let Some(score) = score.itg {
-                insert(chart_hash, score.to_cached_score());
+            if let Some(score) = score.to_cached_itg_score() {
+                insert(chart_hash, score);
             }
         }
     }
@@ -2999,7 +2997,8 @@ impl<'de, C> bincode::BorrowDecode<'de, C> for ArrowCloudScore {
 }
 
 impl ArrowCloudScore {
-    /// Adapter used to merge AC cache entries with local and `GrooveStats` scores.
+    /// Convert an ITG entry without EX evidence, so its grade is at most a quad.
+    /// Use [`ArrowCloudScores::to_cached_itg_score`] when merging cached scores.
     #[must_use]
     pub fn to_cached_score(&self) -> CachedScore {
         let score_10000 = (self.score_percent * 10000.0).clamp(0.0, 10000.0);
@@ -3026,6 +3025,25 @@ pub struct ArrowCloudScores {
     pub itg: Option<ArrowCloudScore>,
     pub ex: Option<ArrowCloudScore>,
     pub hard_ex: Option<ArrowCloudScore>,
+}
+
+impl ArrowCloudScores {
+    /// Resolve the ITG grade and lamp using EX evidence for quints.
+    #[must_use]
+    pub fn to_cached_itg_score(&self) -> Option<CachedScore> {
+        let mut score = self.itg?.to_cached_score();
+        // A 100% ITG score alone only proves a quad. The best EX play may
+        // differ from the best ITG play, but a passed 100% EX proves a quint.
+        if score.grade != Grade::Failed
+            && self
+                .ex
+                .is_some_and(|ex| !ex.is_fail && ex.score_percent >= 1.0)
+        {
+            score.grade = Grade::Quint;
+            score.lamp_index = Some(0);
+        }
+        Some(score)
+    }
 }
 
 #[inline]
@@ -3364,13 +3382,14 @@ pub fn parse_gs_comment_counts(comment: &str) -> GsCommentCounts {
 
         let mut value: u32 = 0;
         let mut idx = 0usize;
-        for (i, ch) in s.char_indices() {
-            if let Some(d) = ch.to_digit(10) {
-                value = value.saturating_mul(10).saturating_add(d);
-                idx = i + ch.len_utf8();
-            } else {
+        for &byte in s.as_bytes() {
+            if !byte.is_ascii_digit() {
                 break;
             }
+            value = value
+                .saturating_mul(10)
+                .saturating_add(u32::from(byte - b'0'));
+            idx += 1;
         }
         if value == 0 {
             continue;
@@ -4527,6 +4546,50 @@ pub struct LocalScoreGameplayPlayer<'a> {
     pub replay: Vec<LocalReplayEdge>,
 }
 
+/// StageStats::FillInRoutineHighScore: one Routine score from the shared stats
+/// both participants earned, saved for the master (`first`) player. `notes` and
+/// its caches cover both participants' notes.
+#[must_use]
+pub fn routine_shared_local_score_player<'a>(
+    mut first: LocalScoreGameplayPlayer<'a>,
+    second: LocalScoreGameplayPlayer<'a>,
+    scoring_counts: &'a judgment::JudgeCounts,
+    notes: &'a [Note],
+    note_times: &'a [SongTimeNs],
+    hold_end_times: &'a [SongTimeNs],
+) -> LocalScoreGameplayPlayer<'a> {
+    for reason in second.invalid_reasons {
+        if !first.invalid_reasons.contains(&reason) {
+            first.invalid_reasons.push(reason);
+        }
+    }
+    first.score_valid &= second.score_valid;
+    first.scoring_counts = scoring_counts;
+    first.holds_held_for_score += second.holds_held_for_score;
+    first.rolls_held_for_score += second.rolls_held_for_score;
+    first.mines_hit_for_score += second.mines_hit_for_score;
+    first.possible_grade_points += second.possible_grade_points;
+    first.notes = notes;
+    first.note_times = note_times;
+    first.hold_end_times = hold_end_times;
+    first.total_steps += second.total_steps;
+    first.holds_total += second.holds_total;
+    first.rolls_total += second.rolls_total;
+    first.mines_total += second.mines_total;
+    for (count, other) in first.counts.iter_mut().zip(second.counts) {
+        *count += other;
+    }
+    first.white_fantastics = first
+        .white_fantastics
+        .zip(second.white_fantastics)
+        .map(|(first, second)| first + second);
+    first.holds_held += second.holds_held;
+    first.rolls_held += second.rolls_held;
+    first.mines_avoided += second.mines_avoided;
+    first.hands_achieved += second.hands_achieved;
+    first
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum LocalScoreGameplaySaveSkip {
     Autoplay,
@@ -5579,16 +5642,15 @@ pub fn score_import_pack_detail(
     pack_misses: usize,
     pack_failures: usize,
 ) -> String {
-    format!(
-        "Pack {}/{}: {pack_name} -> {pack_hits} hit, {pack_misses} missing{}",
+    let mut detail = format!(
+        "Pack {}/{}: {pack_name} -> {pack_hits} hit, {pack_misses} missing",
         pack_idx + 1,
         total_packs,
-        if pack_failures > 0 {
-            format!(", {pack_failures} failed")
-        } else {
-            String::new()
-        },
-    )
+    );
+    if pack_failures > 0 {
+        write!(detail, ", {pack_failures} failed").expect("writing to a String cannot fail");
+    }
+    detail
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -6053,16 +6115,16 @@ pub fn score_import_pack_complete_detail(
     pack_misses: usize,
     pack_failures: usize,
 ) -> String {
-    format!(
-        "Pack {}/{} complete: {pack_name} ({pack_chart_count} charts -> {pack_hits} hit, {pack_misses} missing{}).",
+    let mut detail = format!(
+        "Pack {}/{} complete: {pack_name} ({pack_chart_count} charts -> {pack_hits} hit, {pack_misses} missing",
         pack_idx + 1,
         total_packs,
-        if pack_failures > 0 {
-            format!(", {pack_failures} failed")
-        } else {
-            String::new()
-        },
-    )
+    );
+    if pack_failures > 0 {
+        write!(detail, ", {pack_failures} failed").expect("writing to a String cannot fail");
+    }
+    detail.push_str(").");
+    detail
 }
 
 #[must_use]
@@ -6136,8 +6198,8 @@ pub fn collect_chart_hashes_per_pack_for_import(
     let single_filter = nonempty_filters
         .next()
         .filter(|_| nonempty_filters.next().is_none());
-    let filter_set: HashSet<String> = if single_filter.is_some() {
-        HashSet::new()
+    let filter_set: HashSet<String, FxBuildHasher> = if single_filter.is_some() {
+        HashSet::default()
     } else {
         pack_groups_filter
             .iter()
@@ -6147,7 +6209,7 @@ pub fn collect_chart_hashes_per_pack_for_import(
     };
 
     let mut out: Vec<(String, Vec<String>)> = Vec::new();
-    let mut seen: HashSet<&str> = HashSet::new();
+    let mut seen: HashSet<&str, FxBuildHasher> = HashSet::default();
     let mut name_scratch = String::with_capacity(if filter_set.is_empty() { 0 } else { 64 });
     for pack in song_packs {
         let group_name = pack.group_name.trim();
@@ -6203,7 +6265,7 @@ pub fn collect_chart_hashes_per_pack_for_import(
 fn push_unique_import_chart_hash<'a>(
     raw_chart_hash: &'a str,
     existing_scores: &HashSet<String>,
-    seen: &mut HashSet<&'a str>,
+    seen: &mut HashSet<&'a str, FxBuildHasher>,
     hashes: &mut Vec<String>,
 ) {
     let chart_hash = raw_chart_hash.trim();
@@ -8828,6 +8890,99 @@ mod tests {
     }
 
     #[test]
+    fn routine_shared_score_sums_both_participants_for_the_master() {
+        let mut first_counts = [0u32; judgment::JUDGE_GRADE_COUNT];
+        first_counts[judgment::judge_grade_ix(judgment::JudgeGrade::Fantastic)] = 2;
+        let mut second_counts = [0u32; judgment::JUDGE_GRADE_COUNT];
+        second_counts[judgment::judge_grade_ix(judgment::JudgeGrade::Miss)] = 1;
+        let shared_counts: judgment::JudgeCounts =
+            std::array::from_fn(|ix| first_counts[ix] + second_counts[ix]);
+        let notes: [Note; 0] = [];
+        let times: [SongTimeNs; 0] = [];
+        fn player<'a>(
+            player_idx: usize,
+            counts: &'a judgment::JudgeCounts,
+            steps: u32,
+            reasons: Vec<&'a str>,
+        ) -> LocalScoreGameplayPlayer<'a> {
+            LocalScoreGameplayPlayer {
+                player_idx,
+                profile_id: format!("profile-{player_idx}"),
+                profile_initials: "AAA",
+                chart_hash: "routine",
+                score_valid: reasons.is_empty(),
+                invalid_reasons: reasons,
+                scoring_counts: counts,
+                holds_held_for_score: 1,
+                rolls_held_for_score: 0,
+                mines_hit_for_score: 0,
+                possible_grade_points: (steps * 5) as i32,
+                song_completed_naturally: true,
+                is_failing: false,
+                life: 0.5,
+                fail_time: None,
+                notes: &[],
+                note_times: &[],
+                hold_end_times: &[],
+                total_steps: steps,
+                holds_total: 1,
+                rolls_total: 0,
+                mines_total: 0,
+                counts: [steps, 0, 0, 0, 0, 0],
+                white_fantastics: Some(steps),
+                holds_held: 1,
+                rolls_held: 0,
+                mines_avoided: 0,
+                hands_achieved: 0,
+                beat0_time_ns: 7,
+                replay: Vec::new(),
+            }
+        }
+        let shared = routine_shared_local_score_player(
+            player(0, &first_counts, 2, Vec::new()),
+            player(1, &second_counts, 1, vec!["mods"]),
+            &shared_counts,
+            &notes,
+            &times,
+            &times,
+        );
+        assert_eq!(shared.player_idx, 0);
+        assert_eq!(shared.profile_id, "profile-0");
+        assert_eq!(shared.scoring_counts, &shared_counts);
+        assert_eq!(shared.possible_grade_points, 15);
+        assert_eq!(shared.total_steps, 3);
+        assert_eq!(shared.holds_held_for_score, 2);
+        assert_eq!(shared.counts[0], 3);
+        assert_eq!(shared.white_fantastics, Some(3));
+        assert_eq!(shared.beat0_time_ns, 7);
+        // Either participant's invalid score invalidates the shared one.
+        assert!(!shared.score_valid);
+        assert_eq!(shared.invalid_reasons, ["mods"]);
+
+        let mut written = Vec::new();
+        save_local_gameplay_scores(
+            1,
+            1.0,
+            false,
+            [routine_shared_local_score_player(
+                player(0, &first_counts, 2, Vec::new()),
+                player(1, &second_counts, 1, Vec::new()),
+                &shared_counts,
+                &notes,
+                &times,
+                &times,
+            )],
+            |profile, _, _, entry: &mut LocalScoreEntry| {
+                written.push((profile.to_string(), entry.score_percent));
+                true
+            },
+            |_| {},
+        );
+        let expected = judgment::calculate_itg_score_percent_from_counts(&shared_counts, 2, 0, 0, 15);
+        assert_eq!(written, [("profile-0".to_string(), expected)]);
+    }
+
+    #[test]
     fn save_local_gameplay_scores_skips_invalid_and_writes_valid() {
         let mut counts = [0u32; judgment::JUDGE_GRADE_COUNT];
         counts[judgment::judge_grade_ix(judgment::JudgeGrade::Fantastic)] = 80;
@@ -9037,6 +9192,10 @@ mod tests {
         assert_eq!(
             arrowcloud_pane_kind_from_type("EX"),
             Some(ArrowCloudPaneKind::Ex)
+        );
+        assert_eq!(
+            arrowcloud_pane_kind_from_type("Golf"),
+            Some(ArrowCloudPaneKind::Golf)
         );
         assert_eq!(arrowcloud_pane_kind_from_type("event"), None);
     }
@@ -9961,6 +10120,67 @@ mod tests {
             played_at: None,
             play_id: None,
             is_fail,
+        }
+    }
+
+    #[test]
+    fn arrowcloud_quints_reach_wheel_grades_lamps_and_profile_snapshots() {
+        let quad = cached_score(Grade::Tier01, 1.0, Some(1), None);
+        let quint = cached_score(Grade::Quint, 1.0, Some(0), None);
+        let failed = cached_score(Grade::Failed, 1.0, None, None);
+        for (ex_percent, ex_failed, itg_failed, expected) in [
+            (Some(100.0), false, false, quint),
+            (Some(99.9999), false, false, quad),
+            (None, false, false, quad),
+            (Some(100.0), true, false, quad),
+            (Some(100.0), false, true, failed),
+        ] {
+            let scores = ArrowCloudScores {
+                itg: arrowcloud_score_from_retrieve_fields(
+                    Some(100.0),
+                    Some("Quad"),
+                    None,
+                    Some(1),
+                    itg_failed,
+                ),
+                ex: arrowcloud_score_from_retrieve_fields(
+                    ex_percent,
+                    None,
+                    None,
+                    Some(2),
+                    ex_failed,
+                ),
+                hard_ex: None,
+            };
+            // Existing on-disk imports must gain quints without re-importing.
+            let config = bincode::config::standard();
+            let bytes = bincode::encode_to_vec(scores, config).unwrap();
+            let (scores, _): (ArrowCloudScores, _) =
+                bincode::decode_from_slice(&bytes, config).unwrap();
+            let ac = HashMap::from([("chart".to_string(), scores)]);
+            let mut local = LocalScoreIndex::default();
+            local.best_itg.insert("chart".to_string(), quad);
+            let gs = HashMap::from([("chart".to_string(), quad)]);
+            for (local, gs) in [(None, None), (Some(&local), Some(&gs))] {
+                let profile = HeldProfileScores {
+                    profile_id: "player",
+                    local,
+                    gs,
+                    ac: Some(&ac),
+                };
+                assert_eq!(profile.merged("chart"), Some(expected));
+                assert_eq!(
+                    merged_profile_scores_from_sources(
+                        local.map(|index| &index.best_itg),
+                        gs,
+                        Some(&ac),
+                    ),
+                    vec![("chart".to_string(), expected)]
+                );
+                let expected_lamp = CachedLamp::from_score(expected)
+                    .or_else(|| local.and_then(|_| CachedLamp::from_score(quad)));
+                assert_eq!(profile.wheel_scores("chart").lamp, expected_lamp);
+            }
         }
     }
 

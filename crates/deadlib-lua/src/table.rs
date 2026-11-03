@@ -1,17 +1,28 @@
 //! Array storage and indexed hash entries with deletion-safe linear iteration.
 
-use crate::{Error, ErrorKind, FunctionId, StringId, TableId, ThreadId, Value};
+use crate::{
+    Error, ErrorKind, FunctionId, ParserPrototypeId, StringId, TableId, ThreadId, UserdataId, Value,
+};
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug)]
 enum Key {
     Boolean(bool),
     Number(u64),
     String(StringId),
     Table(TableId),
     Function(FunctionId),
-    Native(u32),
+    Native(u64),
     Thread(ThreadId),
+    Userdata(UserdataId),
+    LightUserdata(u64),
+    ParserPrototype(ParserPrototypeId),
 }
+impl PartialEq for Key {
+    fn eq(&self, other: &Self) -> bool {
+        self.identity() == other.identity()
+    }
+}
+impl Eq for Key {}
 
 impl Key {
     fn from_value(value: Value) -> Option<Self> {
@@ -19,12 +30,15 @@ impl Key {
             Value::Nil => return None,
             Value::Boolean(v) => Self::Boolean(v),
             Value::Number(v) if v.is_nan() => return None,
-            Value::Number(v) => Self::Number(if v == 0.0 { 0 } else { v.to_bits() }),
+            Value::Number(v) => Self::Number(v.to_bits()),
             Value::String(v) => Self::String(v),
             Value::Table(v) => Self::Table(v),
             Value::Function(v) => Self::Function(v),
             Value::Native(v) => Self::Native(v),
             Value::Thread(v) => Self::Thread(v),
+            Value::Userdata(v) => Self::Userdata(v),
+            Value::LightUserdata(v) => Self::LightUserdata(v),
+            Value::ParserPrototype(v) => Self::ParserPrototype(v),
         })
     }
     fn value(self) -> Value {
@@ -36,20 +50,29 @@ impl Key {
             Self::Function(v) => Value::Function(v),
             Self::Native(v) => Value::Native(v),
             Self::Thread(v) => Value::Thread(v),
+            Self::Userdata(v) => Value::Userdata(v),
+            Self::LightUserdata(v) => Value::LightUserdata(v),
+            Self::ParserPrototype(v) => Value::ParserPrototype(v),
+        }
+    }
+    fn identity(self) -> (u64, u64) {
+        match self {
+            Self::Boolean(v) => (u64::from(v), 1),
+            Self::Number(v) => (if v << 1 == 0 { 0 } else { v }, 2),
+            Self::String(v) => (v.0, 3),
+            Self::Table(v) => (v.0, 4),
+            Self::Function(v) => (v.0, 5),
+            Self::Native(v) => (v, 6),
+            Self::Thread(v) => (v.0, 7),
+            Self::Userdata(v) => (v.0, 8),
+            Self::LightUserdata(v) => (v, 9),
+            Self::ParserPrototype(v) => (v.0, 10),
         }
     }
     fn hash(self) -> usize {
-        let (bits, tag) = match self {
-            Self::Boolean(v) => (u64::from(v), 1),
-            Self::Number(v) => (v, 2),
-            Self::String(v) => (u64::from(v.0), 3),
-            Self::Table(v) => (u64::from(v.0), 4),
-            Self::Function(v) => (u64::from(v.0), 5),
-            Self::Native(v) => (u64::from(v), 6),
-            Self::Thread(v) => (u64::from(v.0), 7),
-        };
+        let (bits, tag) = self.identity();
         let mut h = bits
-            ^ (tag as u64)
+            ^ tag
                 .wrapping_mul(0x9e3779b97f4a7c15)
                 .wrapping_add(bits.rotate_left(17));
         h = (h ^ (h >> 30)).wrapping_mul(0xbf58476d1ce4e5b9);
@@ -81,10 +104,132 @@ pub(crate) struct Table {
     array: Vec<Value>,
     entries: Vec<Entry>,
     slots: Vec<u32>,
-    pub metatable: Option<TableId>,
+    // Arena identities have a nonzero generation; zero denotes no metatable.
+    // This leaves room for the scan state without growing the table header.
+    metatable: u64,
+    pub trace: TableTrace,
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub(crate) enum TableTrace {
+    #[default]
+    Idle,
+    Pending(bool, bool),
+    Restart,
 }
 
 impl Table {
+    pub fn with_capacity(array: usize, records: usize) -> Result<Self, Error> {
+        let failed = Error::memory;
+        let mut table = Self::default();
+        table.array.try_reserve_exact(array).map_err(|_| failed())?;
+        table.array.resize(array, Value::Nil);
+        if records > (1 << 26) {
+            return Err(Error::new(ErrorKind::Runtime, 0, "table overflow"));
+        }
+        let slots = if records == 0 {
+            0
+        } else {
+            records
+                .checked_mul(4)
+                .and_then(|n| (n / 3 + 1).max(8).checked_next_power_of_two())
+                .ok_or_else(failed)?
+        };
+        table
+            .entries
+            .try_reserve_exact(records)
+            .map_err(|_| failed())?;
+        table.slots.try_reserve_exact(slots).map_err(|_| failed())?;
+        table.slots.resize(slots, 0);
+        Ok(table)
+    }
+    pub fn metatable(&self) -> Option<TableId> {
+        (self.metatable != 0).then_some(TableId(self.metatable))
+    }
+    pub fn set_metatable(&mut self, table: Option<TableId>) {
+        self.metatable = table.map_or(0, |id| id.0);
+    }
+    pub fn with_record_capacity(capacity: usize) -> Self {
+        if capacity == 0 {
+            return Self::default();
+        }
+        // Keep the final insert below the strict 3/4 rebuild threshold.
+        let slots = (capacity.checked_mul(4).expect("table capacity overflow") / 3 + 1)
+            .max(8)
+            .next_power_of_two();
+        Self {
+            entries: Vec::with_capacity(capacity),
+            slots: vec![0; slots],
+            ..Self::default()
+        }
+    }
+    pub fn heap_bytes(&self) -> usize {
+        self.array.capacity() * std::mem::size_of::<Value>()
+            + self.entries.capacity() * std::mem::size_of::<Entry>()
+            + self.slots.capacity() * 4
+    }
+    pub fn pairs(&self) -> impl Iterator<Item = (Value, Value)> + '_ {
+        self.array
+            .iter()
+            .enumerate()
+            .filter(|(_, v)| **v != Value::Nil)
+            .map(|(i, v)| (Value::Number((i + 1) as f64), *v))
+            .chain(
+                self.entries
+                    .iter()
+                    .filter(|e| e.value != Value::Nil)
+                    .map(|e| (e.key.value(), e.value)),
+            )
+    }
+    /// Visit at most `budget` physical slots, including holes and tombstones.
+    /// The low cursor bit selects array/hash storage; the other bits are an index.
+    pub fn trace_slice(
+        &self,
+        cursor: usize,
+        budget: usize,
+    ) -> (Option<usize>, impl Iterator<Item = (Value, Value)> + '_) {
+        let start = cursor >> 1;
+        let (array, entries, next) = if cursor & 1 == 0 {
+            let end = start.saturating_add(budget).min(self.array.len());
+            let hash_end = if end == self.array.len() {
+                budget.saturating_sub(end - start).min(self.entries.len())
+            } else {
+                0
+            };
+            let next = if end < self.array.len() {
+                Some(end << 1)
+            } else {
+                (hash_end < self.entries.len()).then_some((hash_end << 1) | 1)
+            };
+            (&self.array[start..end], &self.entries[..hash_end], next)
+        } else {
+            let end = start.saturating_add(budget).min(self.entries.len());
+            (
+                &self.array[..0],
+                &self.entries[start..end],
+                (end < self.entries.len()).then_some((end << 1) | 1),
+            )
+        };
+        (
+            next,
+            array
+                .iter()
+                .enumerate()
+                .filter(|(_, v)| **v != Value::Nil)
+                .map(move |(i, v)| (Value::Number((start + i + 1) as f64), *v))
+                .chain(
+                    entries
+                        .iter()
+                        .filter(|e| e.value != Value::Nil)
+                        .map(|e| (e.key.value(), e.value)),
+                ),
+        )
+    }
+    fn invalidate_trace(&mut self) {
+        if self.trace != TableTrace::Idle {
+            self.trace = TableTrace::Restart;
+        }
+    }
     fn slot(&self, key: Key) -> Option<(usize, Option<usize>)> {
         if self.slots.is_empty() {
             return None;
@@ -101,11 +246,14 @@ impl Table {
             slot = (slot + 1) & (self.slots.len() - 1);
         }
     }
-    fn rebuild(&mut self) {
+    // All storage was reserved before tombstones or traversal positions change.
+    fn rebuild(&mut self, slots: usize) {
+        let old_len = self.entries.len();
         self.entries.retain(|entry| entry.value != Value::Nil);
-        if (self.entries.len() + 1) * 4 >= self.slots.len() * 3 {
-            self.slots.resize((self.slots.len() * 2).max(8), 0);
+        if self.entries.len() != old_len {
+            self.invalidate_trace();
         }
+        self.slots.resize(slots, 0);
         self.slots.fill(0);
         for (i, entry) in self.entries.iter().enumerate() {
             let mut slot = entry.key.hash() & (self.slots.len() - 1);
@@ -121,6 +269,9 @@ impl Table {
             return None;
         };
         let old = std::mem::replace(&mut self.entries[i].value, Value::Nil);
+        if old != Value::Nil {
+            self.invalidate_trace();
+        }
         (old != Value::Nil).then_some(old)
     }
     pub fn get(&self, key: Value) -> Value {
@@ -134,8 +285,8 @@ impl Table {
             .and_then(|(_, i)| i)
             .map_or(Value::Nil, |i| self.entries[i].value)
     }
-    pub fn set(&mut self, key: Value, value: Value) -> Result<(), Error> {
-        let k = Key::from_value(key).ok_or_else(|| {
+    fn checked_key(key: Value) -> Result<Key, Error> {
+        Key::from_value(key).ok_or_else(|| {
             Error::new(
                 ErrorKind::Runtime,
                 0,
@@ -145,13 +296,32 @@ impl Table {
                     "table index is NaN"
                 },
             )
-        })?;
+        })
+    }
+    pub fn validate_set_key(key: Value) -> Result<(), Error> {
+        Self::checked_key(key).map(|_| ())
+    }
+    pub fn set(&mut self, key: Value, value: Value) -> Result<(), Error> {
+        let k = Self::checked_key(key)?;
         if let Some(i) = array_index(key) {
             if i < self.array.len() {
                 self.array[i] = value;
                 return Ok(());
             }
             if i == self.array.len() && value != Value::Nil {
+                // Include every consecutive hash value that this insertion
+                // will migrate. Reserve before changing any value or trace.
+                let mut end = self.array.len() + 1;
+                while self
+                    .slot(Key::Number(((end + 1) as f64).to_bits()))
+                    .and_then(|(_, i)| i)
+                    .is_some_and(|i| self.entries[i].value != Value::Nil)
+                {
+                    end += 1;
+                }
+                self.array
+                    .try_reserve(end - self.array.len())
+                    .map_err(|_| Error::memory())?;
                 self.array.push(value);
                 self.take_hash(k);
                 while let Some(v) =
@@ -169,12 +339,37 @@ impl Table {
         if value == Value::Nil {
             return Ok(());
         }
-        if (self.entries.len() + 1) * 4 >= self.slots.len() * 3 {
-            self.rebuild();
+        let rebuild = (self.entries.len() + 1) * 4 >= self.slots.len() * 3;
+        let live = if rebuild {
+            self.entries
+                .iter()
+                .filter(|e| e.value != Value::Nil)
+                .count()
+        } else {
+            self.entries.len()
+        };
+        let index = u32::try_from(live + 1)
+            .map_err(|_| Error::new(ErrorKind::Runtime, 0, "table overflow"))?;
+        let slots = if rebuild && (live + 1) * 4 >= self.slots.len() * 3 {
+            self.slots
+                .len()
+                .checked_mul(2)
+                .ok_or_else(Error::memory)?
+                .max(8)
+        } else {
+            self.slots.len()
+        };
+        self.entries
+            .try_reserve((live + 1).saturating_sub(self.entries.len()))
+            .map_err(|_| Error::memory())?;
+        self.slots
+            .try_reserve(slots.saturating_sub(self.slots.len()))
+            .map_err(|_| Error::memory())?;
+        if rebuild {
+            self.rebuild(slots);
         }
         let (slot, _) = self.slot(k).expect("table rebuild creates slots");
-        self.slots[slot] =
-            u32::try_from(self.entries.len() + 1).expect("Lua table exhausted addressable entries");
+        self.slots[slot] = index;
         self.entries.push(Entry { key: k, value });
         Ok(())
     }
@@ -215,5 +410,123 @@ impl Table {
             }
         }
         Ok(None)
+    }
+}
+#[cfg(test)]
+mod allocation_tests {
+    use super::*;
+    use crate::allocation_probe::probe;
+    fn hash_key(n: i32) -> Value {
+        Value::Number(-f64::from(n))
+    }
+    fn check_hash(table: &Table, count: i32) {
+        for n in 1..=count {
+            assert_eq!(table.get(hash_key(n)), Value::Number(f64::from(n)));
+        }
+    }
+    #[test]
+    fn hash_reservations_preserve_values_and_pending_traversal_on_failure() {
+        for initialized in [false, true] {
+            let mut points = 0;
+            for nth in 0..=2 {
+                let mut table = if initialized {
+                    Table::with_capacity(0, 5).unwrap()
+                } else {
+                    Table::default()
+                };
+                let count = if initialized { 5 } else { 0 };
+                for n in 1..=count {
+                    table.set(hash_key(n), Value::Number(f64::from(n))).unwrap();
+                }
+                table.trace = TableTrace::Pending(false, false);
+                let pairs = table.pairs().collect::<Vec<_>>();
+                let (result, stats) = probe(nth, || table.set(hash_key(6), Value::Number(42.)));
+                if nth == 0 {
+                    points = stats.attempts;
+                    assert_eq!(points, 2);
+                    result.unwrap();
+                } else {
+                    assert!(nth <= points);
+                    assert_eq!(stats.rejected, 1);
+                    assert_eq!(result.unwrap_err().kind(), ErrorKind::Memory);
+                    assert_eq!(table.get(hash_key(6)), Value::Nil);
+                    assert_eq!(table.pairs().collect::<Vec<_>>(), pairs);
+                    assert_eq!(table.trace, TableTrace::Pending(false, false));
+                    table.set(hash_key(6), Value::Number(42.)).unwrap();
+                }
+                check_hash(&table, count);
+                assert_eq!(table.get(hash_key(6)), Value::Number(42.));
+            }
+            eprintln!("TABLE_MUTATION_FAILURE_POINTS {points}");
+        }
+    }
+    #[test]
+    fn a_failed_array_migration_keeps_every_hash_entry_and_the_array_length() {
+        for nth in 0..=1 {
+            let mut table = Table::with_capacity(4, 0).unwrap();
+            for n in (1..=4).chain(6..=20) {
+                table
+                    .set(Value::Number(f64::from(n)), Value::Number(f64::from(n)))
+                    .unwrap();
+            }
+            table.trace = TableTrace::Pending(false, false);
+            let pairs = table.pairs().collect::<Vec<_>>();
+            let (result, stats) = probe(nth, || table.set(Value::Number(5.), Value::Number(5.)));
+            if nth == 0 {
+                result.unwrap();
+                assert_eq!(stats.attempts, 1);
+            } else {
+                assert_eq!(stats.rejected, 1);
+                assert_eq!(result.unwrap_err().kind(), ErrorKind::Memory);
+                assert_eq!(table.array.len(), 4);
+                assert_eq!(table.get(Value::Number(5.)), Value::Nil);
+                assert_eq!(table.pairs().collect::<Vec<_>>(), pairs);
+                assert_eq!(table.trace, TableTrace::Pending(false, false));
+                table.set(Value::Number(5.), Value::Number(5.)).unwrap();
+            }
+            assert_eq!(table.array.len(), 20);
+            for n in 1..=20 {
+                assert_eq!(
+                    table.get(Value::Number(f64::from(n))),
+                    Value::Number(f64::from(n))
+                );
+            }
+        }
+        eprintln!("TABLE_MUTATION_FAILURE_POINTS 1");
+    }
+    #[test]
+    fn tombstone_compaction_reuses_storage_when_the_allocator_rejects_every_request() {
+        let mut table = Table::with_capacity(0, 5).unwrap();
+        for n in 1..=5 {
+            table.set(hash_key(n), Value::Number(f64::from(n))).unwrap();
+        }
+        table.set(hash_key(3), Value::Nil).unwrap();
+        assert!(table.next(hash_key(3)).is_ok());
+        table.trace = TableTrace::Pending(false, false);
+        let (result, stats) = probe(1, || table.set(hash_key(6), Value::Number(42.)));
+        result.unwrap();
+        assert_eq!(stats.attempts, 0);
+        assert_eq!(table.trace, TableTrace::Restart);
+        assert!(table.next(hash_key(3)).is_err());
+        assert_eq!(table.get(hash_key(6)), Value::Number(42.));
+        for n in [1, 2, 4, 5] {
+            assert_eq!(table.get(hash_key(n)), Value::Number(f64::from(n)));
+        }
+    }
+    #[test]
+    fn updates_and_deletions_need_no_allocation() {
+        let mut table = Table::default();
+        table.set(Value::Number(1.), Value::Number(17.)).unwrap();
+        table.set(hash_key(2), Value::Number(25.)).unwrap();
+        let (result, stats) = probe(1, || -> Result<(), Error> {
+            table.set(Value::Number(1.), Value::Number(42.))?;
+            table.set(hash_key(2), Value::Number(42.))?;
+            table.set(hash_key(2), Value::Nil)?;
+            table.set(hash_key(3), Value::Nil)
+        });
+        result.unwrap();
+        assert_eq!(stats.attempts, 0);
+        assert_eq!(table.get(Value::Number(1.)), Value::Number(42.));
+        assert_eq!(table.get(hash_key(2)), Value::Nil);
     }
 }

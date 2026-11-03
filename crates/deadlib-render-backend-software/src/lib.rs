@@ -105,7 +105,10 @@ impl DepthRows<'_> {
             return true;
         }
         let z = if self.unorm16 {
-            (z * 65535.0).round() / 65535.0
+            // Valid depths are nonnegative; widen before the half bias to
+            // retain values just below a tie. Restore negative zero's sign.
+            let rounded = (f64::from(z * 65535.0) + 0.5) as i32;
+            (rounded as f32 / 65535.0).copysign(z)
         } else {
             z
         };
@@ -119,7 +122,7 @@ impl DepthRows<'_> {
             return false;
         }
         if self.mode.writes() {
-        self.pixels[index] = z;
+            self.pixels[index] = z;
         }
         true
     }
@@ -738,7 +741,7 @@ fn copy_target_pixels<const PRESERVE_ALPHA: bool>(target: &mut OffscreenTarget) 
             .iter_mut()
             .zip(&target.texture.half_pixels)
         {
-            *rgba = unpack_half(pixel).map(|v| (clamp01(v) * 255.0).round() as u8);
+            *rgba = std::array::from_fn(|i| half_to_byte((pixel >> (i * 16)) as u16));
         }
         return;
     }
@@ -771,29 +774,66 @@ fn copy_target_pixels<const PRESERVE_ALPHA: bool>(target: &mut OffscreenTarget) 
 
 /// Filter the published texture, keeping raw capture pixels for preserve draws.
 /// Float captures retain HDR values through the same CPU shader as the GPU pass.
-fn apply_offscreen_fxaa(target: &mut OffscreenTarget, source: Option<&Texture>, quality: deadlib_render_core::FxaaQuality) {
+fn apply_offscreen_fxaa(
+    target: &mut OffscreenTarget,
+    source: Option<&Texture>,
+    quality: deadlib_render_core::FxaaQuality,
+) {
     let source = source.unwrap_or(&target.texture);
     let (source_width, source_height) = source.image.dimensions();
-    target.fxaa_input.resize(source_width as usize * source_height as usize, [0.0; 4]);
-    target.fxaa_output.resize(target.width as usize * target.height as usize, [0.0; 4]);
+    target
+        .fxaa_input
+        .resize(source_width as usize * source_height as usize, [0.0; 4]);
+    target
+        .fxaa_output
+        .resize(target.width as usize * target.height as usize, [0.0; 4]);
     if !source.half_pixels.is_empty() {
         for (rgba, &pixel) in target.fxaa_input.iter_mut().zip(&source.half_pixels) {
             *rgba = unpack_half(pixel);
         }
     } else {
-        for (rgba, pixel) in target.fxaa_input.iter_mut().zip(source.image.as_raw().chunks_exact(4)) {
+        for (rgba, pixel) in target
+            .fxaa_input
+            .iter_mut()
+            .zip(source.image.as_raw().chunks_exact(4))
+        {
             *rgba = std::array::from_fn(|channel| f32::from(pixel[channel]) * U8_TO_F32);
         }
     }
-    deadlib_render_core::fxaa::apply_rgba_resized(source_width, source_height, target.width, target.height, &target.fxaa_input, &mut target.fxaa_output, quality);
-    if target.texture.opaque {for color in &mut target.fxaa_output {color[3] = 1.0;}}
+    deadlib_render_core::fxaa::apply_rgba_resized(
+        source_width,
+        source_height,
+        target.width,
+        target.height,
+        &target.fxaa_input,
+        &mut target.fxaa_output,
+        quality,
+    );
+    if target.texture.opaque {
+        for color in &mut target.fxaa_output {
+            color[3] = 1.0;
+        }
+    }
     if target.float_color {
-        for (pixel, &rgba) in target.texture.half_pixels.iter_mut().zip(&target.fxaa_output) {
+        for (pixel, &rgba) in target
+            .texture
+            .half_pixels
+            .iter_mut()
+            .zip(&target.fxaa_output)
+        {
             *pixel = pack_half(rgba);
         }
     }
-    for (pixel, rgba) in target.texture.image.as_mut().chunks_exact_mut(4).zip(&target.fxaa_output) {
-        for channel in 0..4 { pixel[channel] = (clamp01(rgba[channel]) * 255.0).round() as u8; }
+    for (pixel, rgba) in target
+        .texture
+        .image
+        .as_mut()
+        .chunks_exact_mut(4)
+        .zip(&target.fxaa_output)
+    {
+        for channel in 0..4 {
+            pixel[channel] = (clamp01(rgba[channel]) * 255.0).round() as u8;
+        }
     }
 }
 
@@ -889,11 +929,20 @@ fn draw_offscreen_targets(
             let source = if let Some(handle) = effect.source {
                 let resolved = if is_render_target_texture(handle) {
                     let handle = render_target_base_handle(handle);
-                    earlier.iter().find(|target| target.handle == handle).map(|target| &target.texture)
-                } else { textures.software_texture(handle) };
-                let Some(texture) = resolved else { continue; };
+                    earlier
+                        .iter()
+                        .find(|target| target.handle == handle)
+                        .map(|target| &target.texture)
+                } else {
+                    textures.software_texture(handle)
+                };
+                let Some(texture) = resolved else {
+                    continue;
+                };
                 Some(texture)
-            } else { None };
+            } else {
+                None
+            };
             apply_offscreen_fxaa(&mut current[0], source, effect.quality);
         }
     }
@@ -1541,7 +1590,11 @@ fn draw_prepared<'a>(
                     stripe_y_end,
                     buffer,
                     width,
-                    if *depth_test || *depth_write { depth } else { &mut no_depth },
+                    if *depth_test || *depth_write {
+                        depth
+                    } else {
+                        &mut no_depth
+                    },
                 );
             }
             0
@@ -1585,7 +1638,11 @@ fn draw_prepared<'a>(
                     stripe_y_start,
                     stripe_y_end,
                     buffer,
-                    if *depth_test || *depth_write { depth } else { &mut no_depth },
+                    if *depth_test || *depth_write {
+                        depth
+                    } else {
+                        &mut no_depth
+                    },
                 );
             }
             rasterize_textured_mesh_triangles(
@@ -1606,7 +1663,11 @@ fn draw_prepared<'a>(
                 stripe_y_end,
                 buffer,
                 instance.cull_mode,
-                if *depth_test || *depth_write { depth } else { &mut no_depth },
+                if *depth_test || *depth_write {
+                    depth
+                } else {
+                    &mut no_depth
+                },
             )
         }
     }
@@ -1691,7 +1752,11 @@ fn draw_prepared_triangle<'a>(
                 stripe_y_end,
                 buffer,
                 width,
-                if *depth_test || *depth_write { depth } else { &mut no_depth },
+                if *depth_test || *depth_write {
+                    depth
+                } else {
+                    &mut no_depth
+                },
             );
         }
         _ => debug_assert!(false, "whole objects must use whole-object stripe items"),
@@ -1992,7 +2057,10 @@ fn prepare_mesh_triangles(
 #[inline]
 fn clip_tmesh_near(triangle: [ClipVertexTexColor; 3]) -> ([ClipVertexTexColor; 4], usize) {
     let distances = triangle.map(|vertex| vertex.clip.z + vertex.clip.w);
-    if distances.iter().all(|distance| *distance >= 0.0) {
+    if distances
+        .into_iter()
+        .fold(true, |inside, distance| inside & (distance >= 0.0))
+    {
         return ([triangle[0], triangle[1], triangle[2], triangle[0]], 3);
     }
     if distances.iter().all(|distance| *distance < 0.0) {
@@ -2439,7 +2507,7 @@ fn rasterize_environment(
             let sample = |texture: &Texture, sampler: SamplerDesc, uv: [f32; 2]| {
                 let image = texture.texels();
                 if sampler.filter == SamplerFilter::Linear {
-                    sample_tex_linear::<false>(
+                    sample_tex_linear::<false, 4>(
                         image,
                         image.width,
                         image.height,
@@ -2448,7 +2516,7 @@ fn rasterize_environment(
                         sampler,
                     )
                 } else {
-                    sample_tex_nearest::<false>(
+                    sample_tex_nearest::<false, 4>(
                         image,
                         image.width,
                         image.height,
@@ -2977,6 +3045,14 @@ fn wrap_index(i: i32, max: usize, wrap: SamplerWrap) -> usize {
             let m = max as i32;
             if m == 0 {
                 0
+            } else if i >= 0 && i < m {
+                // UVs are already wrapped; ordinary texels are in range.
+                i as usize
+            } else if i == m {
+                0
+            } else if i == -1 && m > 0 {
+                // Bilinear border texels wrap without integer division.
+                (m - 1) as usize
             } else {
                 let mut v = i % m;
                 if v < 0 {
@@ -2989,14 +3065,14 @@ fn wrap_index(i: i32, max: usize, wrap: SamplerWrap) -> usize {
 }
 
 #[inline(always)]
-fn sample_tex_nearest<const OPAQUE: bool>(
+fn sample_tex_nearest<const OPAQUE: bool, const CHANNELS: usize>(
     tex_data: Texels<'_>,
     tex_w: usize,
     tex_h: usize,
     u: f32,
     v: f32,
     sampler: SamplerDesc,
-) -> Option<[f32; 4]> {
+) -> Option<[f32; CHANNELS]> {
     let tx = wrap_index(
         (wrap_uv(u, sampler.wrap) * tex_w as f32) as i32,
         tex_w,
@@ -3007,9 +3083,9 @@ fn sample_tex_nearest<const OPAQUE: bool>(
         tex_h,
         sampler.wrap,
     );
-    let mut color = tex_data.pixel(ty * tex_w + tx)?;
+    let mut color = tex_data.pixel::<CHANNELS>(ty * tex_w + tx)?;
     if OPAQUE {
-        color[3] = 1.0;
+        color[CHANNELS - 1] = 1.0;
     }
     Some(color)
 }
@@ -3023,25 +3099,36 @@ fn sample_alpha_nearest(
     v: f32,
     sampler: SamplerDesc,
 ) -> Option<f32> {
-    sample_tex_nearest::<false>(tex_data, tex_w, tex_h, u, v, sampler).map(|c| c[3])
+    sample_tex_nearest::<false, 1>(tex_data, tex_w, tex_h, u, v, sampler).map(|c| c[0])
 }
 
 #[inline(always)]
-fn sample_tex_linear<const OPAQUE: bool>(tex_data:Texels<'_>,tex_w:usize,tex_h:usize,u:f32,v:f32,sampler:SamplerDesc)->Option<[f32;4]>{sample_tex_linear_preserving::<OPAQUE>(tex_data,tex_w,tex_h,u,v,sampler,false)}
-#[inline(always)]
-fn sample_tex_linear_preserving<const OPAQUE: bool>(
+fn sample_tex_linear<const OPAQUE: bool, const CHANNELS: usize>(
     tex_data: Texels<'_>,
     tex_w: usize,
     tex_h: usize,
     u: f32,
     v: f32,
     sampler: SamplerDesc,
-    preserve_transparent:bool,
-) -> Option<[f32; 4]> {
+) -> Option<[f32; CHANNELS]> {
+    sample_tex_linear_preserving::<OPAQUE, CHANNELS>(tex_data, tex_w, tex_h, u, v, sampler, false)
+}
+#[inline(always)]
+fn sample_tex_linear_preserving<const OPAQUE: bool, const CHANNELS: usize>(
+    tex_data: Texels<'_>,
+    tex_w: usize,
+    tex_h: usize,
+    u: f32,
+    v: f32,
+    sampler: SamplerDesc,
+    preserve_transparent: bool,
+) -> Option<[f32; CHANNELS]> {
     let x = wrap_uv(u, sampler.wrap).mul_add(tex_w as f32, -0.5);
     let y = wrap_uv(v, sampler.wrap).mul_add(tex_h as f32, -0.5);
-    let x0 = x.floor() as i32;
-    let y0 = y.floor() as i32;
+    // Wrapped UVs put x/y in [-0.5, size - 0.5] (or NaN). Truncation
+    // already floors nonnegative values; only the negative edge needs -1.
+    let x0 = x as i32 - i32::from(x < 0.0);
+    let y0 = y as i32 - i32::from(y < 0.0);
     let fx = clamp01(x - x0 as f32);
     let fy = clamp01(y - y0 as f32);
     let ix0 = wrap_index(x0, tex_w, sampler.wrap);
@@ -3049,16 +3136,16 @@ fn sample_tex_linear_preserving<const OPAQUE: bool>(
     let iy0 = wrap_index(y0, tex_h, sampler.wrap);
     let iy1 = wrap_index(y0 + 1, tex_h, sampler.wrap);
     let mut colors = [
-        tex_data.pixel(iy0 * tex_w + ix0)?,
-        tex_data.pixel(iy0 * tex_w + ix1)?,
-        tex_data.pixel(iy1 * tex_w + ix0)?,
-        tex_data.pixel(iy1 * tex_w + ix1)?,
+        tex_data.pixel::<CHANNELS>(iy0 * tex_w + ix0)?,
+        tex_data.pixel::<CHANNELS>(iy0 * tex_w + ix1)?,
+        tex_data.pixel::<CHANNELS>(iy1 * tex_w + ix0)?,
+        tex_data.pixel::<CHANNELS>(iy1 * tex_w + ix1)?,
     ];
     if OPAQUE {
         for c in &mut colors {
-            c[3] = 1.0;
+            c[CHANNELS - 1] = 1.0;
         }
-    } else if !preserve_transparent && colors.iter().all(|c| c[3] == 0.0) {
+    } else if !preserve_transparent && colors.iter().all(|c| c[CHANNELS - 1] == 0.0) {
         return None;
     }
     let lerp = |a: f32, b: f32, t: f32| (b - a).mul_add(t, a);
@@ -3080,8 +3167,8 @@ fn sample_alpha_linear(
     v: f32,
     sampler: SamplerDesc,
 ) -> Option<f32> {
-    sample_tex_linear::<false>(tex_data, tex_w, tex_h, u, v, sampler)
-        .map(|c| c[3])
+    sample_tex_linear::<false, 1>(tex_data, tex_w, tex_h, u, v, sampler)
+        .map(|c| c[0])
         .or(Some(0.0))
 }
 
@@ -3114,12 +3201,17 @@ impl<'a> From<&'a RgbaImage> for Texels<'a> {
 }
 
 impl Texels<'_> {
-    fn pixel(self, index: usize) -> Option<[f32; 4]> {
+    // Mask draws decode/interpolate only alpha; color draws retain all RGBA lanes.
+    fn pixel<const CHANNELS: usize>(self, index: usize) -> Option<[f32; CHANNELS]> {
         if self.half.is_empty() {
             let pixel = self.bytes.get(index * 4..index * 4 + 4)?;
-            Some(std::array::from_fn(|i| f32::from(pixel[i]) * U8_TO_F32))
+            Some(std::array::from_fn(|i| {
+                f32::from(pixel[4 - CHANNELS + i]) * U8_TO_F32
+            }))
         } else {
-            self.half.get(index).copied().map(unpack_half)
+            self.half.get(index).map(|&pixel| {
+                std::array::from_fn(|i| decode_half((pixel >> ((4 - CHANNELS + i) * 16)) as u16))
+            })
         }
     }
 }
@@ -3130,40 +3222,55 @@ fn encode_half(value: f32) -> u16 {
     let bits = value.to_bits();
     let sign = ((bits >> 16) & 0x8000) as u16;
     let magnitude = bits & 0x7fff_ffff;
-    if magnitude >= 0x7f80_0000 {
-        return sign | 0x7c00 | if magnitude == 0x7f80_0000 { 0 } else { 0x0200 };
-    }
-    let exponent = ((magnitude >> 23) & 0xff) as i32 - 127;
-    if exponent > 15 {
-        return sign | 0x7c00;
-    }
-    if exponent >= -14 {
+    // One unsigned check covers normal binary16 exponents: [2^-14, 2^16).
+    if magnitude.wrapping_sub(0x3880_0000) < 0x0f00_0000 {
         let rounded = magnitude + 0x0fff + ((magnitude >> 13) & 1);
         return sign | ((rounded >> 13) - 0x1c000) as u16;
     }
-    if exponent < -25 {
+    if magnitude >= 0x4780_0000 {
+        return sign | 0x7c00 | if magnitude > 0x7f80_0000 { 0x0200 } else { 0 };
+    }
+    // Below 2^-25, even rounding cannot reach a subnormal.
+    if magnitude < 0x3300_0000 {
         return sign;
     }
     let mantissa = (magnitude & 0x007f_ffff) | 0x0080_0000;
-    let shift = (-exponent - 1) as u32;
+    let shift = 126 - (magnitude >> 23);
     let rounded = mantissa + ((1 << (shift - 1)) - 1) + ((mantissa >> shift) & 1);
     sign | (rounded >> shift) as u16
 }
 
 fn decode_half(bits: u16) -> f32 {
     let sign = u32::from(bits & 0x8000) << 16;
-    let exponent = u32::from((bits >> 10) & 0x1f);
-    let mantissa = u32::from(bits & 0x03ff);
-    let magnitude = match exponent {
-        0 if mantissa == 0 => 0,
-        0 => {
-            let shift = mantissa.leading_zeros() - 21;
-            ((113 - shift) << 23) | (((mantissa << shift) & 0x03ff) << 13)
-        }
-        31 => 0x7f80_0000 | (mantissa << 13),
-        _ => ((exponent + 112) << 23) | (mantissa << 13),
+    let exponent = bits & 0x7c00;
+    let magnitude = if exponent == 0 {
+        // All binary16 subnormals are normal f32 values: scale the integer
+        // significand exactly, including zero, instead of renormalizing bits.
+        (f32::from(bits & 0x03ff) * (1.0 / 16_777_216.0)).to_bits()
+    } else {
+        let normal = (u32::from(bits & 0x7fff) << 13) + 0x3800_0000;
+        normal | if exponent == 0x7c00 { 0x7f80_0000 } else { 0 }
     };
     f32::from_bits(sign | magnitude)
+}
+
+fn half_to_byte(bits: u16) -> u8 {
+    // Negative values and NaNs cast to zero after clamping; +infinity saturates.
+    if bits > 0x7c00 {
+        return 0;
+    }
+    if bits >= 0x3c00 {
+        return 255;
+    }
+    // Values below 2^-9 cannot round up to one byte, including all subnormals.
+    if bits < 0x1800 {
+        return 0;
+    }
+    // The 11-bit significand times 255 is exact in f32. Round that integer
+    // product directly, removing the float decode, clamp, scale and round.
+    let scaled = (u32::from(bits & 0x03ff) | 0x0400) * 255;
+    let shift = 25 - (bits >> 10);
+    ((scaled + (1 << (shift - 1))) >> shift) as u8
 }
 
 fn pack_half(color: [f32; 4]) -> u64 {
@@ -3181,7 +3288,7 @@ fn blend_color(dst: [f32; 4], src: [f32; 4], mode: BlendMode) -> [f32; 4] {
     let mut color = std::array::from_fn(|i| match mode {
         BlendMode::NoEffect => dst[i],
         BlendMode::Replace => src[i],
-        BlendMode::PremultipliedAlpha => src[i] + dst[i]*inv,
+        BlendMode::PremultipliedAlpha => src[i] + dst[i] * inv,
         BlendMode::Alpha => src[i].mul_add(alpha, dst[i] * inv),
         BlendMode::Add => src[i].mul_add(alpha, dst[i]),
         BlendMode::Multiply => src[i] * dst[i],
@@ -3238,10 +3345,16 @@ fn raster_bounds(
     stripe_y_start: usize,
     stripe_y_end: usize,
 ) -> Option<(i32, i32, i32, i32, i32)> {
+    let clip_x = (width - 1) as f32;
+    let clip_y = (height - 1) as f32;
+    // A ceiling at or below -1 cannot reach either nonnegative raster axis.
+    if (max_x <= -1.0) | (max_y <= -1.0) {
+        return None;
+    }
     let min_x = min_x.max(0.0) as i32;
-    let max_x = max_x.ceil().min((width - 1) as f32) as i32;
+    let max_x = max_x.ceil().min(clip_x) as i32;
     let mut min_y = min_y.max(0.0) as i32;
-    let mut max_y = max_y.ceil().min((height - 1) as f32) as i32;
+    let mut max_y = max_y.ceil().min(clip_y) as i32;
     if min_x > max_x || min_y > max_y {
         return None;
     }
@@ -3384,17 +3497,30 @@ fn rasterize_triangle_impl<const LINEAR: bool, const MASK: bool, const OPAQUE: b
                     } else {
                         sample_alpha_nearest(tex_data, tex_w, tex_h, u, v, sampler)
                     };
-                    alpha.or_else(||blend.requires_zero_alpha_fragments().then_some(0.0)).map(|alpha| [0.0, 0.0, 0.0, alpha])
+                    alpha
+                        .or_else(|| blend.requires_zero_alpha_fragments().then_some(0.0))
+                        .map(|alpha| [0.0, 0.0, 0.0, alpha])
                 } else if LINEAR {
-                    sample_tex_linear_preserving::<OPAQUE>(tex_data, tex_w, tex_h, u, v, sampler,blend.requires_zero_alpha_fragments())
+                    sample_tex_linear_preserving::<OPAQUE, 4>(
+                        tex_data,
+                        tex_w,
+                        tex_h,
+                        u,
+                        v,
+                        sampler,
+                        blend.requires_zero_alpha_fragments(),
+                    )
                 } else {
-                    sample_tex_nearest::<OPAQUE>(tex_data, tex_w, tex_h, u, v, sampler)
+                    sample_tex_nearest::<OPAQUE, 4>(tex_data, tex_w, tex_h, u, v, sampler)
                 }
             };
             let Some(sampled) = sampled else {
                 continue;
             };
-            if sampled[3] == 0.0 && blend != BlendMode::Multiply && !blend.requires_zero_alpha_fragments() {
+            if sampled[3] == 0.0
+                && blend != BlendMode::Multiply
+                && !blend.requires_zero_alpha_fragments()
+            {
                 continue;
             }
 
@@ -3466,28 +3592,35 @@ fn rasterize_triangle_tex_color_impl<const LINEAR: bool, const MASK: bool, const
                     } else {
                         sample_alpha_nearest(tex_data, tex_w, tex_h, u, v, sampler)
                     };
-                    alpha.or_else(||blend.requires_zero_alpha_fragments().then_some(0.0)).map(|alpha| [0.0, 0.0, 0.0, alpha])
+                    alpha
+                        .or_else(|| blend.requires_zero_alpha_fragments().then_some(0.0))
+                        .map(|alpha| [0.0, 0.0, 0.0, alpha])
                 } else if LINEAR {
-                    sample_tex_linear_preserving::<OPAQUE>(tex_data, tex_w, tex_h, u, v, sampler,blend.requires_zero_alpha_fragments())
+                    sample_tex_linear_preserving::<OPAQUE, 4>(
+                        tex_data,
+                        tex_w,
+                        tex_h,
+                        u,
+                        v,
+                        sampler,
+                        blend.requires_zero_alpha_fragments(),
+                    )
                 } else {
-                    sample_tex_nearest::<OPAQUE>(tex_data, tex_w, tex_h, u, v, sampler)
+                    sample_tex_nearest::<OPAQUE, 4>(tex_data, tex_w, tex_h, u, v, sampler)
                 }
             };
             let Some(sampled) = sampled else {
                 continue;
             };
-            if sampled[3] == 0.0 && blend != BlendMode::Multiply && !blend.requires_zero_alpha_fragments() {
+            if sampled[3] == 0.0
+                && blend != BlendMode::Multiply
+                && !blend.requires_zero_alpha_fragments()
+            {
                 continue;
             }
 
-            let cr = v2.color[0].mul_add(w2, v0.color[0].mul_add(w0, v1.color[0] * w1));
-            let cg = v2.color[1].mul_add(w2, v0.color[1].mul_add(w0, v1.color[1] * w1));
-            let cb = v2.color[2].mul_add(w2, v0.color[2].mul_add(w0, v1.color[2] * w1));
             let ca = v2.color[3].mul_add(w2, v0.color[3].mul_add(w0, v1.color[3] * w1));
 
-            let sr = if MASK { cr } else { sampled[0] * cr };
-            let sg = if MASK { cg } else { sampled[1] * cg };
-            let sb = if MASK { cb } else { sampled[2] * cb };
             let sa = sampled[3] * ca;
             if sa <= 1.0 / 256.0 {
                 continue;
@@ -3498,6 +3631,12 @@ fn rasterize_triangle_tex_color_impl<const LINEAR: bool, const MASK: bool, const
             if !depth.test(dst_idx, z) {
                 continue;
             }
+            let cr = v2.color[0].mul_add(w2, v0.color[0].mul_add(w0, v1.color[0] * w1));
+            let cg = v2.color[1].mul_add(w2, v0.color[1].mul_add(w0, v1.color[1] * w1));
+            let cb = v2.color[2].mul_add(w2, v0.color[2].mul_add(w0, v1.color[2] * w1));
+            let sr = if MASK { cr } else { sampled[0] * cr };
+            let sg = if MASK { cg } else { sampled[1] * cg };
+            let sb = if MASK { cb } else { sampled[2] * cb };
             buffer(dst_idx, [sr, sg, sb, sa], blend);
         }
     }
@@ -3563,7 +3702,9 @@ fn covered(weights: [f32; 3], edges: [bool; 3]) -> bool {
     weights
         .into_iter()
         .zip(edges)
-        .all(|(w, edge)| w > 0.0 || (w == 0.0 && edge))
+        .fold(true, |inside, (w, edge)| {
+            inside & ((w > 0.0) | ((w == 0.0) & edge))
+        })
 }
 
 #[inline(always)]
@@ -4723,15 +4864,15 @@ mod tests {
             };
             for [u, v] in coordinates {
                 assert_eq!(
-                    sample_tex_nearest::<true>((&opaque).into(), 8, 8, u, v, sampler),
-                    sample_tex_nearest::<false>((&opaque).into(), 8, 8, u, v, sampler),
+                    sample_tex_nearest::<true, 4>((&opaque).into(), 8, 8, u, v, sampler),
+                    sample_tex_nearest::<false, 4>((&opaque).into(), 8, 8, u, v, sampler),
                 );
                 assert_eq!(
-                    sample_tex_linear::<true>((&opaque).into(), 8, 8, u, v, sampler),
-                    sample_tex_linear::<false>((&opaque).into(), 8, 8, u, v, sampler),
+                    sample_tex_linear::<true, 4>((&opaque).into(), 8, 8, u, v, sampler),
+                    sample_tex_linear::<false, 4>((&opaque).into(), 8, 8, u, v, sampler),
                 );
 
-                let nearest = sample_tex_nearest::<false>((&mixed).into(), 8, 8, u, v, sampler)
+                let nearest = sample_tex_nearest::<false, 4>((&mixed).into(), 8, 8, u, v, sampler)
                     .expect("nonempty image samples");
                 assert_eq!(
                     sample_alpha_nearest((&mixed).into(), 8, 8, u, v, sampler),
@@ -4739,7 +4880,7 @@ mod tests {
                 );
                 let alpha = sample_alpha_linear((&mixed).into(), 8, 8, u, v, sampler)
                     .expect("nonempty image samples");
-                match sample_tex_linear::<false>((&mixed).into(), 8, 8, u, v, sampler) {
+                match sample_tex_linear::<false, 4>((&mixed).into(), 8, 8, u, v, sampler) {
                     Some(sample) => assert_eq!(alpha, sample[3]),
                     None => assert_eq!(alpha, 0.0),
                 }
@@ -4871,7 +5012,7 @@ mod tests {
             };
             for [u, v] in [[0.0, 0.0], [0.5, 0.5], [1.0, 1.0], [-1.25, 2.75]] {
                 assert_eq!(
-                    sample_tex_linear::<false>((&image).into(), 2, 2, u, v, sampler),
+                    sample_tex_linear::<false, 4>((&image).into(), 2, 2, u, v, sampler),
                     None,
                 );
                 assert_eq!(
@@ -4978,22 +5119,32 @@ mod tests {
     #[test]
     fn independent_depth_modes_preserve_painter_order() {
         let textures = TestTextures {
-            texture: create_texture(&RgbaImage::from_pixel(1, 1, Rgba([255; 4])), SamplerDesc::default()).unwrap(),
+            texture: create_texture(
+                &RgbaImage::from_pixel(1, 1, Rgba([255; 4])),
+                SamplerDesc::default(),
+            )
+            .unwrap(),
             lookups: AtomicUsize::new(0),
         };
         for mode in deadlib_render_core::DepthMode::ALL {
             let mut frame = depth_frame();
             let expected = if mode.on_fail() {
                 frame.tmesh_geometries.swap(1, 2);
-                let DrawOp::TexturedMesh(rear) = &mut frame.ops[1] else { unreachable!() };
+                let DrawOp::TexturedMesh(rear) = &mut frame.ops[1] else {
+                    unreachable!()
+                };
                 rear.depth_test_on_fail = true;
                 rear.depth_write = mode.writes();
-                let DrawOp::TexturedMesh(middle) = &mut frame.ops[2] else { unreachable!() };
+                let DrawOp::TexturedMesh(middle) = &mut frame.ops[2] else {
+                    unreachable!()
+                };
                 middle.clear_depth = false;
                 if mode.writes() { 0x0000ff } else { 0xff0000 }
             } else {
                 frame.ops.truncate(2);
-                let DrawOp::TexturedMesh(sky) = &mut frame.ops[0] else { unreachable!() };
+                let DrawOp::TexturedMesh(sky) = &mut frame.ops[0] else {
+                    unreachable!()
+                };
                 sky.depth_test = mode.tests();
                 sky.depth_write = mode.writes();
                 if mode.writes() { 0x00ff00 } else { 0xff0000 }
@@ -5002,22 +5153,47 @@ mod tests {
                 let mut prepared = Vec::new();
                 let mut mesh = Vec::new();
                 let mut tmesh = Vec::new();
-                let fixed = prepare_objects((&frame).into(), Matrix4::from_scale(Vec3::new(1.0, 1.0, -1.0)),
-                    &textures, WIDTH, HEIGHT, &mut prepared, &mut mesh, &mut tmesh, staged);
+                let fixed = prepare_objects(
+                    (&frame).into(),
+                    Matrix4::from_scale(Vec3::new(1.0, 1.0, -1.0)),
+                    &textures,
+                    WIDTH,
+                    HEIGHT,
+                    &mut prepared,
+                    &mut mesh,
+                    &mut tmesh,
+                    staged,
+                );
                 let mut bins = StripeBins::warmed();
                 bins.build(&prepared, &mesh, &tmesh, HEIGHT);
                 for indexed in [false, true] {
                     let mut pixels = vec![0; WIDTH * HEIGHT];
-                    for (index, stripe) in pixels.chunks_mut(WIDTH * SOFTWARE_ROW_CHUNK).enumerate() {
+                    for (index, stripe) in pixels.chunks_mut(WIDTH * SOFTWARE_ROW_CHUNK).enumerate()
+                    {
                         let start = index * SOFTWARE_ROW_CHUNK;
                         let end = start + stripe.len() / WIDTH;
                         let mut depth = vec![1.0; stripe.len()];
-                        draw_rows((&frame).into(), &prepared, indexed.then(|| bins.stripe(index)),
-                            &mesh, &tmesh, &textures, WIDTH, HEIGHT, start, end,
-                            &mut byte_writer(stripe), fixed, &mut depth);
+                        draw_rows(
+                            (&frame).into(),
+                            &prepared,
+                            indexed.then(|| bins.stripe(index)),
+                            &mesh,
+                            &tmesh,
+                            &textures,
+                            WIDTH,
+                            HEIGHT,
+                            start,
+                            end,
+                            &mut byte_writer(stripe),
+                            fixed,
+                            &mut depth,
+                        );
                     }
-                    assert_eq!(pixels[HEIGHT / 2 * WIDTH + WIDTH / 2] & 0xffffff, expected,
-                        "{mode:?}, staged={staged}, indexed={indexed}");
+                    assert_eq!(
+                        pixels[HEIGHT / 2 * WIDTH + WIDTH / 2] & 0xffffff,
+                        expected,
+                        "{mode:?}, staged={staged}, indexed={indexed}"
+                    );
                 }
             }
         }
@@ -6140,18 +6316,33 @@ mod editor_fxaa_tests {
     use super::*;
     #[test]
     fn source_target_resize_filters_published_rgba_without_touching_raw_capture() {
-        let quality = deadlib_render_core::FxaaQuality {subpix: 0.75, edge_threshold: 0.166, edge_threshold_min: 0.0833};
+        let quality = deadlib_render_core::FxaaQuality {
+            subpix: 0.75,
+            edge_threshold: 0.166,
+            edge_threshold_min: 0.0833,
+        };
         for float_color in [false, true] {
             let mut source = create_offscreen_target(1, 31, 19, [31, 19], float_color, false);
             let mut input = Vec::new();
-            for index in 0..31*19 {
-                let bytes = [(index * 31 % 256) as u8, (index * 17 % 256) as u8, (index * 7 % 256) as u8, (index * 3 % 256) as u8];
+            for index in 0..31 * 19 {
+                let bytes = [
+                    (index * 31 % 256) as u8,
+                    (index * 17 % 256) as u8,
+                    (index * 7 % 256) as u8,
+                    (index * 3 % 256) as u8,
+                ];
                 let rgba = bytes.map(|value| f32::from(value) * U8_TO_F32);
                 let rgba = if float_color {
                     source.texture.half_pixels[index] = pack_half(rgba);
                     unpack_half(source.texture.half_pixels[index])
-                } else { rgba };
-                source.texture.image.put_pixel((index % 31) as u32, (index / 31) as u32, image::Rgba(bytes));
+                } else {
+                    rgba
+                };
+                source.texture.image.put_pixel(
+                    (index % 31) as u32,
+                    (index / 31) as u32,
+                    image::Rgba(bytes),
+                );
                 input.push(rgba);
             }
             let original_source = source.texture.image.clone();
@@ -6160,7 +6351,15 @@ mod editor_fxaa_tests {
             let raw = target.pixels.clone();
             let raw_half = target.half_pixels.clone();
             let mut expected = vec![[0.; 4]; 7 * 11];
-            deadlib_render_core::fxaa::apply_rgba_resized(31, 19, 7, 11, &input, &mut expected, quality);
+            deadlib_render_core::fxaa::apply_rgba_resized(
+                31,
+                19,
+                7,
+                11,
+                &input,
+                &mut expected,
+                quality,
+            );
             apply_offscreen_fxaa(&mut target, Some(&source.texture), quality);
             let input_ptr = target.fxaa_input.as_ptr();
             let output_ptr = target.fxaa_output.as_ptr();
@@ -6170,35 +6369,138 @@ mod editor_fxaa_tests {
             assert_eq!(target.pixels, raw);
             assert_eq!(target.half_pixels, raw_half);
             assert_eq!(source.texture.image, original_source);
-            for (index, (actual, expected)) in target.texture.image.pixels().zip(expected).enumerate() {
-                assert_eq!(actual.0, expected.map(|value| (clamp01(value) * 255.0).round() as u8));
-                if float_color {assert_eq!(target.texture.half_pixels[index], pack_half(expected));}
+            for (index, (actual, expected)) in
+                target.texture.image.pixels().zip(expected).enumerate()
+            {
+                assert_eq!(
+                    actual.0,
+                    expected.map(|value| (clamp01(value) * 255.0).round() as u8)
+                );
+                if float_color {
+                    assert_eq!(target.texture.half_pixels[index], pack_half(expected));
+                }
             }
             target.texture.opaque = true;
             apply_offscreen_fxaa(&mut target, Some(&source.texture), quality);
             assert!(target.texture.image.pixels().all(|pixel| pixel[3] == 255));
-            if float_color {assert!(target.texture.half_pixels.iter().all(|pixel| unpack_half(*pixel)[3] == 1.0));}
+            if float_color {
+                assert!(
+                    target
+                        .texture
+                        .half_pixels
+                        .iter()
+                        .all(|pixel| unpack_half(*pixel)[3] == 1.0)
+                );
+            }
         }
     }
 }
 
-#[cfg(test)]mod source_composition_tests{
- use super::*;
- fn expected(dst:[f32;4],src:[f32;4],mode:BlendMode)->[f32;4]{if mode==BlendMode::Replace{src}else{std::array::from_fn(|i|src[i]+dst[i]*(1.0-src[3]))}}
- #[test]fn new_modes_actual_byte_and_half_writers_cover_zero_half_full_alpha(){
-  for mode in[BlendMode::Replace,BlendMode::PremultipliedAlpha]{for alpha in[0.0,0.5,1.0]{for dst_alpha in[0.0,0.25,0.5,0.75,1.0]{
-   let dst=[0.125,0.25,0.375,dst_alpha];let src=[0.125,0.25,0.375,alpha];let mut half=[pack_half(dst)];half_writer(&mut half,true)(0,src,mode);assert_eq!(half[0],pack_half(expected(dst,src,mode)),"mode={mode:?} alpha={alpha} dstalpha={dst_alpha}");
-   let packed=pack_rgba(dst);let quantized=[((packed>>16)&255)as f32*U8_TO_F32,((packed>>8)&255)as f32*U8_TO_F32,(packed&255)as f32*U8_TO_F32,(packed>>24)as f32*U8_TO_F32];let mut bytes=[packed];byte_writer(&mut bytes)(0,src,mode);assert_eq!(bytes[0],pack_rgba(expected(quantized,src,mode)));
-  }}}
- }
- #[test]fn zero_alpha_solid_raster_is_not_elided_for_source_one_modes(){
-  for mode in[BlendMode::Replace,BlendMode::PremultipliedAlpha]{let src=[0.125,0.25,0.375,0.0];let dst=[0.125,0.25,0.375,0.5];let v=[[0.0,0.0],[2.0,0.0],[0.0,2.0]].map(|[x,y]|ScreenVertexColor{x,y,color:src});let mut pixels=[pack_half(dst)];rasterize_triangle_color(&v[0],&v[1],&v[2],mode,1,1,0,1,&mut half_writer(&mut pixels,true));assert_eq!(pixels[0],pack_half(expected(dst,src,mode)));}
- }
- #[test]fn zero_alpha_texture_raster_nearest_and_linear_preserves_rgb_for_source_one_modes(){
-  let image=RgbaImage::from_pixel(2,2,image::Rgba([32,64,96,0]));let src=[32.0*U8_TO_F32,64.0*U8_TO_F32,96.0*U8_TO_F32,0.0];let dst=[0.125,0.25,0.375,0.5];let v=[[0.0,0.0],[2.0,0.0],[0.0,2.0]].map(|[x,y]|ScreenVertex{x,y,u:0.5,v:0.5});let inverse=1.0/edge_function(v[0].x,v[0].y,v[1].x,v[1].y,v[2].x,v[2].y);
-  for mode in[BlendMode::Replace,BlendMode::PremultipliedAlpha]{for filter in[SamplerFilter::Nearest,SamplerFilter::Linear]{let sampler=SamplerDesc{filter,wrap:SamplerWrap::Clamp,mipmaps:false};let mut pixels=[pack_half(dst)];rasterize_triangle_with_inv(&v[0],&v[1],&v[2],inverse,[1.0;4],false,mode,(&image).into(),sampler,false,1,1,0,1,&mut half_writer(&mut pixels,true));assert_eq!(pixels[0],pack_half(expected(dst,src,mode)));}}
- }
+#[cfg(test)]
+mod source_composition_tests {
+    use super::*;
+    fn expected(dst: [f32; 4], src: [f32; 4], mode: BlendMode) -> [f32; 4] {
+        if mode == BlendMode::Replace {
+            src
+        } else {
+            std::array::from_fn(|i| src[i] + dst[i] * (1.0 - src[3]))
+        }
+    }
+    #[test]
+    fn new_modes_actual_byte_and_half_writers_cover_zero_half_full_alpha() {
+        for mode in [BlendMode::Replace, BlendMode::PremultipliedAlpha] {
+            for alpha in [0.0, 0.5, 1.0] {
+                for dst_alpha in [0.0, 0.25, 0.5, 0.75, 1.0] {
+                    let dst = [0.125, 0.25, 0.375, dst_alpha];
+                    let src = [0.125, 0.25, 0.375, alpha];
+                    let mut half = [pack_half(dst)];
+                    half_writer(&mut half, true)(0, src, mode);
+                    assert_eq!(
+                        half[0],
+                        pack_half(expected(dst, src, mode)),
+                        "mode={mode:?} alpha={alpha} dstalpha={dst_alpha}"
+                    );
+                    let packed = pack_rgba(dst);
+                    let quantized = [
+                        ((packed >> 16) & 255) as f32 * U8_TO_F32,
+                        ((packed >> 8) & 255) as f32 * U8_TO_F32,
+                        (packed & 255) as f32 * U8_TO_F32,
+                        (packed >> 24) as f32 * U8_TO_F32,
+                    ];
+                    let mut bytes = [packed];
+                    byte_writer(&mut bytes)(0, src, mode);
+                    assert_eq!(bytes[0], pack_rgba(expected(quantized, src, mode)));
+                }
+            }
+        }
+    }
+    #[test]
+    fn zero_alpha_solid_raster_is_not_elided_for_source_one_modes() {
+        for mode in [BlendMode::Replace, BlendMode::PremultipliedAlpha] {
+            let src = [0.125, 0.25, 0.375, 0.0];
+            let dst = [0.125, 0.25, 0.375, 0.5];
+            let v = [[0.0, 0.0], [2.0, 0.0], [0.0, 2.0]].map(|[x, y]| ScreenVertexColor {
+                x,
+                y,
+                color: src,
+            });
+            let mut pixels = [pack_half(dst)];
+            rasterize_triangle_color(
+                &v[0],
+                &v[1],
+                &v[2],
+                mode,
+                1,
+                1,
+                0,
+                1,
+                &mut half_writer(&mut pixels, true),
+            );
+            assert_eq!(pixels[0], pack_half(expected(dst, src, mode)));
+        }
+    }
+    #[test]
+    fn zero_alpha_texture_raster_nearest_and_linear_preserves_rgb_for_source_one_modes() {
+        let image = RgbaImage::from_pixel(2, 2, image::Rgba([32, 64, 96, 0]));
+        let src = [32.0 * U8_TO_F32, 64.0 * U8_TO_F32, 96.0 * U8_TO_F32, 0.0];
+        let dst = [0.125, 0.25, 0.375, 0.5];
+        let v = [[0.0, 0.0], [2.0, 0.0], [0.0, 2.0]].map(|[x, y]| ScreenVertex {
+            x,
+            y,
+            u: 0.5,
+            v: 0.5,
+        });
+        let inverse = 1.0 / edge_function(v[0].x, v[0].y, v[1].x, v[1].y, v[2].x, v[2].y);
+        for mode in [BlendMode::Replace, BlendMode::PremultipliedAlpha] {
+            for filter in [SamplerFilter::Nearest, SamplerFilter::Linear] {
+                let sampler = SamplerDesc {
+                    filter,
+                    wrap: SamplerWrap::Clamp,
+                    mipmaps: false,
+                };
+                let mut pixels = [pack_half(dst)];
+                rasterize_triangle_with_inv(
+                    &v[0],
+                    &v[1],
+                    &v[2],
+                    inverse,
+                    [1.0; 4],
+                    false,
+                    mode,
+                    (&image).into(),
+                    sampler,
+                    false,
+                    1,
+                    1,
+                    0,
+                    1,
+                    &mut half_writer(&mut pixels, true),
+                );
+                assert_eq!(pixels[0], pack_half(expected(dst, src, mode)));
+            }
+        }
+    }
 }
 
-#[cfg(feature="test-util")]
+#[cfg(feature = "test-util")]
 pub mod test_util;

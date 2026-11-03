@@ -1,4 +1,5 @@
-#![forbid(unsafe_code)]
+// Allocation instrumentation in unit tests implements GlobalAlloc.
+#![cfg_attr(not(test), forbid(unsafe_code))]
 
 pub mod mixer;
 pub mod output;

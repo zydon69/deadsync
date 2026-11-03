@@ -43,7 +43,6 @@ where
             audio_snapshot,
             music_rate,
             stream_lead_in,
-            self.clock.offsets.global_offset_seconds(),
         );
         let lead_in = self.clock.audio_clock.positive_lead_in_seconds();
         let previous_music_time_ns = self.clock.song_position.current_music_time_ns;
@@ -412,7 +411,7 @@ where
 
         let future_row = self.timing_runtime.time_to_beat_caches.assist_future_row(
             &self.timing_runtime.timing,
-            self.clock.offsets.global_offset_seconds(),
+            self.clock.offsets.global_offset_seconds() * self.music_rate(),
             self.clock.audio_clock.output_delay_seconds(),
             music_time_ns,
             slope,
@@ -717,7 +716,6 @@ where
                 audio_snapshot,
                 music_rate,
                 stream_lead_in,
-                self.clock.offsets.global_offset_seconds(),
             )
             .song_time_ns,
         )
@@ -910,7 +908,21 @@ where
         let normalized = self.music_rate();
         self.timing_runtime.step_resolution_distance_ns =
             max_step_distance_ns(&self.timing_runtime.timing_profile, normalized);
-        self.recompute_end_times();
+        let global_offset = self.clock.offsets.global_offset_seconds();
+        mutate_timing_arc(&mut self.timing_runtime.timing, |timing| {
+            timing.set_global_offset_seconds_with_rate(global_offset, normalized);
+        });
+        for (player, timing) in self.timing_runtime.timing_players.iter_mut().enumerate() {
+            let offset = self.clock.offsets.effective_player_global_offset_seconds(player);
+            mutate_timing_arc(timing, |timing| {
+                timing.set_global_offset_seconds_with_rate(offset, normalized);
+            });
+        }
+        self.refresh_timing_after_offset_change();
+        // Song corrections convert real-time samples with the active rate.
+        // Do not combine samples taken on different playback timelines.
+        self.control.autosync.offset_sample_count = 0;
+        self.control.autosync.standard_deviation = 0.0;
         true
     }
 
@@ -962,8 +974,9 @@ where
         else {
             return false;
         };
+        let rate = self.music_rate();
         mutate_timing_arc(&mut self.timing_runtime.timing, |timing| {
-            timing.set_global_offset_seconds(new_offset);
+            timing.set_global_offset_seconds_with_rate(new_offset, rate);
         });
         for (player_idx, timing) in self.timing_runtime.timing_players.iter_mut().enumerate() {
             let effective_offset = new_offset
@@ -972,7 +985,7 @@ where
                     .offsets
                     .player_global_offset_shift_seconds(player_idx);
             mutate_timing_arc(timing, |timing| {
-                timing.set_global_offset_seconds(effective_offset);
+                timing.set_global_offset_seconds_with_rate(effective_offset, rate);
             });
         }
         self.refresh_timing_after_offset_change();
@@ -1004,7 +1017,7 @@ where
         let result = self.apply_autosync_offset_sample(note_off_by_ns);
         match result.correction {
             Some(AutosyncOffsetCorrection::Song(mean)) => {
-                let _ = self.apply_song_offset_delta(mean);
+                let _ = self.apply_song_offset_delta(mean * self.music_rate());
             }
             Some(AutosyncOffsetCorrection::Machine(mean)) => {
                 let _ = self.apply_global_offset_delta(mean);
@@ -1103,9 +1116,11 @@ where
         ) {
             self.mods.song_lua_player_transforms[player] = transform;
         }
-        let fail_type = self.mods.song_lua_fail_types[player].or(self.mods.attacks.fail_type[player])
+        // Routine participants share the master player's life meter.
+        let life_source = if self.setup.session.play_style.is_routine() { 0 } else { player };
+        let fail_type = self.mods.song_lua_fail_types[life_source].or(self.mods.attacks.fail_type[life_source])
             .unwrap_or(self.setup.config.default_fail_type);
-        let fail_type = song_fail_type(fail_type, &self.source.charts[player].difficulty, self.course_display_is_course_stage());
+        let fail_type = song_fail_type(fail_type, &self.source.charts[life_source].difficulty, self.course_display_is_course_stage());
         let runtime = &mut self.players_runtime.players[player];
         runtime.fail_type = fail_type;
         if update_player_failure(runtime, now, false) {
@@ -1762,7 +1777,21 @@ where
         )
     }
 
+    /// The ITG score the gameplay HUD shows. Routine participants share one
+    /// score, so both of their displays show it.
     pub fn display_itg_score_inputs(&self, player_idx: usize) -> Option<ItgScoreInputs> {
+        if player_idx >= self.setup.num_players {
+            return None;
+        }
+        self.routine_shared_itg_score_inputs()
+            .or_else(|| self.participant_display_itg_score_inputs(player_idx))
+    }
+
+    /// One participant's own ITG score, including course carry-over.
+    pub fn participant_display_itg_score_inputs(
+        &self,
+        player_idx: usize,
+    ) -> Option<ItgScoreInputs> {
         if player_idx >= self.setup.num_players {
             return None;
         }
@@ -1784,8 +1813,46 @@ where
         ))
     }
 
+    /// The Routine score both participants earn together, including both
+    /// participants' earlier course songs and full-course totals.
+    pub fn routine_shared_itg_score_inputs(&self) -> Option<ItgScoreInputs> {
+        if !self.setup.session.play_style.is_routine() {
+            return None;
+        }
+        Some(shared_itg_score_inputs(
+            self.participant_display_itg_score_inputs(0)?,
+            self.participant_display_itg_score_inputs(1)?,
+        ))
+    }
+
+    /// The Routine score both participants earn in the current song only.
+    pub fn routine_shared_stage_itg_score_inputs(&self) -> Option<ItgScoreInputs> {
+        if !self.setup.session.play_style.is_routine() {
+            return None;
+        }
+        Some(shared_itg_score_inputs(
+            self.stage_itg_score_inputs(0)?,
+            self.stage_itg_score_inputs(1)?,
+        ))
+    }
+
+    pub fn routine_shared_itg_score_percent(&self) -> Option<f64> {
+        self.routine_shared_itg_score_inputs()
+            .map(itg_score_percent_from_inputs)
+    }
+
+    pub fn routine_shared_stage_itg_score_percent(&self) -> Option<f64> {
+        self.routine_shared_stage_itg_score_inputs()
+            .map(itg_score_percent_from_inputs)
+    }
+
     pub fn display_itg_score_percent(&self, player_idx: usize) -> f64 {
         self.display_itg_score_inputs(player_idx)
+            .map_or(0.0, itg_score_percent_from_inputs)
+    }
+
+    pub fn participant_display_itg_score_percent(&self, player_idx: usize) -> f64 {
+        self.participant_display_itg_score_inputs(player_idx)
             .map_or(0.0, itg_score_percent_from_inputs)
     }
 
@@ -1840,6 +1907,7 @@ where
         player.fail_time.get_or_insert(current_music_time);
         self.capture_failed_ex_score_inputs(player_idx, self.player_blue_window_ms(player_idx));
         self.display.density_graph.life_dirty[player_idx] = true;
+        self.share_routine_life(player_idx);
         true
     }
 
@@ -2090,7 +2158,7 @@ where
             .time_to_beat_caches
             .assist_row_no_offset(
                 &self.timing_runtime.timing,
-                self.clock.offsets.global_offset_seconds(),
+                self.clock.offsets.global_offset_seconds() * self.music_rate(),
                 music_time_ns,
             )
     }
@@ -2532,6 +2600,19 @@ where
             return false;
         }
         self.push_pending_input_edge(edge);
+        // ScreenGameplay sends a Routine step to both Players, and each judges
+        // only the notes it owns. Replays record the step once.
+        let width = self.setup.cols_per_player;
+        if self.setup.session.play_style.is_routine()
+            && lane_idx < width
+            && let Some(lane) = lane_from_column(lane_idx + width)
+        {
+            self.push_pending_input_edge(GameplayInputEdge {
+                lane,
+                record_replay: false,
+                ..edge
+            });
+        }
         if log::log_enabled!(log::Level::Debug) {
             let pending_len = self.pending_input_len();
             if pending_len >= GAMEPLAY_INPUT_BACKLOG_WARN {

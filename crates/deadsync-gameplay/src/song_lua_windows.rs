@@ -164,7 +164,9 @@ pub fn song_lua_time_to_second(
 ) -> f32 {
     match unit {
         SongLuaRuntimeTimeUnit::Beat => timing_player.get_time_for_beat_exact(value),
-        SongLuaRuntimeTimeUnit::Second => value - global_offset_seconds,
+        SongLuaRuntimeTimeUnit::Second => {
+            value - global_offset_seconds * timing_player.global_offset_rate()
+        }
         SongLuaRuntimeTimeUnit::BeatClock => value + timing_player.get_time_for_beat_exact(0.0),
     }
 }
@@ -654,13 +656,16 @@ pub fn song_lua_compile_player_screen_x(
     let centered_one_side = num_players == 1
         && play_style == SongLuaCompilePlayStyle::Single
         && center_1player_notefield;
-    let centered_both_sides = num_players == 1 && play_style == SongLuaCompilePlayStyle::Double;
+    // Two Double players are Routine, whose shared fields are both centered.
+    let centered_both_sides = play_style == SongLuaCompilePlayStyle::Double;
     let p2_side = if num_players == 1 {
         single_player_uses_p2_side
     } else {
         player_index == 1
     };
-    let base_center_x = if num_players == 2 {
+    let base_center_x = if centered_both_sides {
+        viewport.center_x()
+    } else if num_players == 2 {
         if p2_side {
             viewport.center_x() + (clamped_width * 0.25)
         } else {
@@ -673,7 +678,7 @@ pub fn song_lua_compile_player_screen_x(
     } else {
         viewport.center_x() - (clamped_width * 0.25)
     };
-    if num_players == 1 && (centered_both_sides || centered_one_side) {
+    if centered_both_sides || centered_one_side {
         viewport.center_x()
     } else {
         let offset_sign = if p2_side { 1.0 } else { -1.0 };
